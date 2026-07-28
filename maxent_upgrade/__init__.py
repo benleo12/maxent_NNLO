@@ -53,11 +53,13 @@ from .maxent_match import (
     ps_agreement_xmatch as _ps_agreement_xmatch,
     fo_from_dat as _engine_fo_from_dat,
     DIALS as _DIALS,
+    _newton_maxent as _newton,
 )
 from .dy_method import cheb as _cheb, umap as _umap
 
 __all__ = [
-    "upgrade", "moment_snr", "resolved_order",
+    "upgrade", "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
+    "moment_snr", "resolved_order",
     "FOHist", "fo_from_dat", "UpgradeResult", "DEFAULTS",
 ]
 
@@ -327,7 +329,7 @@ class UpgradeResult:
 # ---------------------------------------------------------------------------
 # The one public entry point
 # ---------------------------------------------------------------------------
-def upgrade(events: Dict[str, np.ndarray],
+def upgrade_from_histograms(events: Dict[str, np.ndarray],
             fo_low: Optional[Dict[str, FOHist]],
             fo_high: Dict[str, FOHist],
             config: Dict[str, Any]) -> UpgradeResult:
@@ -501,3 +503,204 @@ def upgrade(events: Dict[str, np.ndarray],
         chosen_moments=dict(chosen),
         band=band,
     )
+
+
+# ===========================================================================
+# EVENT-LEVEL MOMENT INTERFACE  (primary; the fixed-order input is the moments
+# themselves, computed as weighted sums over FO phase-space points, NOT a
+# re-binned histogram).  This is what a shower/pQCD expert should use: their FO
+# calculation already integrates any observable, so it can integrate T_n(u(x))
+# directly and hand back the number mu_n with its genuine Monte-Carlo error.
+# ===========================================================================
+def chebyshev_moment(x, w, n_max, a, b, mp):
+    r"""Event-level Chebyshev moments <T_1..T_n_max> of observable x under weights w.
+
+        mu_n = sum_i w_i T_n(u(x_i)) / sum_i w_i ,   u = umap(x, a, b, mp)
+
+    This is EXACTLY the weighted sum a fixed-order code performs when it books the
+    observable T_n(u(x)); there is no binning.  `mp` is 'lin' or 'log'.
+    """
+    x = np.asarray(x, float); w = np.asarray(w, float)
+    u = _umap(np.clip(x, a, b), a, b, mp)
+    C = _cheb(u, n_max)
+    s = w.sum()
+    return np.array([(w * C[:, n]).sum() / s for n in range(1, n_max + 1)])
+
+
+def compute_fo_moments(fo_events, config, x_match, x_hi=None, n_max=None,
+                       weight_key="weight", scale_key="weight_scales"):
+    r"""Build the `moments` argument of `upgrade` FROM a user's fixed-order EVENTS.
+
+    Use this only if you have FO phase-space points in memory; otherwise compute the
+    same weighted sums inside your own FO code and fill the `moments` dict by hand
+    (see README).  `fo_events` is a dict of 1D arrays: every constrained observable,
+    the FO weight array under `weight_key`, and OPTIONALLY a (n_scale, n_event) array
+    under `scale_key` giving the per-event weight for each scale choice (row 0 =
+    central).  The moment uncertainty sigma_n is the quadrature of the scale envelope
+    (half-spread over scale rows) and the weighted Monte-Carlo statistical error.
+
+    Born moments are taken over the full declared range; the recoil moments are taken
+    over the window [x_match, x_hi] with the composite map [soft_lo, x_hi] (log), the
+    same convention the solver uses.  The window rate is the FO cross-section fraction
+    in [x_match, x_hi].
+    """
+    born_cfg = config["born"]; recoil_cfg = config["recoil"]
+    recoil_obs = next(iter(recoil_cfg))
+    w = np.asarray(fo_events[weight_key], float)
+    wsc = fo_events.get(scale_key)
+    wsc = None if wsc is None else np.atleast_2d(np.asarray(wsc, float))
+    Nb = n_max if n_max is not None else DEFAULTS["snr_max_order"]["born"]
+    Nr = n_max if n_max is not None else DEFAULTS["snr_max_order"]["recoil"]
+
+    def stat_err(x, ww, nmax, a, b, mp):
+        # weighted-MC error on each moment: sqrt(sum w^2 (T_n - mu_n)^2)/sum w
+        u = _umap(np.clip(np.asarray(x, float), a, b), a, b, mp); C = _cheb(u, nmax)
+        s = ww.sum(); mu = np.array([(ww * C[:, n]).sum() / s for n in range(1, nmax + 1)])
+        return np.array([np.sqrt((ww**2 * (C[:, n] - mu[n-1])**2).sum()) / s
+                         for n in range(1, nmax + 1)])
+
+    def scale_env(x, nmax, a, b, mp, mask=None):
+        if wsc is None: return None
+        vals = []
+        for r in range(wsc.shape[0]):
+            ww = wsc[r] if mask is None else wsc[r][mask]
+            xx = x if mask is None else x[mask]
+            vals.append(chebyshev_moment(xx, ww, nmax, a, b, mp))
+        vals = np.array(vals)
+        return 0.5 * (vals.max(0) - vals.min(0))
+
+    moments = {"born": {}, "recoil": {}}
+    for o in born_cfg:
+        a, b = born_cfg[o]["range"]; mp = born_cfg[o].get("map", "lin")
+        x = np.asarray(fo_events[o], float)
+        mu = chebyshev_moment(x, w, Nb, a, b, mp)
+        se = stat_err(x, w, Nb, a, b, mp)
+        sc = scale_env(x, Nb, a, b, mp)
+        sig = se if sc is None else np.sqrt(se**2 + sc**2)
+        moments["born"][o] = dict(values=mu.tolist(), errors=sig.tolist())
+
+    # recoil window
+    xr = np.asarray(fo_events[recoil_obs], float)
+    soft_lo = recoil_cfg[recoil_obs].get("soft_lo", max(recoil_cfg[recoil_obs]["range"][0], 1e-6))
+    xhi = x_hi if x_hi is not None else float(recoil_cfg[recoil_obs]["range"][1])
+    win = (xr >= x_match) & (xr < xhi)
+    muw = chebyshev_moment(xr[win], w[win], Nr, soft_lo, xhi, "log")
+    sew = stat_err(xr[win], w[win], Nr, soft_lo, xhi, "log")
+    scw = scale_env(xr, Nr, soft_lo, xhi, "log", mask=win)
+    sigw = sew if scw is None else np.sqrt(sew**2 + scw**2)
+    rate = float(w[win].sum() / w.sum())
+    moments["recoil"][recoil_obs] = dict(
+        window_values=muw.tolist(), window_errors=sigw.tolist(),
+        rate=rate, x_match=float(x_match), x_hi=float(xhi), soft_lo=float(soft_lo))
+    return moments
+
+
+def upgrade(events, moments, config):
+    r"""Upgrade a PS+NLO sample to PS+N^kLO from EVENT-LEVEL fixed-order moments.
+
+    Parameters
+    ----------
+    events : dict of 1D np.ndarray
+        Prior events; must contain the positive weight array and every Born and recoil
+        observable named in `config`.  Extra keys are unconstrained followers.
+    moments : dict
+        The fixed-order targets, computed EVENT-LEVEL in your FO calculation::
+
+            moments = {
+              'born':   {'mll':   {'values':[mu_1..], 'errors':[sig_1..]},
+                         'y_abs': {'values':[...],    'errors':[...]}},
+              'recoil': {'pT_ll': {'window_values':[mu_1..], 'window_errors':[sig_1..],
+                                   'rate': R, 'x_match': xm, 'x_hi': xh, 'soft_lo': s}},
+            }
+
+        `born[obs].values[n-1]` is  sum_j w_j T_n(u(x_j)) / sum_j w_j  over your FO
+        events (full fiducial), with `u = umap(x, a, b, map)` for that observable.
+        `recoil[obs].window_values[n-1]` is the same sum restricted to your FO events
+        with x in [x_match, x_hi], using `u = umap(x, soft_lo, x_hi, 'log')`.
+        `rate` is the FO cross-section fraction in [x_match, x_hi].  `errors` are the
+        FO Monte-Carlo uncertainties on those moments (they drive the SNR selection).
+        Use `compute_fo_moments` if you have the FO events in Python.
+    config : dict
+        Same `config` as `upgrade_from_histograms` (born/recoil roles, ranges, maps),
+        plus the usual optional knobs.
+
+    Returns
+    -------
+    UpgradeResult
+    """
+    cfg = {**DEFAULTS, **config}
+    wkey = cfg["weight_key"]
+    born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
+    if len(recoil_cfg) != 1:
+        raise ValueError("config['recoil'] must declare exactly ONE recoil observable")
+    w = np.asarray(events[wkey], float)
+    if not np.all(w > 0):
+        raise ValueError("prior weights must be strictly positive")
+    p = w / w.sum()
+    recoil_obs = next(iter(recoil_cfg))
+    thr = cfg["snr_threshold"]; do_sel = cfg["moment_selection"]
+
+    F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
+    snr_spectra = {}; chosen = {}
+
+    # ---- Born towers: impose the event-level FO moment directly -------------
+    for o in born_cfg:
+        a, b = born_cfg[o]["range"]; mp = born_cfg[o].get("map", "lin")
+        vals = np.asarray(moments["born"][o]["values"], float)
+        errs = np.asarray(moments["born"][o].get("errors", np.zeros_like(vals)), float)
+        Nmax = len(vals)
+        mu_prior = chebyshev_moment(events[o], w, Nmax, a, b, mp)
+        snr = np.abs(vals - mu_prior) / np.maximum(errs, 1e-30) if errs.any() else np.full(Nmax, np.inf)
+        snr_spectra[o] = snr
+        N = resolved_order(snr, thr) if do_sel else Nmax
+        chosen[o] = N
+        u = _umap(np.clip(np.asarray(events[o], float), a, b), a, b, mp); C = _cheb(u, max(Nmax, 1))
+        for n in range(1, N + 1):
+            F.append(C[:, n]); mu.append(float(vals[n - 1])); names.append(f"{o}_T{n}")
+
+    # ---- Recoil composite tower: FO window moment (event-level) blended with
+    #      the PRESERVED prior soft/tail moments (computed from the prior events) -
+    rc = moments["recoil"][recoil_obs]
+    XL = np.asarray(events[recoil_obs], float)
+    XM = float(rc["x_match"])
+    XHI = float(rc.get("x_hi", XL.max()))
+    soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
+                    max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
+    rate = float(rc["rate"])
+    win_vals = np.asarray(rc["window_values"], float)
+    win_errs = np.asarray(rc.get("window_errors", np.zeros_like(win_vals)), float)
+    Nrmax = len(win_vals)
+    uR = _umap(np.clip(XL, soft_lo, XHI), soft_lo, XHI, "log"); CR = _cheb(uR, max(Nrmax, 1))
+    I_S = XL < XM; I_T = XL >= XHI
+    P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
+    wS = float(p[I_S].sum()); wT = max(P_tail, 1e-300)
+    # SNR for the recoil: FO window moment vs the prior's window moment
+    mwin = (XL >= XM) & (XL < XHI)
+    mu_prior_win = chebyshev_moment(XL[mwin], w[mwin], Nrmax, soft_lo, XHI, "log")
+    snr_r = np.abs(win_vals - mu_prior_win) / np.maximum(win_errs, 1e-30) if win_errs.any() else np.full(Nrmax, np.inf)
+    snr_spectra[recoil_obs] = snr_r
+    Nr = max(resolved_order(snr_r, thr) if do_sel else Nrmax, 1)
+    chosen[recoil_obs] = Nr
+    for n in range(1, Nr + 1):
+        soft_mom = float((p[I_S] * CR[I_S, n]).sum()) / max(wS, 1e-300)
+        tail_mom = float((p[I_T] * CR[I_T, n]).sum()) / wT if P_tail > 0 else 0.0
+        fo_mom = float(win_vals[n - 1])
+        F.append(CR[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
+        names.append(f"recoil_T{n}")
+
+    Phi = np.column_stack(F); mu = np.asarray(mu, float)
+    q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"])
+    if not ok or q is None:
+        raise RuntimeError("MaxEnt solve did not converge to a positive-weight solution")
+    ach = (q[:, None] * Phi).sum(0)
+    worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
+    effN = 1.0 / (len(q) * float((q ** 2).sum()))
+    report = dict(
+        moment_selection=dict(enabled=bool(do_sel), threshold=thr, chosen=dict(chosen),
+                              snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
+        window=dict(x_match=XM, x_hi=XHI, rate=rate, P_soft=P_soft, P_tail=P_tail),
+        n_constraints=len(mu),
+    )
+    return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,
+                         x_match=XM, report=report, moment_snr=snr_spectra,
+                         chosen_moments=dict(chosen), band=None)
