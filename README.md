@@ -7,8 +7,9 @@ without ever producing a negative weight.**
 You bring:
 
 * a **PS+*N*LO** event sample (LO+PS, NLO+PS, and so on), with **positive** weights, and
-* your own **fixed-order** prediction for a handful of differential distributions at the
-  two consecutive orders *N* and *N+k* (e.g. NLO and NNLO),
+* your own **fixed-order** prediction, as the **event-level moments** `mu_n` (weighted
+  sums over your FO phase-space points) of a handful of observables at order *N+k*,
+  each with its Monte-Carlo error,
 
 and `maxent_upgrade` returns **new, strictly-positive per-event weights** that move the
 sample to order *N+k* in the moments and observables the FO calculation actually resolves,
@@ -20,12 +21,28 @@ is the rapidity, and which is the recoil transverse momentum.
 
 ```python
 from maxent_upgrade import upgrade
-result = upgrade(events, fo_low, fo_high, config)
+result = upgrade(events, moments, config)
 result.weights     # positive per-event weights at order N+k
 result.effN        # effective sample fraction (1.0 = no statistical loss)
 result.closure     # worst relative moment closure
 result.moment_snr  # per-observable moment signal-to-noise spectrum
 ```
+
+**The fixed-order input is the moments themselves, computed EVENT LEVEL, not a
+histogram.** Your FO calculation already integrates any observable, so it integrates
+`T_n(u(x))` directly and hands back the single number
+
+    mu_n = sum_j w_j^FO T_n(u(x_j)) / sum_j w_j^FO
+
+with its genuine Monte-Carlo error `sigma_n`. That number, per Chebyshev order `n`, is
+the target. Nothing is re-binned. `sigma_n` is what drives the moment-resolution
+selection (a moment is imposed only while `|mu_n^FO - mu_n^prior| / sigma_n > 1`).
+If you happen to have your FO events in Python, `compute_fo_moments(fo_events, config,
+x_match, x_hi)` builds the `moments` dict for you with the correct maps; otherwise fill
+it in from your own FO code (structure below). A histogram-based entry point
+`upgrade_from_histograms(events, fo_low, fo_high, config)` also exists as a convenience
+for people who only have binned FO output, but it re-bins to estimate the moments and
+is therefore the less trustworthy path.
 
 This package is a thin, documented wrapper around a frozen, validated physics engine
 (`maxent_match.py`, `dy_method.py`, shipped inside the package). It does not re-implement
@@ -50,6 +67,36 @@ Three consequences worth internalizing:
   shower is preserved. This is deliberate — bare FO is not trustworthy there.
 * An unconstrained "follower" observable inherits the upgrade **only to the extent that it
   correlates with the constrained degrees of freedom**. It is not independently corrected.
+
+---
+
+## How the moments are built (Chebyshev construction)
+
+An observable `x` on a range `[lo, hi]` is mapped to `v` in `[-1, 1]`,
+
+    linear (mass, rapidity):      v = 2 (x - lo)/(hi - lo) - 1
+    logarithmic (transverse pT):  v = 2 (ln x - ln lo)/(ln hi - ln lo) - 1
+
+the Chebyshev polynomials follow the recurrence
+
+    T_0 = 1,   T_1 = v,   T_n = 2 v T_{n-1} - T_{n-2},
+
+and the constrained moment is the event-level weighted sum
+
+    mu_n = sum_j w_j T_n(v(x_j)) / sum_j w_j .
+
+For the fixed-order TARGET this sum runs over your FO phase-space points; for closure it
+runs over the reweighted prior. It is never taken from a histogram. `chebyshev_moment(x,
+w, n_max, lo, hi, map)` is exactly this sum.
+
+### Which observables, at which order (state this precisely)
+
+The recoil is subtle. From an INCLUSIVE color-singlet calculation at NNLO, the singlet
+mass and rapidity are NNLO, but the singlet transverse momentum is only NLO(V+jet): a
+nonzero recoil needs a real emission. To constrain the recoil at NNLO, take it from the
+V+jet calculation at NNLO above a jet-resolution cut. Label each moment by the fixed-order
+calculation it comes from, not by the inclusive order of the process. See
+`MOMENT_CONSTRUCTION.md` at the repository root for the full recipe.
 
 ---
 
@@ -89,7 +136,40 @@ Notes:
 
 ---
 
-## (b) The fixed-order histograms you must provide — `fo_low`, `fo_high`
+## (b) The moments you provide — `moments`  (primary interface)
+
+Computed **event level** in your FO code, one weighted sum per Chebyshev order `n`:
+
+```python
+moments = {
+  'born':   {'mll':   {'values': [mu_1, mu_2, ...], 'errors': [sig_1, sig_2, ...]},
+             'y_abs': {'values': [...],             'errors': [...]}},
+  'recoil': {'pT_ll': {'window_values': [mu_1, ...], 'window_errors': [sig_1, ...],
+                       'rate': R, 'x_match': xm, 'x_hi': xh, 'soft_lo': s0}},
+}
+```
+
+* `born[obs].values[n-1]` = `sum_j w_j T_n(u(x_j)) / sum_j w_j` over your order-`N+k` FO
+  events, full fiducial, with `u = umap(x, a, b, map)` for that observable (same `a,b,map`
+  you put in `config`).
+* `recoil[obs].window_values[n-1]` = the same sum but **only over FO events with
+  `x_match <= pT < x_hi`**, using `u = umap(pT, soft_lo, x_hi, 'log')`.
+* `recoil[obs].rate` = FO cross-section fraction in `[x_match, x_hi]`.
+* `errors` / `window_errors` = the FO Monte-Carlo uncertainty on each moment (scale
+  envelope in quadrature with statistics). These drive the moment-resolution selection.
+
+Helper `compute_fo_moments(fo_events, config, x_match, x_hi)` fills this in for you if your
+FO phase-space points are in Python (pass `weight` and optionally `weight_scales`). See
+`examples/example_moments.py`.
+
+---
+
+## (b-alt) Histogram fallback — `fo_low`, `fo_high`  (less trustworthy)
+
+Only if you have binned FO output rather than event-level moments. `upgrade_from_histograms`
+re-bins to estimate the moments, which introduces binning dependence; prefer (b) above.
+
+## (b-alt continued) (b) The fixed-order histograms you must provide — `fo_low`, `fo_high`
 
 This is the only real work on your side. You must supply, **at the same fiducial cuts as your
 events**, the FO differential distributions at **two consecutive orders**:
