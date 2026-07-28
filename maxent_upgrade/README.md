@@ -70,6 +70,36 @@ Three consequences worth internalizing:
 
 ---
 
+## How the moments are built (Chebyshev construction)
+
+An observable `x` on a range `[lo, hi]` is mapped to `v` in `[-1, 1]`,
+
+    linear (mass, rapidity):      v = 2 (x - lo)/(hi - lo) - 1
+    logarithmic (transverse pT):  v = 2 (ln x - ln lo)/(ln hi - ln lo) - 1
+
+the Chebyshev polynomials follow the recurrence
+
+    T_0 = 1,   T_1 = v,   T_n = 2 v T_{n-1} - T_{n-2},
+
+and the constrained moment is the event-level weighted sum
+
+    mu_n = sum_j w_j T_n(v(x_j)) / sum_j w_j .
+
+For the fixed-order TARGET this sum runs over your FO phase-space points; for closure it
+runs over the reweighted prior. It is never taken from a histogram. `chebyshev_moment(x,
+w, n_max, lo, hi, map)` is exactly this sum.
+
+### Which observables, at which order (state this precisely)
+
+The recoil is subtle. From an INCLUSIVE color-singlet calculation at NNLO, the singlet
+mass and rapidity are NNLO, but the singlet transverse momentum is only NLO(V+jet): a
+nonzero recoil needs a real emission. To constrain the recoil at NNLO, take it from the
+V+jet calculation at NNLO above a jet-resolution cut. Label each moment by the fixed-order
+calculation it comes from, not by the inclusive order of the process. See
+`MOMENT_CONSTRUCTION.md` at the repository root for the full recipe.
+
+---
+
 ## Installation
 
 Pure Python + NumPy. Copy the `maxent_upgrade/` directory next to your analysis and
