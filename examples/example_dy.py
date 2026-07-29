@@ -35,6 +35,21 @@ def load(order, files):
 
 
 def main():
+    if not os.path.exists(PRIOR):
+        print(
+            "This example needs the frozen Drell-Yan analysis data, which is NOT shipped\n"
+            "in the repository (it is several hundred MB of events and NNLOJET output).\n\n"
+            f"  expected prior : {PRIOR}\n"
+            f"  expected FO    : {FO}/\n\n"
+            "For a self-contained demo that runs with no external data, use instead:\n"
+            "  python examples/example_synthetic.py   (histogram interface)\n"
+            "  python examples/example_moments.py     (event-level moment interface)\n"
+            "  python examples/example_diphoton.py    (diphoton config template)\n\n"
+            "To run THIS example, point MAXENT_UPGRADE_DATA at a directory holding\n"
+            "dy_prior_atlas_v2.npz and nnlo_atlas_run/result/final/.",
+            flush=True,
+        )
+        return
     t0 = time.time()
     print("loading prior + FO ...", flush=True)
     P = dict(np.load(PRIOR))
