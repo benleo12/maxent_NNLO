@@ -5,7 +5,7 @@ Runs in seconds, needs no external data. Shows the full API and the moment-SNR s
 import numpy as np
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from maxent_upgrade import upgrade, FOHist
+from maxent_upgrade import upgrade_from_histograms, FOHist
 
 rng = np.random.default_rng(1)
 N = 200_000
@@ -39,7 +39,7 @@ cfg = dict(born={'mll':   {'range': (66., 116.), 'map': 'lin'},
            recoil={'pT_ll': {'range': (0.5, 200.), 'map': 'log', 'soft_lo': 0.5}},
            band=False)
 
-result = upgrade(events, fo_low, fo_high, cfg)
+result = upgrade_from_histograms(events, fo_low, fo_high, cfg)
 print(result.summary())
 print("chosen moments (SNR-selected):", result.chosen_moments)
 print("recoil SNR spectrum:", [round(float(s),1) for s in result.moment_snr['pT_ll']])

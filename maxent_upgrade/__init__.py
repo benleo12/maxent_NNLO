@@ -643,50 +643,53 @@ def upgrade(events, moments, config):
     F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
     snr_spectra = {}; chosen = {}
 
-    # ---- Born towers: impose the event-level FO moment directly -------------
+    # ---- ONE rule for every observable ------------------------------------
+    # Impose the FO moments inside the observable's validity window [XM, XHI];
+    # preserve the prior below XM and above XHI. Each constrained observable is
+    # a single call to _impose below. The ONLY per-observable difference is the
+    # validity window: for a Born variable the fixed order is valid over the
+    # whole fiducial range (XM=-inf, XHI=+inf, rate=1, nothing preserved, so the
+    # composite reduces to imposing the FO moment); for the recoil it is the
+    # window [x_match, x_hi] and the shower is preserved outside. There is no
+    # separate "recoil procedure".
+    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor):
+        XL = np.asarray(events[obs], float)
+        Nmax = len(vals)
+        win = (XL >= XM) & (XL < XHI)
+        mu_prior_win = (chebyshev_moment(XL[win], w[win], Nmax, lo_map, hi_map, mp)
+                        if win.any() else np.zeros(Nmax))
+        snr = (np.abs(vals - mu_prior_win) / np.maximum(errs, 1e-30)
+               if np.asarray(errs).any() else np.full(Nmax, np.inf))
+        snr_spectra[obs] = snr
+        N = max(resolved_order(snr, thr) if do_sel else Nmax, floor)
+        chosen[obs] = N
+        u = _umap(np.clip(XL, lo_map, hi_map), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
+        I_S = XL < XM; I_T = XL >= XHI
+        P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
+        wS = float(p[I_S].sum())
+        for n in range(1, N + 1):
+            soft_mom = float((p[I_S] * C[I_S, n]).sum()) / wS if wS > 0 else 0.0
+            tail_mom = float((p[I_T] * C[I_T, n]).sum()) / P_tail if P_tail > 0 else 0.0
+            fo_mom = float(vals[n - 1])
+            F.append(C[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
+            names.append(f"{obs}_T{n}")
+
+    # Born observables: validity is the full fiducial range.
     for o in born_cfg:
         a, b = born_cfg[o]["range"]; mp = born_cfg[o].get("map", "lin")
-        vals = np.asarray(moments["born"][o]["values"], float)
-        errs = np.asarray(moments["born"][o].get("errors", np.zeros_like(vals)), float)
-        Nmax = len(vals)
-        mu_prior = chebyshev_moment(events[o], w, Nmax, a, b, mp)
-        snr = np.abs(vals - mu_prior) / np.maximum(errs, 1e-30) if errs.any() else np.full(Nmax, np.inf)
-        snr_spectra[o] = snr
-        N = resolved_order(snr, thr) if do_sel else Nmax
-        chosen[o] = N
-        u = _umap(np.clip(np.asarray(events[o], float), a, b), a, b, mp); C = _cheb(u, max(Nmax, 1))
-        for n in range(1, N + 1):
-            F.append(C[:, n]); mu.append(float(vals[n - 1])); names.append(f"{o}_T{n}")
-
-    # ---- Recoil composite tower: FO window moment (event-level) blended with
-    #      the PRESERVED prior soft/tail moments (computed from the prior events) -
+        _impose(o, a, b, mp, -np.inf, np.inf,
+                np.asarray(moments["born"][o]["values"], float),
+                np.asarray(moments["born"][o].get("errors", []), float),
+                rate=1.0, floor=0)
+    # Recoil observable: validity is the window [x_match, x_hi]; shower kept outside.
     rc = moments["recoil"][recoil_obs]
-    XL = np.asarray(events[recoil_obs], float)
-    XM = float(rc["x_match"])
-    XHI = float(rc.get("x_hi", XL.max()))
     soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
                     max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
-    rate = float(rc["rate"])
-    win_vals = np.asarray(rc["window_values"], float)
-    win_errs = np.asarray(rc.get("window_errors", np.zeros_like(win_vals)), float)
-    Nrmax = len(win_vals)
-    uR = _umap(np.clip(XL, soft_lo, XHI), soft_lo, XHI, "log"); CR = _cheb(uR, max(Nrmax, 1))
-    I_S = XL < XM; I_T = XL >= XHI
-    P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
-    wS = float(p[I_S].sum()); wT = max(P_tail, 1e-300)
-    # SNR for the recoil: FO window moment vs the prior's window moment
-    mwin = (XL >= XM) & (XL < XHI)
-    mu_prior_win = chebyshev_moment(XL[mwin], w[mwin], Nrmax, soft_lo, XHI, "log")
-    snr_r = np.abs(win_vals - mu_prior_win) / np.maximum(win_errs, 1e-30) if win_errs.any() else np.full(Nrmax, np.inf)
-    snr_spectra[recoil_obs] = snr_r
-    Nr = max(resolved_order(snr_r, thr) if do_sel else Nrmax, 1)
-    chosen[recoil_obs] = Nr
-    for n in range(1, Nr + 1):
-        soft_mom = float((p[I_S] * CR[I_S, n]).sum()) / max(wS, 1e-300)
-        tail_mom = float((p[I_T] * CR[I_T, n]).sum()) / wT if P_tail > 0 else 0.0
-        fo_mom = float(win_vals[n - 1])
-        F.append(CR[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
-        names.append(f"recoil_T{n}")
+    XHI = float(rc.get("x_hi", np.asarray(events[recoil_obs], float).max()))
+    _impose(recoil_obs, soft_lo, XHI, "log", float(rc["x_match"]), XHI,
+            np.asarray(rc["window_values"], float),
+            np.asarray(rc.get("window_errors", []), float),
+            rate=float(rc["rate"]), floor=1)
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
     q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"])
@@ -695,12 +698,13 @@ def upgrade(events, moments, config):
     ach = (q[:, None] * Phi).sum(0)
     worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
+    x_match = float(rc["x_match"])
     report = dict(
         moment_selection=dict(enabled=bool(do_sel), threshold=thr, chosen=dict(chosen),
                               snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
-        window=dict(x_match=XM, x_hi=XHI, rate=rate, P_soft=P_soft, P_tail=P_tail),
+        window=dict(x_match=x_match, x_hi=XHI, rate=float(rc["rate"])),
         n_constraints=len(mu),
     )
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,
-                         x_match=XM, report=report, moment_snr=snr_spectra,
+                         x_match=x_match, report=report, moment_snr=snr_spectra,
                          chosen_moments=dict(chosen), band=None)
