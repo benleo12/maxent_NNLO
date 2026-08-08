@@ -1,0 +1,40 @@
+--- IOHelper.f90.bak_profilemoment	2026-08-03 21:50:39
++++ IOHelper.f90	2026-08-03 21:52:56
+@@ -2229,6 +2229,7 @@
+     logical :: qfail_mu0
+     !> ouput level & cumulant option & type id
+     integer :: outLevel, icumulant, ibinning
++    logical :: qprofile
+     integer :: itype1,itype2
+ 
+     if (.not.qproductionSweep_run) then
+@@ -2353,6 +2354,13 @@
+         print*, "parse_hist_io: invalid cumulant flag:", icumulant
+         stop
+       end if
++
++      !> extract the optional `profile = ...` specification.  A profile
++      !> histogram accumulates  w * observable  (a moment) instead of  w.
++      !> Intended use: a single-bin histogram of a chebT_<x>_n observable to
++      !> obtain the literal event-level moment  Sum_j w_j T_n(x_j).
++      call extract_option_type_io(line, "profile", qfail, valueBOOL=qprofile)
++      if (qfail) qprofile = .false.  ! default: normal (weight) accumulation
+ 
+       !> extract optional `run_group = ...` specification
+       call extract_option_type_io(line, "run_group", qfail, valueINT=igroup)
+@@ -2421,6 +2429,7 @@
+                           & gridname=gridname, &
+                           & outputType=outLevel, &
+                           & cumulant=icumulant, &
++                          & profile=qprofile, &
+                           & run_group=igroup, &
+                           & rewgtfcn=rewgtfcn, &
+                           & fac_mu0=fac_mu0, &
+@@ -2445,6 +2454,7 @@
+                           & gridname=gridname, &
+                           & outputType=outLevel, &
+                           & cumulant=icumulant, &
++                          & profile=qprofile, &
+                           & run_group=igroup, &
+                           & rewgtfcn=rewgtfcn, &
+                           & fac_mu0=fac_mu0, &

@@ -1,0 +1,114 @@
+PROCESS  ZJ
+  collider = pp
+  sqrts = 13000.0
+  jet = antikt[0.4]
+  jet_exclusive = .false.
+  jet_recomb = V4
+  decay_type = 1
+END_PROCESS
+
+RUN  ZJ_MOMENTS
+  PDF = CT18NNLO[0]
+  tcut = 1d-8
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .true.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  warmup = 20000[5]
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  MASS[Z] = 91.1876
+  WIDTH[Z] = 2.4952
+  MASS[W] = 80.385
+  WIDTH[W] = 2.085
+  SCHEME[alpha] = Gmu
+  GF = 1.1663787d-5
+END_PARAMETERS
+
+SELECTORS
+  select jets_pt     min = 20
+  select min_dr_lj   min = 0.4
+  select jets_abs_y  max = 4.4
+  select njets       min = 1
+  select mll         min = 66  max = 116
+  select ptlm        min = 27
+  select ptlp        min = 27
+  select abs_ylm     max = 2.5
+  select abs_ylp     max = 2.5
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- reference distributions
+  ptj1 > ptj1_a     [20,25,30,36,42,50,60,72,88,105,125,150,180,220,270,330,400,500,650]
+  ptj2 > ptj2_a     [20,25,32,42,55,72,95,125,165,220,300,450]
+  dphi_l1l2 > dphil_a  nbins=32 min=0 max=3.1416
+  ptz  > ptz_a      min=20 max=1000 nbins=100 binning=LOG
+  abs_yz > absyz_a  [0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4]
+
+  ! ---- EVENT-LEVEL moment histograms (single-bin profiles)
+  chebT_mll_1 > norm_born   min=-1.001 max=1.001 nbins=1
+  w_ptj1   > prof_wj1_0   min=-1.001 max=1.001 nbins=1 profile = T
+  w_ptj2   > prof_wj2_0   min=-1.001 max=1.001 nbins=1 profile = T
+  w_dphill > prof_wdphi_0 min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_1 > prof_mll_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_1 > prof_absyz_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_2 > prof_mll_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_2 > prof_absyz_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_3 > prof_mll_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_3 > prof_absyz_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_4 > prof_mll_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_4 > prof_absyz_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_5 > prof_mll_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_5 > prof_absyz_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_6 > prof_mll_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_6 > prof_absyz_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_1 > prof_wj1_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_2 > prof_wj1_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_3 > prof_wj1_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_4 > prof_wj1_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_5 > prof_wj1_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_6 > prof_wj1_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_7 > prof_wj1_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_8 > prof_wj1_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_9 > prof_wj1_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_10 > prof_wj1_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_11 > prof_wj1_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj1_12 > prof_wj1_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_1 > prof_wj2_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_2 > prof_wj2_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_3 > prof_wj2_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_4 > prof_wj2_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_5 > prof_wj2_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_6 > prof_wj2_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_7 > prof_wj2_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptj2_8 > prof_wj2_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_1 > prof_wdphi_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_2 > prof_wdphi_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_3 > prof_wdphi_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_4 > prof_wdphi_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_5 > prof_wdphi_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_6 > prof_wdphi_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_7 > prof_wdphi_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_8 > prof_wdphi_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_9 > prof_wdphi_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_10 > prof_wdphi_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_11 > prof_wdphi_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dphill_12 > prof_wdphi_12  min=-1.001 max=1.001 nbins=1 profile = T
+END_HISTOGRAMS
+
+SCALES
+  muf = 0.5 * ht_full   mur = 0.5 * ht_full
+  muf = 1.0 * ht_full   mur = 1.0 * ht_full
+  muf = 0.25 * ht_full  mur = 0.25 * ht_full
+  muf = 0.5 * ht_full   mur = 0.25 * ht_full
+  muf = 0.25 * ht_full  mur = 0.5 * ht_full
+  muf = 0.5 * ht_full   mur = 1.0 * ht_full
+  muf = 1.0 * ht_full   mur = 0.5 * ht_full
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

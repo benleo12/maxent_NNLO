@@ -1,0 +1,93 @@
+!#############################################################
+!## Diphoton EVENT-LEVEL Chebyshev moments (ATLAS 8 TeV 1704.03839 fiducial).
+!##   Born   : <T_n(m_aa)>   n=1..6   (log map [80,700])
+!##   recoil : <T_n(pt_aa)>_w n=1..12 (log map [1,500], SMOOTH profile [11,22]->500)
+!## Denominators (normal single-bin; bin widths cancel in the ratio):
+!##   norm_born  = sigma_fid            (normal single-bin of chebT_maa_1)
+!##   prof_wpt_0 = sum_j w_j w(pt_j)    (profile of w_ptaa) -> w-rate R
+!## <T_n>_Born = prof_maa_n/norm_born ;  <T_n>_w = prof_wpt_n/prof_wpt_0
+!## Reference distributions kept for the plots + cross-checks.
+!#############################################################
+
+PROCESS  GG
+  collider = LHC
+  sqrts = 8000.0
+  photon_isolation = frix[R_cone=0.4, ETmax_const=11d0, n=1]
+  decay_type = 0
+END_PROCESS
+
+RUN  GG_MOMENTS
+  PDF = CT18NNLO[0]
+  tcut = 1d-9
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .false.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  warmup = 20000[5]
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  SCHEME[GV]  = CMS
+  SCHEME[alpha] = Gmu
+  hard_photon_alpha0 = .true.
+END_PARAMETERS
+
+SELECTORS
+  select dr_g1g2 min = 0.4
+  select ptg1 min = 40
+  select ptg2 min = 30
+  select photons_abs_y max = 2.37
+  reject photons_abs_y min = 1.37 max = 1.56
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- reference distributions (plots + cross-checks)
+  Mg1g2   > m_aa   min=1 max=1000 nbins=199
+  pt_g1g2 > pt_aa  min=1 max=1000 nbins=199
+  abs_yg1g2 > y_aa  [0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.37]
+  abs_cos_thetaCS > cosCS nbins = 20 min = 0d0 max = 1d0
+  pi_dphi_g1g2 > dphi_aa nbins = 32 min = 0d0 max = 3.1416d0
+  pTt_g1g2 > at_aa min=0.2 max=300 nbins=60
+
+  ! ---- denominators
+  chebT_maa_1 > norm_born   min=-1.001 max=1.001 nbins=1
+  w_ptaa      > prof_wpt_0  min=-1.001 max=1.001 nbins=1 profile = T
+
+  ! ---- Born moments of m_aa (profile, full range)
+  chebT_maa_1 > prof_maa_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_maa_2 > prof_maa_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_maa_3 > prof_maa_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_maa_4 > prof_maa_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_maa_5 > prof_maa_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_maa_6 > prof_maa_6  min=-1.001 max=1.001 nbins=1 profile = T
+
+  ! ---- recoil moments of pt_aa, smooth profile (no selector; w windows)
+  chebTw_ptaa_1  > prof_wpt_1   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_2  > prof_wpt_2   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_3  > prof_wpt_3   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_4  > prof_wpt_4   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_5  > prof_wpt_5   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_6  > prof_wpt_6   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_7  > prof_wpt_7   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_8  > prof_wpt_8   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_9  > prof_wpt_9   min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_10 > prof_wpt_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_11 > prof_wpt_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptaa_12 > prof_wpt_12  min=-1.001 max=1.001 nbins=1 profile = T
+END_HISTOGRAMS
+
+SCALES
+  muf = 1.0 * Mg1g2  mur = 1.0 * Mg1g2
+  muf = 2.0 * Mg1g2  mur = 2.0 * Mg1g2
+  muf = 0.5 * Mg1g2  mur = 0.5 * Mg1g2
+  muf = 1.0 * Mg1g2  mur = 2.0 * Mg1g2
+  muf = 2.0 * Mg1g2  mur = 1.0 * Mg1g2
+  muf = 0.5 * Mg1g2  mur = 1.0 * Mg1g2
+  muf = 1.0 * Mg1g2  mur = 0.5 * Mg1g2
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

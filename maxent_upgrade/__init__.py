@@ -59,6 +59,7 @@ from .dy_method import cheb as _cheb, umap as _umap
 
 __all__ = [
     "upgrade", "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
+    "profile_w",
     "moment_snr", "resolved_order",
     "FOHist", "fo_from_dat", "UpgradeResult", "DEFAULTS",
 ]
@@ -527,6 +528,33 @@ def chebyshev_moment(x, w, n_max, a, b, mp):
     return np.array([(w * C[:, n]).sum() / s for n in range(1, n_max + 1)])
 
 
+def _smootherstep(t):
+    """C2 smootherstep 6t^5-15t^4+10t^3, clipped to [0,1]."""
+    t = np.clip(t, 0.0, 1.0)
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+
+
+def profile_w(x, a, b, c=None, d=None):
+    r"""Smooth compact-support recoil profile in ln(x).
+
+    w = 0 for x<=a, rises C2 to 1 over [a,b], stays 1, then falls C2 back to 0
+    over [c,d] (default: hard cut at x_hi if only c is given, no upper cut if c
+    is None).  a==b gives a hard lower step (the plain window indicator), so the
+    hard window is the a->b limit of this profile.
+    """
+    x = np.asarray(x, float)
+    lx = np.log(np.maximum(x, 1e-30))
+    up = (_smootherstep((lx - np.log(a)) / (np.log(b) - np.log(a)))
+          if b > a else (x >= a).astype(float))
+    if c is None:
+        return up
+    if d is None or d <= c:
+        down = (x < c).astype(float)
+    else:
+        down = 1.0 - _smootherstep((lx - np.log(c)) / (np.log(d) - np.log(c)))
+    return up * down
+
+
 def compute_fo_moments(fo_events, config, x_match, x_hi=None, n_max=None,
                        weight_key="weight", scale_key="weight_scales"):
     r"""Build the `moments` argument of `upgrade` FROM a user's fixed-order EVENTS.
@@ -652,7 +680,7 @@ def upgrade(events, moments, config):
     # composite reduces to imposing the FO moment); for the recoil it is the
     # window [x_match, x_hi] and the shower is preserved outside. There is no
     # separate "recoil procedure".
-    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor):
+    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor, wprof=None):
         XL = np.asarray(events[obs], float)
         Nmax = len(vals)
         win = (XL >= XM) & (XL < XHI)
@@ -664,15 +692,30 @@ def upgrade(events, moments, config):
         N = max(resolved_order(snr, thr) if do_sel else Nmax, floor)
         chosen[obs] = N
         u = _umap(np.clip(XL, lo_map, hi_map), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
-        I_S = XL < XM; I_T = XL >= XHI
-        P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
-        wS = float(p[I_S].sum())
-        for n in range(1, N + 1):
-            soft_mom = float((p[I_S] * C[I_S, n]).sum()) / wS if wS > 0 else 0.0
-            tail_mom = float((p[I_T] * C[I_T, n]).sum()) / P_tail if P_tail > 0 else 0.0
-            fo_mom = float(vals[n - 1])
-            F.append(C[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
-            names.append(f"{obs}_T{n}")
+        if wprof is None:
+            # -------- composite (unmasked) target: legacy path --------
+            I_S = XL < XM; I_T = XL >= XHI
+            P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
+            wS = float(p[I_S].sum())
+            for n in range(1, N + 1):
+                soft_mom = float((p[I_S] * C[I_S, n]).sum()) / wS if wS > 0 else 0.0
+                tail_mom = float((p[I_T] * C[I_T, n]).sum()) / P_tail if P_tail > 0 else 0.0
+                fo_mom = float(vals[n - 1])
+                F.append(C[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
+                names.append(f"{obs}_T{n}")
+        else:
+            # -------- profiled features: exact shower preservation --------
+            # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an
+            # explicit rate constraint  sum q*w = R.  Where w=0 (below the seam,
+            # above x_hi) the feature vanishes -> those events are untilted by the
+            # recoil -> the prior shape is preserved to machine precision.  `vals`
+            # here are the w-weighted FO moments; `rate` is the FO w-rate R.
+            R = float(rate)
+            wprof = np.asarray(wprof, float)
+            for n in range(1, N + 1):
+                F.append(C[:, n] * wprof); mu.append(float(vals[n - 1]) * R)
+                names.append(f"{obs}_T{n}")
+            F.append(wprof.copy()); mu.append(R); names.append(f"{obs}_rate")
 
     # Born observables: validity is the full fiducial range.
     for o in born_cfg:
@@ -686,10 +729,27 @@ def upgrade(events, moments, config):
     soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
                     max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
     XHI = float(rc.get("x_hi", np.asarray(events[recoil_obs], float).max()))
-    _impose(recoil_obs, soft_lo, XHI, "log", float(rc["x_match"]), XHI,
-            np.asarray(rc["window_values"], float),
-            np.asarray(rc.get("window_errors", []), float),
-            rate=float(rc["rate"]), floor=1)
+    prof = recoil_cfg[recoil_obs].get("profile")
+    if prof:
+        # smooth (or hard, if a==b) profile: exact shower preservation below the
+        # seam via masked features + explicit rate constraint.  `vals`/`rate` must
+        # be the w-weighted FO moments + w-rate; fall back to the window values
+        # (exact when the profile is the hard window a=b=x_match, c=d=x_hi).
+        xm = float(rc["x_match"])
+        a = float(prof.get("a", xm)); b = float(prof.get("b", xm))
+        c = prof.get("c", XHI); d = prof.get("d", None)
+        wprof = profile_w(np.asarray(events[recoil_obs], float), a, b,
+                          None if c is None else float(c), None if d is None else float(d))
+        vals = np.asarray(rc.get("wprofile_values", rc["window_values"]), float)
+        R = float(rc.get("wprofile_rate", rc["rate"]))
+        _impose(recoil_obs, soft_lo, XHI, "log", xm, XHI, vals,
+                np.asarray(rc.get("window_errors", []), float),
+                rate=R, floor=1, wprof=wprof)
+    else:
+        _impose(recoil_obs, soft_lo, XHI, "log", float(rc["x_match"]), XHI,
+                np.asarray(rc["window_values"], float),
+                np.asarray(rc.get("window_errors", []), float),
+                rate=float(rc["rate"]), floor=1)
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
     q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"])

@@ -1,0 +1,357 @@
+--- EvalFuncs.f90.bak_profilemoment	2026-08-03 21:50:39
++++ EvalFuncs.f90	2026-08-04 20:42:42
+@@ -2463,7 +2463,354 @@
+     pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
+     eval_minv_V = v1_minv(pV)
+   end function eval_minv_V
++
++  !===========================================================================
++  !  Chebyshev-moment observables (event-level moments via PROFILE histograms)
++  !---------------------------------------------------------------------------
++  !  A profile single-bin histogram of chebT_<x>_n accumulates the literal
++  !  per-phase-space-point sum  Sum_j w_j T_n(u(x_j)).  Divided by the rate
++  !  this is <T_n(u(x))>, computed event-level with no binning of x.
++  !===========================================================================
++
++  !> Chebyshev polynomial T_n(u) with u clipped to [-1,1] (stable recurrence).
++  pure function cheb_T(u_in, n) result(res)
++    real(kind=wp), intent(in) :: u_in
++    integer, intent(in) :: n
++    real(kind=wp) :: res, u, t0, t1, t2
++    integer :: k
++    u = max(-1.0_wp, min(1.0_wp, u_in))
++    if (n <= 0) then
++      res = 1.0_wp
++    else if (n == 1) then
++      res = u
++    else
++      t0 = 1.0_wp
++      t1 = u
++      do k = 2, n
++        t2 = 2.0_wp*u*t1 - t0
++        t0 = t1
++        t1 = t2
++      end do
++      res = t1
++    end if
++  end function cheb_T
++
++  !> T_n of the dilepton invariant mass, linear map on [66,116] GeV.
++  !> imem = n (Chebyshev order).  Bind as chebT_mll_n.
++  real(kind=wp) function eval_chebT_mll(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 66.0_wp, hi = 116.0_wp
++    !> defensive: never touch kin() for the reset sentinel (npar<1)
++    if (npar < 1) then
++      eval_chebT_mll = 0.0_wp
++      return
++    end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = v1_minv(pV)
++    u = 2.0_wp*(x - lo)/(hi - lo) - 1.0_wp
++    eval_chebT_mll = cheb_T(u, n)
++  end function eval_chebT_mll
+ 
++  !> T_n of the dilepton rapidity |y_ll|, linear map on [0,2.4].
++  !> imem = n.  Bind as chebT_absyz_n.
++  real(kind=wp) function eval_chebT_absyz(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 0.0_wp, hi = 2.4_wp
++    if (npar < 1) then
++      eval_chebT_absyz = 0.0_wp
++      return
++    end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = abs(v1_y(pV))
++    u = 2.0_wp*(x - lo)/(hi - lo) - 1.0_wp
++    eval_chebT_absyz = cheb_T(u, n)
++  end function eval_chebT_absyz
++
++  !> T_n of the dilepton transverse momentum pT_ll, LOG map on the composite
++  !> recoil axis [soft_lo, x_hi] = [0.5,500] GeV (MUST match the engine map
++  !> u = umap(x, soft_lo, x_hi, 'log') so the FO moment composes with the soft
++  !> and tail pieces).  The FO REGION is imposed only inside the window: book
++  !> with a per-histogram selector ptz in [x_match, x_hi] (e.g. [10,500]); below
++  !> the seam the shower is preserved.  Map floor is soft_lo, NOT x_match.
++  !> imem = n.  Bind as chebT_ptz_n.
++  real(kind=wp) function eval_chebT_ptz(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u, lnlo, lnhi
++    real(kind=wp), parameter :: lo = 0.5_wp, hi = 500.0_wp
++    if (npar < 1) then
++      eval_chebT_ptz = 0.0_wp
++      return
++    end if
++    lnlo = log(lo)
++    lnhi = log(hi)
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - lnlo)/(lnhi - lnlo) - 1.0_wp
++    eval_chebT_ptz = cheb_T(u, n)
++  end function eval_chebT_ptz
++
++  !> C2 smootherstep recoil profile w(x) in ln x: 0 below a, C2 ramp to 1 over
++  !> [a,b], 1, then (optional) C2 ramp back to 0 over [c,d] (hard cut if d<=c).
++  !> a==b gives the hard lower step.  MUST match maxent_upgrade.profile_w.
++  pure function prof_w(x, a, b, c, d) result(res)
++    real(kind=wp), intent(in) :: x, a, b, c, d
++    real(kind=wp) :: res, t, up, dn, lx
++    lx = log(max(x, 1.0e-30_wp))
++    if (b > a) then
++      t = max(0.0_wp, min(1.0_wp, (lx - log(a))/(log(b) - log(a))))
++      up = t*t*t*(t*(t*6.0_wp - 15.0_wp) + 10.0_wp)
++    else
++      up = merge(1.0_wp, 0.0_wp, x >= a)
++    end if
++    if (d > c) then
++      t = max(0.0_wp, min(1.0_wp, (lx - log(c))/(log(d) - log(c))))
++      dn = 1.0_wp - t*t*t*(t*(t*6.0_wp - 15.0_wp) + 10.0_wp)
++    else
++      dn = merge(1.0_wp, 0.0_wp, x < c)
++    end if
++    res = up * dn
++  end function prof_w
++
++  !> recoil profile weight w(pT_ll) alone (= chebTw n=0, the w-rate numerator).
++  real(kind=wp) function eval_w_ptz(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then
++      eval_w_ptz = 0.0_wp
++      return
++    end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_ptz = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function eval_w_ptz
++
++  !> w(pT_ll) * T_n(u(pT_ll)), LOG map [0.5,500], smooth profile [30,60](->500).
++  !> Book as a single-bin PROFILE histogram (no selector; the profile windows it).
++  !> <T_n>_FO(w) = prof(chebTw_ptz_n) / prof(w_ptz);  R = prof(w_ptz)/sigma_fid.
++  real(kind=wp) function eval_chebTw_ptz(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u, lnlo, lnhi
++    real(kind=wp), parameter :: lo = 0.5_wp, hi = 500.0_wp
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then
++      eval_chebTw_ptz = 0.0_wp
++      return
++    end if
++    lnlo = log(lo)
++    lnhi = log(hi)
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - lnlo)/(lnhi - lnlo) - 1.0_wp
++    eval_chebTw_ptz = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_ptz
++
++  !===========================================================================
++  !  DY lepton Chebyshev moments (leading/subleading by pT).  Born-type: full
++  !  range, no window.  Leptons are the last two particles (npar-1, npar).
++  !===========================================================================
++  real(kind=wp) function eval_chebT_ptl1(npar, n)   ! leading lepton pT, log [27,200]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: p1, p2, u
++    real(kind=wp), parameter :: lo = 27.0_wp, hi = 200.0_wp
++    if (npar < 1) then; eval_chebT_ptl1 = 0.0_wp; return; end if
++    p1 = v1_pt(kin(npar)%p(:, npar - 1)); p2 = v1_pt(kin(npar)%p(:, npar))
++    u = 2.0_wp*(log(max(max(p1, p2), 1.0e-6_wp)) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebT_ptl1 = cheb_T(u, n)
++  end function eval_chebT_ptl1
++
++  real(kind=wp) function eval_chebT_ptl2(npar, n)   ! subleading lepton pT, log [27,150]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: p1, p2, u
++    real(kind=wp), parameter :: lo = 27.0_wp, hi = 150.0_wp
++    if (npar < 1) then; eval_chebT_ptl2 = 0.0_wp; return; end if
++    p1 = v1_pt(kin(npar)%p(:, npar - 1)); p2 = v1_pt(kin(npar)%p(:, npar))
++    u = 2.0_wp*(log(max(min(p1, p2), 1.0e-6_wp)) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebT_ptl2 = cheb_T(u, n)
++  end function eval_chebT_ptl2
++
++  real(kind=wp) function eval_chebT_yl1(npar, n)    ! |y| of leading-pT lepton, lin [0,2.5]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: p1, p2, y, u
++    real(kind=wp), parameter :: hi = 2.5_wp
++    if (npar < 1) then; eval_chebT_yl1 = 0.0_wp; return; end if
++    p1 = v1_pt(kin(npar)%p(:, npar - 1)); p2 = v1_pt(kin(npar)%p(:, npar))
++    if (p1 >= p2) then; y = abs(v1_y(kin(npar)%p(:, npar - 1)))
++    else; y = abs(v1_y(kin(npar)%p(:, npar))); end if
++    u = 2.0_wp*y/hi - 1.0_wp
++    eval_chebT_yl1 = cheb_T(u, n)
++  end function eval_chebT_yl1
++
++  real(kind=wp) function eval_chebT_yl2(npar, n)    ! |y| of subleading-pT lepton, lin [0,2.5]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: p1, p2, y, u
++    real(kind=wp), parameter :: hi = 2.5_wp
++    if (npar < 1) then; eval_chebT_yl2 = 0.0_wp; return; end if
++    p1 = v1_pt(kin(npar)%p(:, npar - 1)); p2 = v1_pt(kin(npar)%p(:, npar))
++    if (p1 < p2) then; y = abs(v1_y(kin(npar)%p(:, npar - 1)))
++    else; y = abs(v1_y(kin(npar)%p(:, npar))); end if
++    u = 2.0_wp*y/hi - 1.0_wp
++    eval_chebT_yl2 = cheb_T(u, n)
++  end function eval_chebT_yl2
++
++  !===========================================================================
++  !  gg -> H Chebyshev moments.  NNLOJET binds pth/yh to eval_pt_V/eval_y_V, so
++  !  the colour-singlet accessor p(:,npar-1)+p(:,npar) is the right one here too.
++  !    Born   : |y_H|  (lin [0,4])          -- the Higgs mass is fixed
++  !    recoil : pT_H   (log [1,1000], smooth profile [30,60]->1000)
++  !===========================================================================
++  real(kind=wp) function eval_chebT_yh(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: u
++    real(kind=wp), parameter :: hi = 4.0_wp
++    if (npar < 1) then; eval_chebT_yh = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    u = 2.0_wp*abs(v1_y(pV))/hi - 1.0_wp
++    eval_chebT_yh = cheb_T(u, n)
++  end function eval_chebT_yh
++
++  real(kind=wp) function eval_w_pth(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_w_pth = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_pth = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function eval_w_pth
++
++  real(kind=wp) function eval_chebTw_pth(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 1.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_chebTw_pth = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_pth = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_pth
++
++  !===========================================================================
++  !  DY+jet (ZJ) Chebyshev moments, all with SMOOTH profiles:
++  !    pT_j1 : constrain only ABOVE a resolution cut   w = prof_w(pTj1, 30,60,..)
++  !    pT_j2 : same, NLO-accurate in ZJ@NNLO           w = prof_w(pTj2, 30,60,..)
++  !    dphi(l1,l2) : constrain only AWAY from pi, i.e. in x = pi - dphi, so the
++  !                  back-to-back (Sudakov) region x->0 is left to the shower.
++  !  Bind pT_j1 with min_njets=1, pT_j2 with min_njets=2.
++  !===========================================================================
++  real(kind=wp) function eval_w_ptj1(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_w_ptj1 = 0.0_wp; return; end if
++    eval_w_ptj1 = prof_w(v1_pt(kin(npar)%pjets(:, 1)), pa, pb, pc, pd)
++  end function eval_w_ptj1
++
++  real(kind=wp) function eval_chebTw_ptj1(npar, n)   ! w*T_n(pT_j1), log [10,1000]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 10.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_chebTw_ptj1 = 0.0_wp; return; end if
++    x = max(v1_pt(kin(npar)%pjets(:, 1)), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_ptj1 = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_ptj1
++
++  real(kind=wp) function eval_w_ptj2(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_w_ptj2 = 0.0_wp; return; end if
++    eval_w_ptj2 = prof_w(v1_pt(kin(npar)%pjets(:, 2)), pa, pb, pc, pd)
++  end function eval_w_ptj2
++
++  real(kind=wp) function eval_chebTw_ptj2(npar, n)   ! w*T_n(pT_j2), log [10,1000]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 10.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_chebTw_ptj2 = 0.0_wp; return; end if
++    x = max(v1_pt(kin(npar)%pjets(:, 2)), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_ptj2 = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_ptj2
++
++  !> x = pi - dphi(l1,l2) in (0,pi]; small x = back-to-back (Sudakov) region.
++  pure function pimdphi_ll(npar) result(x)
++    integer, intent(in) :: npar
++    real(kind=wp) :: x, ph1, ph2, d
++    real(kind=wp), parameter :: pi = 3.14159265358979323846_wp
++    ph1 = atan2(kin(npar)%p(2, npar - 1), kin(npar)%p(1, npar - 1))
++    ph2 = atan2(kin(npar)%p(2, npar), kin(npar)%p(1, npar))
++    d = abs(ph1 - ph2)
++    if (d > pi) d = 2.0_wp*pi - d
++    x = pi - d
++  end function pimdphi_ll
++
++  real(kind=wp) function eval_w_dphill(npar)   ! 0 near dphi=pi, 1 away from it
++    integer, intent(in) :: npar
++    real(kind=wp), parameter :: pa = 0.05_wp, pb = 0.20_wp, pc = 4.0_wp, pd = 4.0_wp
++    if (npar < 1) then; eval_w_dphill = 0.0_wp; return; end if
++    eval_w_dphill = prof_w(pimdphi_ll(npar), pa, pb, pc, pd)
++  end function eval_w_dphill
++
++  real(kind=wp) function eval_chebTw_dphill(npar, n)  ! w*T_n(pi-dphi), log [0.01,pi]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 0.01_wp, hi = 3.14159265358979323846_wp
++    real(kind=wp), parameter :: pa = 0.05_wp, pb = 0.20_wp, pc = 4.0_wp, pd = 4.0_wp
++    if (npar < 1) then; eval_chebTw_dphill = 0.0_wp; return; end if
++    x = max(pimdphi_ll(npar), 1.0e-8_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_dphill = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_dphill
++
++  !===========================================================================
++  !  Diphoton Chebyshev moments (GG process).  Photons are pT-ORDERED in
++  !  kin(npar)%pphotons(:,1..2) -- the same accessor eval_minv_gam12 uses.
++  !  Bind with min_nphotons=2.
++  !  m_aa Born (log [80,700]); pt_aa recoil with smooth profile [11,22]->500.
++  !===========================================================================
++  real(kind=wp) function eval_chebT_maa(npar, n)    ! m_gg, log [80,700]
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 80.0_wp, hi = 700.0_wp
++    if (npar < 1) then; eval_chebT_maa = 0.0_wp; return; end if
++    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
++    x = v1_minv(pV)
++    u = 2.0_wp*(log(max(x, 1.0e-6_wp)) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebT_maa = cheb_T(u, n)
++  end function eval_chebT_maa
++
++  real(kind=wp) function eval_w_ptaa(npar)          ! gg recoil profile w(pt_aa)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pa = 11.0_wp, pb = 22.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; eval_w_ptaa = 0.0_wp; return; end if
++    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
++    eval_w_ptaa = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function eval_w_ptaa
++
++  real(kind=wp) function eval_chebTw_ptaa(npar, n)  ! w*T_n(pt_aa), log [1,500], prof [11,22]->500
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 1.0_wp, hi = 500.0_wp
++    real(kind=wp), parameter :: pa = 11.0_wp, pb = 22.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; eval_chebTw_ptaa = 0.0_wp; return; end if
++    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_ptaa = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_ptaa
++
+   real(kind=wp) function eval_r_V(npar)
+     integer, intent(in) :: npar
+     real(kind=wp), dimension(4) :: pV

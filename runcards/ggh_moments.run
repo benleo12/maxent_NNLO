@@ -1,0 +1,71 @@
+PROCESS  H
+  collider = LHC
+  sqrts = 13000.0
+  decay_type = 0
+END_PROCESS
+
+RUN  GGH_MOMENTS
+  PDF = CT18NNLO[0]
+  tcut = 1d-8
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .true.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  warmup = 20000[5]
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  MASS[H]  = 125
+  WIDTH[H] = 0.004029643852
+  MASS[Z]  = 91.1876
+  MASS[W]  = 80.398
+  MASS[t]  = 173.2
+END_PARAMETERS
+
+SELECTORS
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- reference distributions
+  pth > pth_fine   min=0 max=30 nbins=30
+  pth > pth_all    min=1 max=1000 nbins=120 binning=LOG
+  abs_yh > absyh_a [0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.5,3.0,4.0]
+
+  ! ---- EVENT-LEVEL moment histograms (single-bin profiles)
+  chebT_yh_1 > norm_born   min=-1.001 max=1.001 nbins=1
+  w_pth      > prof_wpt_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_1 > prof_yh_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_2 > prof_yh_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_3 > prof_yh_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_4 > prof_yh_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_5 > prof_yh_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yh_6 > prof_yh_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_1 > prof_wpt_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_2 > prof_wpt_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_3 > prof_wpt_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_4 > prof_wpt_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_5 > prof_wpt_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_6 > prof_wpt_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_7 > prof_wpt_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_8 > prof_wpt_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_9 > prof_wpt_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_10 > prof_wpt_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_11 > prof_wpt_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_12 > prof_wpt_12  min=-1.001 max=1.001 nbins=1 profile = T
+END_HISTOGRAMS
+
+SCALES
+  muf = 1.0 * 125  mur = 1.0 * 125
+  muf = 2.0 * 125  mur = 2.0 * 125
+  muf = 0.5 * 125  mur = 0.5 * 125
+  muf = 1.0 * 125  mur = 0.5 * 125
+  muf = 0.5 * 125  mur = 1.0 * 125
+  muf = 1.0 * 125  mur = 2.0 * 125
+  muf = 2.0 * 125  mur = 1.0 * 125
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

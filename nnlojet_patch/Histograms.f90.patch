@@ -1,0 +1,103 @@
+--- Histograms.f90.bak_profilemoment	2026-08-03 21:50:39
++++ Histograms.f90	2026-08-03 21:51:55
+@@ -87,6 +87,13 @@
+     !   -1:  cumulant from:    xmin       -->  xi[upper]
+     !   +1:  cumulant from:    xi[lower]  -->  xmax
+     integer :: icumulant = 0  ! default: no cumulant
++    !> flag to switch to a PROFILE (moment) histogram
++    !    .false.: normal   -> bin accumulates  w
++    !    .true. : profile  -> bin accumulates  w * valObs
++    !> intended use: a single-bin histogram of a Chebyshev-moment observable
++    !> chebT_<x>_n gives the literal per-phase-space-point sum  Sum_j w_j T_n(x_j),
++    !> i.e. the (unnormalised) event-level moment.  Divide by the rate for <T_n>.
++    logical :: profile = .false.  ! default: normal (weight) accumulation
+     !> set the run_group: = 0 (default) always filled!
+     integer :: igroup = 0
+     integer :: ndata  ! # of BinData entries
+@@ -214,7 +221,7 @@
+                              & selectorsOption, selectors_p,  &
+                              & outputType, cumulant, run_group,  &
+                              & gridname, rewgtfcn, fac_mu0, obsId_mu0,  &
+-                             & ihist)
++                             & ihist, profile)
+     use Observables_mod
+     use StrHelper_mod, only : to_upper_str
+     use MultiRun_mod, only : hasGroup_mult
+@@ -227,6 +234,7 @@
+     character(len=*), optional, intent(in) :: name
+     integer, optional, intent(in) :: outputType
+     integer, optional, intent(in) :: cumulant
++    logical, optional, intent(in) :: profile
+     integer, optional, intent(in) :: run_group
+     integer, optional, intent(in) :: selectorsOption
+     type(Selector_t), optional, pointer, intent(in) :: selectors_p
+@@ -302,6 +310,11 @@
+       newHist%icumulant = cumulant
+     end if
+ 
++    newHist%profile = .false.  ! default: normal (weight) accumulation
++    if ( present(profile) ) then
++      newHist%profile = profile
++    end if
++
+     newHist%igroup = 0  ! default: bin all runs
+     if ( present(run_group) ) then
+       if (.not. hasGroup_mult(run_group) ) then
+@@ -446,7 +459,7 @@
+                           & selectorsOption, selectors_p,  &
+                           & outputType, cumulant, run_group,  &
+                           & gridname, rewgtfcn, fac_mu0, obsId_mu0,  &
+-                          & ihist)
++                          & ihist, profile)
+     character(len=*), intent(in) :: obsName
+     integer, intent(in) :: nbins
+     double precision, intent(in) :: lower, upper
+@@ -454,6 +467,7 @@
+     character(len=*), optional, intent(in) :: name
+     integer, optional, intent(in) :: outputType
+     integer, optional, intent(in) :: cumulant
++    logical, optional, intent(in) :: profile
+     integer, optional, intent(in) :: run_group
+     integer, optional, intent(in) :: selectorsOption
+     type(Selector_t), optional, pointer, intent(in) :: selectors_p
+@@ -500,7 +514,7 @@
+                          & selectorsOption, selectors_p,  &
+                          & outputType, cumulant, run_group,  &
+                          & gridname, rewgtfcn, fac_mu0, obsId_mu0,  &
+-                         & ihist )
++                         & ihist, profile )
+ 
+   end subroutine newEqualWidth
+ 
+@@ -1368,19 +1382,29 @@
+ #endif
+       double precision, intent(in) :: opt_fac
+       integer :: binc
++      double precision :: prof_fac
+       !> get vegas normalisation factor
+       double precision :: dv2g
+       integer :: npg
+       common /vegasnumcalls/ dv2g,npg
+ 
++      !> profile (moment) histograms accumulate  w * valObs  instead of  w.
++      !> With a single bin catching every event this yields the literal
++      !> per-phase-space-point sum  Sum_j w_j valObs(x_j).  For a Chebyshev
++      !> observable valObs = T_n(u(x)) this is the (unnormalised) event-level
++      !> moment; divide by the rate (a companion normal single-bin histogram
++      !> or cross.dat) to obtain <T_n>.
++      prof_fac = 1d0
++      if ( hist%profile ) prof_fac = valObs
++
+ #ifdef HISTBUFFKAHAN
+       call accumulate_bin( hist%dataType,  &
+         &                  buffer_hist(i)%histBuff(:,:,binx), &
+-        &                  opt_fac*fac_rewgt*wthisto, ipart1, ipart2 )
++        &                  opt_fac*fac_rewgt*wthisto*prof_fac, ipart1, ipart2 )
+ #else
+       call accumulate_bin( hist%dataType,  &
+         &                  buffer_hist(i)%histBuff(1,:,binx),  &
+-        &                  opt_fac*fac_rewgt*wthisto, ipart1, ipart2 )
++        &                  opt_fac*fac_rewgt*wthisto*prof_fac, ipart1, ipart2 )
+ #endif
+ 
+       !----- cumulant distributions
