@@ -55,15 +55,18 @@ the angle the wrong way. Against ATLAS 1704.03839 (median `|shape/data - 1|`):
 
 | observable | prior | Born {m} | Born {m, cos} |
 |---|---|---|---|
-| `m_gg`       | 48.4% | 12.0% *(c)* | **9.5%** *(c)* |
-| `pT_gg`      | 84.1% | 14.0% *(c)* | 13.9% *(c)* |
-| `|cos theta*|` | 4.0% | 17.8% | **6.3%** *(c)* |
-| `dphi_gg`    | 31.8% | 15.5% | **8.4%** |
-| `a_T`        | 57.6% | 13.2% | 15.1% |
+| `m_gg`       | 48.3% | 11.0% *(c)* | **9.8%** *(c)* |
+| `pT_gg`      | 84.7% | **10.5%** *(c)* | 14.1% *(c)* |
+| `|cos theta*|` | 4.0% | 17.9% | **4.7%** *(c)* |
+| `dphi_gg`    | 31.2% | 17.2% | **7.0%** |
+| `a_T`        | 57.8% | 11.3% | **9.8%** |
+
+(NNLOJET GG, 40 channel- and tag-complete seeds.)
 
 *(c)* = constrained. Adding the angle recovers it *and* relieves the mass, because the
-two are correlated by the fiducial cuts. `dphi_gg` is never constrained in either column
-and improves anyway. Note also that the prior's 4.0% on `|cos theta*|` was an accidental
+two are correlated by the fiducial cuts. The recoil pays for it (10.5% -> 14.1%);
+`dphi_gg` and `a_T` are never constrained in either column and both improve anyway.
+Effective statistics fall from 7.3% to 1.0%, which is the real price. Note also that the prior's 4.0% on `|cos theta*|` was an accidental
 cancellation; after the upgrade the value is pinned to the fixed order rather than
 landing near the data by luck.
 
