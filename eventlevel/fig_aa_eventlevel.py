@@ -5,10 +5,19 @@ Three constrained observables -- the Born pair (m_aa, |cos theta*|) and the
 recoil (pT_aa) -- and two pure predictions (Delta phi, a_T).
 
 |cos theta*| is constrained because it must be: the photon pT cuts lock it to
-m_aa, so mass moments alone move it the wrong way (17.8% vs ATLAS) while adding
-it recovers 6.3% AND relieves m_aa from 12.0% to 9.5%.  Delta phi is left free
+m_aa, so mass moments alone move it the wrong way (17.9% vs ATLAS) while adding
+it recovers 4.7% AND relieves m_aa from 11.0% to 9.8%.  Delta phi is left free
 on purpose -- it is a recoil observable and cannot be a Born constraint (see
-aa_angular_test.py) -- yet it improves from 31.8% to 8.4% as a consequence.
+aa_angular_test.py) -- yet it improves from 31.2% to 7.0% as a consequence.
+(40 channel- and tag-complete NNLOJET seeds.)
+
+The shaded band below dphi = 1 is outside the prior's support and says nothing
+about the method: the prior is a 2->2 matrix element plus shower, so that region
+is reachable only by ISR recoil -- 1 event in 14440 even at pTHat in [200,400),
+with ISR already on -- and reweighting cannot create events.  The boundary is
+set by effective statistics, not by eye: N_eff per bin group runs 3.8, 15.2,
+748 across [0,1), [1,1.5), [1.5,2) and then jumps to 9700 above 2.  Populating it
+needs a gamma-gamma+jet (2->3) matrix element, not more statistics.
 """
 import os
 import sys
@@ -29,6 +38,9 @@ D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 W = dict(np.load(os.path.join(HERE, "aa_eventlevel_weights.npz")))
 
 GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments"
+DPHI_SUPP = 2.0   # below this the reweighted effective statistics fall under
+                  # 1000 per bin group (3.8 / 15.2 / 748 in [0,1)/[1,1.5)/[1.5,2)
+                  # against 9700 just above): the prior has no support there.
 FOTAG = {"m_aa": "m_aa", "pt_aa": "pt_aa", "costh_aa": "cosCS",
          "dphi_aa": "dphi_aa", "at_aa": "at_aa"}
 
@@ -100,6 +112,22 @@ def main():
         if key in ("pt_aa", "at_aa"):
             for p_ in (a, r):
                 p_.axvline(28.0, color="0.35", lw=2.0, ls="--")
+        if key == "dphi_aa":
+            # OUTSIDE PRIOR SUPPORT.  The prior is a 2->2 matrix element plus
+            # shower, so dphi < 1 can only be reached by ISR recoil: even at
+            # pTHat in [200,400) it is 1 event in 14440, and ISR is already on.
+            # Reweighting cannot create events, so nothing here is a statement
+            # about the method.  Reaching it needs a gamma-gamma+jet (2->3)
+            # matrix element, not more statistics.
+            wl = wnw[ev[key] < DPHI_SUPP]
+            effl = float(wl.sum() ** 2 / max((wl ** 2).sum(), 1e-300))
+            nlow = int((ev[key] < DPHI_SUPP).sum())
+            for p_ in (a, r):
+                p_.axvspan(e[0], DPHI_SUPP, color="0.5", alpha=0.16, zorder=0)
+            a.text(DPHI_SUPP * 0.97, 0.97,
+                   rf"outside prior support ($N={nlow}$, $N_{{\rm eff}}={effl:.0f}$)",
+                   transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
+                   fontsize=11, color="0.35")
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
