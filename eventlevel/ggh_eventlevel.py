@@ -92,8 +92,8 @@ def main():
         hq = dens(ev[key], res.weights, e)
         ctr = np.sqrt(e[:-1] * e[1:]) if logx else 0.5 * (e[:-1] + e[1:])
         a.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
-        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt NNLO ($0\%\ w<0$)")
-        ref = np.maximum(hq, 1e-30)
+        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+        ref = None  # set to FO below
         fc = fo_curve(fotag, seeds, fch)
         if fc is not None:
             flo, fhi, fv = fc
@@ -116,23 +116,27 @@ def main():
                 fe = np.concatenate([flo[sel][:1], fhi[sel]])
                 a.stairs(fv[sel] * scale, fe, color="k", ls=":", lw=2.2, label=r"fixed order")
                 fi = np.interp(ctr, fctr[sel], fv[sel] * scale, left=np.nan, right=np.nan)
+                ref = fi          # fixed order is the ratio denominator
                 r.stairs(fi / ref, e, color="k", ls=":", lw=2.0)
+        if ref is None: ref = np.maximum(hq, 1e-30)
         r.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
         r.stairs(hq / ref, e, color="#d62728", lw=2.4)
         r.axhline(1, color="k", lw=0.8)
         if logx:
             a.set_xscale("log"); r.set_xscale("log"); a.set_yscale("log")
         if key == "pT_H":
-            for p in (a, r): p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.16)
+            for p in (a, r):
+                p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
+                p.axvline(XM, color="0.35", lw=2.0, ls="--")
         a.tick_params(labelbottom=False)
         a.set_title(lab + (r"  \small(recoil, constrained above the seam)" if key == "pT_H"
                            else r"  \small(Born, constrained)"), fontsize=15)
         r.set_xlabel(lab); r.set_ylim(0.5, 1.5)
         if j == 0:
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r.set_ylabel(r"ratio to MaxEnt")
+            r.set_ylabel(r"ratio to fixed order")
             a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$gg\to H$ at 13 TeV upgraded with event-level fixed-order moments"
+    fig.suptitle(r"$gg\to H$ at 13 TeV, event-level NLO moments (LO+R+V)"
                  "\n" rf"\small effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$, "
                  r"$0\%$ negative weights", y=1.03)
     out = os.path.join(HERE, "fig_ggh_eventlevel.pdf")

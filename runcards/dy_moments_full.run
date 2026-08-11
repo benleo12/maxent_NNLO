@@ -43,6 +43,9 @@ SELECTORS
 END_SELECTORS
 
 HISTOGRAMS
+  ! ---- reference distributions for the follower figures (FO curves)
+  phi_star  > phistar_a  min=0.004 max=10 nbins=60 binning=LOG
+  abs_yl1   > yl1_a      min=0 max=2.5 nbins=25
   ! ---- cross-check fine histograms
   mll     > mll_fine     min=66 max=116 nbins=200
   abs_yz  > absyz_fine   min=0  max=6.0 nbins=300

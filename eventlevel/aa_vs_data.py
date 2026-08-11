@@ -16,10 +16,15 @@ D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 
 def load_prior_full():
     parts = []
-    for f in ("aa_prior_s11.npz", "aa_prior_s12.npz"):
+    for f in ("aa_prior_v3_s1a.npz", "aa_prior_v3_s1b.npz", "aa_prior_v3_s1c.npz"):
         p = os.path.join(HERE, f)
         if os.path.exists(p):
-            parts.append(dict(np.load(p, allow_pickle=True)))
+            d = dict(np.load(p, allow_pickle=True))
+            # pT-hat SLICES: the stored per-event weight is 1, so each slice must be
+            # normalised by sigma_i / n_generated_i before they can be concatenated.
+            n = len(np.asarray(d["weight"], float))
+            d["weight"] = np.full(n, float(d["sigma_pb"]) / float(d["n_generated"]))
+            parts.append(d)
     g = lambda k: np.concatenate([np.asarray(p[k], float) for p in parts])
     g1, g2 = g("g1"), g("g2")
     ev = dict(m_aa=g("m_aa"), pt_aa=g("pt_aa"), y_aa=np.abs(g("y_aa")),

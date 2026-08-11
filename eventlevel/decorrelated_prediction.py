@@ -28,12 +28,12 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
-from nnlojet_moments import fo_moments_smooth_from_nnlojet
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-SEEDS = [1, 2]
+SEEDS = None
 PRIOR_FILES = [f"dy_psLO_ext_{i}.npz" for i in (1, 2, 3, 4)]
 
 
@@ -84,7 +84,7 @@ def main():
     ev = {k: v[idx] for k, v in ev.items()}
     print(f"  prior events (fiducial): {len(ev['weight']):,}", flush=True)
 
-    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, SEEDS,
+    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
@@ -114,22 +114,51 @@ def main():
         a, r = ax[0, j], ax[1, j]
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
-        ref = np.maximum(hq, 1e-30)          # ratio reference: the MaxEnt prediction
+        # fixed order exists for |eta_lead| (booked as abs_yl1); none for the
+        # two-lepton angular variables, which were never booked.
+        fo_h = None
+        if key == "eta_lead":
+            lo = hi = None; tot = None; var = None
+            sds = common_seeds(BASE, "DY_MOMENTS", CH6, tag="yl1_a")
+            for s_ in sds:
+                for ch in CH6:
+                    r0 = _load(os.path.join(BASE, f"ch_{ch}", f"Z.DY_MOMENTS.{ch}.yl1_a.s{s_}.dat"))
+                    if r0 is None: continue
+                    lo, _, hi, v, er = r0
+                    tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
+                    var = er[:, 0]**2 if var is None else var + er[:, 0]**2
+            if tot is not None:
+                # only draw FO where it is statistically meaningful: the R-V
+                # cancellation leaves large per-bin errors at low seed count.
+                rel = np.sqrt(var) / np.maximum(np.abs(tot), 1e-300)
+                gd = (tot > 0) & (hi > lo) & (rel < 0.15)
+                n_drop = int(((tot > 0) & (rel >= 0.15)).sum())
+                if n_drop: print(f"    |eta_lead| FO: {n_drop} noisy bins suppressed "
+                                 f"({len(sds)} seed(s))")
+                if gd.sum() > 2:
+                    fn = tot[gd] / (tot[gd] * (hi - lo)[gd]).sum()
+                    a.stairs(fn, np.concatenate([lo[gd][:1], hi[gd]]), color="k",
+                             ls=":", lw=2.2, label=r"fixed order")
+                    fo_h = np.interp(0.5 * (e[:-1] + e[1:]), 0.5 * (lo[gd] + hi[gd]), fn,
+                                     left=np.nan, right=np.nan)
+        ref = np.maximum(hp, 1e-30)   # no data: ratio to the prior
         a.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
-        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt NNLO ($0\%\ w<0$)")
+        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
         r.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
         r.stairs(hq / ref, e, color="#d62728", lw=2.4)
+        if fo_h is not None:
+            r.stairs(fo_h / ref, e, color="k", ls=":", lw=2.0)
         for lbl, (g, col, neg) in gens.items():
             hg = dens(g[key], g["weight"], e)
             a.stairs(hg, e, color=col, lw=1.9, label=rf"{lbl} (${neg}\%\ w<0$)")
             r.stairs(hg / ref, e, color=col, lw=1.8)
         r.axhline(1, color="k", lw=0.8)
-        r.set_ylim(0.80, 1.20); r.set_xlabel(lab)
+        r.set_ylim(0.80, 1.30); r.set_xlabel(lab)
         a.tick_params(labelbottom=False)
         a.set_title(rf"{lab}:  $|\rho_{{\rm S}}(p_T^{{\ell\ell}})| = {rho:.2f}$")
         if j == 0:
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r.set_ylabel(r"ratio to MaxEnt")
+            r.set_ylabel(r"ratio to PS+LO prior")
             a.legend(loc="lower center", labelspacing=0.3, fontsize=12)
     fig.suptitle(r"Predictions for observables \emph{decorrelated} from the constrained recoil "
                  r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.02)

@@ -1,5 +1,5 @@
---- Histograms.f90.bak_profilemoment	2026-08-03 21:50:39
-+++ Histograms.f90	2026-08-03 21:51:55
+--- /Users/user/nnlojet-v1.0.2/driver/core/Histograms.f90.bak_profilemoment	2026-08-03 22:50:39
++++ /Users/user/nnlojet-v1.0.2/driver/core/Histograms.f90	2026-08-03 22:51:55
 @@ -87,6 +87,13 @@
      !   -1:  cumulant from:    xmin       -->  xi[upper]
      !   +1:  cumulant from:    xi[lower]  -->  xmax

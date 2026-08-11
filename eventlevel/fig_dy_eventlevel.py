@@ -19,7 +19,7 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
-from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
@@ -78,7 +78,7 @@ def main():
         a.stairs(np.where(m, hp, np.nan), e, color="0.55", ls="--", lw=2.0,
                  label=rf"PS+LO prior ({med(hp):.1f}\%)")
         a.stairs(np.where(m, hq, np.nan), e, color="#d62728", lw=3.2,
-                 label=rf"MaxEnt NNLO ({med(hq):.1f}\%, $0\%\,w<0$)")
+                 label=rf"MaxEnt ({med(hq):.1f}\%, $0\%\,w<0$)")
         r.stairs(np.where(m, hp / np.maximum(val, 1e-30), np.nan), e, color="0.55", ls="--", lw=1.8)
         r.stairs(np.where(m, hq / np.maximum(val, 1e-30), np.nan), e, color="#d62728", lw=2.6)
         summary[key] = {"prior": med(hp), "MaxEnt": med(hq)}
@@ -94,11 +94,38 @@ def main():
                      label=rf"{lbl} ({med(hg):.1f}\%, ${neg}\%\,w<0$)")
             r.stairs(np.where(m, hg / np.maximum(val, 1e-30), np.nan), e, color=col, lw=1.7)
             summary[key][lbl] = med(hg)
+        # FIXED ORDER (booked for pT_ll only; phi* is a follower with no FO)
+        if key == "pT_ll":
+            flo = fhi = None; tot = None
+            for s_ in seeds:
+                for ch in ("R", "RR", "RV"):          # only these populate pT>0
+                    r0 = _load(os.path.join(BASE, f"ch_{ch}",
+                               f"Z.DY_MOMENTS.{ch}.ptz_winfine.s{s_}.dat"))
+                    if r0 is None: continue
+                    flo, _, fhi, v, _ = r0
+                    tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
+            if tot is not None:
+                g = (tot > 0) & (fhi > flo)
+                inw = (ev[key] >= XM) & (ev[key] < XHI)
+                tgt = float(res.weights[inw].sum() / res.weights.sum())
+                sc = tgt / (tot[g] * (fhi - flo)[g]).sum()
+                fe = np.concatenate([flo[g][:1], fhi[g]])
+                a.stairs(tot[g] * sc, fe, color="k", ls=":", lw=2.2,
+                         label=r"fixed order (NNLO)")
+                fi = np.interp(ctr, np.sqrt(flo[g] * fhi[g]), tot[g] * sc,
+                               left=np.nan, right=np.nan)
+                r.stairs(np.where(m, fi / np.maximum(val, 1e-30), np.nan), e,
+                         color="k", ls=":", lw=2.0)
         rel = err / np.maximum(val, 1e-30)
         r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color="0.75", alpha=0.55, step="mid")
         r.axhline(1, color="k", lw=0.8)
         if key == "pT_ll":
-            for p_ in (a, r): p_.axvspan(XM, XHI, color="#ffd24d", alpha=0.14)
+            for p_ in (a, r):
+                p_.axvspan(XM, XHI, color="#ffd24d", alpha=0.13)
+                p_.axvline(XM, color="0.35", lw=2.0, ls="--")
+        else:      # phi* : the seam maps over as phi* ~ pT/m
+            for p_ in (a, r):
+                p_.axvline(XM / 91.1876, color="0.35", lw=2.0, ls="--")
         a.set_xscale("log"); a.set_yscale("log"); r.set_xscale("log")
         x0 = e[e > 0].min(); a.set_xlim(x0, e[-1]); r.set_xlim(x0, e[-1])
         a.tick_params(labelbottom=False); r.set_ylim(0.72, 1.28)
@@ -108,7 +135,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=11.5, labelspacing=0.28)
-    fig.suptitle(r"Drell--Yan at 13 TeV from event-level NNLO moments "
+    fig.suptitle(r"Drell--Yan at 13 TeV, event-level NNLO moments (all six channels) "
                  r"(median $|$ratio$-1|$ vs data in the legend)", y=1.02)
     out = os.path.join(HERE, "fig_dy_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))

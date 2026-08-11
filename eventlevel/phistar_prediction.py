@@ -19,11 +19,11 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style()
 from maxent_upgrade import upgrade
-from nnlojet_moments import fo_moments_smooth_from_nnlojet
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-SEEDS = [1, 2]   # clean, converged moments (6 seeds infeasible from a noisy RR/RV seed)
+SEEDS = None     # resolved at run time to every channel-complete seed
 
 
 def dens(x, w, e):
@@ -36,7 +36,7 @@ def main():
     ev = dict(mll=P["mll"][idx].astype(float), y_abs=np.abs(P["y_ll"][idx]).astype(float),
               pT_ll=P["pT_ll"][idx].astype(float), phistar=P["phistar"][idx].astype(float),
               weight=P["w"][idx].astype(float))
-    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, SEEDS,
+    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
     print("solving ...", flush=True)
@@ -47,8 +47,34 @@ def main():
     e = np.concatenate([D["lo"][:1], D["hi"]]); ctr = D["center"]
     val, err = D["val"], D["err"]; msk = val > 0
 
+    # fixed order: channel-summed, seed-pooled phi* reference
+    def fo_curve(tag):
+        lo = hi = None; tot = None
+        for s_ in common_seeds(BASE, "DY_MOMENTS", CH6, tag=tag):
+            for ch in CH6:
+                r0 = _load(os.path.join(BASE, f"ch_{ch}", f"Z.DY_MOMENTS.{ch}.{tag}.s{s_}.dat"))
+                if r0 is None: continue
+                lo, _, hi, v, _ = r0
+                tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
+        return (lo, hi, tot) if tot is not None else None
+
+    fo_h = None
+    fc = fo_curve("phistar_a")
+    if fc is not None:
+        flo, fhi, fv = fc
+        gd = (fv > 0) & (fhi > flo)
+        if gd.sum() > 2:
+            # rebin the FO curve onto the data edges
+            fo_h = np.zeros(len(e) - 1)
+            fc_ctr = np.sqrt(flo[gd] * fhi[gd]); fw = (fhi - flo)[gd]
+            for k in range(len(e) - 1):
+                sel = (fc_ctr >= e[k]) & (fc_ctr < e[k + 1])
+                fo_h[k] = (fv[gd][sel] * fw[sel]).sum() / (e[k + 1] - e[k]) if sel.any() else np.nan
+            tot_int = np.nansum(fo_h * np.diff(e))
+            if tot_int > 0: fo_h = fo_h / tot_int
+
     series = [(r"LO+PS prior", dens(ev["phistar"], ev["weight"], e), "0.55", "--", None),
-              (r"MaxEnt NNLO", dens(ev["phistar"], res.weights, e), "#d62728", "-", 0)]
+              (r"MaxEnt", dens(ev["phistar"], res.weights, e), "#d62728", "-", 0)]
     for lbl, f, col, neg in [(r"MiNNLO", "dy_minnlo_atlas_v2.npz", "#1f77b4", 23),
                              (r"MC@NLO", "dy_mcatnlo_atlas.npz", "#2ca02c", 5),
                              (r"POWHEG", "dy_powheg_atlas.npz", "#9467bd", 1)]:
@@ -64,6 +90,11 @@ def main():
     rel = err / np.maximum(val, 1e-30)
     a.errorbar(ctr[msk], val[msk], yerr=err[msk], fmt="o", color="k", ms=5, lw=1.2,
                label=r"ATLAS 1912.02844", zorder=10)
+    if fo_h is not None:
+        a.stairs(np.where(msk, fo_h, np.nan), e, color="k", ls=":", lw=2.2,
+                 label=r"fixed order (NNLO)")
+        r.stairs(np.where(msk, fo_h / np.maximum(val, 1e-30), np.nan), e,
+                 color="k", ls=":", lw=2.0)
     for lbl, h, col, ls, neg in series:
         lw = 3.2 if "MaxEnt" in lbl else 1.9
         leg = (rf"{lbl} ({med(h):.1f}\%)" if neg is None
@@ -72,6 +103,12 @@ def main():
         r.stairs(np.where(msk, h / np.maximum(val, 1e-30), np.nan), e, color=col, ls=ls, lw=lw)
     r.fill_between(ctr[msk], (1 - rel)[msk], (1 + rel)[msk], color="0.75", alpha=0.5, step="mid")
     r.axhline(1, color="k", lw=0.8)
+    # the pT seam maps onto phi* via phi* ~ pT/m  =>  mark it
+    xs = XM / 91.1876
+    for p_ in (a, r):
+        p_.axvline(xs, color="0.45", lw=1.8, ls="--")
+    a.text(xs*1.10, a.get_ylim()[0]*3, rf"$x_{{\rm match}}\!\to\!\phi^*\!\simeq\!{xs:.2f}$",
+           color="0.35", fontsize=13, rotation=90, va="bottom")
     a.set_xscale("log"); a.set_yscale("log"); r.set_xscale("log")
     a.tick_params(labelbottom=False); r.set_ylim(0.72, 1.28)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\phi^*_\eta$")

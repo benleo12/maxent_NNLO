@@ -24,7 +24,7 @@ from nnlojet_moments import fo_moments_smooth_from_nnlojet, _load
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-SEEDS = [1, 2]
+SEEDS = None
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 
 
@@ -54,7 +54,7 @@ def main():
     n = len(P["w"]); idx = np.random.default_rng(0).choice(n, min(1_500_000, n), replace=False)
     ev = dict(mll=P["mll"][idx].astype(float), y_abs=np.abs(P["y_ll"][idx]).astype(float),
               pT_ll=P["pT_ll"][idx].astype(float), weight=P["w"][idx].astype(float))
-    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, SEEDS,
+    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},

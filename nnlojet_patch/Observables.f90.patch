@@ -1,5 +1,5 @@
---- Observables.f90.bak_profilemoment	2026-08-03 21:50:39
-+++ Observables.f90	2026-08-05 17:00:13
+--- /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90.bak_profilemoment	2026-08-03 22:50:39
++++ /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90	2026-08-10 12:58:06
 @@ -187,6 +187,140 @@
                      EvalObs_t(eval=eval_pt_V), ifac=2)
        call bind_obs("mll", "invariant mass of Z", &
@@ -168,10 +168,23 @@
        ! H-boson
        call bind_obs("pth", "transverse momentum of H", &
                      EvalObs_t(eval=eval_pt_V), ifac=2)
-@@ -1906,6 +2060,26 @@
+@@ -1906,6 +2060,39 @@
                      EvalObs_t(eval=eval_imbalance_pt_gam1j1, min_njets=1, min_nphotons=1))
  
      case ("GG", "GG_FRAG", "GGJ", "GGJFC", "GGJJ", "GGJJFC", "GGJJJFC", "GG_EW", "GGQT")
++      ! ---- diphoton angular moments (fix the m-cos correlation)
++      call bind_obs("chebT_cts_1", "T_1 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-1))
++      call bind_obs("chebT_cts_2", "T_2 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-2))
++      call bind_obs("chebT_cts_3", "T_3 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-3))
++      call bind_obs("chebT_cts_4", "T_4 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-4))
++      call bind_obs("chebT_cts_5", "T_5 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-5))
++      call bind_obs("chebT_cts_6", "T_6 |cos th*|", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_cts, imem=-6))
++      call bind_obs("chebT_dpa_1", "T_1 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-1))
++      call bind_obs("chebT_dpa_2", "T_2 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-2))
++      call bind_obs("chebT_dpa_3", "T_3 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-3))
++      call bind_obs("chebT_dpa_4", "T_4 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-4))
++      call bind_obs("chebT_dpa_5", "T_5 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-5))
++      call bind_obs("chebT_dpa_6", "T_6 (pi-dphi_gg)", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_dpa, imem=-6))
 +      ! ---- diphoton event-level Chebyshev moments
 +      call bind_obs("chebT_maa_1", "T_1 m_aa", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_maa, imem=-1), ifac=1)
 +      call bind_obs("chebT_maa_2", "T_2 m_aa", EvalObs_t(min_nphotons=2, eval_mem=eval_chebT_maa, imem=-2), ifac=1)

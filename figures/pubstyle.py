@@ -36,4 +36,5 @@ def use_pub_style(base=20):
         "savefig.dpi": 300,
         "savefig.bbox": "tight",
         "errorbar.capsize": 2.5,
+        "axes.grid": False,
     })

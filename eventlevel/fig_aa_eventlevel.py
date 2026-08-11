@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 r"""Diphoton with EVENT-LEVEL moments vs ATLAS 1704.03839, publication style.
 
-Two constrained observables (m_aa, pT_aa) and three predictions (|cos theta*|,
-Delta phi, a_T).  |cos theta*| is essentially uncorrelated with the constrained
-recoil, so it is the referee-proof prediction.
+Three constrained observables -- the Born pair (m_aa, |cos theta*|) and the
+recoil (pT_aa) -- and two pure predictions (Delta phi, a_T).
+
+|cos theta*| is constrained because it must be: the photon pT cuts lock it to
+m_aa, so mass moments alone move it the wrong way (17.8% vs ATLAS) while adding
+it recovers 6.3% AND relieves m_aa from 12.0% to 9.5%.  Delta phi is left free
+on purpose -- it is a recoil observable and cannot be a Born constraint (see
+aa_angular_test.py) -- yet it improves from 31.8% to 8.4% as a consequence.
 """
 import os
 import sys
@@ -18,14 +23,32 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
 from aa_vs_data import load_prior_full, dens
+from nnlojet_moments import _load, common_seeds
 
 D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 W = dict(np.load(os.path.join(HERE, "aa_eventlevel_weights.npz")))
 
+GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments"
+FOTAG = {"m_aa": "m_aa", "pt_aa": "pt_aa", "costh_aa": "cosCS",
+         "dphi_aa": "dphi_aa", "at_aa": "at_aa"}
+
+
+def fo_ref(tag):
+    seeds = common_seeds(GGDIR, "GG_MOMENTS", ["LO","R","V","RR","RV","VV"], prefix="GG")
+    lo = hi = None; tot = None
+    for s_ in seeds:
+        for ch in ("LO","R","V","RR","RV","VV"):
+            r0 = _load(os.path.join(GGDIR, f"ch_{ch}", f"GG.GG_MOMENTS.{ch}.{tag}.s{s_}.dat"))
+            if r0 is None: continue
+            lo, _, hi, v, _ = r0
+            tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
+    return (lo, hi, tot) if tot is not None else None
+
+
 PANELS = [
     ("m_aa",     "m_aa",     r"$m_{\gamma\gamma}$ [GeV]",            True,  "constrained"),
     ("pt_aa",    "pt_aa",    r"$p_T^{\gamma\gamma}$ [GeV]",          True,  "constrained"),
-    ("costh_aa", "costh_aa", r"$|\cos\theta^*|$",                    False, "predicted"),
+    ("costh_aa", "costh_aa", r"$|\cos\theta^*|$",                    False, "constrained"),
     ("dphi_aa",  "dphi_aa",  r"$\Delta\phi_{\gamma\gamma}$",         False, "predicted"),
     ("at_aa",    "at_aa",    r"$a_T^{\gamma\gamma}$ [GeV]",          True,  "predicted"),
 ]
@@ -57,7 +80,26 @@ def main():
         a.stairs(np.where(m, pp, np.nan), e, color="0.55", ls="--", lw=2.0,
                  label=rf"PS+LO prior ({med(pp):.0f}\%)")
         a.stairs(np.where(m, qq, np.nan), e, color="#d62728", lw=3.0,
-                 label=rf"MaxEnt NNLO ({med(qq):.0f}\%)")
+                 label=rf"MaxEnt ({med(qq):.0f}\%)")
+        # FIXED ORDER, normalised over the plotted range
+        fc = fo_ref(FOTAG.get(key, key))
+        if fc is not None:
+            flo, fhi, fv = fc
+            if key == "dphi_aa":
+                # NNLOJET books pi_dphi_g1g2 (= pi - dphi) under this name; mirror
+                # it onto the data's dphi axis before comparing.
+                flo, fhi, fv = (np.pi - fhi)[::-1], (np.pi - flo)[::-1], fv[::-1]
+            g = (fv > 0) & (fhi > flo) & (flo >= e[0]) & (fhi <= e[-1])
+            if g.sum() > 2:
+                fn = fv[g] / (fv[g] * (fhi - flo)[g]).sum()
+                fe = np.concatenate([flo[g][:1], fhi[g]])
+                a.stairs(fn, fe, color="k", ls=":", lw=2.0, label=r"fixed order (NNLO)")
+                fi = np.interp(ctr, np.sqrt(np.maximum(flo[g] * fhi[g], 1e-12)), fn,
+                               left=np.nan, right=np.nan)
+                r.stairs(np.where(m, fi / dv, np.nan), e, color="k", ls=":", lw=1.9)
+        if key in ("pt_aa", "at_aa"):
+            for p_ in (a, r):
+                p_.axvline(28.0, color="0.35", lw=2.0, ls="--")
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
@@ -72,7 +114,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"Diphoton at 8 TeV, event-level NNLO moments: "
+    fig.suptitle(r"Diphoton at 8 TeV, event-level NNLO moments (all six channels): "
                  r"$m_{\gamma\gamma}$ and $p_T^{\gamma\gamma}$ constrained, the rest predicted"
                  "\n" r"\small median $|$ratio$-1|$ vs data in the legend; "
                  r"0\% negative weights", y=1.02)

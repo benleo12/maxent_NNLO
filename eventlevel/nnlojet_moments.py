@@ -117,18 +117,26 @@ def seeds_in(base, run, ref_channel="LO", ref_tag="norm_born"):
 
 
 def common_seeds(base, run, channels, tag="norm_born", prefix="Z"):
-    r"""Seeds for which EVERY channel is present.
+    r"""Seeds for which EVERY channel is present, for EVERY requested tag.
 
     Pooling requires the same channel content in every seed: if one channel is
     missing for some seed, that seed contributes an incomplete sum and biases the
     pooled moment (e.g. a missing Born channel wrecks the Born denominator).
+
+    `tag` may be a single histogram name or a sequence of them.  Always pass the
+    tags you are actually going to sum: selecting seeds on one tag and summing a
+    different one silently reintroduces the incomplete-sum bias, because a seed
+    can have written the first histogram and not the second.
     """
+    tags = [tag] if isinstance(tag, str) else list(tag)
     sets = []
-    for ch in channels:
-        ss = set()
-        for f in glob.glob(os.path.join(base, f"ch_{ch}", f"{prefix}.{run}.{ch}.{tag}.s*.dat")):
-            ss.add(int(f.split(".s")[-1].split(".dat")[0]))
-        sets.append(ss)
+    for tg in tags:
+        for ch in channels:
+            ss = set()
+            for f in glob.glob(os.path.join(base, f"ch_{ch}",
+                                            f"{prefix}.{run}.{ch}.{tg}.s*.dat")):
+                ss.add(int(f.split(".s")[-1].split(".dat")[0]))
+            sets.append(ss)
     return sorted(set.intersection(*sets)) if sets else []
 
 

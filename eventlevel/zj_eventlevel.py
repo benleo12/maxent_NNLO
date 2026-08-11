@@ -104,32 +104,70 @@ def main():
                   f"   |MaxEnt-FO| {abs(mq[n]-fo[n]):.4f}  (prior gap {abs(mp[n]-fo[n]):.4f})")
 
     # ---------------- figure ----------------
-    panels = [("ptj1", np.geomspace(20, 500, 26), r"$p_T^{j_1}$ [GeV]", True,  "constrained"),
-              ("ptj2", np.geomspace(20, 300, 22), r"$p_T^{j_2}$ [GeV]", True,  "predicted"),
-              ("pimdphi", np.geomspace(0.02, 3.0, 22), r"$\pi-\Delta\phi_{\ell\ell}$", True, "predicted")]
+    panels = [("ptj1", np.geomspace(20, 500, 26), r"$p_T^{j_1}$ [GeV]", True,  "constrained", "ptj1_a"),
+              ("ptj2", np.geomspace(20, 300, 22), r"$p_T^{j_2}$ [GeV]", True,  "predicted", "ptj2_a"),
+              ("pimdphi", np.geomspace(0.02, 3.0, 22), r"$\pi-\Delta\phi_{\ell\ell}$", True, "predicted", "dphil_a")]
+
+    def fo_ref(tag):
+        """channel-summed FO reference distribution (lo, hi, density)."""
+        lo = hi = None; tot = None
+        for s_ in seeds:
+            for ch in CH:
+                r0 = _load(os.path.join(ZDIR, f"ch_{ch}", f"{PREFIX}.{RUN}.{ch}.{tag}.s{s_}.dat"))
+                if r0 is None: continue
+                lo, _, hi, v, _ = r0
+                tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
+        return (lo, hi, tot) if tot is not None else None
     fig, ax = plt.subplots(2, 3, figsize=(16.5, 7.6), squeeze=False,
                            gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07, "wspace": 0.26})
-    for j, (key, e, lab, logx, role) in enumerate(panels):
+    for j, (key, e, lab, logx, role, fotag) in enumerate(panels):
         a_, r_ = ax[0, j], ax[1, j]
-        d = lambda w: np.histogram(ev[key], e, weights=w / w.sum())[0] / np.diff(e)
+        # pT_j2 exists only for >=2-jet events; the FO histogram contains only
+        # those, so normalise the prior/MaxEnt over the same subset.
+        sub = (ev["ptj2"] > 0) if key == "ptj2" else np.ones(len(ev[key]), bool)
+        def d(w, sub=sub):
+            ww = w[sub]
+            return np.histogram(ev[key][sub], e, weights=ww / ww.sum())[0] / np.diff(e)
         hp, hq = d(ev["weight"]), d(res.weights)
-        ref = np.maximum(hq, 1e-30)
+        ctr_ = np.sqrt(e[:-1] * e[1:])
+        # FIXED-ORDER reference, and the ratio denominator (no data for Z+jet)
+        fo_i = None
+        fc = fo_ref(fotag)
+        if fc is not None:
+            flo, fhi, fv = fc
+            if key == "pimdphi":
+                # NNLOJET books dphi_l1l2 (= dphi); we plot pi - dphi.  Mirror it.
+                flo, fhi, fv = (np.pi - fhi)[::-1], (np.pi - flo)[::-1], fv[::-1]
+                keep = fhi > flo
+                flo, fhi, fv = flo[keep], fhi[keep], fv[keep]
+            good = (fv > 0) & (fhi > flo)
+            if good.sum() > 2:
+                fctr = np.sqrt(flo[good] * fhi[good])
+                fnorm = fv[good] / (fv[good] * (fhi - flo)[good]).sum()
+                scale = (hq * np.diff(e)).sum()
+                fe = np.concatenate([flo[good][:1], fhi[good]])
+                a_.stairs(fnorm * scale, fe, color="k", ls=":", lw=2.2, label=r"fixed order (NLO)")
+                fo_i = np.interp(ctr_, fctr, fnorm * scale, left=np.nan, right=np.nan)
+        ref = np.where(np.isfinite(fo_i), fo_i, np.nan) if fo_i is not None else np.maximum(hq, 1e-30)
         a_.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
         a_.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
         r_.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
         r_.stairs(hq / ref, e, color="#d62728", lw=2.4)
         r_.axhline(1, color="k", lw=0.8)
-        if key == "ptj1":
-            for p in (a_, r_): p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.16)
+        if key in ("ptj1", "ptj2"):
+            for p in (a_, r_):
+                if key == "ptj1":
+                    p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
+                p.axvline(XM, color="0.35", lw=2.0, ls="--")
         if logx: a_.set_xscale("log"); r_.set_xscale("log")
         a_.set_yscale("log"); a_.tick_params(labelbottom=False)
         a_.set_title(lab + rf"  \small({role})", fontsize=15)
         r_.set_xlabel(lab); r_.set_ylim(0.5, 1.6)
         if j == 0:
             a_.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r_.set_ylabel(r"ratio to MaxEnt")
+            r_.set_ylabel(r"ratio to fixed order")
             a_.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$Z+$jet at 13 TeV, event-level moments: $p_T^{j_1}$ constrained; "
+    fig.suptitle(r"$Z+$jet at 13 TeV, event-level NLO moments (LO+R+V): $p_T^{j_1}$ constrained; "
                  r"$p_T^{j_2}$ and $\Delta\phi_{\ell\ell}$ predicted"
                  "\n" rf"\small effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$", y=1.03)
     out = os.path.join(HERE, "fig_zj_eventlevel.pdf")

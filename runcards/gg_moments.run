@@ -76,6 +76,19 @@ HISTOGRAMS
   chebTw_ptaa_10 > prof_wpt_10  min=-1.001 max=1.001 nbins=1 profile = T
   chebTw_ptaa_11 > prof_wpt_11  min=-1.001 max=1.001 nbins=1 profile = T
   chebTw_ptaa_12 > prof_wpt_12  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- angular moments (event-level, Born-type: full range)
+  chebT_cts_1 > prof_cts_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_cts_2 > prof_cts_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_cts_3 > prof_cts_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_cts_4 > prof_cts_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_cts_5 > prof_cts_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_cts_6 > prof_cts_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_1 > prof_dpa_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_2 > prof_dpa_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_3 > prof_dpa_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_4 > prof_dpa_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_5 > prof_dpa_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_dpa_6 > prof_dpa_6  min=-1.001 max=1.001 nbins=1 profile = T
 END_HISTOGRAMS
 
 SCALES

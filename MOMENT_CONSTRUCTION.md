@@ -27,7 +27,47 @@ sigma_n on each mu_n, computed the same way you get the error on any booked obse
 per order n is the target. This is identical to booking the observable T_n(u(x)); there
 is no histogram.
 
-## 2. Range and map per observable
+## 2. Which slot: Born or recoil
+
+Every observable goes in exactly one of two slots, and the choice is dictated by the
+observable, not by preference.
+
+**Born slot** — the observable is defined at Born level and is infrared-safe over its
+whole range. Its fixed-order moments may be imposed everywhere. Examples: the invariant
+mass, the rapidity, the Collins-Soper `|cos theta*|`.
+
+**Recoil slot** — the observable vanishes identically at Born level and its fixed-order
+prediction diverges in the soft limit. It may only be constrained through the profile,
+above the matching scale, with the shower left alone below. Examples: `pT` of the
+colour-singlet system, `pi - dphi`, `a_T`.
+
+Putting a recoil observable in the Born slot is not merely inaccurate — it makes the
+dual **infeasible**. Imposing the fixed-order moments of `pi - dphi_gg` over its full
+range directly contradicts the recoil profile, which deliberately preserves the shower
+below the seam, and the MaxEnt solve has no positive-weight solution at any moment order
+(verified for N = 3, 4, 6; `eventlevel/aa_angular_test.py`). `|cos theta*|`, a genuine
+Born observable, converges at all of them. A convergence failure of this kind is a
+diagnosis, not a numerical problem to be tuned away.
+
+Constraining the Born angular observable matters. For the ATLAS 8 TeV diphoton fiducial
+region the photon `pT` cuts lock `|cos theta*|` to `m_gg`, so mass moments alone move
+the angle the wrong way. Against ATLAS 1704.03839 (median `|shape/data - 1|`):
+
+| observable | prior | Born {m} | Born {m, cos} |
+|---|---|---|---|
+| `m_gg`       | 48.4% | 12.0% *(c)* | **9.5%** *(c)* |
+| `pT_gg`      | 84.1% | 14.0% *(c)* | 13.9% *(c)* |
+| `|cos theta*|` | 4.0% | 17.8% | **6.3%** *(c)* |
+| `dphi_gg`    | 31.8% | 15.5% | **8.4%** |
+| `a_T`        | 57.6% | 13.2% | 15.1% |
+
+*(c)* = constrained. Adding the angle recovers it *and* relieves the mass, because the
+two are correlated by the fiducial cuts. `dphi_gg` is never constrained in either column
+and improves anyway. Note also that the prior's 4.0% on `|cos theta*|` was an accidental
+cancellation; after the upgrade the value is pinned to the fixed order rather than
+landing near the data by luck.
+
+## 3. Range and map per observable
 
 Use the same [lo, hi] and map you tell the reweighting code (they must match). Mass and
 rapidity use the linear map over the fiducial range. Transverse momenta use the
@@ -35,7 +75,7 @@ logarithmic map. For a recoil constrained only above a resolution scale x_match,
 the moment over [x_match, x_hi] with u mapped on [soft_lo, x_hi] (log), and also return
 the fixed-order cross-section fraction in [x_match, x_hi] (the window rate).
 
-## 3. How many moments
+## 4. How many moments
 
 Return moments up to a generous ceiling (say N = 12). The reweighting keeps moment n
 only while it is resolved above its own fixed-order uncertainty,
@@ -45,7 +85,7 @@ only while it is resolved above its own fixed-order uncertainty,
 and drops the rest. This is why sigma_n matters as much as mu_n. A moment the fixed-order
 calculation does not determine above its scale-and-statistics error is not imposed.
 
-## 4. The orders, stated precisely (this is where we must be careful)
+## 5. The orders, stated precisely (this is where we must be careful)
 
 For an inclusive color-singlet calculation at NNLO:
 
@@ -71,7 +111,7 @@ transverse momenta pT(A1), pT(A2) are NNLO for the inclusive observable, but the
 features that depend on the recoil inherit the NLO(V+jet) accuracy of the recoil, so
 state them as inclusive-NNLO with an NLO recoil tail rather than uniformly NNLO.
 
-## 5. Practical path
+## 6. Practical path
 
 Start at low statistics to fix the observable list and the maps, then raise statistics
 for production. The moments converge fast because they are integrated quantities, so the
