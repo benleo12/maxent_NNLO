@@ -19,7 +19,7 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
-from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, fo_curve
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
@@ -94,7 +94,28 @@ def main():
                      label=rf"{lbl} ({med(hg):.1f}\%, ${neg}\%\,w<0$)")
             r.stairs(np.where(m, hg / np.maximum(val, 1e-30), np.nan), e, color=col, lw=1.7)
             summary[key][lbl] = med(hg)
-        # FIXED ORDER (booked for pT_ll only; phi* is a follower with no FO)
+        # FIXED ORDER: phi* is booked too (phistar_a).  It is a prediction only
+        # ABOVE the seam -- below it the Sudakov logarithms are unresummed --
+        # so draw it faded there rather than let its spikes dominate the panel.
+        if key == "phistar":
+            fc = fo_curve(BASE, "DY_MOMENTS", CH6,
+                          common_seeds(BASE, "DY_MOMENTS", CH6, tag="phistar_a"),
+                          "phistar_a")
+            if fc is not None:
+                flo, fhi, fd, _ = fc
+                g = (fd > 0) & (fhi > flo)
+                fn = fd[g] / (fd[g] * (fhi - flo)[g]).sum()
+                fc_c = np.sqrt(flo[g] * fhi[g]); fe = np.concatenate([flo[g][:1], fhi[g]])
+                xs_ = XM / 91.1876
+                ab = fc_c >= xs_
+                a.stairs(np.where(ab, fn, np.nan), fe, color="k", ls=":", lw=2.4,
+                         label=r"fixed order (NNLO)")
+                a.stairs(np.where(~ab, fn, np.nan), fe, color="k", ls=":", lw=1.4, alpha=0.22)
+                fi = np.interp(ctr, fc_c, fn, left=np.nan, right=np.nan)
+                rr = fi / np.maximum(val, 1e-30)
+                r.stairs(np.where(m & (ctr >= xs_), rr, np.nan), e, color="k", ls=":", lw=2.2)
+                r.stairs(np.where(m & (ctr < xs_), rr, np.nan), e, color="k", ls=":",
+                         lw=1.3, alpha=0.22)
         if key == "pT_ll":
             flo = fhi = None; tot = None
             for s_ in seeds:
@@ -135,8 +156,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=11.5, labelspacing=0.28)
-    fig.suptitle(r"Drell--Yan at 13 TeV, event-level NNLO moments (all six channels) "
-                 r"(median $|$ratio$-1|$ vs data in the legend)", y=1.02)
+    fig.suptitle(r"Drell--Yan at 13 TeV, event-level NNLO moments", y=1.02)
     out = os.path.join(HERE, "fig_dy_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)
