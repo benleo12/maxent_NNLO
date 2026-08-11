@@ -114,10 +114,10 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"Diphoton at 8 TeV, event-level NNLO moments (all six channels): "
-                 r"$m_{\gamma\gamma}$ and $p_T^{\gamma\gamma}$ constrained, the rest predicted"
-                 "\n" r"\small median $|$ratio$-1|$ vs data in the legend; "
-                 r"0\% negative weights", y=1.02)
+    fig.suptitle(r"Diphoton at 8 TeV, event-level NNLO moments: Born "
+                 r"$\{m_{\gamma\gamma},\,|\cos\theta^*|\}$ and recoil "
+                 r"$\{p_T^{\gamma\gamma}\}$ constrained; "
+                 r"$\Delta\phi_{\gamma\gamma}$ and $a_T$ predicted", y=1.02)
     out = os.path.join(HERE, "fig_aa_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

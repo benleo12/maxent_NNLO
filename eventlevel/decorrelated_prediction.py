@@ -191,7 +191,8 @@ def main():
     fig.text(0.5, 0.975, r"no fixed-order curve: at NNLO the real and subtraction terms "
                          r"populate different bins of these Born angular variables, so the "
                          r"\emph{differential} spectrum is unresolved "
-                         r"(rel.\ err.\ $\simeq1$) while its integral is exact ($<5\times10^{-4}$)",
+                         r"(rel.\ err.\ $\simeq1$) while its integral is exact ($<5\times10^{-4}$)."
+                         r"  MC@NLO is absent: the stored sample keeps no lepton four-vectors",
              ha="center", va="top", fontsize=12, color="0.35")
     out = os.path.join(HERE, "fig_decorrelated_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
