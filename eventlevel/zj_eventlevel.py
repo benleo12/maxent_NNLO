@@ -18,14 +18,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
-from maxent_upgrade import upgrade
+from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              _load, _moment_over_seeds)
 
 ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
 CH = ["LO", "R", "V"]
-XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 10.0     # pT_j1 profile + log-map floor
+# mirrors eval_w_ptj1 (pa=30, pb=60)
+XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 10.0   # pT_j1 profile + log-map floor
+Q_HARD = 91.1876
 
 
 def cheb(u, n):
@@ -53,6 +55,7 @@ def fo_moment(tag_base, w0, nmax, seeds):
 
 
 def main():
+    check_seam(XM, Q_HARD, label="Z+jet")
     seeds = common_seeds(ZDIR, RUN, CH, prefix=PREFIX)
     print(f"Z+jet FO seeds usable: {seeds}")
     M = fo_moments_smooth_from_nnlojet(

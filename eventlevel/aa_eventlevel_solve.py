@@ -20,13 +20,15 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from maxent_upgrade import upgrade
+from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
 
 GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments"
 RUN, PREFIX = "GG_MOMENTS", "GG"
 CH = ["LO", "R", "V", "RR", "RV", "VV"]   # full NNLO
-XM, XB, XHI, SOFT = 28.0, 56.0, 500.0, 1.0     # seam from alpha_s ln^2(Q/pT) < 0.2
+# mirrors eval_w_ptaa (pa=28, pb=56, pc=pd=500); see check_seam()
+XM, XB, XHI, SOFT = 28.0, 56.0, 500.0, 1.0
+Q_HARD = 90.0
 MLO, MHI = 80.0, 700.0
 
 
@@ -61,6 +63,7 @@ def load_prior():
 
 
 def main():
+    check_seam(XM, Q_HARD, label="diphoton")
     born_tags = {"m_aa": "maa", "costh_aa": "cts", "dphi_log": "dpa"}
     # select seeds on EVERY tag that is summed, not just the Born denominator
     need = ["norm_born", "prof_wpt_0"] + [f"prof_{t}_1" for t in born_tags.values()] \

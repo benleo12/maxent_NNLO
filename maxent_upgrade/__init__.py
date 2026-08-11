@@ -59,7 +59,7 @@ from .dy_method import cheb as _cheb, umap as _umap
 
 __all__ = [
     "upgrade", "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
-    "profile_w",
+    "profile_w", "matching_scale", "check_seam",
     "moment_snr", "resolved_order",
     "FOHist", "fo_from_dat", "UpgradeResult", "DEFAULTS",
 ]
@@ -526,6 +526,70 @@ def chebyshev_moment(x, w, n_max, a, b, mp):
     C = _cheb(u, n_max)
     s = w.sum()
     return np.array([(w * C[:, n]).sum() / s for n in range(1, n_max + 1)])
+
+
+def alpha_s(mu, mz=91.1876, az=0.118, nf=5):
+    """Two-loop running coupling, normalised at m_Z."""
+    mu = np.asarray(mu, float)
+    b0 = (33 - 2 * nf) / (12 * np.pi); b1 = (153 - 19 * nf) / (24 * np.pi ** 2)
+    L = np.log(np.maximum(mu, 1.0) ** 2 / mz ** 2); al = az
+    for _ in range(60):
+        al = az / (1 + az * b0 * L + az ** 2 * (b1 / b0)
+                   * np.log(np.maximum(1 + az * b0 * L, 1e-9)))
+    return al
+
+
+def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
+    r"""Seam x_match for a process with hard scale Q, from resummation power counting.
+
+        x_match = min { pT :  alpha_s(pT) ln^2(Q/pT)  <  thr }
+
+    Below it the fixed-order prediction is contaminated by unresummed Sudakov
+    logarithms and only the shower is trusted; above it the fixed order is
+    imposed.  Data-blind, no tuning, and one prescription for every process --
+    the process enters only through Q.
+
+    This is the SINGLE SOURCE OF TRUTH for the seam.  Hard-coding a number per
+    analysis lets it drift from the criterion the paper quotes: gg->H has
+    Q = m_H = 125 GeV and therefore a seam at 37 GeV, not the 30 GeV that the
+    colour-singlet analyses inherited from Drell-Yan.
+
+    Returns the scale in GeV (float).
+    """
+    Q = float(Q)
+    hi = 0.9 * Q if hi is None else float(hi)
+    pt = np.geomspace(lo, hi, int(n))
+    v = alpha_s(pt) * np.log(Q / np.minimum(pt, 0.99 * Q)) ** 2
+    ok = np.where(v < thr)[0]
+    if not len(ok):
+        raise ValueError(f"no pT in [{lo}, {hi}] satisfies alpha_s ln^2 < {thr} for Q={Q}")
+    return float(pt[ok[0]])
+
+
+def check_seam(x_match, Q, tol=0.15, label="", thr=0.2):
+    r"""Warn when the seam in use disagrees with the power-counting criterion.
+
+    The seam is NOT a free parameter of the reweighting: the smooth profile is
+    compiled into NNLOJET (``eval_w_ptz`` etc.) and the fixed-order input is
+    ``<T_n w>`` with THAT w, so ``x_match`` here must mirror the Fortran.
+    Changing it on the Python side alone imposes moments built with one weight
+    function against features built with another -- for gg->H that costs a
+    factor 10 in closure and a third of the effective statistics.
+
+    So this does not silently "fix" anything.  It reports the discrepancy and
+    says what would have to be re-run, which is the honest state of affairs:
+    moving the seam is an NNLOJET change, not a plotting change.
+
+    Returns the criterion value.
+    """
+    want = matching_scale(Q, thr=thr)
+    if abs(x_match - want) / want > tol:
+        print(f"  [seam] {label or 'process'}: using x_match = {x_match:.1f} GeV, "
+              f"but alpha_s ln^2(Q/pT) < {thr} at Q = {Q:g} GeV gives {want:.1f} GeV "
+              f"({100*(x_match-want)/want:+.0f}%).  The profile is compiled into "
+              f"NNLOJET -- to adopt {want:.1f}, edit the pa/pb parameters in "
+              f"EvalFuncs.f90 and regenerate the moments.")
+    return want
 
 
 def _smootherstep(t):

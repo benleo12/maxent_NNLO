@@ -18,12 +18,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
-from maxent_upgrade import upgrade
+from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, fo_curve
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
+# mirrors eval_w_ptz (pa=30, pb=60, pc=pd=500)
 XM, XHI, SOFT = 30.0, 500.0, 0.5
+Q_HARD = 91.1876
 
 GENS = [("MiNNLO", "dy_minnlo_atlas_v2.npz", "#1f77b4", 23),
         ("MC@NLO", "dy_mcatnlo_atlas.npz", "#2ca02c", 5),
@@ -37,6 +39,7 @@ def dens(x, w, e):
 
 
 def main():
+    check_seam(XM, Q_HARD, label="Drell-Yan")
     seeds = common_seeds(BASE, "DY_MOMENTS", CH6)
     print(f"DY FO seeds usable: {seeds}")
     M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, seeds,

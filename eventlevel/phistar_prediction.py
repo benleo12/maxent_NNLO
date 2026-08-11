@@ -18,10 +18,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style()
-from maxent_upgrade import upgrade
+from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+# mirrors eval_w_ptz (pa=30, pb=60, pc=pd=500)
 XM, XHI, SOFT = 30.0, 500.0, 0.5
+Q_HARD = 91.1876
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 SEEDS = None     # resolved at run time to every channel-complete seed
 
@@ -31,6 +33,7 @@ def dens(x, w, e):
 
 
 def main():
+    check_seam(XM, Q_HARD, label="Drell-Yan")
     P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v2.npz")))
     n = len(P["w"]); idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)
     ev = dict(mll=P["mll"][idx].astype(float), y_abs=np.abs(P["y_ll"][idx]).astype(float),

@@ -20,13 +20,20 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from pubstyle import use_pub_style
 use_pub_style(base=17)
-from maxent_upgrade import upgrade
+from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 
 GDIR = "/Users/user/nnlojet-v1.0.2/ggh_moments"
 RUN, PREFIX = "GGH_MOMENTS", "H"
 CH = ["LO", "R", "V"]
+# The profile is COMPILED INTO NNLOJET (eval_w_pth: pa=30, pb=60, pc=pd=1000),
+# and the FO moments are <T_n w> with THAT w -- so these must mirror the
+# Fortran exactly.  Moving them here alone imposes moments built with one
+# weight function against features built with another (it costs a factor 10
+# in closure).  check_seam() flags that gg->H should really sit at 37 GeV;
+# acting on it means editing EvalFuncs.f90 and re-running NNLOJET.
 XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 1.0
+Q_HARD = 125.0
 YHI = 4.0
 
 
@@ -47,6 +54,7 @@ def dens(x, w, e):
 
 
 def main():
+    check_seam(XM, Q_HARD, label="gg->H")
     seeds = common_seeds(GDIR, RUN, CH, prefix=PREFIX)
     print(f"gg->H FO seeds usable: {seeds}")
     M = fo_moments_smooth_from_nnlojet(
