@@ -114,10 +114,22 @@ def main():
         a, r = ax[0, j], ax[1, j]
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
-        # fixed order exists for |eta_lead| (booked as abs_yl1); none for the
-        # two-lepton angular variables, which were never booked.
+        # No fixed-order curve is drawn on these three panels, and that is a
+        # statement about the fixed-order calculation rather than an omission.
+        # |eta_lead| IS booked (abs_yl1) and its INTEGRAL is exact -- it
+        # reproduces norm_born channel by channel, seed scatter 5e-4.  But the
+        # differential distribution is not resolved: at NNLO the real-emission
+        # and subtraction terms land in DIFFERENT |eta_lead| bins, so per-bin
+        # values are ~300x the physical density with relative error ~1 and
+        # cancel only over the full range (40 seeds: rel = 1.06 at 25 bins,
+        # 1.08 merged to 5, <5e-4 at 1).  phi*_eta is immune because phi* > 0
+        # requires a real emission, so LO and V do not contribute at all and
+        # there is no large cancellation (rel = 0.011).
+        #
+        # This is exactly why the moment interface is built on integrals:
+        # moments converge where the differential spectrum does not.
         fo_h = None
-        if key == "eta_lead":
+        if False:  # kept for reference; re-enable with far higher FO statistics
             lo = hi = None; tot = None; var = None
             sds = common_seeds(BASE, "DY_MOMENTS", CH6, tag="yl1_a")
             for s_ in sds:
@@ -128,18 +140,31 @@ def main():
                     tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
                     var = er[:, 0]**2 if var is None else var + er[:, 0]**2
             if tot is not None:
-                # only draw FO where it is statistically meaningful: the R-V
-                # cancellation leaves large per-bin errors at low seed count.
-                rel = np.sqrt(var) / np.maximum(np.abs(tot), 1e-300)
-                gd = (tot > 0) & (hi > lo) & (rel < 0.15)
-                n_drop = int(((tot > 0) & (rel >= 0.15)).sum())
-                if n_drop: print(f"    |eta_lead| FO: {n_drop} noisy bins suppressed "
-                                 f"({len(sds)} seed(s))")
+                # The R-V cancellation leaves large errors in NNLOJET's native
+                # fine bins, so merge adjacent bins before judging significance:
+                # the moments are integrals and do not care about the binning,
+                # and this is only a reference curve.  Merging K bins buys a
+                # factor sqrt(K) on the relative error.
+                K = 5
+                nb = (len(tot) // K) * K
+                glo = lo[:nb].reshape(-1, K)[:, 0]
+                ghi = hi[:nb].reshape(-1, K)[:, -1]
+                gtot = (tot[:nb] * np.diff(np.stack([lo[:nb], hi[:nb]]), axis=0)[0]
+                        ).reshape(-1, K).sum(1)
+                gvar = (var[:nb] * np.diff(np.stack([lo[:nb], hi[:nb]]), axis=0)[0] ** 2
+                        ).reshape(-1, K).sum(1)
+                gw = ghi - glo
+                gd = (gtot > 0) & (gw > 0) & (np.sqrt(gvar) / np.maximum(gtot, 1e-300) < 0.15)
+                n_drop = int(((gtot > 0) & ~gd).sum())
+                print(f"    |eta_lead| FO: {gd.sum()}/{len(gtot)} merged bins kept "
+                      f"({len(sds)} seeds, {n_drop} dropped)")
                 if gd.sum() > 2:
-                    fn = tot[gd] / (tot[gd] * (hi - lo)[gd]).sum()
-                    a.stairs(fn, np.concatenate([lo[gd][:1], hi[gd]]), color="k",
-                             ls=":", lw=2.2, label=r"fixed order")
-                    fo_h = np.interp(0.5 * (e[:-1] + e[1:]), 0.5 * (lo[gd] + hi[gd]), fn,
+                    dens_g = gtot[gd] / gw[gd]
+                    fn = dens_g / (dens_g * gw[gd]).sum()
+                    a.stairs(fn, np.concatenate([glo[gd][:1], ghi[gd]]), color="k",
+                             ls=":", lw=2.4, label=r"fixed order (NNLO)")
+                    fo_h = np.interp(0.5 * (e[:-1] + e[1:]),
+                                     0.5 * (glo[gd] + ghi[gd]), fn,
                                      left=np.nan, right=np.nan)
         ref = np.maximum(hp, 1e-30)   # no data: ratio to the prior
         a.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
@@ -161,7 +186,13 @@ def main():
             r.set_ylabel(r"ratio to PS+LO prior")
             a.legend(loc="lower center", labelspacing=0.3, fontsize=12)
     fig.suptitle(r"Predictions for observables \emph{decorrelated} from the constrained recoil "
-                 r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.02)
+                 r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.045)
+    # Say why there is no fixed-order curve here, rather than leave it missing.
+    fig.text(0.5, 0.975, r"no fixed-order curve: at NNLO the real and subtraction terms "
+                         r"populate different bins of these Born angular variables, so the "
+                         r"\emph{differential} spectrum is unresolved "
+                         r"(rel.\ err.\ $\simeq1$) while its integral is exact ($<5\times10^{-4}$)",
+             ha="center", va="top", fontsize=12, color="0.35")
     out = os.path.join(HERE, "fig_decorrelated_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

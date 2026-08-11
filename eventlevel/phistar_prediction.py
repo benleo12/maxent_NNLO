@@ -91,10 +91,16 @@ def main():
     a.errorbar(ctr[msk], val[msk], yerr=err[msk], fmt="o", color="k", ms=5, lw=1.2,
                label=r"ATLAS 1912.02844", zorder=10)
     if fo_h is not None:
-        a.stairs(np.where(msk, fo_h, np.nan), e, color="k", ls=":", lw=2.2,
-                 label=r"fixed order (NNLO)")
-        r.stairs(np.where(msk, fo_h / np.maximum(val, 1e-30), np.nan), e,
-                 color="k", ls=":", lw=2.0)
+        # Fixed order is a prediction only above the seam.  Below it the
+        # Sudakov logarithms are unresummed and the curve is meaningless --
+        # draw it faded there rather than letting its spikes dominate the eye.
+        xs_ = XM / 91.1876
+        above = ctr >= xs_
+        for p_, h_ in ((a, fo_h), (r, fo_h / np.maximum(val, 1e-30))):
+            p_.stairs(np.where(msk & above, h_, np.nan), e, color="k", ls=":",
+                      lw=2.4, label=(r"fixed order (NNLO)" if p_ is a else None))
+            p_.stairs(np.where(msk & ~above, h_, np.nan), e, color="k", ls=":",
+                      lw=1.4, alpha=0.22)
     for lbl, h, col, ls, neg in series:
         lw = 3.2 if "MaxEnt" in lbl else 1.9
         leg = (rf"{lbl} ({med(h):.1f}\%)" if neg is None
@@ -107,14 +113,20 @@ def main():
     xs = XM / 91.1876
     for p_ in (a, r):
         p_.axvline(xs, color="0.45", lw=1.8, ls="--")
-    a.text(xs*1.10, a.get_ylim()[0]*3, rf"$x_{{\rm match}}\!\to\!\phi^*\!\simeq\!{xs:.2f}$",
-           color="0.35", fontsize=13, rotation=90, va="bottom")
     a.set_xscale("log"); a.set_yscale("log"); r.set_xscale("log")
-    a.tick_params(labelbottom=False); r.set_ylim(0.72, 1.28)
+    # axes-fraction coords: immune to the y-scale being set after this call.
+    # (Reading get_ylim() on the still-linear axis put the label at a negative y,
+    # which is off-scale once the axis goes log -- bbox="tight" then grew the
+    # canvas to 56000 pt to contain it.)
+    a.text(xs * 1.10, 0.04, rf"$x_{{\rm match}}\!\to\!\phi^*\!\simeq\!{xs:.2f}$",
+           transform=a.get_xaxis_transform(), color="0.35", fontsize=13,
+           rotation=90, va="bottom")
+    a.tick_params(labelbottom=False); r.set_ylim(0.80, 1.20)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\phi^*_\eta$")
     r.set_ylabel(r"ratio to data"); r.set_xlabel(r"$\phi^*_\eta$")
     x0 = e[e > 0].min(); a.set_xlim(x0, e[-1]); r.set_xlim(x0, e[-1])
-    a.legend(loc="lower left", handlelength=1.4, labelspacing=0.3)
+    a.legend(loc="lower left", bbox_to_anchor=(0.015, 0.015), handlelength=1.4,
+             labelspacing=0.28, borderaxespad=0.0)
     a.set_title(r"$\phi^*_\eta$ never constrained: a pure prediction of the reweighting")
     out = os.path.join(HERE, "fig_phistar_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))

@@ -57,6 +57,56 @@ def _sum_channels(base, run, channels, tag, seed, prefix="Z"):
     return tot
 
 
+def fo_curve(base, run, channels, seeds, tag, prefix="Z", scale_idx=0, rebin=1):
+    r"""Channel-summed, seed-pooled fixed-order DISTRIBUTION with an honest error.
+
+    Returns ``(lo, hi, dens, err)`` where ``dens`` is the differential cross
+    section per bin and ``err`` its uncertainty, or ``None`` if nothing loads.
+
+    The uncertainty is the **seed-to-seed scatter** of the channel sum,
+    ``std(t_s, ddof=1)/sqrt(nseed)``, NOT the error column in the .dat files.
+    For multi-bin histograms of a subtracted calculation those quoted per-bin
+    errors are wildly wrong: for the DY ``abs_yl1`` histogram at 40 seeds the
+    quoted error exceeds the actual seed scatter by up to a factor of 1.3e6
+    (V channel: quoted 1.85e6 against a scatter of 10.6), because the huge
+    point-by-point fluctuations of the R-V subtraction cancel between bins in a
+    way the per-bin error does not track.  The integrals are meanwhile exact --
+    ``yl1_a`` reproduces ``norm_born`` channel by channel.  Masking bins on the
+    quoted error therefore throws away perfectly good data; the across-seed
+    scatter is the honest estimator, and is what running many seeds buys.
+
+    ``rebin`` merges groups of adjacent bins first (the moments are integrals
+    and do not care about binning; this is only a reference curve).
+    """
+    per_seed = []
+    lo = hi = None
+    for s in seeds:
+        tot = None
+        for ch in channels:
+            r = _load(os.path.join(base, f"ch_{ch}", f"{prefix}.{run}.{ch}.{tag}.s{s}.dat"))
+            if r is None:
+                continue
+            lo, _, hi, v, _ = r
+            tot = v[:, scale_idx].copy() if tot is None else tot + v[:, scale_idx]
+        if tot is not None:
+            per_seed.append(tot)
+    if not per_seed or lo is None:
+        return None
+    A = np.asarray(per_seed, float)              # (nseed, nbin) densities
+    w = hi - lo
+    K = max(int(rebin), 1)
+    if K > 1:
+        nb = (A.shape[1] // K) * K
+        lo, hi = lo[:nb].reshape(-1, K)[:, 0], hi[:nb].reshape(-1, K)[:, -1]
+        A = (A[:, :nb] * w[:nb]).reshape(A.shape[0], -1, K).sum(2)   # integrals
+        w = hi - lo
+        A = A / w                                                     # back to density
+    n = A.shape[0]
+    dens = A.mean(0)
+    err = A.std(0, ddof=1) / np.sqrt(n) if n > 1 else np.full_like(dens, np.nan)
+    return lo, hi, dens, err
+
+
 def _moment_over_seeds(base, run, channels, seeds, prof_tag, norm_tag, prefix="Z"):
     r"""Combine seeds CORRECTLY, by pooling the Monte Carlo.
 
