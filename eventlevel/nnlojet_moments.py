@@ -291,6 +291,39 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
     return moments
 
 
+def add_profiled_recoil(moments, base, run, channels, seeds, cfg_obs,
+                        wtag, w0, n_recoil, x_match, x_hi, soft_lo,
+                        norm_born="norm_born", scale_idx=0, prefix="Z"):
+    r"""Attach a SECOND (or third) profiled recoil observable to `moments`.
+
+    Same construction as the primary recoil -- <T_n>_w = prof_<wtag>_n / prof_w0
+    and R = prof_w0 / sigma_fiducial -- for an observable whose own profile is
+    compiled into NNLOJET.  Used for the diphoton pi-dphi constraint: pT alone
+    leaves the shower's pT<->dphi correlation wrong, and pi-dphi is a recoil
+    observable, so it must enter through a profile rather than over its full
+    range (which makes the dual infeasible).
+
+    The profile parameters passed to the solver MUST mirror the Fortran
+    (eval_w_dpa: pa=0.3, pb=0.6, no upper cut).
+    """
+    vals, errs = [], []
+    for n in range(1, n_recoil + 1):
+        m = _moment_over_seeds(base, run, channels, seeds, f"{wtag}_{n}", w0, prefix)
+        c, st, sc, tot = _reduce(m, scale_idx); vals.append(c); errs.append(tot)
+    rate_ps = []
+    for s in seeds:
+        wnum = _sum_channels(base, run, channels, w0, s, prefix)
+        nb = _sum_channels(base, run, channels, norm_born, s, prefix)
+        if wnum is not None and nb is not None:
+            rate_ps.append(wnum[scale_idx] / nb[scale_idx])
+    R = float(np.mean(rate_ps)) if rate_ps else float("nan")
+    moments["recoil"][cfg_obs] = dict(
+        window_values=vals, window_errors=errs,
+        wprofile_values=vals, wprofile_rate=R, rate=R,
+        x_match=float(x_match), x_hi=float(x_hi), soft_lo=float(soft_lo))
+    return moments
+
+
 if __name__ == "__main__":
     import json
     import sys

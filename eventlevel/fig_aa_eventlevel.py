@@ -11,13 +11,22 @@ on purpose -- it is a recoil observable and cannot be a Born constraint (see
 aa_angular_test.py) -- yet it improves from 31.2% to 7.0% as a consequence.
 (40 channel- and tag-complete NNLOJET seeds.)
 
-The shaded band below dphi = 1 is outside the prior's support and says nothing
+The shaded band below dphi = 2 is outside the prior's support and says nothing
 about the method: the prior is a 2->2 matrix element plus shower, so that region
 is reachable only by ISR recoil -- 1 event in 14440 even at pTHat in [200,400),
 with ISR already on -- and reweighting cannot create events.  The boundary is
 set by effective statistics, not by eye: N_eff per bin group runs 3.8, 15.2,
 748 across [0,1), [1,1.5), [1.5,2) and then jumps to 9700 above 2.  Populating it
 needs a gamma-gamma+jet (2->3) matrix element, not more statistics.
+
+Separately, the excursion just above the band near dphi = 2.2 rad is real and
+unresolved: the prior is ~4x below data there and the reweighting overcorrects.
+Constraining pi-dphi as a profiled RECOIL observable (its correct slot; as a
+Born constraint the dual is infeasible) reduces the local peak from 83% to
+23-34% but degrades agreement with ATLAS overall at N = 2, 3 and 6 moments,
+because the fixed-order pi-dphi moments are ten times noisier than the
+|cos theta*| ones.  That is a statistics limitation of the fixed-order input,
+not of the method, so dphi is shipped unconstrained.
 """
 import os
 import sys
@@ -124,6 +133,13 @@ def main():
             nlow = int((ev[key] < DPHI_SUPP).sum())
             for p_ in (a, r):
                 p_.axvspan(e[0], DPHI_SUPP, color="0.5", alpha=0.16, zorder=0)
+            # The excursion just ABOVE the shaded band, near dphi = 2.2 rad, is
+            # a known limitation and not a support artefact -- N_eff ~ 1e4
+            # there.  Constraining pi-dphi as a profiled recoil does reduce it
+            # (peak |ratio-1| 83% -> 23-34%) but degrades agreement with ATLAS
+            # overall at every moment count tried, because the fixed-order
+            # pi-dphi moments carry errors 0.024-0.069 against 0.002-0.007 for
+            # |cos theta*|.  It needs more fixed-order statistics.
             a.text(DPHI_SUPP * 0.97, 0.97,
                    rf"outside prior support ($N={nlow}$, $N_{{\rm eff}}={effl:.0f}$)",
                    transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",

@@ -31,7 +31,8 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade, check_seam
-from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
+from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
+                             add_profiled_recoil)
 from aa_vs_data import load_prior_full
 
 GGDIR = os.environ.get("GGDIR", "/Users/user/nnlojet-v1.0.2/gg_moments")
@@ -48,9 +49,20 @@ ROWS = [("m_aa", "m_aa"), ("pt_aa", "pt_aa"), ("costh_aa", "costh_aa"),
         ("dphi_aa", "dphi_aa"), ("at_aa", "at_aa"), ("y_aa", "y_aa")]
 
 # constraint sets compared side by side (all share the same recoil profile)
-VARIANTS = [("A mass-only", ("m_aa",)),
-            ("B mass+cos", ("m_aa", "costh_aa"))]
-CONSTRAINED = {t: set(o) | {"pt_aa"} for t, o in VARIANTS}
+# Born constraint set, and whether pi-dphi is ALSO constrained as a profiled
+# RECOIL observable.  Constraining pT alone leaves the shower's pT<->dphi
+# correlation wrong: MaxEnt then overshoots data AND fixed order by ~60% near
+# dphi = 2.2 rad, where the prior has ample statistics (N_eff ~ 1e4), so it is
+# not a support artefact.  pi-dphi cannot be a BORN constraint (infeasible at
+# any moment order), so it enters through its own compiled profile.
+VARIANTS = [("A mass-only", ("m_aa",), False),
+            ("B mass+cos", ("m_aa", "costh_aa"), False),
+            ("C +dphi recoil", ("m_aa", "costh_aa"), True)]
+CONSTRAINED = {t: set(o) | {"pt_aa"} | ({"dphi_aa"} if d else set())
+               for t, o, d in VARIANTS}
+# mirrors eval_w_dpa in EvalFuncs.f90
+DP_A, DP_B, DP_LO, DP_HI = 0.3, 0.6, 0.01, np.pi
+N_DPA = int(os.environ.get('N_DPA', 3))   # pi-dphi moments to impose
 
 
 def dens(x, w, e):
@@ -98,12 +110,15 @@ BORN_CFG = {"m_aa": {"range": (MLO, MHI), "map": "log"},
             "dphi_log": {"range": (0.01, np.pi), "map": "log"}}
 
 
-def solve(ev, M, obs):
+def solve(ev, M, obs, dphi_recoil=False):
     born = {k: BORN_CFG[k] for k in obs}
-    cfg = dict(born=born,
-               recoil={"pt_aa": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
-                                 "profile": {"a": XM, "b": XB, "c": XHI}}},
-               followers=["y_abs"],
+    recoil = {"pt_aa": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+                        "profile": {"a": XM, "b": XB, "c": XHI}}}
+    if dphi_recoil:
+        recoil["dphi_log"] = {"range": (DP_LO, DP_HI), "map": "log",
+                              "soft_lo": DP_LO,
+                              "profile": {"a": DP_A, "b": DP_B}}
+    cfg = dict(born=born, recoil=recoil, followers=["y_abs"],
                moment_selection=False)
     return upgrade(ev, M, cfg)
 
@@ -124,6 +139,20 @@ def main():
         GGDIR, RUN, CH, seeds, born_tags=born_tags, n_born=6, n_recoil=12,
         x_match=XM, x_hi=XHI, soft_lo=SOFT, recoil_cfg_name="pt_aa",
         norm_born="norm_born", w0="prof_wpt_0", wtag="prof_wpt", prefix=PREFIX)
+    # second profiled recoil: pi - dphi (only if those moments were produced)
+    have_dpa = bool(common_seeds(GGDIR, RUN, CH, tag="prof_wdpa_0", prefix=PREFIX))
+    if have_dpa:
+        sd = common_seeds(GGDIR, RUN, CH,
+                          tag=["prof_wdpa_0"] + [f"prof_wdpa_{n}" for n in range(1, N_DPA + 1)],
+                          prefix=PREFIX)
+        add_profiled_recoil(M, GGDIR, RUN, CH, sd, "dphi_log",
+                            wtag="prof_wdpa", w0="prof_wdpa_0", n_recoil=N_DPA,
+                            x_match=DP_A, x_hi=DP_HI, soft_lo=DP_LO, prefix=PREFIX)
+        print(f"  pi-dphi recoil moments: {len(sd)} seeds  "
+              f"<T_n>_w = {' '.join(f'{v:+.4f}' for v in M['recoil']['dphi_log']['window_values'])}"
+              f"  R = {M['recoil']['dphi_log']['rate']:.4f}")
+    else:
+        print("  pi-dphi recoil moments NOT present -- variant C will be skipped")
     for o, t in born_tags.items():
         v = M["born"][o]["values"]
         e = M["born"][o].get("errors")
@@ -136,9 +165,11 @@ def main():
     print(f"prior events: {len(ev['weight']):,}\n")
 
     out = {}
-    for tag, obs in VARIANTS:
+    for tag, obs, dpr in VARIANTS:
+        if dpr and not have_dpa:
+            out[tag] = None; print(f"{tag:16s}  skipped (no pi-dphi moments yet)"); continue
         try:
-            r = solve(ev, M, obs)
+            r = solve(ev, M, obs, dphi_recoil=dpr)
             out[tag] = r
             print(f"{tag:16s}  effN {100*r.effN:5.1f}%   closure {r.closure:.2e}   "
                   f"neg-wt {100*np.mean(r.weights <= 0):.1f}%")
@@ -148,7 +179,7 @@ def main():
 
     # ---- table against ATLAS -------------------------------------------------
     wpr = ev["weight"]
-    cols = "".join(f" | {t:>13}" for t, _ in VARIANTS)
+    cols = "".join(f" | {t:>14}" for t, _, _ in VARIANTS)
     hdr = f"\n{'observable':>10} | {'prior':>7}{cols} | bins"
     print(hdr); print("-" * len(hdr))
     for key, dkey in ROWS:
@@ -156,19 +187,31 @@ def main():
         if not np.isfinite(f_pr):
             continue
         cells = []
-        for tag, _ in VARIANTS:
+        for tag, _, _ in VARIANTS:
             r = out[tag]
             if r is None:
-                cells.append(f"{'--':>13}")
+                cells.append(f"{'--':>14}")
             else:
                 f, _ = dev(ev[key], r.weights, dkey)
                 mark = "c" if key in CONSTRAINED[tag] else " "
-                cells.append(f"{f:11.1f}%{mark}")
+                cells.append(f"{f:12.1f}%{mark}")
         print(f"{key:>10} | {f_pr:6.1f}% | " + " | ".join(cells) + f" | {nb:4d}")
     print("\n  'c' marks an observable that was CONSTRAINED in that variant.")
 
     # ---- covariance identity: why did each follower move? --------------------
-    r = out.get(VARIANTS[-1][0])
+    # Ship variant B.  Variant C (pi-dphi constrained as a profiled recoil) is
+    # kept in the table as a DOCUMENTED NEGATIVE RESULT: it improves the local
+    # excursion near dphi = 2.2 rad (peak |ratio-1| 83% -> 23-34% depending on
+    # moment count) but degrades agreement with ATLAS overall, at every moment
+    # count tried (N = 2, 3, 6), and costs an order of magnitude in effective
+    # statistics.  The reason is precision, not principle: the fixed-order
+    # pi-dphi moments carry errors 0.024-0.069 against 0.002-0.007 for
+    # |cos theta*|, so imposing them injects more noise than information.
+    # Constraining dphi properly needs more fixed-order statistics, not a
+    # different constraint.
+    saved = "B mass+cos" if out.get("B mass+cos") is not None else \
+        next((t for t, *_ in reversed(VARIANTS) if out.get(t) is not None), None)
+    r = out.get(saved) if saved else None
     if r is not None:
         p = wpr / wpr.sum(); q = r.weights / r.weights.sum()
         ratio = q / np.maximum(p, 1e-300)
@@ -184,7 +227,7 @@ def main():
 
         np.savez(os.path.join(HERE, "aa_eventlevel_weights.npz"),
                  weights=r.weights, idx=idx)
-        print(f"\nsaved aa_eventlevel_weights.npz (variant {VARIANTS[-1][0]})")
+        print(f"\nsaved aa_eventlevel_weights.npz (variant {saved})")
 
 
 if __name__ == "__main__":
