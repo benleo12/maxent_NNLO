@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=20)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -61,8 +61,11 @@ def main():
     hpr, hpo = d(wpr), d(wpo)
     g = (tot > 0) & (fhi > flo)
     inw = (x >= XM) & (x < XHI)
-    sc = float(wpo[inw].sum() / wpo.sum()) / (tot[g] * (fhi - flo)[g]).sum()
-    fe, fv = np.concatenate([flo[g][:1], fhi[g]]), tot[g] * sc
+    # SAME EDGES as the shower curves on these panels
+    fo = rebin_density(flo[g], fhi[g], tot[g], e)
+    gd = np.isfinite(fo) & (fo > 0)
+    fv = np.where(gd, fo, np.nan)
+    fv = fv * (float(wpo[inw].sum() / wpo.sum()) / np.nansum(fv * bw))
 
     fig, ax = plt.subplots(1, 3, figsize=(19.5, 6.0))
     for a in ax:
@@ -75,7 +78,7 @@ def main():
     below = ctr < XM
     a.plot(ctr[below], hpr[below], color=C_SH, lw=3.4, label=r"parton shower")
     a.plot(ctr[~below], hpr[~below], color=C_SH, lw=2.0, alpha=0.30)
-    a.stairs(fv, fe, color=C_FO, ls=":", lw=3.0, label=r"fixed order")
+    a.stairs(fv, e, color=C_FO, ls=":", lw=3.0, label=r"fixed order")
     a.set_yscale("log"); a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_T$")
     a.set_title(r"1.\ \ each trusted in its own region")
     a.legend(loc="lower left")
@@ -83,7 +86,7 @@ def main():
     # -------- 2. result
     a = ax[1]
     a.plot(ctr, hpr, color="0.6", lw=2.2, ls="--", label=r"prior")
-    a.stairs(fv, fe, color=C_FO, ls=":", lw=2.6, label=r"fixed order")
+    a.stairs(fv, e, color=C_FO, ls=":", lw=2.6, label=r"fixed order")
     a.plot(ctr, hpo, color=C_ME, lw=3.6, label=r"reweighted")
     a.set_yscale("log"); a.set_title(r"2.\ \ shower below, fixed order above")
     a.legend(loc="lower left")

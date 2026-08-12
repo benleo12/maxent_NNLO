@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C, FADE, support_mask, shade_unsupported
+from pubstyle import (use_pub_style, C, LS, LW, FADE, support_mask,
+                      shade_unsupported, rebin_density)
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
@@ -145,28 +146,37 @@ def main():
                 flo, fhi, fv = flo[keep], fhi[keep], fv[keep]
             good = (fv > 0) & (fhi > flo)
             if good.sum() > 2:
-                fctr = np.sqrt(flo[good] * fhi[good])
-                fnorm = fv[good] / (fv[good] * (fhi - flo)[good]).sum()
-                scale = (hq * np.diff(e)).sum()
-                fe = np.concatenate([flo[good][:1], fhi[good]])
+                # SAME EDGES as prior and MaxEnt -- and the fixed order is the
+                # ratio DENOMINATOR here, so interpolating it would contaminate
+                # every other curve's ratio.
+                fo = rebin_density(flo[good], fhi[good], fv[good], e)
+                gd = np.isfinite(fo) & (fo > 0)
+                yy = np.where(gd, fo, np.nan)
+                yy = yy * ((hq * np.diff(e)).sum() / np.nansum(yy * np.diff(e)))
                 # Fixed order is a PREDICTION only above the seam.  For pi-dphi
                 # the seam maps over as pi-dphi ~ pT/pT_lep ~ XM/45; below it the
                 # unresummed Sudakov logarithms flatten the curve and it means
                 # nothing, so draw it faded rather than let it read as a target.
                 xs_ = XM / 45.0 if key == "pimdphi" else XM
-                ab = fctr >= xs_
-                yy = fnorm * scale
-                a_.stairs(np.where(ab, yy, np.nan), fe, color=C["fo"], ls=":", lw=2.4,
+                ab = ctr_ >= xs_
+                a_.stairs(np.where(ab, yy, np.nan), e, color=C["fo"], ls=":", lw=LW["fo"],
                           label=r"fixed order (NLO)")
-                a_.stairs(np.where(~ab, yy, np.nan), fe, color=C["fo"], ls=":",
+                a_.stairs(np.where(~ab, yy, np.nan), e, color=C["fo"], ls=":",
                           lw=1.4, alpha=FADE)
-                fo_i = np.interp(ctr_, fctr, yy, left=np.nan, right=np.nan)
-                fo_valid = ctr_ >= xs_
+                fo_i = yy
+                fo_valid = ab
         ref = np.where(np.isfinite(fo_i), fo_i, np.nan) if fo_i is not None else np.maximum(hq, 1e-30)
         a_.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
         a_.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
-        r_.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
-        r_.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
+        # The ratio denominator IS the fixed order, so below the seam we would be
+        # dividing by the unresummed Sudakov region.  Fade the ratio there too,
+        # rather than draw a solid line against a denominator we do not trust.
+        vok = fo_valid if fo_valid is not None else np.ones(len(e) - 1, bool)
+        for h_, ckey, lw_ in ((hp, "prior", 1.8), (hq, "maxent", 2.4)):
+            r_.stairs(np.where(vok, h_ / ref, np.nan), e, color=C[ckey],
+                      ls=LS[ckey], lw=lw_)
+            r_.stairs(np.where(~vok, h_ / ref, np.nan), e, color=C[ckey],
+                      ls=LS[ckey], lw=lw_ * 0.7, alpha=FADE)
         r_.axhline(1, color="k", lw=0.8)
         # Where the reweighted effective statistics collapse, the prior simply
         # has no events: pT_j2's hard tail needs a Z+2-jet matrix element, which

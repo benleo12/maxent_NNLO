@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -159,13 +159,12 @@ def main():
                 print(f"    |eta_lead| FO: {gd.sum()}/{len(gtot)} merged bins kept "
                       f"({len(sds)} seeds, {n_drop} dropped)")
                 if gd.sum() > 2:
+                    # SAME EDGES as every other line on the panel
                     dens_g = gtot[gd] / gw[gd]
-                    fn = dens_g / (dens_g * gw[gd]).sum()
-                    a.stairs(fn, np.concatenate([glo[gd][:1], ghi[gd]]), color="k",
-                             ls=":", lw=2.4, label=r"fixed order (NNLO)")
-                    fo_h = np.interp(0.5 * (e[:-1] + e[1:]),
-                                     0.5 * (glo[gd] + ghi[gd]), fn,
-                                     left=np.nan, right=np.nan)
+                    fo_h = rebin_density(glo[gd], ghi[gd], dens_g, e)
+                    fo_h = fo_h / np.nansum(fo_h * np.diff(e))
+                    a.stairs(fo_h, e, color=C["fo"], ls=":", lw=LW["fo"],
+                             label=r"fixed order (NNLO)")
         ref = np.maximum(hp, 1e-30)   # no data: ratio to the prior
         a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
         a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")

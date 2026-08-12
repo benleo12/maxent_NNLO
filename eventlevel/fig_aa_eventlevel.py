@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=17)
 from aa_vs_data import load_prior_full, dens
 from nnlojet_moments import _load, common_seeds
@@ -110,14 +110,19 @@ def main():
                 # NNLOJET books pi_dphi_g1g2 (= pi - dphi) under this name; mirror
                 # it onto the data's dphi axis before comparing.
                 flo, fhi, fv = (np.pi - fhi)[::-1], (np.pi - flo)[::-1], fv[::-1]
-            g = (fv > 0) & (fhi > flo) & (flo >= e[0]) & (fhi <= e[-1])
+            g = (fv > 0) & (fhi > flo)
             if g.sum() > 2:
-                fn = fv[g] / (fv[g] * (fhi - flo)[g]).sum()
-                fe = np.concatenate([flo[g][:1], fhi[g]])
-                a.stairs(fn, fe, color="k", ls=":", lw=2.0, label=r"fixed order (NNLO)")
-                fi = np.interp(ctr, np.sqrt(np.maximum(flo[g] * fhi[g], 1e-12)), fn,
-                               left=np.nan, right=np.nan)
-                r.stairs(np.where(m, fi / dv, np.nan), e, color="k", ls=":", lw=1.9)
+                # SAME EDGES as every other line on this panel: integrate the
+                # fixed order onto the measurement binning instead of drawing it
+                # on NNLOJET's native grid and interpolating the ratio.
+                fo = rebin_density(flo[g], fhi[g], fv[g], e)
+                good = np.isfinite(fo) & (fo > 0)
+                if good.sum() > 2:
+                    fn = np.where(good, fo, np.nan)
+                    fn = fn / np.nansum(fn * bw)          # same normalisation as pp/qq/dv
+                    a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
+                             label=r"fixed order (NNLO)")
+                    r.stairs(np.where(m, fn / dv, np.nan), e, color=C["fo"], ls=":", lw=1.9)
         if key in ("pt_aa", "at_aa"):
             for p_ in (a, r):
                 p_.axvline(28.0, color=C["seam"], lw=2.0, ls="--")

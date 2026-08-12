@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LS, LW, rebin_density
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -119,15 +119,26 @@ def main():
                 sel = good & (fctr >= e[0]) & (fctr < e[-1])
                 target = float(((hq * np.diff(e))[np.isfinite(hq)]).sum())
             if sel.sum() > 2:
-                scale = target / (fv[sel] * (fhi - flo)[sel]).sum()
-                fe = np.concatenate([flo[sel][:1], fhi[sel]])
-                a.stairs(fv[sel] * scale, fe, color="k", ls=":", lw=2.2, label=r"fixed order")
-                fi = np.interp(ctr, fctr[sel], fv[sel] * scale, left=np.nan, right=np.nan)
-                ref = fi          # fixed order is the ratio denominator
-                r.stairs(fi / ref, e, color="k", ls=":", lw=2.0)
+                # SAME EDGES as prior and MaxEnt.  This matters twice over here,
+                # because the fixed order is the ratio DENOMINATOR: an
+                # interpolated denominator would push its own interpolation
+                # error into every other curve's ratio.
+                fo = rebin_density(flo[sel], fhi[sel], fv[sel], e)
+                gd = np.isfinite(fo) & (fo > 0)
+                fn = np.where(gd, fo, np.nan)
+                fn = fn * (target / np.nansum(fn * np.diff(e)))
+                a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"], label=r"fixed order")
+                ref = fn          # fixed order is the ratio denominator
+                r.stairs(fn / ref, e, color=C["fo"], ls=":", lw=2.0)
         if ref is None: ref = np.maximum(hq, 1e-30)
-        r.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
-        r.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
+        # ratio denominator IS the fixed order; below the seam that denominator
+        # is the unresummed region, so the ratio is faded rather than solid
+        vok = (ctr >= XM) if key == "pT_H" else np.ones(len(e) - 1, bool)
+        for h_, ckey, lw_ in ((hp, "prior", 1.8), (hq, "maxent", 2.4)):
+            r.stairs(np.where(vok, h_ / ref, np.nan), e, color=C[ckey],
+                     ls=LS[ckey], lw=lw_)
+            r.stairs(np.where(~vok, h_ / ref, np.nan), e, color=C[ckey],
+                     ls=LS[ckey], lw=lw_ * 0.7, alpha=0.22)
         r.axhline(1, color="k", lw=0.8)
         if logx:
             a.set_xscale("log"); r.set_xscale("log"); a.set_yscale("log")

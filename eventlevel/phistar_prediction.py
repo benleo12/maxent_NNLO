@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style()
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -67,12 +67,11 @@ def main():
         flo, fhi, fv = fc
         gd = (fv > 0) & (fhi > flo)
         if gd.sum() > 2:
-            # rebin the FO curve onto the data edges
-            fo_h = np.zeros(len(e) - 1)
-            fc_ctr = np.sqrt(flo[gd] * fhi[gd]); fw = (fhi - flo)[gd]
-            for k in range(len(e) - 1):
-                sel = (fc_ctr >= e[k]) & (fc_ctr < e[k + 1])
-                fo_h[k] = (fv[gd][sel] * fw[sel]).sum() / (e[k + 1] - e[k]) if sel.any() else np.nan
+            # SAME EDGES as data / prior / MaxEnt / generators, by exact overlap
+            # integration.  Assigning native bins to data bins by their centre
+            # (what this used to do) drops or double-counts bins whenever the
+            # two grids are not nested, and does not conserve the integral.
+            fo_h = rebin_density(flo[gd], fhi[gd], fv[gd], e)
             tot_int = np.nansum(fo_h * np.diff(e))
             if tot_int > 0: fo_h = fo_h / tot_int
 
@@ -101,7 +100,7 @@ def main():
         above = ctr >= xs_
         for p_, h_ in ((a, fo_h), (r, fo_h / np.maximum(val, 1e-30))):
             p_.stairs(np.where(msk & above, h_, np.nan), e, color="k", ls=":",
-                      lw=2.4, label=(r"fixed order (NNLO)" if p_ is a else None))
+                      lw=LW["fo"], label=(r"fixed order (NNLO)" if p_ is a else None))
             p_.stairs(np.where(msk & ~above, h_, np.nan), e, color="k", ls=":",
                       lw=1.4, alpha=0.22)
     for lbl, h, col, ls, neg in series:

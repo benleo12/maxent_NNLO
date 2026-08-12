@@ -131,3 +131,35 @@ def shade_unsupported(axes, edges, bad, color="0.5", alpha=0.16):
     for a in np.atleast_1d(axes):
         for lo, hi in runs:
             a.axvspan(lo, hi, color=color, alpha=alpha, zorder=0)
+
+
+def rebin_density(lo, hi, dens, edges):
+    """Integrate a differential distribution onto NEW bin edges, exactly.
+
+    `dens` is dsigma/dx on bins [lo, hi).  Returns dsigma/dx on `edges`,
+    computed by overlap integration, so the integral is conserved bin by bin.
+
+    Every line on a panel MUST be on the same edges.  Drawing the fixed order on
+    NNLOJET's native binning while the shower, the generators and the data sit
+    on the measurement binning makes the curves incomparable by eye and makes
+    any ratio between them meaningless; interpolating bin centres instead of
+    rebinning does not fix it, because interpolation does not conserve the
+    integral and silently smooths structure.  Bins of `edges` not covered by the
+    input range come back NaN rather than zero, so they are simply not drawn.
+    """
+    import numpy as np
+    lo = np.asarray(lo, float); hi = np.asarray(hi, float)
+    dens = np.asarray(dens, float); edges = np.asarray(edges, float)
+    out = np.full(len(edges) - 1, np.nan)
+    for k in range(len(edges) - 1):
+        a, b = edges[k], edges[k + 1]
+        ov = np.clip(np.minimum(hi, b) - np.maximum(lo, a), 0.0, None)
+        cov = ov.sum()
+        if cov <= 0:
+            continue
+        # require the target bin to be essentially fully covered by input bins,
+        # else the value would be biased low by the uncovered part
+        if cov < 0.99 * (b - a):
+            continue
+        out[k] = float((dens * ov).sum() / (b - a))
+    return out

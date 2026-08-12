@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C
+from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, fo_curve
@@ -107,17 +107,19 @@ def main():
             if fc is not None:
                 flo, fhi, fd, _ = fc
                 g = (fd > 0) & (fhi > flo)
-                fn = fd[g] / (fd[g] * (fhi - flo)[g]).sum()
-                fc_c = np.sqrt(flo[g] * fhi[g]); fe = np.concatenate([flo[g][:1], fhi[g]])
+                # SAME EDGES as data / prior / MaxEnt / generators on this panel
+                fo = rebin_density(flo[g], fhi[g], fd[g], e)
+                gd = np.isfinite(fo) & (fo > 0)
+                fn = np.where(gd, fo, np.nan)
+                fn = fn / np.nansum(fn * np.diff(e))
                 xs_ = XM / 91.1876
-                ab = fc_c >= xs_
-                a.stairs(np.where(ab, fn, np.nan), fe, color="k", ls=":", lw=2.4,
+                ab = ctr >= xs_
+                a.stairs(np.where(ab, fn, np.nan), e, color=C["fo"], ls=":", lw=LW["fo"],
                          label=r"fixed order (NNLO)")
-                a.stairs(np.where(~ab, fn, np.nan), fe, color="k", ls=":", lw=1.4, alpha=0.22)
-                fi = np.interp(ctr, fc_c, fn, left=np.nan, right=np.nan)
-                rr = fi / np.maximum(val, 1e-30)
-                r.stairs(np.where(m & (ctr >= xs_), rr, np.nan), e, color="k", ls=":", lw=2.2)
-                r.stairs(np.where(m & (ctr < xs_), rr, np.nan), e, color="k", ls=":",
+                a.stairs(np.where(~ab, fn, np.nan), e, color=C["fo"], ls=":", lw=1.4, alpha=0.22)
+                rr = fn / np.maximum(val, 1e-30)
+                r.stairs(np.where(m & ab, rr, np.nan), e, color=C["fo"], ls=":", lw=2.2)
+                r.stairs(np.where(m & ~ab, rr, np.nan), e, color=C["fo"], ls=":",
                          lw=1.3, alpha=0.22)
         if key == "pT_ll":
             flo = fhi = None; tot = None
@@ -132,14 +134,15 @@ def main():
                 g = (tot > 0) & (fhi > flo)
                 inw = (ev[key] >= XM) & (ev[key] < XHI)
                 tgt = float(res.weights[inw].sum() / res.weights.sum())
-                sc = tgt / (tot[g] * (fhi - flo)[g]).sum()
-                fe = np.concatenate([flo[g][:1], fhi[g]])
-                a.stairs(tot[g] * sc, fe, color="k", ls=":", lw=2.2,
+                # SAME EDGES as every other line, then normalise to the window rate
+                fo = rebin_density(flo[g], fhi[g], tot[g], e)
+                gd = np.isfinite(fo) & (fo > 0)
+                fn = np.where(gd, fo, np.nan)
+                fn = fn * (tgt / np.nansum(fn * np.diff(e)))
+                a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
                          label=r"fixed order (NNLO)")
-                fi = np.interp(ctr, np.sqrt(flo[g] * fhi[g]), tot[g] * sc,
-                               left=np.nan, right=np.nan)
-                r.stairs(np.where(m, fi / np.maximum(val, 1e-30), np.nan), e,
-                         color="k", ls=":", lw=2.0)
+                r.stairs(np.where(m, fn / np.maximum(val, 1e-30), np.nan), e,
+                         color=C["fo"], ls=":", lw=2.0)
         rel = err / np.maximum(val, 1e-30)
         r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
         r.axhline(1, color="k", lw=0.8)
