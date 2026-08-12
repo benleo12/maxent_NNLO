@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=20)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -24,7 +24,10 @@ from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 XM, XHI, SOFT = 30.0, 500.0, 0.5
-C_SH, C_FO, C_ME = "#1f77b4", "k", "#d62728"
+# The "parton shower" curve in panel 1 IS the prior, so it takes the prior
+# colour: blue means MiNNLO on every other figure and must not mean two
+# different things across the paper.
+C_SH, C_FO, C_ME = C["prior"], C["fo"], C["maxent"]
 
 
 def main():
@@ -65,7 +68,7 @@ def main():
     for a in ax:
         a.set_xscale("log"); a.set_xlim(2, 300)
         a.set_xlabel(r"$p_T^{\ell\ell}$ [GeV]")
-        a.axvline(XM, color="0.45", lw=1.6, ls="--")
+        a.axvline(XM, color=C["seam"], lw=1.6, ls="--")
 
     # -------- 1. ingredients
     a = ax[0]
@@ -91,11 +94,11 @@ def main():
     z = float(np.mean(r[(ctr < XM) & (hpr > 0)]))
     a.plot(ctr, r, color=C_ME, lw=3.6)
     a.axhline(1.0, color="k", lw=1.0)
-    a.axhline(z, color=C_SH, lw=2.2, ls="--")
+    a.axhline(z, color="0.25", lw=2.2, ls="--")
     a.set_ylim(0.4, 2.4)
     a.set_ylabel(r"reweighted\,/\,prior")
     a.set_title(r"3.\ \ flat below the seam $\Rightarrow$ shape kept")
-    a.text(3.0, z + 0.10, rf"$1/Z={z:.2f}$", color=C_SH, fontsize=19)
+    a.text(3.0, z + 0.10, rf"$1/Z={z:.2f}$", color="0.25", fontsize=19)
 
     out = os.path.join(HERE, "fig_explain_matching.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))

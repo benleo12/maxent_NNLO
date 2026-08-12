@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=17)
 from aa_vs_data import load_prior_full, dens
 from nnlojet_moments import _load, common_seeds
@@ -89,9 +89,9 @@ def main():
 
         a.errorbar(ctr[m], dv[m], yerr=(err / (val * bw).sum())[m], fmt="o", color="k",
                    ms=4, lw=1.1, label=r"ATLAS 1704.03839", zorder=9)
-        a.stairs(np.where(m, pp, np.nan), e, color="0.55", ls="--", lw=2.0,
+        a.stairs(np.where(m, pp, np.nan), e, color=C["prior"], ls="--", lw=2.0,
                  label=rf"PS+LO prior ({med(pp):.0f}\%)")
-        a.stairs(np.where(m, qq, np.nan), e, color="#d62728", lw=3.0,
+        a.stairs(np.where(m, qq, np.nan), e, color=C["maxent"], lw=3.0,
                  label=rf"MaxEnt ({med(qq):.0f}\%)")
         # FIXED ORDER, normalised over the plotted range
         fc = fo_ref(FOTAG.get(key, key))
@@ -111,7 +111,7 @@ def main():
                 r.stairs(np.where(m, fi / dv, np.nan), e, color="k", ls=":", lw=1.9)
         if key in ("pt_aa", "at_aa"):
             for p_ in (a, r):
-                p_.axvline(28.0, color="0.35", lw=2.0, ls="--")
+                p_.axvline(28.0, color=C["seam"], lw=2.0, ls="--")
         if key == "dphi_aa":
             # OUTSIDE PRIOR SUPPORT.  The prior is a 2->2 matrix element plus
             # shower, so dphi < 1 can only be reached by ISR recoil: even at
@@ -127,16 +127,16 @@ def main():
             a.text(DPHI_SUPP * 0.97, 0.97,
                    rf"outside prior support ($N={nlow}$, $N_{{\rm eff}}={effl:.0f}$)",
                    transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
-                   fontsize=11, color="0.35")
+                   fontsize=11, color=C["seam"])
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
         a.set_title(rf"{lab}" + "\n" + rf"\small\textit{{{role}}}", fontsize=15)
         r.axhline(1, color="k", lw=0.8)
         rel = (err / np.maximum(val, 1e-30))
-        r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color="0.75", alpha=0.55, step="mid")
-        r.stairs(np.where(m, pp / dv, np.nan), e, color="0.55", ls="--", lw=1.8)
-        r.stairs(np.where(m, qq / dv, np.nan), e, color="#d62728", lw=2.4)
+        r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
+        r.stairs(np.where(m, pp / dv, np.nan), e, color=C["prior"], ls="--", lw=1.8)
+        r.stairs(np.where(m, qq / dv, np.nan), e, color=C["maxent"], lw=2.4)
         r.set_ylim(0.3, 1.9); r.set_xlabel(lab)
         if j == 0:
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")

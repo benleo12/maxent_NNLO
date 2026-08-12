@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=18)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
@@ -63,15 +63,15 @@ a.plot([-lim, lim], [-lim, lim], color="0.6", lw=1.6, ls="--")
 # offset them PERPENDICULAR to the diagonal, alternating side by rank.
 _rank = {j: i for i, j in enumerate(np.argsort(-np.abs(pred)))}
 for j, (pr, ac, lb, kd) in enumerate(zip(pred, act, labs, kinds)):
-    col = "#d62728" if kd == "C" else ("#1f77b4" if kd == "F" else "#2ca02c")
+    col = C["maxent"] if kd == "C" else (C["minnlo"] if kd == "F" else C["mcatnlo"])
     a.plot(pr, ac, "o", ms=13, color=col, zorder=5)
     up = _rank[j] % 2 == 0
     off = (-16, 14) if up else (16, -20)
     a.annotate(lb, (pr, ac), textcoords="offset points", xytext=off, fontsize=15,
                ha="right" if up else "left", color=col, zorder=6)
 _H = [plt.Line2D([], [], ls="", marker="o", ms=11, color=c, label=l) for c, l in
-      (("#d62728", r"constrained"), ("#1f77b4", r"predicted"),
-       ("#2ca02c", r"derived from a constraint"))]
+      ((C["maxent"], r"constrained"), (C["minnlo"], r"predicted"),
+       (C["mcatnlo"], r"derived from a constraint"))]
 a.legend(handles=_H, loc="upper left", fontsize=14, labelspacing=0.35)
 a.set_xlim(-lim, lim); a.set_ylim(-lim, lim)
 a.set_xlabel(r"predicted  $\mathrm{Cov}_p(r,y)/\langle r\rangle\,/\,\sigma_y$")
@@ -80,7 +80,7 @@ a.set_title(r"the shift is exactly the covariance with the tilt")
 
 b = ax[1]
 o = np.argsort(-np.abs(pred))
-cols = ["#d62728" if kinds[j]=="C" else ("#1f77b4" if kinds[j]=="F" else "#2ca02c") for j in o]
+cols = [C["maxent"] if kinds[j]=="C" else (C["minnlo"] if kinds[j]=="F" else C["mcatnlo"]) for j in o]
 b.barh(range(len(o)), np.abs(pred)[o], color=cols)
 b.set_yticks(range(len(o))); b.set_yticklabels([labs[j] for j in o])
 b.invert_yaxis(); b.set_xlabel(r"$|\mathrm{Cov}_p(r,y)|/\langle r\rangle\,/\,\sigma_y$")

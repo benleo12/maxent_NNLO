@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-10 12:58:06
-@@ -2463,7 +2463,376 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-11 23:21:33
+@@ -2463,7 +2463,400 @@
      pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
      eval_minv_V = v1_minv(pV)
    end function eval_minv_V
@@ -219,7 +219,7 @@
 +  real(kind=wp) function eval_w_pth(npar)
 +    integer, intent(in) :: npar
 +    real(kind=wp), dimension(4) :: pV
-+    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    real(kind=wp), parameter :: pa = 37.0_wp, pb = 74.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
 +    if (npar < 1) then; eval_w_pth = 0.0_wp; return; end if
 +    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
 +    eval_w_pth = prof_w(v1_pt(pV), pa, pb, pc, pd)
@@ -230,7 +230,7 @@
 +    real(kind=wp), dimension(4) :: pV
 +    real(kind=wp) :: x, u
 +    real(kind=wp), parameter :: lo = 1.0_wp, hi = 1000.0_wp
-+    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    real(kind=wp), parameter :: pa = 37.0_wp, pb = 74.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
 +    if (npar < 1) then; eval_chebTw_pth = 0.0_wp; return; end if
 +    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
 +    x = max(v1_pt(pV), 1.0e-6_wp)
@@ -311,6 +311,30 @@
 +    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
 +    eval_chebTw_dphill = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
 +  end function eval_chebTw_dphill
++
++  !> SMOOTH-PROFILE recoil moments of (pi - dphi_gg).  pi - dphi is a RECOIL
++  !> observable: it vanishes at Born level and is Sudakov-divergent as dphi->pi,
++  !> so it may only be constrained ABOVE a resolution scale.  The profile turns
++  !> on over pi-dphi in [0.3, 0.6], which is where the pT_gg seam at 28 GeV maps
++  !> to for a back-to-back pair of ~45 GeV photons.  Imposing it over the FULL
++  !> range instead makes the MaxEnt dual infeasible; see aa_angular_test.py.
++  real(kind=wp) function eval_w_dpa(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), parameter :: pa = 0.3_wp, pb = 0.6_wp, pc = 4.0_wp, pd = 4.0_wp
++    if (npar < 1) then; eval_w_dpa = 0.0_wp; return; end if
++    eval_w_dpa = prof_w(eval_pi_deltaphi_gam12(npar), pa, pb, pc, pd)
++  end function eval_w_dpa
++
++  real(kind=wp) function eval_chebTw_dpa(npar, n)   ! w*T_n(pi-dphi_gg), log [0.01,pi]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 0.01_wp, hi = 3.14159265358979323846_wp
++    real(kind=wp), parameter :: pa = 0.3_wp, pb = 0.6_wp, pc = 4.0_wp, pd = 4.0_wp
++    if (npar < 1) then; eval_chebTw_dpa = 0.0_wp; return; end if
++    x = max(eval_pi_deltaphi_gam12(npar), 1.0e-8_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    eval_chebTw_dpa = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_dpa
 +
 +  !===========================================================================
 +  !  Diphoton Chebyshev moments (GG process).  Photons are pT-ORDERED in

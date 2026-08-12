@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, fo_curve
@@ -27,9 +27,9 @@ CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 Q_HARD = 91.1876
 
-GENS = [("MiNNLO", "dy_minnlo_atlas_v2.npz", "#1f77b4", 23),
-        ("MC@NLO", "dy_mcatnlo_atlas.npz", "#2ca02c", 5),
-        ("POWHEG", "dy_powheg_atlas.npz", "#9467bd", 1)]
+GENS = [("MiNNLO", "dy_minnlo_atlas_v2.npz", C["minnlo"], 23),
+        ("MC@NLO", "dy_mcatnlo_atlas.npz", C["mcatnlo"], 5),
+        ("POWHEG", "dy_powheg_atlas.npz", C["powheg"], 1)]
 PANELS = [("pT_ll", "atlas_pTll_born.npz", r"$p_T^{\ell\ell}$ [GeV]", "constrained"),
           ("phistar", "atlas_phistar_born.npz", r"$\phi^*_\eta$", "predicted (never constrained)")]
 
@@ -78,12 +78,12 @@ def main():
                    label=r"ATLAS 1912.02844", zorder=10)
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
-        a.stairs(np.where(m, hp, np.nan), e, color="0.55", ls="--", lw=2.0,
+        a.stairs(np.where(m, hp, np.nan), e, color=C["prior"], ls="--", lw=2.0,
                  label=rf"PS+LO prior ({med(hp):.1f}\%)")
-        a.stairs(np.where(m, hq, np.nan), e, color="#d62728", lw=3.2,
+        a.stairs(np.where(m, hq, np.nan), e, color=C["maxent"], lw=3.2,
                  label=rf"MaxEnt ({med(hq):.1f}\%, $0\%\,w<0$)")
-        r.stairs(np.where(m, hp / np.maximum(val, 1e-30), np.nan), e, color="0.55", ls="--", lw=1.8)
-        r.stairs(np.where(m, hq / np.maximum(val, 1e-30), np.nan), e, color="#d62728", lw=2.6)
+        r.stairs(np.where(m, hp / np.maximum(val, 1e-30), np.nan), e, color=C["prior"], ls="--", lw=1.8)
+        r.stairs(np.where(m, hq / np.maximum(val, 1e-30), np.nan), e, color=C["maxent"], lw=2.6)
         summary[key] = {"prior": med(hp), "MaxEnt": med(hq)}
         for lbl, fn, col, neg in GENS:
             p = os.path.join(HERE, fn)
@@ -141,15 +141,15 @@ def main():
                 r.stairs(np.where(m, fi / np.maximum(val, 1e-30), np.nan), e,
                          color="k", ls=":", lw=2.0)
         rel = err / np.maximum(val, 1e-30)
-        r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color="0.75", alpha=0.55, step="mid")
+        r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
         r.axhline(1, color="k", lw=0.8)
         if key == "pT_ll":
             for p_ in (a, r):
                 p_.axvspan(XM, XHI, color="#ffd24d", alpha=0.13)
-                p_.axvline(XM, color="0.35", lw=2.0, ls="--")
+                p_.axvline(XM, color=C["seam"], lw=2.0, ls="--")
         else:      # phi* : the seam maps over as phi* ~ pT/m
             for p_ in (a, r):
-                p_.axvline(XM / 91.1876, color="0.35", lw=2.0, ls="--")
+                p_.axvline(XM / 91.1876, color=C["seam"], lw=2.0, ls="--")
         a.set_xscale("log"); a.set_yscale("log"); r.set_xscale("log")
         x0 = e[e > 0].min(); a.set_xlim(x0, e[-1]); r.set_xlim(x0, e[-1])
         a.tick_params(labelbottom=False); r.set_ylim(0.72, 1.28)

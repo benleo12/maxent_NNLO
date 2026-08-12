@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C, FADE, support_mask, shade_unsupported
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
@@ -134,7 +134,7 @@ def main():
         hp, hq = d(ev["weight"]), d(res.weights)
         ctr_ = np.sqrt(e[:-1] * e[1:])
         # FIXED-ORDER reference, and the ratio denominator (no data for Z+jet)
-        fo_i = None
+        fo_i = None; fo_valid = None
         fc = fo_ref(fotag)
         if fc is not None:
             flo, fhi, fv = fc
@@ -149,19 +149,36 @@ def main():
                 fnorm = fv[good] / (fv[good] * (fhi - flo)[good]).sum()
                 scale = (hq * np.diff(e)).sum()
                 fe = np.concatenate([flo[good][:1], fhi[good]])
-                a_.stairs(fnorm * scale, fe, color="k", ls=":", lw=2.2, label=r"fixed order (NLO)")
-                fo_i = np.interp(ctr_, fctr, fnorm * scale, left=np.nan, right=np.nan)
+                # Fixed order is a PREDICTION only above the seam.  For pi-dphi
+                # the seam maps over as pi-dphi ~ pT/pT_lep ~ XM/45; below it the
+                # unresummed Sudakov logarithms flatten the curve and it means
+                # nothing, so draw it faded rather than let it read as a target.
+                xs_ = XM / 45.0 if key == "pimdphi" else XM
+                ab = fctr >= xs_
+                yy = fnorm * scale
+                a_.stairs(np.where(ab, yy, np.nan), fe, color=C["fo"], ls=":", lw=2.4,
+                          label=r"fixed order (NLO)")
+                a_.stairs(np.where(~ab, yy, np.nan), fe, color=C["fo"], ls=":",
+                          lw=1.4, alpha=FADE)
+                fo_i = np.interp(ctr_, fctr, yy, left=np.nan, right=np.nan)
+                fo_valid = ctr_ >= xs_
         ref = np.where(np.isfinite(fo_i), fo_i, np.nan) if fo_i is not None else np.maximum(hq, 1e-30)
-        a_.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
-        a_.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
-        r_.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
-        r_.stairs(hq / ref, e, color="#d62728", lw=2.4)
+        a_.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
+        a_.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+        r_.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
+        r_.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
         r_.axhline(1, color="k", lw=0.8)
-        if key in ("ptj1", "ptj2"):
-            for p in (a_, r_):
-                if key == "ptj1":
-                    p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
-                p.axvline(XM, color="0.35", lw=2.0, ls="--")
+        # Where the reweighted effective statistics collapse, the prior simply
+        # has no events: pT_j2's hard tail needs a Z+2-jet matrix element, which
+        # a Z+1-jet-plus-shower prior cannot supply, and reweighting cannot
+        # create events.  Grey those bins rather than let them read as failure.
+        bad, _eff = support_mask(ev[key], res.weights, e, min_eff=100.0)
+        shade_unsupported((a_, r_), e, bad)
+        for p in (a_, r_):
+            if key == "ptj1":
+                p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
+            p.axvline(XM / 45.0 if key == "pimdphi" else XM,
+                      color=C["seam"], lw=2.0, ls="--")
         if logx: a_.set_xscale("log"); r_.set_xscale("log")
         a_.set_yscale("log"); a_.tick_params(labelbottom=False)
         a_.set_title(lab + rf"  \small({role})", fontsize=15)

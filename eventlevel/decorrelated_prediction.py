@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -97,8 +97,8 @@ def main():
     print(f"  effN={100*res.effN:.0f}%  closure={res.closure:.1e}  neg-wt={100*np.mean(res.weights<=0):.0f}%", flush=True)
 
     gens = {}
-    for lbl, fn, col, neg in [("MiNNLO", "dy_minnlo_s1_showered.npz", "#1f77b4", 23),
-                              ("POWHEG", "dy_psNLO_powheg_ct18_fixed.npz", "#9467bd", 1)]:
+    for lbl, fn, col, neg in [("MiNNLO", "dy_minnlo_s1_showered.npz", C["minnlo"], 23),
+                              ("POWHEG", "dy_psNLO_powheg_ct18_fixed.npz", C["powheg"], 1)]:
         p = os.path.join(HERE, fn)
         if os.path.exists(p):
             try:
@@ -167,10 +167,10 @@ def main():
                                      0.5 * (glo[gd] + ghi[gd]), fn,
                                      left=np.nan, right=np.nan)
         ref = np.maximum(hp, 1e-30)   # no data: ratio to the prior
-        a.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
-        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
-        r.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
-        r.stairs(hq / ref, e, color="#d62728", lw=2.4)
+        a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
+        a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+        r.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
+        r.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
         if fo_h is not None:
             r.stairs(fo_h / ref, e, color="k", ls=":", lw=2.0)
         for lbl, (g, col, neg) in gens.items():
@@ -193,7 +193,7 @@ def main():
                          r"\emph{differential} spectrum is unresolved "
                          r"(rel.\ err.\ $\simeq1$) while its integral is exact ($<5\times10^{-4}$)."
                          r"  MC@NLO is absent: the stored sample keeps no lepton four-vectors",
-             ha="center", va="top", fontsize=12, color="0.35")
+             ha="center", va="top", fontsize=12, color=C["seam"])
     out = os.path.join(HERE, "fig_decorrelated_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

@@ -788,13 +788,23 @@ def upgrade(events, moments, config):
                 np.asarray(moments["born"][o]["values"], float),
                 np.asarray(moments["born"][o].get("errors", []), float),
                 rate=1.0, floor=0)
-    # Recoil observable: validity is the window [x_match, x_hi]; shower kept outside.
-    rc = moments["recoil"][recoil_obs]
-    soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
-                    max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
-    XHI = float(rc.get("x_hi", np.asarray(events[recoil_obs], float).max()))
-    prof = recoil_cfg[recoil_obs].get("profile")
-    if prof:
+    # Recoil observables: validity is the window [x_match, x_hi]; shower kept
+    # outside.  There may be MORE THAN ONE -- e.g. the diphoton upgrade
+    # constrains both pT_gg and pi-dphi_gg, because constraining pT alone leaves
+    # the shower's pT<->dphi correlation wrong and dphi overshoots by ~60% near
+    # 2.2 rad.  Each carries its own compiled profile and its own rate
+    # constraint; their masked features simply add to the same feature matrix.
+    windows = {}
+    for recoil_obs in recoil_cfg:
+      rc = moments["recoil"][recoil_obs]
+      windows[recoil_obs] = dict(x_match=float(rc["x_match"]),
+                                 x_hi=float(rc.get("x_hi", np.inf)),
+                                 rate=float(rc["rate"]))
+      soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
+                      max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
+      XHI = float(rc.get("x_hi", np.asarray(events[recoil_obs], float).max()))
+      prof = recoil_cfg[recoil_obs].get("profile")
+      if prof:
         # smooth (or hard, if a==b) profile: exact shower preservation below the
         # seam via masked features + explicit rate constraint.  `vals`/`rate` must
         # be the w-weighted FO moments + w-rate; fall back to the window values
@@ -806,11 +816,13 @@ def upgrade(events, moments, config):
                           None if c is None else float(c), None if d is None else float(d))
         vals = np.asarray(rc.get("wprofile_values", rc["window_values"]), float)
         R = float(rc.get("wprofile_rate", rc["rate"]))
-        _impose(recoil_obs, soft_lo, XHI, "log", xm, XHI, vals,
+        _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
+                xm, XHI, vals,
                 np.asarray(rc.get("window_errors", []), float),
                 rate=R, floor=1, wprof=wprof)
-    else:
-        _impose(recoil_obs, soft_lo, XHI, "log", float(rc["x_match"]), XHI,
+      else:
+        _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
+                float(rc["x_match"]), XHI,
                 np.asarray(rc["window_values"], float),
                 np.asarray(rc.get("window_errors", []), float),
                 rate=float(rc["rate"]), floor=1)
@@ -822,11 +834,13 @@ def upgrade(events, moments, config):
     ach = (q[:, None] * Phi).sum(0)
     worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
-    x_match = float(rc["x_match"])
+    # the PRIMARY recoil (first in the config) defines the reported seam
+    primary = next(iter(recoil_cfg))
+    x_match = float(windows[primary]["x_match"])
     report = dict(
         moment_selection=dict(enabled=bool(do_sel), threshold=thr, chosen=dict(chosen),
                               snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
-        window=dict(x_match=x_match, x_hi=XHI, rate=float(rc["rate"])),
+        window=dict(windows[primary]), windows=windows,
         n_constraints=len(mu),
     )
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,

@@ -89,6 +89,14 @@ HISTOGRAMS
   chebT_dpa_4 > prof_dpa_4  min=-1.001 max=1.001 nbins=1 profile = T
   chebT_dpa_5 > prof_dpa_5  min=-1.001 max=1.001 nbins=1 profile = T
   chebT_dpa_6 > prof_dpa_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- profiled pi-dphi RECOIL moments (turn on over pi-dphi in [0.3,0.6])
+  w_dpa > prof_wdpa_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_1 > prof_wdpa_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_2 > prof_wdpa_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_3 > prof_wdpa_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_4 > prof_wdpa_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_5 > prof_wdpa_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_dpa_6 > prof_wdpa_6  min=-1.001 max=1.001 nbins=1 profile = T
 END_HISTOGRAMS
 
 SCALES

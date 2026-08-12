@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -26,13 +26,12 @@ from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 GDIR = "/Users/user/nnlojet-v1.0.2/ggh_moments"
 RUN, PREFIX = "GGH_MOMENTS", "H"
 CH = ["LO", "R", "V"]
-# The profile is COMPILED INTO NNLOJET (eval_w_pth: pa=30, pb=60, pc=pd=1000),
-# and the FO moments are <T_n w> with THAT w -- so these must mirror the
-# Fortran exactly.  Moving them here alone imposes moments built with one
-# weight function against features built with another (it costs a factor 10
-# in closure).  check_seam() flags that gg->H should really sit at 37 GeV;
-# acting on it means editing EvalFuncs.f90 and re-running NNLOJET.
-XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 1.0
+# Mirrors the profile COMPILED INTO NNLOJET (eval_w_pth: pa=37, pb=74,
+# pc=pd=1000).  The fixed-order moments are <T_n w> with THAT w, so these must
+# track the Fortran exactly -- changing them here alone costs a factor 10 in
+# closure.  37 GeV is the power-counting seam for Q = m_H (check_seam), adopted
+# by editing EvalFuncs.f90 and regenerating the moments at 40 seeds.
+XM, XB, XHI, SOFT = 37.0, 74.0, 1000.0, 1.0
 Q_HARD = 125.0
 YHI = 4.0
 
@@ -99,8 +98,8 @@ def main():
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
         ctr = np.sqrt(e[:-1] * e[1:]) if logx else 0.5 * (e[:-1] + e[1:])
-        a.stairs(hp, e, color="0.55", ls="--", lw=2.0, label=r"PS+LO prior")
-        a.stairs(hq, e, color="#d62728", lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+        a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
+        a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
         ref = None  # set to FO below
         fc = fo_curve(fotag, seeds, fch)
         if fc is not None:
@@ -127,15 +126,15 @@ def main():
                 ref = fi          # fixed order is the ratio denominator
                 r.stairs(fi / ref, e, color="k", ls=":", lw=2.0)
         if ref is None: ref = np.maximum(hq, 1e-30)
-        r.stairs(hp / ref, e, color="0.55", ls="--", lw=1.8)
-        r.stairs(hq / ref, e, color="#d62728", lw=2.4)
+        r.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
+        r.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
         r.axhline(1, color="k", lw=0.8)
         if logx:
             a.set_xscale("log"); r.set_xscale("log"); a.set_yscale("log")
         if key == "pT_H":
             for p in (a, r):
                 p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
-                p.axvline(XM, color="0.35", lw=2.0, ls="--")
+                p.axvline(XM, color=C["seam"], lw=2.0, ls="--")
         a.tick_params(labelbottom=False)
         a.set_title(lab + (r"  \small(recoil, constrained above the seam)" if key == "pT_H"
                            else r"  \small(Born, constrained)"), fontsize=15)

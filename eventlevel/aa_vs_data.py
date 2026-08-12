@@ -16,12 +16,19 @@ D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 
 def load_prior_full():
     parts = []
-    for f in ("aa_prior_v3_s1a.npz", "aa_prior_v3_s1b.npz", "aa_prior_v3_s1c.npz"):
+    for f in ("aa_prior_v4_a.npz", "aa_prior_v4_b.npz", "aa_prior_v4_c.npz",
+              "aa_prior_v4_d.npz", "aa_prior_v4_e.npz"):
         p = os.path.join(HERE, f)
         if os.path.exists(p):
             d = dict(np.load(p, allow_pickle=True))
-            # pT-hat SLICES: the stored per-event weight is 1, so each slice must be
-            # normalised by sigma_i / n_generated_i before they can be concatenated.
+            # EXCLUSIVE pT-hat slices [pthatmin, pthatmax): each event is
+            # produced by exactly one slice, so sigma_i/n_gen,i weights simply
+            # concatenate.  The v3 set used pTHatMin only, so the slices
+            # overlapped and the hard region was counted once per slice --
+            # sigma(pt1>200) came out identical from all three.  Sum of the v4
+            # slice cross sections is 42.84 pb against the v3 inclusive 42.82.
+            # The stored per-event weight is 1, so each slice is normalised by
+            # sigma_i / n_generated_i before concatenation.
             n = len(np.asarray(d["weight"], float))
             d["weight"] = np.full(n, float(d["sigma_pb"]) / float(d["n_generated"]))
             parts.append(d)

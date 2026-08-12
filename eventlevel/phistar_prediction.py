@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style
+from pubstyle import use_pub_style, C
 use_pub_style()
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
@@ -77,10 +77,10 @@ def main():
             if tot_int > 0: fo_h = fo_h / tot_int
 
     series = [(r"LO+PS prior", dens(ev["phistar"], ev["weight"], e), "0.55", "--", None),
-              (r"MaxEnt", dens(ev["phistar"], res.weights, e), "#d62728", "-", 0)]
-    for lbl, f, col, neg in [(r"MiNNLO", "dy_minnlo_atlas_v2.npz", "#1f77b4", 23),
-                             (r"MC@NLO", "dy_mcatnlo_atlas.npz", "#2ca02c", 5),
-                             (r"POWHEG", "dy_powheg_atlas.npz", "#9467bd", 1)]:
+              (r"MaxEnt", dens(ev["phistar"], res.weights, e), C["maxent"], "-", 0)]
+    for lbl, f, col, neg in [(r"MiNNLO", "dy_minnlo_atlas_v2.npz", C["minnlo"], 23),
+                             (r"MC@NLO", "dy_mcatnlo_atlas.npz", C["mcatnlo"], 5),
+                             (r"POWHEG", "dy_powheg_atlas.npz", C["powheg"], 1)]:
         G = dict(np.load(os.path.join(HERE, f)))
         series.append((lbl, dens(G["phistar"].astype(float), G["w"].astype(float), e), col, "-", neg))
 
@@ -110,19 +110,19 @@ def main():
                else rf"{lbl} ({med(h):.1f}\%, {neg}\% $w<0$)")
         a.stairs(np.where(msk, h, np.nan), e, color=col, ls=ls, lw=lw, label=leg)
         r.stairs(np.where(msk, h / np.maximum(val, 1e-30), np.nan), e, color=col, ls=ls, lw=lw)
-    r.fill_between(ctr[msk], (1 - rel)[msk], (1 + rel)[msk], color="0.75", alpha=0.5, step="mid")
+    r.fill_between(ctr[msk], (1 - rel)[msk], (1 + rel)[msk], color=C["band"], alpha=0.5, step="mid")
     r.axhline(1, color="k", lw=0.8)
     # the pT seam maps onto phi* via phi* ~ pT/m  =>  mark it
     xs = XM / 91.1876
     for p_ in (a, r):
-        p_.axvline(xs, color="0.45", lw=1.8, ls="--")
+        p_.axvline(xs, color=C["seam"], lw=1.8, ls="--")
     a.set_xscale("log"); a.set_yscale("log"); r.set_xscale("log")
     # axes-fraction coords: immune to the y-scale being set after this call.
     # (Reading get_ylim() on the still-linear axis put the label at a negative y,
     # which is off-scale once the axis goes log -- bbox="tight" then grew the
     # canvas to 56000 pt to contain it.)
     a.text(xs * 1.10, 0.04, rf"$x_{{\rm match}}\!\to\!\phi^*\!\simeq\!{xs:.2f}$",
-           transform=a.get_xaxis_transform(), color="0.35", fontsize=13,
+           transform=a.get_xaxis_transform(), color=C["seam"], fontsize=13,
            rotation=90, va="bottom")
     a.tick_params(labelbottom=False); r.set_ylim(0.80, 1.20)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\phi^*_\eta$")
