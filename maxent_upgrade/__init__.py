@@ -374,8 +374,8 @@ def upgrade_from_histograms(events: Dict[str, np.ndarray],
         raise KeyError(f"events is missing the weight key '{wkey}'")
     born_cfg = config.get("born", {})
     recoil_cfg = config.get("recoil", {})
-    if len(recoil_cfg) != 1:
-        raise ValueError("config['recoil'] must declare exactly ONE recoil observable")
+    if not recoil_cfg:
+        raise ValueError("config['recoil'] must declare at least one recoil observable")
     followers = list(config.get("followers", []))
     w = np.asarray(events[wkey], float)
     if not np.all(w > 0):
@@ -723,13 +723,12 @@ def upgrade(events, moments, config):
     cfg = {**DEFAULTS, **config}
     wkey = cfg["weight_key"]
     born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
-    if len(recoil_cfg) != 1:
-        raise ValueError("config['recoil'] must declare exactly ONE recoil observable")
+    if not recoil_cfg:
+        raise ValueError("config['recoil'] must declare at least one recoil observable")
     w = np.asarray(events[wkey], float)
     if not np.all(w > 0):
         raise ValueError("prior weights must be strictly positive")
     p = w / w.sum()
-    recoil_obs = next(iter(recoil_cfg))
     thr = cfg["snr_threshold"]; do_sel = cfg["moment_selection"]
 
     F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
