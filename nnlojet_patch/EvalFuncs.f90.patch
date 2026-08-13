@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-11 23:21:33
-@@ -2463,7 +2463,400 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-12 22:28:51
+@@ -2463,7 +2463,440 @@
      pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
      eval_minv_V = v1_minv(pV)
    end function eval_minv_V
@@ -281,6 +281,46 @@
 +    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
 +    eval_chebTw_ptj2 = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
 +  end function eval_chebTw_ptj2
++
++  !===========================================================================
++  !  MIXED (two-observable) moments:  < T_m(u(pT_j1)) T_n(u(pT_j2)) >_w
++  !
++  !  Separate moments of pT_j1 and pT_j2 constrain the two SPECTRA but say
++  !  nothing about their CORRELATION, and it is the correlation that fixes
++  !  dphi_ll: for the diphoton case, constraining the recoil alone left the
++  !  shower's pT<->dphi correlation wrong and dphi overshot by ~60%.  A mixed
++  !  moment constrains the joint distribution directly.
++  !
++  !  The two orders are packed into the single imem slot as  imem = -(10*m + n)
++  !  with 1 <= m,n <= 9, so bind these as chebTT_ptj12_<m><n>.  Both profiles
++  !  multiply, so the feature vanishes unless BOTH jets are above their seam --
++  !  which is what makes this a well-defined two-jet observable.
++  !===========================================================================
++  real(kind=wp) function eval_w_ptj12(npar)      ! joint profile w1*w2
++    integer, intent(in) :: npar
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; eval_w_ptj12 = 0.0_wp; return; end if
++    eval_w_ptj12 = prof_w(v1_pt(kin(npar)%pjets(:, 1)), pa, pb, pc, pd) &
++                 * prof_w(v1_pt(kin(npar)%pjets(:, 2)), pa, pb, pc, pd)
++  end function eval_w_ptj12
++
++  real(kind=wp) function eval_chebTT_ptj12(npar, mn)
++    integer, intent(in) :: npar, mn
++    real(kind=wp) :: x1, x2, u1, u2, lnlo, lnhi
++    real(kind=wp), parameter :: lo = 10.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 1000.0_wp, pd = 1000.0_wp
++    integer :: m, n
++    if (npar < 1) then; eval_chebTT_ptj12 = 0.0_wp; return; end if
++    m = abs(mn) / 10
++    n = mod(abs(mn), 10)
++    x1 = max(v1_pt(kin(npar)%pjets(:, 1)), 1.0e-6_wp)
++    x2 = max(v1_pt(kin(npar)%pjets(:, 2)), 1.0e-6_wp)
++    lnlo = log(lo); lnhi = log(hi)
++    u1 = 2.0_wp*(log(x1) - lnlo)/(lnhi - lnlo) - 1.0_wp
++    u2 = 2.0_wp*(log(x2) - lnlo)/(lnhi - lnlo) - 1.0_wp
++    eval_chebTT_ptj12 = prof_w(x1, pa, pb, pc, pd) * prof_w(x2, pa, pb, pc, pd) &
++                      * cheb_T(u1, m) * cheb_T(u2, n)
++  end function eval_chebTT_ptj12
 +
 +  !> x = pi - dphi(l1,l2) in (0,pi]; small x = back-to-back (Sudakov) region.
 +  pure function pimdphi_ll(npar) result(x)

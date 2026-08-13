@@ -25,6 +25,10 @@ BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 Q_HARD = 91.1876
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
+# phi* > 0 REQUIRES a real emission, so from the inclusive Z calculation at
+# NNLO it is only NLO(Z+jet) accurate -- the Born observables m_ll and |y_ll|
+# are the NNLO ones.  Label the curve by the accuracy of THIS observable.
+FO_LABEL = r"fixed order (NLO $Z$+jet)"
 SEEDS = None     # resolved at run time to every channel-complete seed
 
 
@@ -72,8 +76,17 @@ def main():
             # (what this used to do) drops or double-counts bins whenever the
             # two grids are not nested, and does not conserve the integral.
             fo_h = rebin_density(flo[gd], fhi[gd], fv[gd], e)
-            tot_int = np.nansum(fo_h * np.diff(e))
-            if tot_int > 0: fo_h = fo_h / tot_int
+            # Normalise over the region where fixed order is TRUSTED, i.e. above
+            # the seam.  Normalising over the full range lets the unresummed
+            # Sudakov region below the seam -- where the fixed order diverges
+            # well above the data -- eat the normalisation and push the trusted
+            # part down by 17% (median FO/data 0.83 instead of 1.03).
+            xs_ = XM / 91.1876
+            bwe = np.diff(e); ab_ = ctr >= xs_
+            fo_above = np.nansum(np.where(ab_, fo_h, 0.0) * bwe)
+            d_above = float((val * bwe * ab_).sum()); d_tot = float((val * bwe).sum())
+            if fo_above > 0:
+                fo_h = fo_h * (d_above / d_tot) / fo_above
 
     series = [(r"LO+PS prior", dens(ev["phistar"], ev["weight"], e), "0.55", "--", None),
               (r"MaxEnt", dens(ev["phistar"], res.weights, e), C["maxent"], "-", 0)]
@@ -100,7 +113,7 @@ def main():
         above = ctr >= xs_
         for p_, h_ in ((a, fo_h), (r, fo_h / np.maximum(val, 1e-30))):
             p_.stairs(np.where(msk & above, h_, np.nan), e, color="k", ls=":",
-                      lw=LW["fo"], label=(r"fixed order (NNLO)" if p_ is a else None))
+                      lw=LW["fo"], label=(FO_LABEL if p_ is a else None))
             p_.stairs(np.where(msk & ~above, h_, np.nan), e, color="k", ls=":",
                       lw=1.4, alpha=0.22)
     for lbl, h, col, ls, neg in series:

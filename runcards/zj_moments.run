@@ -97,6 +97,25 @@ HISTOGRAMS
   chebTw_dphill_10 > prof_wdphi_10  min=-1.001 max=1.001 nbins=1 profile = T
   chebTw_dphill_11 > prof_wdphi_11  min=-1.001 max=1.001 nbins=1 profile = T
   chebTw_dphill_12 > prof_wdphi_12  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- MIXED moments <T_m(pTj1) T_n(pTj2)>_w : the joint distribution,
+  ! ---- which separate pTj1 and pTj2 moments do not constrain at all
+  w_ptj12 > prof_wj12_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_11 > prof_wj12_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_12 > prof_wj12_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_13 > prof_wj12_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_14 > prof_wj12_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_21 > prof_wj12_21  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_22 > prof_wj12_22  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_23 > prof_wj12_23  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_24 > prof_wj12_24  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_31 > prof_wj12_31  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_32 > prof_wj12_32  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_33 > prof_wj12_33  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_34 > prof_wj12_34  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_41 > prof_wj12_41  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_42 > prof_wj12_42  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_43 > prof_wj12_43  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptj12_44 > prof_wj12_44  min=-1.001 max=1.001 nbins=1 profile = T
 END_HISTOGRAMS
 
 SCALES

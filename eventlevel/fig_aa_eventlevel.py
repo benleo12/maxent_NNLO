@@ -74,6 +74,16 @@ PANELS = [
     ("at_aa",    "at_aa",    r"$a_T^{\gamma\gamma}$ [GeV]",          True,  "predicted"),
 ]
 
+# Accuracy is a property of the OBSERVABLE, not of the calculation.  From the
+# inclusive gamma-gamma calculation at NNLO, the Born observables (mass, the
+# Collins-Soper angle, the rapidity) are NNLO; anything that requires a real
+# emission to be non-zero -- the recoil pT, a_T, and dphi away from pi -- is only
+# NLO(gamma-gamma+jet) accurate.  Label each curve by what it actually is.
+FO_ORDER = {"m_aa": r"NNLO", "costh_aa": r"NNLO", "y_aa": r"NNLO",
+            "pt_aa": r"NLO $\gamma\gamma$+jet",
+            "dphi_aa": r"NLO $\gamma\gamma$+jet",
+            "at_aa": r"NLO $\gamma\gamma$+jet"}
+
 
 def main():
     ev = load_prior_full()
@@ -121,7 +131,7 @@ def main():
                     fn = np.where(good, fo, np.nan)
                     fn = fn / np.nansum(fn * bw)          # same normalisation as pp/qq/dv
                     a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
-                             label=r"fixed order (NNLO)")
+                             label=rf"fixed order ({FO_ORDER.get(key, '')})")
                     r.stairs(np.where(m, fn / dv, np.nan), e, color=C["fo"], ls=":", lw=1.9)
         if key in ("pt_aa", "at_aa"):
             for p_ in (a, r):
@@ -163,7 +173,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"Diphoton at 8 TeV, event-level NNLO moments: Born "
+    fig.suptitle(r"Diphoton at 8 TeV, event-level moments: Born "
                  r"$\{m_{\gamma\gamma},\,|\cos\theta^*|\}$ and recoil "
                  r"$\{p_T^{\gamma\gamma}\}$ constrained; "
                  r"$\Delta\phi_{\gamma\gamma}$ and $a_T$ predicted", y=1.02)

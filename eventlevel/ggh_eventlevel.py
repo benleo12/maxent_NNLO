@@ -127,7 +127,7 @@ def main():
                 gd = np.isfinite(fo) & (fo > 0)
                 fn = np.where(gd, fo, np.nan)
                 fn = fn * (target / np.nansum(fn * np.diff(e)))
-                a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"], label=r"fixed order")
+                a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"], label=(r"fixed order (LO $H$+jet)" if key == "pT_H" else r"fixed order (NLO)"))
                 ref = fn          # fixed order is the ratio denominator
                 r.stairs(fn / ref, e, color=C["fo"], ls=":", lw=2.0)
         if ref is None: ref = np.maximum(hq, 1e-30)
@@ -154,7 +154,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to fixed order")
             a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$gg\to H$ at 13 TeV, event-level NLO moments (LO+R+V)"
+    fig.suptitle(r"$gg\to H$ at 13 TeV, event-level moments"
                  "\n" rf"\small effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$, "
                  r"$0\%$ negative weights", y=1.03)
     out = os.path.join(HERE, "fig_ggh_eventlevel.pdf")

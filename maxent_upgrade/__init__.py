@@ -374,8 +374,8 @@ def upgrade_from_histograms(events: Dict[str, np.ndarray],
         raise KeyError(f"events is missing the weight key '{wkey}'")
     born_cfg = config.get("born", {})
     recoil_cfg = config.get("recoil", {})
-    if not recoil_cfg:
-        raise ValueError("config['recoil'] must declare at least one recoil observable")
+    if not recoil_cfg and not config.get("mixed"):
+        raise ValueError("config must declare at least one recoil or mixed constraint")
     followers = list(config.get("followers", []))
     w = np.asarray(events[wkey], float)
     if not np.all(w > 0):
@@ -723,8 +723,8 @@ def upgrade(events, moments, config):
     cfg = {**DEFAULTS, **config}
     wkey = cfg["weight_key"]
     born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
-    if not recoil_cfg:
-        raise ValueError("config['recoil'] must declare at least one recoil observable")
+    if not recoil_cfg and not config.get("mixed"):
+        raise ValueError("config must declare at least one recoil or mixed constraint")
     w = np.asarray(events[wkey], float)
     if not np.all(w > 0):
         raise ValueError("prior weights must be strictly positive")
@@ -826,6 +826,34 @@ def upgrade(events, moments, config):
                 np.asarray(rc.get("window_errors", []), float),
                 rate=float(rc["rate"]), floor=1)
 
+    # ---- MIXED (two-observable) constraints -------------------------------
+    # Separate moments of x and y constrain the two MARGINALS and say nothing
+    # about their JOINT distribution.  When a follower is determined by the
+    # correlation rather than by either spectrum alone, only a mixed moment can
+    # reach it -- constraining the diphoton recoil alone, for instance, left the
+    # shower's pT<->dphi correlation wrong.  The feature is
+    #     T_m(u(x)) T_n(v(y)) w(x) w(y)
+    # with target <T_m T_n>_w * R_xy, plus the joint rate constraint sum q w w.
+    # Both profiles multiply, so the feature vanishes unless BOTH observables
+    # are inside their windows.
+    for key, mc in (config.get("mixed") or {}).items():
+        ox, oy = mc["observables"]
+        ax, bx = mc["range"][ox]; ay, by = mc["range"][oy]
+        mpx = mc.get("map", {}).get(ox, "log"); mpy = mc.get("map", {}).get(oy, "log")
+        X = np.asarray(events[ox], float); Y = np.asarray(events[oy], float)
+        px_, py_ = mc["profile"][ox], mc["profile"][oy]
+        wx = profile_w(X, px_["a"], px_["b"], px_.get("c"), px_.get("d"))
+        wy = profile_w(Y, py_["a"], py_["b"], py_.get("c"), py_.get("d"))
+        wxy = wx * wy
+        rc = moments["mixed"][key]
+        Cx = _cheb(_umap(np.clip(X, ax, bx), ax, bx, mpx), mc["n"])
+        Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), mc["n"])
+        R = float(rc["rate"])
+        for (mm, nn), v in rc["values"].items():
+            F.append(Cx[:, mm] * Cy[:, nn] * wxy); mu.append(float(v) * R)
+            names.append(f"{key}_T{mm}{nn}")
+        F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate")
+
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
     q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"])
     if not ok or q is None:
@@ -833,13 +861,14 @@ def upgrade(events, moments, config):
     ach = (q[:, None] * Phi).sum(0)
     worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
-    # the PRIMARY recoil (first in the config) defines the reported seam
-    primary = next(iter(recoil_cfg))
-    x_match = float(windows[primary]["x_match"])
+    # the PRIMARY recoil (first in the config) defines the reported seam;
+    # a mixed-only configuration has no single seam to report
+    primary = next(iter(recoil_cfg), None)
+    x_match = float(windows[primary]["x_match"]) if primary else float("nan")
     report = dict(
         moment_selection=dict(enabled=bool(do_sel), threshold=thr, chosen=dict(chosen),
                               snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
-        window=dict(windows[primary]), windows=windows,
+        window=(dict(windows[primary]) if primary else {}), windows=windows,
         n_constraints=len(mu),
     )
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,

@@ -30,8 +30,13 @@ Q_HARD = 91.1876
 GENS = [("MiNNLO", "dy_minnlo_atlas_v2.npz", C["minnlo"], 23),
         ("MC@NLO", "dy_mcatnlo_atlas.npz", C["mcatnlo"], 5),
         ("POWHEG", "dy_powheg_atlas.npz", C["powheg"], 1)]
-PANELS = [("pT_ll", "atlas_pTll_born.npz", r"$p_T^{\ell\ell}$ [GeV]", "constrained"),
-          ("phistar", "atlas_phistar_born.npz", r"$\phi^*_\eta$", "predicted (never constrained)")]
+# ONE observable per figure.  phi* has its own figure (fig_phistar_prediction);
+# showing it here as well duplicated the same curves in two places.
+PANELS = [("pT_ll", "atlas_pTll_born.npz", r"$p_T^{\ell\ell}$ [GeV]", "constrained")]
+# pT_ll > 0 REQUIRES a real emission, so the inclusive Z calculation at NNLO
+# gives this observable at NLO(Z+jet) accuracy.  m_ll and |y_ll|, the Born
+# observables that are also constrained, are the NNLO ones.
+FO_LABEL = r"fixed order (NLO $Z$+jet)"
 
 
 def dens(x, w, e):
@@ -61,7 +66,7 @@ def main():
     print(f"  effN {100*res.effN:.1f}%  closure {res.closure:.2e}  "
           f"neg-wt {100*np.mean(res.weights<=0):.1f}%")
 
-    fig, ax = plt.subplots(2, 2, figsize=(13.5, 8.4), squeeze=False,
+    fig, ax = plt.subplots(2, len(PANELS), figsize=(6.9 * len(PANELS), 8.4), squeeze=False,
                            gridspec_kw={"height_ratios": [2.2, 1.15], "hspace": 0.07,
                                         "wspace": 0.24})
     summary = {}
@@ -115,7 +120,7 @@ def main():
                 xs_ = XM / 91.1876
                 ab = ctr >= xs_
                 a.stairs(np.where(ab, fn, np.nan), e, color=C["fo"], ls=":", lw=LW["fo"],
-                         label=r"fixed order (NNLO)")
+                         label=FO_LABEL)
                 a.stairs(np.where(~ab, fn, np.nan), e, color=C["fo"], ls=":", lw=1.4, alpha=0.22)
                 rr = fn / np.maximum(val, 1e-30)
                 r.stairs(np.where(m & ab, rr, np.nan), e, color=C["fo"], ls=":", lw=2.2)
@@ -140,7 +145,7 @@ def main():
                 fn = np.where(gd, fo, np.nan)
                 fn = fn * (tgt / np.nansum(fn * np.diff(e)))
                 a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
-                         label=r"fixed order (NNLO)")
+                         label=FO_LABEL)
                 r.stairs(np.where(m, fn / np.maximum(val, 1e-30), np.nan), e,
                          color=C["fo"], ls=":", lw=2.0)
         rel = err / np.maximum(val, 1e-30)
@@ -162,7 +167,7 @@ def main():
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=11.5, labelspacing=0.28)
-    fig.suptitle(r"Drell--Yan at 13 TeV, event-level NNLO moments", y=1.02)
+    fig.suptitle(r"Drell--Yan at 13 TeV, event-level moments", y=1.02)
     out = os.path.join(HERE, "fig_dy_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

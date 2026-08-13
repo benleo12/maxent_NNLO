@@ -160,7 +160,8 @@ def main():
                 xs_ = XM / 45.0 if key == "pimdphi" else XM
                 ab = ctr_ >= xs_
                 a_.stairs(np.where(ab, yy, np.nan), e, color=C["fo"], ls=":", lw=LW["fo"],
-                          label=r"fixed order (NLO)")
+                          label=(r"fixed order (NLO $Z$+jet)" if key == "ptj1"
+                                 else r"fixed order (LO $Z$+2 jets)"))
                 a_.stairs(np.where(~ab, yy, np.nan), e, color=C["fo"], ls=":",
                           lw=1.4, alpha=FADE)
                 fo_i = yy
@@ -197,9 +198,10 @@ def main():
             a_.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r_.set_ylabel(r"ratio to fixed order")
             a_.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$Z+$jet at 13 TeV, event-level NLO moments (LO+R+V): $p_T^{j_1}$ constrained; "
+    fig.suptitle(r"$Z+$jet at 13 TeV, event-level moments: $p_T^{j_1}$ constrained; "
                  r"$p_T^{j_2}$ and $\Delta\phi_{\ell\ell}$ predicted"
-                 "\n" rf"\small effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$", y=1.03)
+                 "\n" rf"\small {len(seeds)} seed(s), channels {'+'.join(CH)};  "
+                 rf"effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$", y=1.03)
     out = os.path.join(HERE, "fig_zj_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("\nwrote", out)

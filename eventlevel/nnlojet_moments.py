@@ -324,6 +324,35 @@ def add_profiled_recoil(moments, base, run, channels, seeds, cfg_obs,
     return moments
 
 
+def add_mixed_moments(moments, base, run, channels, seeds, key, wtag, w0,
+                      n_max, norm_born="norm_born", scale_idx=0, prefix="Z"):
+    r"""Attach MIXED two-observable moments  <T_m(x) T_n(y)>_w  to `moments`.
+
+    NNLOJET books these as prof_<wtag>_<m><n> (orders packed as a two-digit
+    index, matching eval_chebTT_*), with prof_<w0> the joint w-rate numerator.
+    Separate moments of x and y constrain only the two marginals; the mixed
+    ones constrain the joint distribution, which is what a follower determined
+    by the CORRELATION depends on.
+    """
+    vals = {}
+    for m in range(1, n_max + 1):
+        for n in range(1, n_max + 1):
+            mm = _moment_over_seeds(base, run, channels, seeds,
+                                    f"{wtag}_{m}{n}", w0, prefix)
+            if mm is None:
+                continue
+            vals[(m, n)] = _reduce(mm, scale_idx)[0]
+    rate_ps = []
+    for s in seeds:
+        wnum = _sum_channels(base, run, channels, w0, s, prefix)
+        nb = _sum_channels(base, run, channels, norm_born, s, prefix)
+        if wnum is not None and nb is not None:
+            rate_ps.append(wnum[scale_idx] / nb[scale_idx])
+    R = float(np.mean(rate_ps)) if rate_ps else float("nan")
+    moments.setdefault("mixed", {})[key] = dict(values=vals, rate=R)
+    return moments
+
+
 if __name__ == "__main__":
     import json
     import sys
