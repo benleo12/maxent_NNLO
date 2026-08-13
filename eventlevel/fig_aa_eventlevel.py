@@ -90,12 +90,11 @@ def main():
     ev = {k: v[W["idx"]] for k, v in ev.items()}
     wpr, wnw = ev["weight"], W["weights"]
 
-    n = len(PANELS)
-    fig, ax = plt.subplots(2, n, figsize=(4.6 * n, 7.4), squeeze=False,
-                           gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07,
-                                        "wspace": 0.30})
+    # ONE observable per figure, as everywhere else.
     for j, (key, dk, lab, logx, role) in enumerate(PANELS):
-        a, r = ax[0, j], ax[1, j]
+        fig, ax = plt.subplots(2, 1, figsize=(6.6, 7.6), squeeze=False,
+                               gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07})
+        a, r = ax[0, 0], ax[1, 0]
         lo = np.asarray(D[f"{dk}_lo"], float); hi = np.asarray(D[f"{dk}_hi"], float)
         val = np.asarray(D[f"{dk}_val"], float); err = np.asarray(D[f"{dk}_err"], float)
         e = np.concatenate([lo[:1], hi]); ctr = 0.5 * (lo + hi)
@@ -169,17 +168,16 @@ def main():
         r.stairs(np.where(m, pp / dv, np.nan), e, color=C["prior"], ls="--", lw=1.8)
         r.stairs(np.where(m, qq / dv, np.nan), e, color=C["maxent"], lw=2.4)
         r.set_ylim(0.3, 1.9); r.set_xlabel(lab)
-        if j == 0:
-            a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r.set_ylabel(r"ratio to data")
+        a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+        r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"Diphoton at 8 TeV, event-level moments: Born "
-                 r"$\{m_{\gamma\gamma},\,|\cos\theta^*|\}$ and recoil "
-                 r"$\{p_T^{\gamma\gamma}\}$ constrained; "
-                 r"$\Delta\phi_{\gamma\gamma}$ and $a_T$ predicted", y=1.02)
-    out = os.path.join(HERE, "fig_aa_eventlevel.pdf")
-    fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
-    print("wrote", out)
+        a.set_title(rf"Diphoton at 8 TeV: {lab}  \small(\textit{{{role}}})"
+                    "\n" r"\small Born $\{m_{\gamma\gamma},|\cos\theta^*|\}$ + recoil "
+                    r"$\{p_T^{\gamma\gamma}\}$ constrained", fontsize=14)
+        out = os.path.join(HERE, f"fig_aa_{key}.pdf")
+        fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
+        plt.close(fig)
+        print("wrote", out)
 
 
 if __name__ == "__main__":
