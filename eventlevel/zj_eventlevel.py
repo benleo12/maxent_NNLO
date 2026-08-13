@@ -26,6 +26,13 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
 
 ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
+# NLO (LO+R+V) by default.  The full NNLO set (LO,R,V,RRa,RRb,RV,VV) exists at
+# 20 seeds and is selectable with ZJ_CH, but at the statistics reachable here its
+# moments are not precise enough to constrain: <T_1(pT_j1)> comes out at
+# SNR 2.8 against 45 at NLO, and <T_3> at 3.0 against 51.  Imposing moments at
+# SNR ~3 injects more noise than information -- closure degrades tenfold
+# (9.6e-4 -> 9.5e-3) and the pi-dphi prediction falls from 9% to 32%.  Reaching
+# NLO-like precision at NNLO needs 1e2-1e3 times the statistics.
 CH = os.environ.get("ZJ_CH", "LO,R,V").split(",")
 NMIX = int(os.environ.get("NMIX", 4))      # mixed orders m,n = 1..NMIX
 # mirrors eval_w_ptj1 (pa=30, pb=60)
