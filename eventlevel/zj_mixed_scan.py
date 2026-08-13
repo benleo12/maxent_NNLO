@@ -26,7 +26,8 @@ sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_profiled_recoil, add_mixed_moments,
-                             _moment_over_seeds, _reduce)
+                             _moment_over_seeds, _reduce, fo_curve)
+from pubstyle import rebin_density
 
 ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
@@ -78,8 +79,50 @@ def main():
         return np.array([float((w * wd * Cd[n]).sum() / tot) / R for n in range(1, N_DPHI + 1)])
 
     base = dphi_moments(ev["weight"])
-    print("\nPREDICTED pi-dphi moments -- |MaxEnt - FO| summed over n=1..6")
-    print(f"  prior                                       {np.abs(base - fo_dphi).sum():.4f}")
+
+    # The profiled moments NNLOJET books for pi-dphi turn on at 0.05, but the
+    # pT seam at 30 GeV maps to pi-dphi ~ 30/45 = 0.67.  Those moments are
+    # therefore weighted an order of magnitude BELOW the seam, deep in the
+    # Sudakov region where fixed order is divergent and is not the right answer
+    # -- the shower is.  Scoring against them rewards agreeing with something
+    # wrong.  So score instead on the booked DISTRIBUTION, restricted to where
+    # fixed order is a prediction.  No rerun needed.
+    DPHI_SEAM = XM / 45.0
+    fc = fo_curve(ZDIR, RUN, CH, seeds, "dphil_a", prefix=PREFIX)
+    edges = np.geomspace(0.02, 3.0, 22)
+    ctr_e = np.sqrt(edges[:-1] * edges[1:]); bw = np.diff(edges)
+    above = ctr_e >= DPHI_SEAM
+    fo_h = None
+    if fc is not None:
+        flo, fhi, fd, _ = fc
+        # NNLOJET books dphi_l1l2 (= dphi) under the name dphil_a, while the
+        # observable here is pi - dphi.  MIRROR it before comparing -- the same
+        # trap the figures already guard against.
+        flo, fhi, fd = (np.pi - fhi)[::-1], (np.pi - flo)[::-1], fd[::-1]
+        g = (fd > 0) & (fhi > flo)
+        fo_h = rebin_density(flo[g], fhi[g], fd[g], edges)
+        ok = np.isfinite(fo_h) & (fo_h > 0) & above
+        fo_h = np.where(ok, fo_h, np.nan)
+        fo_h = fo_h / np.nansum(fo_h * bw)
+
+    def dphi_shape_dev(w):
+        """median |MaxEnt/FO - 1| on pi-dphi ABOVE the seam."""
+        if fo_h is None:
+            return np.nan
+        h, _ = np.histogram(ev["pimdphi"], edges, weights=w / w.sum())
+        h = h / bw
+        m = np.isfinite(fo_h) & (h > 0)
+        if m.sum() == 0:
+            return np.nan
+        hh = h[m] / (h[m] * bw[m]).sum(); ff = fo_h[m] / (fo_h[m] * bw[m]).sum()
+        return 100 * np.median(np.abs(hh / ff - 1))
+
+    print(f"\nPREDICTED pi - dphi_ll,  seam at pi-dphi = {DPHI_SEAM:.2f}")
+    print("  (A) |<T_n>_MaxEnt - <T_n>_FO| summed, profiled moments (turn on at 0.05,")
+    print("      i.e. BELOW the seam -- shown only because it is what NNLOJET books)")
+    print("  (B) median |MaxEnt/FO - 1| on the distribution ABOVE the seam  <-- the honest one")
+    print(f"  prior                                       (A) {np.abs(base - fo_dphi).sum():.4f}"
+          f"   (B) {dphi_shape_dev(ev['weight']):5.1f}%")
 
     for NMIX in (0, 1, 2, 3, 4):
         M = fo_moments_smooth_from_nnlojet(
@@ -118,9 +161,10 @@ def main():
             print(f"  NMIX={NMIX}: FAILED {str(exc)[:52]}")
             continue
         d = np.abs(dphi_moments(r.weights) - fo_dphi).sum()
+        b = dphi_shape_dev(r.weights)
         tag = "pT_j1 only" if not NMIX else f"+pT_j2 +{NMIX*NMIX} mixed"
         print(f"  NMIX={NMIX} {tag:22s} effN {100*r.effN:5.2f}%  closure {r.closure:.1e}"
-              f"   {d:.4f}")
+              f"   (A) {d:.4f}   (B) {b:5.1f}%")
 
 
 if __name__ == "__main__":
