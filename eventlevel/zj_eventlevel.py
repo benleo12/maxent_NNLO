@@ -21,11 +21,13 @@ from pubstyle import (use_pub_style, C, LS, LW, FADE, support_mask,
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
-                             _load, _moment_over_seeds)
+                             _load, _moment_over_seeds, add_profiled_recoil,
+                             add_mixed_moments)
 
 ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
-CH = ["LO", "R", "V"]
+CH = os.environ.get("ZJ_CH", "LO,R,V").split(",")
+NMIX = int(os.environ.get("NMIX", 4))      # mixed orders m,n = 1..NMIX
 # mirrors eval_w_ptj1 (pa=30, pb=60)
 XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 10.0   # pT_j1 profile + log-map floor
 Q_HARD = 91.1876
@@ -77,11 +79,41 @@ def main():
               pimdphi=np.asarray(z["pimdphi"])[sel], weight=np.asarray(z["weight"])[sel])
     print(f"  prior events (>=1 jet): {len(ev['weight']):,}")
 
+    # Constrain BOTH jet spectra and, where the mixed moments exist, their JOINT
+    # distribution.  pT_j1 and pT_j2 separately fix only the two marginals; it is
+    # the correlation that determines pi - dphi_ll, which is left as the
+    # prediction.  This is the case mixed moments were built for.
+    recoil = {"ptj1": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+                       "profile": {"a": XM, "b": XB, "c": XHI}}}
+    mixed = {}
+    if common_seeds(ZDIR, RUN, CH, tag="prof_wj12_0", prefix=PREFIX):
+        sd2 = common_seeds(ZDIR, RUN, CH,
+                           tag=["prof_wj12_0"] + [f"prof_wj12_{m}{n}"
+                                                 for m in range(1, NMIX + 1)
+                                                 for n in range(1, NMIX + 1)],
+                           prefix=PREFIX)
+        add_profiled_recoil(M, ZDIR, RUN, CH, sd2, "ptj2", wtag="prof_wj2",
+                            w0="prof_wj2_0", n_recoil=6, x_match=XM, x_hi=XHI,
+                            soft_lo=SOFT, prefix=PREFIX)
+        add_mixed_moments(M, ZDIR, RUN, CH, sd2, "ptj12", wtag="prof_wj12",
+                          w0="prof_wj12_0", n_max=NMIX, prefix=PREFIX)
+        recoil["ptj2"] = {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+                          "profile": {"a": XM, "b": XB, "c": XHI}}
+        mixed["ptj12"] = dict(observables=("ptj1", "ptj2"),
+                              range={"ptj1": (SOFT, XHI), "ptj2": (SOFT, XHI)},
+                              map={"ptj1": "log", "ptj2": "log"},
+                              profile={"ptj1": dict(a=XM, b=XB, c=XHI, d=XHI),
+                                       "ptj2": dict(a=XM, b=XB, c=XHI, d=XHI)},
+                              n=NMIX)
+        nm = len(M["mixed"]["ptj12"]["values"])
+        print(f"  mixed <T_m(pTj1) T_n(pTj2)>: {nm} moments, {len(sd2)} seeds, "
+              f"R = {M['mixed']['ptj12']['rate']:.4f}")
+    else:
+        print("  mixed moments NOT present -- pT_j1 only, pT_j2 stays a prediction")
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
-               recoil={"ptj1": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
-                                "profile": {"a": XM, "b": XB, "c": XHI}}},
-               followers=["ptj2", "pimdphi"],
+               recoil=recoil, mixed=mixed,
+               followers=["pimdphi"] + ([] if mixed else ["ptj2"]),
                moment_selection=False)
     print("solving ...", flush=True)
     res = upgrade(ev, M, cfg)
@@ -122,10 +154,11 @@ def main():
                 lo, _, hi, v, _ = r0
                 tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
         return (lo, hi, tot) if tot is not None else None
-    fig, ax = plt.subplots(2, 3, figsize=(16.5, 7.6), squeeze=False,
-                           gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07, "wspace": 0.26})
+    # ONE observable per figure.
     for j, (key, e, lab, logx, role, fotag) in enumerate(panels):
-        a_, r_ = ax[0, j], ax[1, j]
+        fig, ax = plt.subplots(2, 1, figsize=(7.0, 7.8), squeeze=False,
+                               gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07})
+        a_, r_ = ax[0, 0], ax[1, 0]
         # pT_j2 exists only for >=2-jet events; the FO histogram contains only
         # those, so normalise the prior/MaxEnt over the same subset.
         sub = (ev["ptj2"] > 0) if key == "ptj2" else np.ones(len(ev[key]), bool)
@@ -192,19 +225,22 @@ def main():
                       color=C["seam"], lw=2.0, ls="--")
         if logx: a_.set_xscale("log"); r_.set_xscale("log")
         a_.set_yscale("log"); a_.tick_params(labelbottom=False)
-        a_.set_title(lab + rf"  \small({role})", fontsize=15)
         r_.set_xlabel(lab); r_.set_ylim(0.5, 1.6)
-        if j == 0:
-            a_.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r_.set_ylabel(r"ratio to fixed order")
-            a_.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$Z+$jet at 13 TeV, event-level moments: $p_T^{j_1}$ constrained; "
-                 r"$p_T^{j_2}$ and $\Delta\phi_{\ell\ell}$ predicted"
-                 "\n" rf"\small {len(seeds)} seed(s), channels {'+'.join(CH)};  "
-                 rf"effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$", y=1.03)
-    out = os.path.join(HERE, "fig_zj_eventlevel.pdf")
-    fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
-    print("\nwrote", out)
+        a_.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+        r_.set_ylabel(r"ratio to fixed order")
+        a_.legend(loc="lower left", fontsize=12)
+        constrained = key in ("ptj1",) or (bool(mixed) and key == "ptj2")
+        role_now = "constrained" if constrained else "predicted (never constrained)"
+        extra = (r", with the mixed $\langle T_m(p_T^{j_1})T_n(p_T^{j_2})\rangle$"
+                 if bool(mixed) and key in ("ptj1", "ptj2") else "")
+        a_.set_title(rf"$Z+$jet at 13 TeV: {lab} \small({role_now}{extra})"
+                     "\n" rf"\small {len(seeds)} seed(s), channels {'+'.join(CH)};  "
+                     rf"effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$",
+                     fontsize=14)
+        out = os.path.join(HERE, f"fig_zj_{key}.pdf")
+        fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
+        plt.close(fig)
+        print("wrote", out)
 
 
 if __name__ == "__main__":
