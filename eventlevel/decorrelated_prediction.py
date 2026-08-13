@@ -185,14 +185,16 @@ def main():
             r.set_ylabel(r"ratio to PS+LO prior")
             a.legend(loc="lower center", labelspacing=0.3, fontsize=12)
     fig.suptitle(r"Predictions for observables \emph{decorrelated} from the constrained recoil "
-                 r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.045)
+                 r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.085)
     # Say why there is no fixed-order curve here, rather than leave it missing.
-    fig.text(0.5, 0.975, r"no fixed-order curve: at NNLO the real and subtraction terms "
-                         r"populate different bins of these Born angular variables, so the "
-                         r"\emph{differential} spectrum is unresolved "
-                         r"(rel.\ err.\ $\simeq1$) while its integral is exact ($<5\times10^{-4}$)."
-                         r"  MC@NLO is absent: the stored sample keeps no lepton four-vectors",
-             ha="center", va="top", fontsize=12, color=C["seam"])
+    fig.text(0.5, 0.982,
+             r"no fixed-order curve: at NNLO the real and subtraction terms populate "
+             r"different bins of these Born angular variables, so the \emph{differential}"
+             "\n"
+             r"spectrum is unresolved (rel.\ err.\ $\simeq 1$) while its integral is exact "
+             r"($<5\times10^{-4}$);  MC@NLO is absent, its stored sample keeps no lepton "
+             r"four-vectors",
+             ha="center", va="top", fontsize=13, color=C["seam"], linespacing=1.5)
     out = os.path.join(HERE, "fig_decorrelated_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)
