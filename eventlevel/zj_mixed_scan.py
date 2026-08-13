@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""How many MIXED moments should Z+jet impose?
+r"""How many MIXED moments should Drell-Yan + jet impose?
 
 Constraining pT_j1 and pT_j2 separately fixes the two marginals; pi - dphi_ll is
 determined by their CORRELATION, which only the mixed moments

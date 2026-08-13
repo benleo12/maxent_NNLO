@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-r"""Z+jet upgraded with EVENT-LEVEL NNLOJET moments.
+r"""Drell-Yan + jet upgraded with EVENT-LEVEL NNLOJET moments.
+
+NNLOJET calls this process ZJ and the code follows that, but it is the
+LEPTONIC final state throughout -- decay_type = 1, and every observable
+here is the dilepton system (mll, |y_ll|, pi - dphi_ll) plus the jets.
+It is the same process the papers call Drell-Yan + jet; the figures say so,
+so that one process is not named two ways across the two papers.
 
 Constrained : m_ll, |y_ll| (Born) and pT_j1 (recoil, smooth profile [30,60]->1000)
 Predicted   : pT_j2 and Delta phi(l1,l2)  -- both have their own event-level FO
@@ -65,9 +71,9 @@ def fo_moment(tag_base, w0, nmax, seeds):
 
 
 def main():
-    check_seam(XM, Q_HARD, label="Z+jet")
+    check_seam(XM, Q_HARD, label="DY+jet")
     seeds = common_seeds(ZDIR, RUN, CH, prefix=PREFIX)
-    print(f"Z+jet FO seeds usable: {seeds}")
+    print(f"DY+jet FO seeds usable: {seeds}")
     M = fo_moments_smooth_from_nnlojet(
         ZDIR, RUN, CH, seeds,
         born_tags={"mll": "mll", "y_abs": "absyz"},
@@ -174,7 +180,7 @@ def main():
             return np.histogram(ev[key][sub], e, weights=ww / ww.sum())[0] / np.diff(e)
         hp, hq = d(ev["weight"]), d(res.weights)
         ctr_ = np.sqrt(e[:-1] * e[1:])
-        # FIXED-ORDER reference, and the ratio denominator (no data for Z+jet)
+        # FIXED-ORDER reference, and the ratio denominator (no data loaded for DY+jet)
         fo_i = None; fo_valid = None
         fc = fo_ref(fotag)
         if fc is not None:
@@ -240,7 +246,7 @@ def main():
         role_now = "constrained" if constrained else "predicted (never constrained)"
         extra = (r", with the mixed $\langle T_m(p_T^{j_1})T_n(p_T^{j_2})\rangle$"
                  if bool(mixed) and key in ("ptj1", "ptj2") else "")
-        a_.set_title(rf"$Z+$jet at 13 TeV: {lab} \small({role_now}{extra})"
+        a_.set_title(rf"Drell--Yan$+$jet at 13 TeV: {lab} \small({role_now}{extra})"
                      "\n" rf"\small {len(seeds)} seed(s), channels {'+'.join(CH)};  "
                      rf"effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$",
                      fontsize=14)
