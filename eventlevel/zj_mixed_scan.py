@@ -26,7 +26,7 @@ sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_profiled_recoil, add_mixed_moments,
-                             _moment_over_seeds, _reduce, fo_curve)
+                             _moment_over_seeds, _reduce, oriented_fo_curve)
 from pubstyle import rebin_density
 
 ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
@@ -88,17 +88,13 @@ def main():
     # wrong.  So score instead on the booked DISTRIBUTION, restricted to where
     # fixed order is a prediction.  No rerun needed.
     DPHI_SEAM = XM / 45.0
-    fc = fo_curve(ZDIR, RUN, CH, seeds, "dphil_a", prefix=PREFIX)
+    fc = oriented_fo_curve(ZDIR, RUN, CH, seeds, "dphil_a", prefix=PREFIX)
     edges = np.geomspace(0.02, 3.0, 22)
     ctr_e = np.sqrt(edges[:-1] * edges[1:]); bw = np.diff(edges)
     above = ctr_e >= DPHI_SEAM
     fo_h = None
     if fc is not None:
         flo, fhi, fd, _ = fc
-        # NNLOJET books dphi_l1l2 (= dphi) under the name dphil_a, while the
-        # observable here is pi - dphi.  MIRROR it before comparing -- the same
-        # trap the figures already guard against.
-        flo, fhi, fd = (np.pi - fhi)[::-1], (np.pi - flo)[::-1], fd[::-1]
         g = (fd > 0) & (fhi > flo)
         fo_h = rebin_density(flo[g], fhi[g], fd[g], edges)
         ok = np.isfinite(fo_h) & (fo_h > 0) & above

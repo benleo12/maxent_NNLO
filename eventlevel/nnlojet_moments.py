@@ -107,6 +107,41 @@ def fo_curve(base, run, channels, seeds, tag, prefix="Z", scale_idx=0, rebin=1):
     return lo, hi, dens, err
 
 
+# ---------------------------------------------------------------------------
+# Which booked histograms live on a MIRRORED axis relative to the observable
+# the analysis works with.  This has now caused the same bug three times --
+# twice in the figures and once in the Z+jet scan -- because the convention
+# lived in each consumer's head instead of in one place.  Anything reading a
+# fixed-order curve should go through `oriented_fo_curve`, which consults this
+# registry, rather than remembering to mirror by hand.
+#
+#   tag         booked as              analysis observable
+#   dphi_aa     pi_dphi_g1g2 (pi-dphi) dphi_aa   (Delta phi)
+#   dphil_a     dphi_l1l2    (dphi)    pimdphi   (pi - Delta phi)
+#
+# Both map x -> pi - x; the density is unchanged under it (unit Jacobian), so
+# only the edges reverse.
+# ---------------------------------------------------------------------------
+MIRRORED_TAGS = {"dphi_aa", "dphil_a"}
+
+
+def oriented_fo_curve(base, run, channels, seeds, tag, prefix="Z", **kw):
+    r"""`fo_curve` with the axis put on the ANALYSIS observable's orientation.
+
+    Returns (lo, hi, dens, err) exactly like `fo_curve`, but for any tag in
+    MIRRORED_TAGS the axis has been mapped x -> pi - x and re-sorted, so the
+    caller never has to know how NNLOJET happened to book it.
+    """
+    r = fo_curve(base, run, channels, seeds, tag, prefix=prefix, **kw)
+    if r is None:
+        return None
+    lo, hi, dens, err = r
+    if tag in MIRRORED_TAGS:
+        lo, hi = (np.pi - hi)[::-1], (np.pi - lo)[::-1]
+        dens, err = dens[::-1], err[::-1]
+    return lo, hi, dens, err
+
+
 def _moment_over_seeds(base, run, channels, seeds, prof_tag, norm_tag, prefix="Z"):
     r"""Combine seeds CORRECTLY, by pooling the Monte Carlo.
 

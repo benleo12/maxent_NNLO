@@ -19,7 +19,7 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
-from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, fo_curve
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load, oriented_fo_curve
 
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
@@ -106,7 +106,7 @@ def main():
         # ABOVE the seam -- below it the Sudakov logarithms are unresummed --
         # so draw it faded there rather than let its spikes dominate the panel.
         if key == "phistar":
-            fc = fo_curve(BASE, "DY_MOMENTS", CH6,
+            fc = oriented_fo_curve(BASE, "DY_MOMENTS", CH6,
                           common_seeds(BASE, "DY_MOMENTS", CH6, tag="phistar_a"),
                           "phistar_a")
             if fc is not None:
