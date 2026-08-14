@@ -124,7 +124,7 @@ def main():
                                        n_born=6, n_recoil=12,
                                        x_match=XM, x_hi=XHI, soft_lo=SOFT)
     res = upgrade(ev, M, dict(
-        born={"mll": {"range": (66., 116.), "map": "lin"},
+        born={"mll": {"range": (66., 116.), "map": "bw"},
               "y_abs": {"range": (0., 2.4), "map": "lin"}},
         recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
