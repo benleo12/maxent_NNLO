@@ -133,16 +133,13 @@ def main():
     # (Reading get_ylim() on the still-linear axis put the label at a negative y,
     # which is off-scale once the axis goes log -- bbox="tight" then grew the
     # canvas to 56000 pt to contain it.)
-    a.text(xs * 1.10, 0.04, rf"$x_{{\rm match}}\!\to\!\phi^*\!\simeq\!{xs:.2f}$",
-           transform=a.get_xaxis_transform(), color=C["seam"], fontsize=13,
-           rotation=90, va="bottom")
     a.tick_params(labelbottom=False); r.set_ylim(0.80, 1.20)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\phi^*_\eta$")
     r.set_ylabel(r"ratio to data"); r.set_xlabel(r"$\phi^*_\eta$")
     x0 = e[e > 0].min(); a.set_xlim(x0, e[-1]); r.set_xlim(x0, e[-1])
     a.legend(loc="lower left", bbox_to_anchor=(0.015, 0.015), handlelength=1.4,
              labelspacing=0.28, borderaxespad=0.0)
-    a.set_title(r"$\phi^*_\eta$ never constrained: a pure prediction of the reweighting")
+    a.set_title(r"$\phi^*_\eta$, never constrained")
     out = os.path.join(HERE, "fig_phistar_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)
