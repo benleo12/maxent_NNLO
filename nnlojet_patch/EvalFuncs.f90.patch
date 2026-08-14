@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-12 22:28:51
-@@ -2463,7 +2463,440 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-13 22:35:09
+@@ -2463,7 +2463,509 @@
      pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
      eval_minv_V = v1_minv(pV)
    end function eval_minv_V
@@ -38,11 +38,30 @@
 +
 +  !> T_n of the dilepton invariant mass, linear map on [66,116] GeV.
 +  !> imem = n (Chebyshev order).  Bind as chebT_mll_n.
++  !> u(m) on the BREIT-WIGNER variable, not on the mass.
++  !>
++  !> A linear map over [66,116] spends its resolution where there is no rate:
++  !> 70% of the cross section lies in 88-94 GeV, a 6 GeV sliver of a 50 GeV
++  !> window, and six Chebyshev polynomials resolve ~8 GeV -- 3.3 times the Z
++  !> width, so the peak is unresolved by construction.  Mapping through
++  !> arctan((m^2-M^2)/(M*Gamma)) instead makes a pure Breit-Wigner FLAT in u,
++  !> so the same moments describe the resonance rather than smearing it: four
++  !> moments on this map beat twelve on the linear one by a factor ~20.
++  real(kind=wp) function bw_u(x, lo, hi, mres, gres) result(u)
++    real(kind=wp), intent(in) :: x, lo, hi, mres, gres
++    real(kind=wp) :: t, tl, th
++    t  = atan((x*x   - mres*mres)/(mres*gres))
++    tl = atan((lo*lo - mres*mres)/(mres*gres))
++    th = atan((hi*hi - mres*mres)/(mres*gres))
++    u  = 2.0_wp*(t - tl)/(th - tl) - 1.0_wp
++  end function bw_u
++
 +  real(kind=wp) function eval_chebT_mll(npar, n)
 +    integer, intent(in) :: npar, n
 +    real(kind=wp), dimension(4) :: pV
 +    real(kind=wp) :: x, u
 +    real(kind=wp), parameter :: lo = 66.0_wp, hi = 116.0_wp
++    real(kind=wp), parameter :: mz = 91.1876_wp, gz = 2.4952_wp
 +    !> defensive: never touch kin() for the reset sentinel (npar<1)
 +    if (npar < 1) then
 +      eval_chebT_mll = 0.0_wp
@@ -50,9 +69,59 @@
 +    end if
 +    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
 +    x = v1_minv(pV)
-+    u = 2.0_wp*(x - lo)/(hi - lo) - 1.0_wp
++    u = bw_u(x, lo, hi, mz, gz)
 +    eval_chebT_mll = cheb_T(u, n)
 +  end function eval_chebT_mll
++
++  !> |cos theta*| of the leptons in the Collins-Soper frame, lin [0,1].
++  !> At Born level pT_l = (m/2) sin(theta*), so the pair (m, cos theta*)
++  !> DETERMINES the lepton transverse momenta -- which is why the cross moments
++  !> below are the right object for predicting them.
++  real(kind=wp) function eval_abscosthstCS_ll(npar) result(res)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: p1, p2, pV
++    real(kind=wp) :: p1p, p1m, p2p, p2m, m, qt, den
++    if (npar < 1) then; res = 0.0_wp; return; end if
++    p1(1:4) = kin(npar)%p(1:4, npar - 1)
++    p2(1:4) = kin(npar)%p(1:4, npar)
++    pV(1:4) = p1(1:4) + p2(1:4)
++    m  = v1_minv(pV)
++    qt = v1_pt(pV)
++    p1p = (p1(4) + p1(3)); p1m = (p1(4) - p1(3))
++    p2p = (p2(4) + p2(3)); p2m = (p2(4) - p2(3))
++    den = m*sqrt(m*m + qt*qt)
++    if (den <= 0.0_wp) then; res = 0.0_wp; return; end if
++    res = min(abs(p1p*p2m - p1m*p2p)/den, 1.0_wp)
++  end function eval_abscosthstCS_ll
++
++  real(kind=wp) function eval_chebT_ctl(npar, n)   ! T_n(|cos th*_CS|), lin [0,1]
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: u
++    if (npar < 1) then; eval_chebT_ctl = 0.0_wp; return; end if
++    u = 2.0_wp*eval_abscosthstCS_ll(npar) - 1.0_wp
++    eval_chebT_ctl = cheb_T(u, n)
++  end function eval_chebT_ctl
++
++  !> CROSS moments  < T_m(u_BW(m_ll)) T_n(u(|cos th*|)) >.  Separate moments of
++  !> the two constrain the marginals; only the cross moments carry the JOINT
++  !> distribution, and it is the joint distribution that fixes pT_l1.
++  !> Orders packed as imem = -(10*m + n), 1 <= m,n <= 9.
++  real(kind=wp) function eval_chebTT_mllct(npar, mn)
++    integer, intent(in) :: npar, mn
++    real(kind=wp) :: um, uc, x
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: lo = 66.0_wp, hi = 116.0_wp
++    real(kind=wp), parameter :: mz = 91.1876_wp, gz = 2.4952_wp
++    integer :: m, n
++    if (npar < 1) then; eval_chebTT_mllct = 0.0_wp; return; end if
++    m = abs(mn)/10
++    n = mod(abs(mn), 10)
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x  = v1_minv(pV)
++    um = bw_u(x, lo, hi, mz, gz)
++    uc = 2.0_wp*eval_abscosthstCS_ll(npar) - 1.0_wp
++    eval_chebTT_mllct = cheb_T(um, m)*cheb_T(uc, n)
++  end function eval_chebTT_mllct
 +
 +  !> T_n of the dilepton rapidity |y_ll|, linear map on [0,2.4].
 +  !> imem = n.  Bind as chebT_absyz_n.
@@ -116,7 +185,7 @@
 +    end if
 +    res = up * dn
 +  end function prof_w
- 
++
 +  !> recoil profile weight w(pT_ll) alone (= chebTw n=0, the w-rate numerator).
 +  real(kind=wp) function eval_w_ptz(npar)
 +    integer, intent(in) :: npar
@@ -382,7 +451,7 @@
 +  !  Bind with min_nphotons=2.
 +  !  m_aa Born (log [80,700]); pt_aa recoil with smooth profile [11,22]->500.
 +  !===========================================================================
-+
+ 
 +  !> T_n of |cos theta*_CS| (diphoton), linear map on [0,1].  imem = n.
 +  real(kind=wp) function eval_chebT_cts(npar, n)
 +    integer, intent(in) :: npar, n

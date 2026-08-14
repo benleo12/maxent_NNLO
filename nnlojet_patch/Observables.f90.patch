@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90	2026-08-12 22:28:51
-@@ -187,6 +187,157 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90	2026-08-13 22:35:28
+@@ -187,6 +187,179 @@
                      EvalObs_t(eval=eval_pt_V), ifac=2)
        call bind_obs("mll", "invariant mass of Z", &
                      EvalObs_t(eval=eval_minv_V), ifac=1)
@@ -9,6 +9,28 @@
 +      ! literal event-level moment Sum_j w_j T_n; divide by rate for <T_n>.
 +      ! imem is NEGATIVE (order = abs(imem)): the eval is non-memoized, so we
 +      ! must avoid the imem>0 cache-reset call eval_mem(0,0) in unset().
++      call bind_obs("chebT_ctl_1", "T_1 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-1))
++      call bind_obs("chebT_ctl_2", "T_2 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-2))
++      call bind_obs("chebT_ctl_3", "T_3 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-3))
++      call bind_obs("chebT_ctl_4", "T_4 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-4))
++      call bind_obs("chebT_ctl_5", "T_5 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-5))
++      call bind_obs("chebT_ctl_6", "T_6 |cos th*_CS| (ll)", EvalObs_t(eval_mem=eval_chebT_ctl, imem=-6))
++      call bind_obs("chebTT_mllct_11", "T_1(m_ll) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-11))
++      call bind_obs("chebTT_mllct_12", "T_1(m_ll) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-12))
++      call bind_obs("chebTT_mllct_13", "T_1(m_ll) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-13))
++      call bind_obs("chebTT_mllct_14", "T_1(m_ll) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-14))
++      call bind_obs("chebTT_mllct_21", "T_2(m_ll) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-21))
++      call bind_obs("chebTT_mllct_22", "T_2(m_ll) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-22))
++      call bind_obs("chebTT_mllct_23", "T_2(m_ll) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-23))
++      call bind_obs("chebTT_mllct_24", "T_2(m_ll) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-24))
++      call bind_obs("chebTT_mllct_31", "T_3(m_ll) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-31))
++      call bind_obs("chebTT_mllct_32", "T_3(m_ll) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-32))
++      call bind_obs("chebTT_mllct_33", "T_3(m_ll) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-33))
++      call bind_obs("chebTT_mllct_34", "T_3(m_ll) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-34))
++      call bind_obs("chebTT_mllct_41", "T_4(m_ll) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-41))
++      call bind_obs("chebTT_mllct_42", "T_4(m_ll) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-42))
++      call bind_obs("chebTT_mllct_43", "T_4(m_ll) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-43))
++      call bind_obs("chebTT_mllct_44", "T_4(m_ll) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_mllct, imem=-44))
 +      call bind_obs("chebT_mll_1", "T_1 of m_ll (lin 66-116)", &
 +                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-1), ifac=1)
 +      call bind_obs("chebT_mll_2", "T_2 of m_ll (lin 66-116)", &
@@ -158,7 +180,7 @@
        call bind_obs("etz", "transverse energy: sqrt(mll^2 + ptz^2)", &
                      EvalObs_t(eval=eval_et_V), ifac=1)
        call bind_obs("yz", "rapidity of Z", &
-@@ -1253,6 +1404,26 @@
+@@ -1253,6 +1426,26 @@
      case ("H", "HJ", "HJJ", "HJJJ",  &
           & "HM", "HJMREW", "HJJMREW", "HJM", "HJJM", "HJJJM",  &
           & "HINC", "HQT")
@@ -185,7 +207,7 @@
        ! H-boson
        call bind_obs("pth", "transverse momentum of H", &
                      EvalObs_t(eval=eval_pt_V), ifac=2)
-@@ -1906,6 +2077,46 @@
+@@ -1906,6 +2099,46 @@
                      EvalObs_t(eval=eval_imbalance_pt_gam1j1, min_njets=1, min_nphotons=1))
  
      case ("GG", "GG_FRAG", "GGJ", "GGJFC", "GGJJ", "GGJJFC", "GGJJJFC", "GG_EW", "GGQT")

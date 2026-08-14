@@ -122,7 +122,35 @@ def cheb(u,N):
     if N>=1: out[:,1]=u
     for n in range(2,N+1): out[:,n]=2*u*out[:,n-1]-out[:,n-2]
     return out
+# Default resonance for the Breit-Wigner map (the Z).  MUST match the Fortran
+# constants in eval_chebT_mll / bw_u, or the moments compare different variables.
+BW_M, BW_G = 91.1876, 2.4952
+
+
 def umap(x, lo, hi, kind):
+    """Map an observable onto [-1,1] for the Chebyshev basis.
+
+    'lin'  linear -- masses, rapidities
+    'log'  logarithmic -- transverse momenta, anything spanning decades
+    'bw'   Breit-Wigner: u proportional to arctan((x^2-M^2)/(M*Gamma)).
+
+    The map should linearise the observable's dominant structure, because the
+    moments only resolve what the map spreads out.  For a resonance a linear
+    map is the wrong choice: over 66-116 GeV, 70% of the Drell-Yan rate sits in
+    a 6 GeV sliver and six Chebyshev polynomials resolve ~8 GeV, so the peak is
+    unresolved and the fit oscillates.  The Breit-Wigner variable is flat for a
+    pure resonance, and four moments on it beat twelve on the linear map.
+    `kind` may be 'bw' (Z defaults) or ('bw', M, Gamma).
+    """
+    if isinstance(kind, (tuple, list)) and kind and kind[0] == 'bw':
+        _, M, G = (list(kind) + [BW_M, BW_G])[:3]
+        kind = 'bw'
+    else:
+        M, G = BW_M, BW_G
+    if kind == 'bw':
+        f = lambda v: np.arctan((np.asarray(v, float) ** 2 - M * M) / (M * G))
+        t, tl, th = f(np.clip(x, lo, hi)), f(lo), f(hi)
+        return 2 * (t - tl) / (th - tl) - 1
     if kind=='log':
         lo=max(lo,1e-6); xx=np.clip(x,lo,hi); return 2*(np.log(xx)-np.log(lo))/(np.log(hi)-np.log(lo))-1
     return 2*(np.clip(x,lo,hi)-lo)/(hi-lo)-1

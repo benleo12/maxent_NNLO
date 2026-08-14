@@ -162,6 +162,33 @@ HISTOGRAMS
   chebT_yl2_4 > prof_yl2_4  min=-1.001 max=1.001 nbins=1 profile = T
   chebT_yl2_5 > prof_yl2_5  min=-1.001 max=1.001 nbins=1 profile = T
   chebT_yl2_6 > prof_yl2_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- |cos theta*_CS| of the leptons (Born observable, lin [0,1])
+  chebT_ctl_1 > prof_ctl_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_2 > prof_ctl_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_3 > prof_ctl_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_4 > prof_ctl_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_5 > prof_ctl_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_6 > prof_ctl_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- CROSS moments <T_m(m_ll) T_n(|cos th*|)>: the JOINT distribution,
+  ! ---- which is what determines the lepton transverse momenta
+  chebTT_mllct_11 > prof_mct_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_12 > prof_mct_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_13 > prof_mct_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_14 > prof_mct_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_21 > prof_mct_21  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_22 > prof_mct_22  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_23 > prof_mct_23  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_24 > prof_mct_24  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_31 > prof_mct_31  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_32 > prof_mct_32  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_33 > prof_mct_33  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_34 > prof_mct_34  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_41 > prof_mct_41  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_42 > prof_mct_42  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_43 > prof_mct_43  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_44 > prof_mct_44  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- reference histogram for the lepton pT (there was none before)
+  ptl1 > ptl1_a  min=27 max=200 nbins=40 binning=LOG
 END_HISTOGRAMS
 
 SCALES
