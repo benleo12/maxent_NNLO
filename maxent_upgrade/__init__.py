@@ -841,10 +841,19 @@ def upgrade(events, moments, config):
         ax, bx = mc["range"][ox]; ay, by = mc["range"][oy]
         mpx = mc.get("map", {}).get(ox, "log"); mpy = mc.get("map", {}).get(oy, "log")
         X = np.asarray(events[ox], float); Y = np.asarray(events[oy], float)
-        px_, py_ = mc["profile"][ox], mc["profile"][oy]
-        wx = profile_w(X, px_["a"], px_["b"], px_.get("c"), px_.get("d"))
-        wy = profile_w(Y, py_["a"], py_["b"], py_.get("c"), py_.get("d"))
-        wxy = wx * wy
+        # A missing or None profile means NO window: the feature is the bare
+        # product of Chebyshev polynomials, which is what NNLOJET books for a
+        # cross moment of two BORN observables (eval_chebTT_mllct applies no
+        # profile at all).  Expressing that as a degenerate profile would work
+        # by accident and read as a window that is not there.
+        prof = mc.get("profile") or {}
+
+        def _w(vals, spec):
+            if not spec:
+                return np.ones(len(vals))
+            return profile_w(vals, spec["a"], spec["b"], spec.get("c"), spec.get("d"))
+
+        wxy = _w(X, prof.get(ox)) * _w(Y, prof.get(oy))
         rc = moments["mixed"][key]
         Cx = _cheb(_umap(np.clip(X, ax, bx), ax, bx, mpx), mc["n"])
         Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), mc["n"])
