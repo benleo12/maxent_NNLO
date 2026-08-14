@@ -90,11 +90,11 @@ def main():
     # ---------------- figure ----------------
     panels = [("pT_H", np.geomspace(1, 500, 30), r"$p_T^{H}$ [GeV]", True, "pth_all", ("R",)),
               ("y_abs", np.linspace(0, YHI, 25), r"$|y_H|$", False, "absyh_a", tuple(CH))]
-    fig, ax = plt.subplots(2, 2, figsize=(11.5, 7.6), squeeze=False,
-                           gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07,
-                                        "wspace": 0.26})
+    # ONE observable per figure, as everywhere else.
     for j, (key, e, lab, logx, fotag, fch) in enumerate(panels):
-        a, r = ax[0, j], ax[1, j]
+        fig, ax = plt.subplots(2, 1, figsize=(6.8, 7.6), squeeze=False,
+                               gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07})
+        a, r = ax[0, 0], ax[1, 0]
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
         ctr = np.sqrt(e[:-1] * e[1:]) if logx else 0.5 * (e[:-1] + e[1:])
@@ -147,19 +147,15 @@ def main():
                 p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
                 p.axvline(XM, color=C["seam"], lw=2.0, ls="--")
         a.tick_params(labelbottom=False)
-        a.set_title(lab + (r"  \small(recoil, constrained above the seam)" if key == "pT_H"
-                           else r"  \small(Born, constrained)"), fontsize=15)
-        r.set_xlabel(lab); r.set_ylim(0.5, 1.5)
-        if j == 0:
-            a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
-            r.set_ylabel(r"ratio to fixed order")
-            a.legend(loc="lower left", fontsize=12)
-    fig.suptitle(r"$gg\to H$ at 13 TeV, event-level moments"
-                 "\n" rf"\small effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$, "
-                 r"$0\%$ negative weights", y=1.03)
-    out = os.path.join(HERE, "fig_ggh_eventlevel.pdf")
-    fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
-    print("wrote", out)
+        a.set_title(lab + (r", constrained above the seam" if key == "pT_H"
+                           else r", constrained"))
+        a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+        r.set_ylabel(r"ratio to fixed order")
+        a.legend(loc="lower left", fontsize=12)
+        out = os.path.join(HERE, f"fig_ggh_{key}.pdf")
+        fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
+        plt.close(fig)
+        print("wrote", out)
 
 
 if __name__ == "__main__":

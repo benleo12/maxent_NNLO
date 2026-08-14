@@ -246,10 +246,7 @@ def main():
         role_now = "constrained" if constrained else "predicted (never constrained)"
         extra = (r", with the mixed $\langle T_m(p_T^{j_1})T_n(p_T^{j_2})\rangle$"
                  if bool(mixed) and key in ("ptj1", "ptj2") else "")
-        a_.set_title(rf"Drell--Yan$+$jet at 13 TeV: {lab} \small({role_now}{extra})"
-                     "\n" rf"\small {len(seeds)} seed(s), channels {'+'.join(CH)};  "
-                     rf"effN $={100*res.effN:.0f}\%$, closure $={res.closure:.1e}$",
-                     fontsize=14)
+        a_.set_title(rf"{lab}, {role_now}")
         out = os.path.join(HERE, f"fig_zj_{key}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)

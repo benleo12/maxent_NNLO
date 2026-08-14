@@ -189,7 +189,8 @@ def main():
     print("solving (NNLO Born constraints) ...", flush=True)
     ev, res, seeds = solve()
     fig_moments(ev, res, seeds)
-    fig_yll(ev, res, seeds)
+    # |y_ll| lives in fig_dy_spectra.py (fig_dy_yll); duplicating it here
+    # would put the same observable in two figures from two solves.
 
 
 if __name__ == "__main__":

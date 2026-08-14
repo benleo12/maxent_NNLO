@@ -161,7 +161,6 @@ def main():
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
-        a.set_title(rf"{lab}" + "\n" + rf"\small\textit{{{role}}}", fontsize=15)
         r.axhline(1, color="k", lw=0.8)
         rel = (err / np.maximum(val, 1e-30))
         r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
@@ -171,9 +170,7 @@ def main():
         a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
         r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-        a.set_title(rf"Diphoton at 8 TeV: {lab}  \small(\textit{{{role}}})"
-                    "\n" r"\small Born $\{m_{\gamma\gamma},|\cos\theta^*|\}$ + recoil "
-                    r"$\{p_T^{\gamma\gamma}\}$ constrained", fontsize=14)
+        a.set_title(rf"{lab}, {role}")
         out = os.path.join(HERE, f"fig_aa_{key}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)
