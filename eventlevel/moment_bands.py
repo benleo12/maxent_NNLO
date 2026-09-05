@@ -92,6 +92,14 @@ def band_solve(ev, Msets, cfg, table=None, n_boot=30, seed=1):
     Returns dict with 'central' (UpgradeResult), 'scale_w' [6, N], 'boot_w'."""
     res0 = upgrade(ev, Msets[0], {**cfg, "keep_features": True})
     lam0 = res0.report["lam"]
+    # freeze the central solve's SNR-chosen moment counts: a variant that
+    # re-ran the selection could change the feature count, and the warm start
+    # (and the band) would no longer be like-for-like
+    chosen = dict(res0.report["moment_selection"]["chosen"])
+    cfg = {**cfg, "moment_selection": False,
+           "born_N": {o: int(chosen[o]) for o in cfg["born"]},
+           "recoil_N": int(chosen[next(iter(cfg["recoil"]))])}
+    res0.report["frozen_cfg"] = cfg
     scale_w = []
     for s in range(1, NSCALE):
         r = upgrade(ev, Msets[s], {**cfg, "lam0": lam0})
@@ -187,8 +195,9 @@ def main():
     # linearised variants: mu vectors of the scale sets, in solver ordering,
     # via re-running the feature assembly through upgrade's report
     lin_w = []
+    cfg_f = res0.report["frozen_cfg"]    # same frozen counts as the re-solves
     for s in range(1, NSCALE):
-        r = upgrade(ev, Msets[s], {**cfg, "lam0": res0.report["lam"]})
+        r = upgrade(ev, Msets[s], {**cfg_f, "lam0": res0.report["lam"]})
         mu_new = r.report["mu"]          # exact ordering guaranteed
         lin_w.append(linear_variant_weights(res0, mu_new))
     lin_w = np.array(lin_w)
