@@ -26,9 +26,9 @@ from pubstyle import use_pub_style, C
 use_pub_style(base=19)
 
 GENS = [("MaxEnt",  "maxent",  None),
-        ("MiNNLO",  "minnlo",  "dy_minnlo_atlas_v2.npz"),
-        ("MC@NLO",  "mcatnlo", "dy_mcatnlo_atlas.npz"),
-        ("POWHEG",  "powheg",  "dy_powheg_atlas.npz")]
+        ("MiNNLO$_{\\mathrm{PS}}$",  "minnlo",  "dy_minnlo_atlas_v3.npz"),
+        ("MC@NLO",  "mcatnlo", "dy_mcatnlo_atlas_v4.npz"),
+        ("POWHEG",  "powheg",  "dy_powheg_atlas_v4.npz")]
 
 
 def dens(x, w, e):
@@ -47,14 +47,21 @@ def main():
     e = np.concatenate([D["lo"][:1], D["hi"]]); val = D["val"]; bw = np.diff(e)
     msk = val > 0
 
-    def dev(x, w):
+    SEAM_IMG = XM / 91.1876     # the pT seam mapped onto phi*  (phistar_prediction.py)
+    ctr_ = 0.5 * (e[:-1] + e[1:])
+
+    def dev(x, w, above=True):
+        # Full-range normalised density against the data, as in
+        # phistar_prediction.py.  The accuracy axis uses the bins ABOVE the seam
+        # image: below it every sample is the same Pythia shower by
+        # construction (the upgrade preserves it), so the all-bins median
+        # measures the tune, not the matching.  Both numbers are printed.
         h = dens(np.asarray(x, float), np.asarray(w, float), e)
-        m = msk & (h > 0)
-        hh = h[m] / (h[m] * bw[m]).sum(); dd = val[m] / (val[m] * bw[m]).sum()
-        return 100 * np.median(np.abs(hh / dd - 1))
+        m = msk & (h > 0) & ((ctr_ >= SEAM_IMG) if above else True)
+        return 100 * np.median(np.abs(h[m] / val[m] - 1))
 
     # --- our sample -------------------------------------------------------
-    P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v2.npz")))
+    P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
     n = len(P["w"]); idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)
     ev = dict(mll=P["mll"][idx].astype(float), y_abs=np.abs(P["y_ll"][idx]).astype(float),
               pT_ll=P["pT_ll"][idx].astype(float), phistar=P["phistar"][idx].astype(float),
@@ -65,7 +72,7 @@ def main():
                                        n_born=6, n_recoil=12,
                                        x_match=XM, x_hi=XHI, soft_lo=SOFT)
     res = upgrade(ev, M, dict(
-        born={"mll": {"range": (66., 116.), "map": "lin"},
+        born={"mll": {"range": (66., 116.), "map": "bw"},
               "y_abs": {"range": (0., 2.4), "map": "lin"}},
         recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
@@ -93,10 +100,11 @@ def main():
                    ha="left" if key != "minnlo" else "right")
     a.set_xscale("log")
     a.set_xlabel(r"generated events per effective event,\ \ $N/N_{\rm eff}$")
-    a.set_ylabel(r"$\phi^*_\eta$:\ \ median $|$prediction$/$data$-1|$ [\%]")
+    a.set_ylabel(r"$\phi^*_\eta$ above seam image: median $|$pred.$/$data$-1|$ [\%]")
     a.set_title(r"Accuracy and statistical cost")
     a.set_xlim(0.85, 30.0)
-    a.set_ylim(0.4, 4.3)
+    a.set_yscale("log"); a.set_ylim(3.0, 45.0)
+    a.set_yticks([3, 5, 10, 20, 40]); a.set_yticklabels(["3", "5", "10", "20", "40"])
     out = os.path.join(HERE, "fig_cost_vs_accuracy.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

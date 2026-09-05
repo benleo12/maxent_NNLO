@@ -36,12 +36,12 @@ def main():
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12,
                                        x_match=XM, x_hi=XHI, soft_lo=SOFT)
-    P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v2.npz")))
-    i = np.random.default_rng(0).choice(len(P["w"]), 600000, replace=False)
+    P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
+    i = np.random.default_rng(0).choice(len(P["w"]), min(600000, len(P["w"])), replace=False)
     ev = dict(mll=P["mll"][i].astype(float), y_abs=np.abs(P["y_ll"][i]).astype(float),
               pT_ll=P["pT_ll"][i].astype(float), weight=P["w"][i].astype(float))
     res = upgrade(ev, M, dict(
-        born={"mll": {"range": (66., 116.), "map": "lin"},
+        born={"mll": {"range": (66., 116.), "map": "bw"},
               "y_abs": {"range": (0., 2.4), "map": "lin"}},
         recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": 2 * XM, "c": XHI}}}))

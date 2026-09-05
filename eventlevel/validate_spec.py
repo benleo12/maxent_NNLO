@@ -57,7 +57,7 @@ def main():
     M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
-    cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+    cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
                recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}})

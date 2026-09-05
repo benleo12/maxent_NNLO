@@ -49,7 +49,10 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 XM, XHI, SOFT = 30.0, 500.0, 0.5
-PRIOR_FILES = [f"dy_psLO_ext_{i}.npz" for i in (1, 2, 3, 4)]
+# Born-level prior: final leptons + their own QED FSR photons (post-ISR-recoil,
+# pre-FSR), the convention of a QCD-only fixed-order calculation.  The older
+# dy_psLO_ext_* files stored only bare leptons.
+PRIOR_FILES = ["dy_psLO_born_1.npz"]
 NMOM = 6
 # MIRROR the Fortran exactly -- eval_chebT_ptl1 uses log [27,200] and
 # eval_chebT_ptl2 log [27,150].  They are NOT the same map, and using one for
@@ -58,27 +61,15 @@ PT_MAP = {"pt_l1": (27.0, 200.0), "pt_l2": (27.0, 150.0)}
 
 
 def load_prior():
-    parts = []
-    for f in PRIOR_FILES:
-        p = os.path.join(HERE, f)
-        if not os.path.exists(p):
-            continue
-        z = np.load(p, allow_pickle=True)
-        lp = np.asarray(z["l_plus"], float); lm = np.asarray(z["l_minus"], float)
-        mll = np.asarray(z["mll"], float); pT = np.asarray(z["pT_ll"], float)
-        yll = np.asarray(z["y_ll"], float)
-        w = np.asarray(z["weight"], float)
-        ptp = np.hypot(lp[:, 0], lp[:, 1]); ptm = np.hypot(lm[:, 0], lm[:, 1])
-        yp = 0.5 * np.log((lp[:, 3] + lp[:, 2]) / np.maximum(lp[:, 3] - lp[:, 2], 1e-12))
-        ym = 0.5 * np.log((lm[:, 3] + lm[:, 2]) / np.maximum(lm[:, 3] - lm[:, 2], 1e-12))
-        m = ((ptp > 27) & (ptm > 27) & (np.abs(yp) < 2.5) & (np.abs(ym) < 2.5)
-             & (mll > 66) & (mll < 116) & np.isfinite(pT) & np.isfinite(w) & (w > 0))
-        parts.append(dict(mll=mll[m], y_abs=np.abs(yll)[m], pT_ll=pT[m],
-                          pt_l1=np.maximum(ptp, ptm)[m], pt_l2=np.minimum(ptp, ptm)[m],
-                          weight=w[m]))
-    if not parts:
-        sys.exit("no extended DY prior found (need dy_psLO_ext_*.npz)")
-    return {k: np.concatenate([p[k] for p in parts]) for k in parts[0]}
+    """The ATLAS-fiducial Born-level prior, identical events and order to every
+    other DY figure (dy_prior_atlas_v3.npz), so the shared band cache applies."""
+    P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
+    w = np.asarray(P["w"], float)
+    m = np.isfinite(w) & (w > 0)
+    return dict(mll=np.asarray(P["mll"], float)[m], y_abs=np.abs(np.asarray(P["y_ll"], float))[m],
+                pT_ll=np.asarray(P["pT_ll"], float)[m],
+                pt_l1=np.asarray(P["pT_lead"], float)[m], pt_l2=np.asarray(P["pT_sub"], float)[m],
+                weight=w[m])
 
 
 def solve():
@@ -89,9 +80,10 @@ def solve():
         n_born=NMOM, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
     ev = load_prior()
     n = len(ev["weight"])
-    idx = np.random.default_rng(0).choice(n, min(1_500_000, n), replace=False)
+    idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)   # same draw as the ATLAS figures
     ev = {k: v[idx] for k, v in ev.items()}
-    cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+    # "bw" mirrors the Breit-Wigner map compiled into eval_chebT_mll
+    cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
                recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
@@ -119,24 +111,54 @@ def fig_moments(ev, res, seeds):
         mq = chebyshev_moment(ev[key], res.weights, NMOM, lo_, hi_, "log")
         nn = np.arange(1, NMOM + 1)
 
+        # prior moment statistical error: weighted SEM of T_n over the sample
+        u_ = np.clip((np.log(np.clip(ev[key], lo_, hi_)) - np.log(lo_))
+                     / (np.log(hi_) - np.log(lo_)) * 2 - 1, -1, 1)
+        T_ = [np.ones_like(u_), u_]
+        for _n in range(2, NMOM + 1):
+            T_.append(2 * u_ * T_[-1] - T_[-2])
+        wp_ = np.asarray(ev["weight"], float); sw_ = wp_.sum()
+        mp_err = np.array([np.sqrt((wp_ ** 2 * (T_[n] - mp[n - 1]) ** 2).sum()) / sw_
+                           for n in nn])
+
+        # MaxEnt moment uncertainty: bootstrap spread (stat) (+) scale envelope
+        # of the variant re-solves, from moment_bands (ext-prior config)
+        mq_err = None
+        bwf = os.path.join(HERE, "dy_band_weights.npz")
+        if os.path.exists(bwf):
+            BW = dict(np.load(bwf))
+            if np.allclose(BW["central"], res.weights, rtol=1e-6, atol=0):
+                mb = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log")
+                               for w_ in BW["boot_w"]]).std(0, ddof=1)
+                ms_ = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log")
+                                for w_ in BW["scale_w"]])
+                half = 0.5 * (ms_.max(0) - ms_.min(0))
+                mq_err = np.hypot(mb, half)
+            else:
+                print("    WARNING: dy_band_weights.npz stale; no MaxEnt bars")
+
         fig, ax = plt.subplots(2, 1, figsize=(6.8, 7.4),
                                gridspec_kw={"height_ratios": [2.0, 1.15], "hspace": 0.08})
         a, r = ax
         a.errorbar(nn, fo, yerr=er, fmt="s", color=C["fo"], ms=8, lw=1.6, capsize=4,
                    label=r"fixed order (NNLO)", zorder=5)
-        a.plot(nn, mp, "o", color=C["prior"], ms=9, ls=LS["prior"], lw=LW["prior"],
-               label=r"PS+LO prior")
-        a.plot(nn, mq, "o", color=C["maxent"], ms=9, lw=LW["maxent"],
-               label=r"MaxEnt (predicted)")
+        a.errorbar(nn, mp, yerr=mp_err, fmt="o", color=C["prior"], ms=9,
+                   lw=LW["prior"], capsize=3, label=r"PS+LO prior")
+        a.errorbar(nn, mq, yerr=mq_err, fmt="o", color=C["maxent"], ms=9,
+                   lw=LW["maxent"], capsize=3, label=r"MaxEnt (predicted)")
         a.axhline(0, color="k", lw=0.8)
         a.set_ylabel(rf"$\langle T_n({lab})\rangle$")   # lab is bare math
         a.set_title(rf"${lab}$ predicted at NNLO")
         a.tick_params(labelbottom=False)
         a.legend(loc="best", fontsize=13)
         # pulls: (X - FO) / sigma_FO, the honest measure given FO has errors
-        for v, k, mk in ((mp, "prior", "o"), (mq, "maxent", "o")):
-            r.plot(nn, (v - fo) / np.maximum(er, 1e-12), mk, color=C[k],
-                   ms=9, ls=LS[k], lw=LW[k])
+        r.errorbar(nn, (mp - fo) / np.maximum(er, 1e-12),
+                   yerr=mp_err / np.maximum(er, 1e-12), fmt="o", color=C["prior"],
+                   ms=9, ls=LS["prior"], lw=LW["prior"], capsize=3)
+        r.errorbar(nn, (mq - fo) / np.maximum(er, 1e-12),
+                   yerr=(mq_err / np.maximum(er, 1e-12) if mq_err is not None else None),
+                   fmt="o", color=C["maxent"], ms=9, ls=LS["maxent"],
+                   lw=LW["maxent"], capsize=3)
         r.axhspan(-1, 1, color=C["band"], alpha=0.45)
         r.axhline(0, color="k", lw=0.8)
         r.set_xlabel(r"Chebyshev order $n$")

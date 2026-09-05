@@ -34,7 +34,7 @@ BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 SEEDS = None
-PRIOR_FILES = [f"dy_psLO_ext_{i}.npz" for i in (1, 2, 3, 4)]
+PRIOR_FILES = ["dy_psLO_born_1.npz"]   # Born-level leptons (see fig_nnlo_born.py)
 
 
 def ptyphi(v):
@@ -45,9 +45,13 @@ def ptyphi(v):
 def build(fn):
     """Load a showered sample -> dict of observables + weight, fiducial cut applied."""
     z = np.load(os.path.join(HERE, fn), allow_pickle=True)
-    lp = np.asarray(z["l_plus"], float); lm = np.asarray(z["l_minus"], float)
-    mll = np.asarray(z["mll"], float); pT = np.asarray(z["pT_ll"], float)
-    yll = np.asarray(z["y_ll"], float)
+    lpk, lmk = (("l_plus_born", "l_minus_born") if "l_plus_born" in z.files
+                else ("l_plus", "l_minus"))
+    lp = np.asarray(z[lpk], float); lm = np.asarray(z[lmk], float)
+    s_ = lp + lm
+    mll = np.sqrt(np.maximum(s_[:, 3] ** 2 - (s_[:, :3] ** 2).sum(1), 0.0))
+    pT = np.hypot(s_[:, 0], s_[:, 1])
+    yll = 0.5 * np.log((s_[:, 3] + s_[:, 2]) / np.maximum(s_[:, 3] - s_[:, 2], 1e-12))
     w = np.asarray(z["weight"], float) if "weight" in z.files else np.ones(len(mll))
     ptp, yp, _ = ptyphi(lp); ptm, ym, _ = ptyphi(lm)
     m = (ptp > 27) & (ptm > 27) & (np.abs(yp) < 2.5) & (np.abs(ym) < 2.5) \
@@ -87,7 +91,7 @@ def main():
     M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
                                        n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
-    cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+    cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
                recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
@@ -97,8 +101,8 @@ def main():
     print(f"  effN={100*res.effN:.0f}%  closure={res.closure:.1e}  neg-wt={100*np.mean(res.weights<=0):.0f}%", flush=True)
 
     gens = {}
-    for lbl, fn, col, neg in [("MiNNLO", "dy_minnlo_s1_showered.npz", C["minnlo"], 23),
-                              ("POWHEG", "dy_psNLO_powheg_ct18_fixed.npz", C["powheg"], 1)]:
+    for lbl, fn, col, neg in [("MiNNLO", "dy_minnlo_born_s1.npz", C["minnlo"], 23),
+                              ("POWHEG", "dy_powheg_born_sh.npz", C["powheg"], 1)]:
         p = os.path.join(HERE, fn)
         if os.path.exists(p):
             try:

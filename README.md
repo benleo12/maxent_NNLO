@@ -347,7 +347,7 @@ the uncertainty envelope. Set `band=False` for just the central solve (much fast
 
 ## API reference
 
-### `upgrade(events, fo_low, fo_high, config) -> UpgradeResult`
+### `upgrade(events, moments, config) -> UpgradeResult`
 
 The one entry point. `UpgradeResult` fields:
 
@@ -360,7 +360,7 @@ The one entry point. `UpgradeResult` fields:
 | `.report` | `dict` | full engine report (diff-K masks, window, rate, solve stats) plus a `moment_selection` block with the SNR spectra and chosen counts. |
 | `.moment_snr` | `dict{obs: np.ndarray}` | per-observable SNR spectrum (orders 1…Nmax). |
 | `.chosen_moments` | `dict{obs: int}` | number of moments actually imposed per observable. |
-| `.band` | `dict{tag: np.ndarray}` or `None` | variant weight vectors (scales + rate schemes) for the uncertainty envelope. |
+| `.band` | `None` | reserved; the uncertainty bands are built outside the solver, see *Uncertainty bands* below. |
 
 `.summary()` returns a one-line human-readable digest.
 
@@ -405,3 +405,25 @@ It runs end to end and lands on a **positive-weight** solution with `effN ≈ 98
    Sudakov shape below it, glued by the FO-region rate.
 3. **One convex MaxEnt solve** (z-scored Newton on the dual, ridge `L2`) → positive weights;
    re-solved per scale/rate variation for the band.
+
+## Uncertainty bands (how the paper's bands are made)
+
+`upgrade()` does one central solve. The bands are three loops over the same call,
+implemented in `eventlevel/make_dy_band_weights.py`:
+
+1. **Scale band**: re-solve once per seven-point scale variant of the target moments
+   (`fo_moments_smooth_from_nnlojet(..., scale_idx=s)`), each warm-started from the
+   central multipliers via `config["lam0"] = res.report["lam"]`, with the moment counts
+   frozen (`moment_selection: False`, `born_N`, `recoil_N`). The per-bin envelope of the
+   six variant predictions around the central one is the scale band.
+2. **Target statistics**: bootstrap the independent fixed-order seeds, rebuild the pooled
+   moments per replica, re-solve; the per-bin spread is the moments' Monte Carlo error.
+3. **Sample statistics**: the usual per-bin error of the weighted events, sum of q_i^2.
+
+The figures combine 2 and 3 in quadrature as error bars and draw 1 as a band, and apply
+the same split (band = scale, bars = statistics) to the fixed-order reference and to every
+generator. `config["keep_features"] = True` makes `upgrade()` return the feature matrix,
+prior weights, multipliers and targets in `res.report`, from which the first-order response
+`dO = Cov_q(O, m) H^{-1} dmu` reproduces the envelope edges without re-solving
+(`eventlevel/moment_bands.py` is that cross-check). The Born-lepton Pythia driver is
+`eventlevel/shower_dy.py` and the fiducial-sample builder `eventlevel/make_dy_atlas_npz_born.py`.

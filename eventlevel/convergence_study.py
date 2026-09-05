@@ -105,7 +105,7 @@ def main():
         for key in ("window_values", "window_errors", "wprofile_values"):
             if key in Mk["recoil"]["pT_ll"]:
                 Mk["recoil"]["pT_ll"][key] = list(Mk["recoil"]["pT_ll"][key])[:K]
-        cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+        cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                          "y_abs": {"range": (0., 2.4), "map": "lin"}},
                    recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                                      "profile": {"a": XM, "b": 2 * XM, "c": XHI}}})

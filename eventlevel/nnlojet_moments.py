@@ -107,6 +107,69 @@ def fo_curve(base, run, channels, seeds, tag, prefix="Z", scale_idx=0, rebin=1):
     return lo, hi, dens, err
 
 
+def fo_curve_band(base, run, channels, seeds, tag, edges=None, prefix="Z",
+                  rebin=1, nscale=7, members=False):
+    r"""fo_curve for ALL scales at once: the reference curve with its full
+    uncertainty decomposition.
+
+    Returns ``(lo, hi, central, scale_lo, scale_hi, stat)`` where
+    ``scale_lo/hi`` is the per-bin envelope over the ``nscale`` scale
+    variations (each seed-pooled like the central) and ``stat`` is the
+    central's seed-scatter error.  With ``members=True`` a seventh element is
+    appended: the ``(nscale, nbin)`` matrix of seed-pooled per-scale curves,
+    needed when the consumer must normalize each scale member BEFORE taking
+    the envelope (a shape-only band on a normalized panel; normalizing the
+    envelope curves instead is not the same thing and inflates the band by
+    the rate variation).  With ``edges`` given, every per-seed curve
+    is first rebinned onto those edges by exact overlap integration, so the
+    scatter is computed ON the final binning (rebinning a precomputed error
+    would be wrong).  Returns ``None`` if nothing loads.
+    """
+    if edges is None:
+        curves = []
+        for s in range(nscale):
+            r = fo_curve(base, run, channels, seeds, tag, prefix=prefix,
+                         scale_idx=s, rebin=rebin)
+            if r is None:
+                return None
+            curves.append(r)
+        lo, hi, central, stat = curves[0]
+        allc = np.array([c[2] for c in curves])
+        out = (lo, hi, central, np.minimum(central, allc.min(0)),
+               np.maximum(central, allc.max(0)), stat)
+        return out + (allc,) if members else out
+
+    from pubstyle import rebin_density        # local: keeps matplotlib lazy
+    e = np.asarray(edges, float)
+    per_seed = {s: [] for s in range(nscale)}
+    for sd in seeds:
+        tot = None
+        for ch in channels:
+            r = _load(os.path.join(base, f"ch_{ch}",
+                                   f"{prefix}.{run}.{ch}.{tag}.s{sd}.dat"))
+            if r is None:
+                continue
+            lo, _, hi, v, _ = r
+            tot = v.copy() if tot is None else tot + v
+        if tot is None:
+            continue
+        g = hi > lo
+        for s in range(nscale):
+            per_seed[s].append(rebin_density(lo[g], hi[g], tot[g][:, s], e))
+    if not per_seed[0]:
+        return None
+    means = {s: np.nanmean(np.array(per_seed[s]), 0) for s in range(nscale)}
+    central = means[0]
+    A0 = np.array(per_seed[0])
+    n = A0.shape[0]
+    stat = (np.nanstd(A0, 0, ddof=1) / np.sqrt(n) if n > 1
+            else np.full_like(central, np.nan))
+    allc = np.array([means[s] for s in range(nscale)])
+    out = (e[:-1], e[1:], central, np.minimum(central, np.nanmin(allc, 0)),
+           np.maximum(central, np.nanmax(allc, 0)), stat)
+    return out + (allc,) if members else out
+
+
 # ---------------------------------------------------------------------------
 # Which booked histograms live on a MIRRORED axis relative to the observable
 # the analysis works with.  This has now caused the same bug three times --
@@ -257,13 +320,16 @@ def fo_moments_from_nnlojet(base, run, channels, seeds, born_tags, recoil_tag,
     moments = {"born": {}, "recoil": {}}
 
     for cfg_obs, tag in born_tags.items():
-        vals, errs = [], []
+        vals, errs, stats, scls = [], [], [], []
         for n in range(1, n_born + 1):
             m = _moment_over_seeds(base, run, channels, seeds,
                                    f"prof_{tag}_{n}", norm_born)
             c, st, sc, tot = _reduce(m, scale_idx)
-            vals.append(c); errs.append(tot)
-        moments["born"][cfg_obs] = dict(values=vals, errors=errs)
+            vals.append(c); errs.append(tot); stats.append(st); scls.append(sc)
+        # errors = stat (+) scale drives the SNR selection; the components are
+        # kept separately so bands (scale) and error bars (stat) can be built
+        moments["born"][cfg_obs] = dict(values=vals, errors=errs,
+                                        stat_errors=stats, scale_errors=scls)
 
     # recoil: moments over the window, plus the FO window rate sigma_win/sigma_fid
     vals, errs = [], []
@@ -301,16 +367,21 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
     """
     moments = {"born": {}, "recoil": {}}
     for cfg_obs, tag in born_tags.items():
-        vals, errs = [], []
+        vals, errs, stats, scls = [], [], [], []
         for n in range(1, n_born + 1):
             m = _moment_over_seeds(base, run, channels, seeds, f"prof_{tag}_{n}", norm_born, prefix)
-            c, st, sc, tot = _reduce(m, scale_idx); vals.append(c); errs.append(tot)
-        moments["born"][cfg_obs] = dict(values=vals, errors=errs)
+            c, st, sc, tot = _reduce(m, scale_idx)
+            vals.append(c); errs.append(tot); stats.append(st); scls.append(sc)
+        # errors = stat (+) scale (drives SNR selection); components kept
+        # separately so bands (scale) and error bars (stat) can be built
+        moments["born"][cfg_obs] = dict(values=vals, errors=errs,
+                                        stat_errors=stats, scale_errors=scls)
 
-    vals, errs = [], []
+    vals, errs, stats, scls = [], [], [], []
     for n in range(1, n_recoil + 1):
         m = _moment_over_seeds(base, run, channels, seeds, f"{wtag}_{n}", w0, prefix)
-        c, st, sc, tot = _reduce(m, scale_idx); vals.append(c); errs.append(tot)
+        c, st, sc, tot = _reduce(m, scale_idx)
+        vals.append(c); errs.append(tot); stats.append(st); scls.append(sc)
     rate_ps = []
     for s in seeds:
         wnum = _sum_channels(base, run, channels, w0, s, prefix)
@@ -321,6 +392,9 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
 
     moments["recoil"][recoil_cfg_name] = dict(
         window_values=vals, window_errors=errs,
+        stat_errors=stats, scale_errors=scls,
+        rate_stat=(float(np.std(rate_ps, ddof=1) / np.sqrt(len(rate_ps)))
+                   if len(rate_ps) > 1 else 0.0),
         wprofile_values=vals, wprofile_rate=R, rate=R,
         x_match=float(x_match), x_hi=float(x_hi), soft_lo=float(soft_lo))
     return moments

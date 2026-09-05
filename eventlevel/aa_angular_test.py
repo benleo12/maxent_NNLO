@@ -35,7 +35,7 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_profiled_recoil)
 from aa_vs_data import load_prior_full
 
-GGDIR = os.environ.get("GGDIR", "/Users/user/nnlojet-v1.0.2/gg_moments")
+GGDIR = os.environ.get("GGDIR", "/Users/user/nnlojet-v1.0.2/gg_moments2")   # clipped-map binary
 RUN, PREFIX = "GG_MOMENTS", "GG"
 CH = ["LO", "R", "V", "RR", "RV", "VV"]
 # mirrors eval_w_ptaa (pa=28, pb=56, pc=pd=500)

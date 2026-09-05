@@ -31,7 +31,7 @@ RUN = "DY_MOMENTS"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 SEEDS = [1, 2]
 L2 = 1e-4
-CFG = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+CFG = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                  "y_abs": {"range": (0., 2.4), "map": "lin"}},
            recoil={"pT_ll": {"range": (0.5, 500.), "map": "log", "soft_lo": 0.5}})
 

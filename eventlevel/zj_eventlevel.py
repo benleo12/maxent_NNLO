@@ -28,9 +28,10 @@ use_pub_style(base=17)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              _load, _moment_over_seeds, add_profiled_recoil,
-                             add_mixed_moments)
+                             add_mixed_moments, fo_curve_band, MIRRORED_TAGS)
+from bandviz import stagger
 
-ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
+ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments2"   # clipped-map binary, mll = BW map
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
 # NLO (LO+R+V) by default.  The full NNLO set (LO,R,V,RRa,RRb,RV,VV) exists at
 # 20 seeds and is selectable with ZJ_CH, but at the statistics reachable here its
@@ -43,6 +44,8 @@ CH = os.environ.get("ZJ_CH", "LO,R,V").split(",")
 NMIX = int(os.environ.get("NMIX", 4))      # mixed orders m,n = 1..NMIX
 # mirrors eval_w_ptj1 (pa=30, pb=60)
 XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 10.0   # pT_j1 profile + log-map floor
+N_DPHI, DPHI_A, DPHI_B = 4, 0.05, 0.20        # booked dphi tower: depth, compiled profile
+C_DPHI = "#2b6ca3"                              # colour of the +dphi-tower state
 Q_HARD = 91.1876
 
 
@@ -123,7 +126,7 @@ def main():
               f"R = {M['mixed']['ptj12']['rate']:.4f}")
     else:
         print("  mixed moments NOT present -- pT_j1 only, pT_j2 stays a prediction")
-    cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+    cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
                recoil=recoil, mixed=mixed,
                followers=["pimdphi"] + ([] if mixed else ["ptj2"]),
@@ -132,6 +135,27 @@ def main():
     res = upgrade(ev, M, cfg)
     print(f"  effN {100*res.effN:.1f}%  closure {res.closure:.2e}  "
           f"neg-wt {100*np.mean(res.weights<=0):.1f}%")
+    # THIRD STATE of the follower test: impose the Delta-phi tower NNLOJET
+    # already books (prof_wdphi: profile in pi-dphi over [0.05,0.20], log map
+    # on [0.01,pi]).  The marginal+cross tilt over-transports pi-dphi (0.87 ->
+    # 1.49 against fixed order); this shows the failure is fixable by adding
+    # the missing measurement, at ~1 point of effN.  Caveat carried into the
+    # paper: that compiled window sits below the seam image ~0.67.
+    res_dphi = None
+    sdd = common_seeds(ZDIR, RUN, CH, tag=[f"prof_wdphi_{n}" for n in range(0, N_DPHI + 1)],
+                       prefix=PREFIX)
+    if sdd:
+        import copy
+        M2, cfg2 = copy.deepcopy(M), copy.deepcopy(cfg)
+        add_profiled_recoil(M2, ZDIR, RUN, CH, sdd, "pimdphi", wtag="prof_wdphi",
+                            w0="prof_wdphi_0", n_recoil=N_DPHI, x_match=DPHI_A, x_hi=np.pi,
+                            soft_lo=0.01, prefix=PREFIX)
+        cfg2["recoil"]["pimdphi"] = {"range": (0.01, np.pi), "map": "log", "soft_lo": 0.01,
+                                     "profile": {"a": DPHI_A, "b": DPHI_B, "c": 4.0}}
+        cfg2["followers"] = []
+        res_dphi = upgrade(ev, M2, cfg2)
+        print(f"  + Delta-phi tower (n<={N_DPHI}): effN {100*res_dphi.effN:.1f}%  "
+              f"closure {res_dphi.closure:.2e}")
 
     # ---- prediction check: pT_j2 and (pi-dphi_ll) moments vs their FO values
     print("\nPREDICTED observables (never constrained) -- <T_n> prior / MaxEnt / FO")
@@ -152,10 +176,86 @@ def main():
             print(f"     T_{n+1}: prior {mp[n]:+.4f}   MaxEnt {mq[n]:+.4f}   FO {fo[n]:+.4f}"
                   f"   |MaxEnt-FO| {abs(mq[n]-fo[n]):.4f}  (prior gap {abs(mp[n]-fo[n]):.4f})")
 
+    # -------- uncertainty variants (convention of phistar_prediction.py /
+    # fig_dy_spectra.py): the MaxEnt curve carries a translucent fill = per-bin
+    # envelope over the 6 warm-started scale re-solves of the weights, and stat
+    # bars = bootstrap-over-seeds spread (+) the sample's own per-bin MC error.
+    # The fixed-order reference carries its 7-point scale envelope (+) seed
+    # scatter, computed PER SEED on the final binning.  The moment construction
+    # below mirrors the central call above VERBATIM (same maps, same tags) --
+    # only scale_idx / the seed list change.
+    import functools
+    import nnlojet_moments as _nm
+    if not isinstance(_nm._load, functools._lru_cache_wrapper):
+        _nm._load = functools.lru_cache(maxsize=None)(_nm._load)
+    sd2s = set(sd2) if mixed else set()
+
+    def build_M(seed_list, scale_idx=0):
+        seed_list = [int(s) for s in seed_list]
+        Ms = fo_moments_smooth_from_nnlojet(
+            ZDIR, RUN, CH, seed_list,
+            born_tags={"mll": "mll", "y_abs": "absyz"},
+            n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT,
+            recoil_cfg_name="ptj1", norm_born="norm_born",
+            w0="prof_wj1_0", wtag="prof_wj1", prefix=PREFIX, scale_idx=scale_idx)
+        if mixed:
+            s2 = [s for s in seed_list if s in sd2s] or list(sd2)
+            add_profiled_recoil(Ms, ZDIR, RUN, CH, s2, "ptj2", wtag="prof_wj2",
+                                w0="prof_wj2_0", n_recoil=6, x_match=XM, x_hi=XHI,
+                                soft_lo=SOFT, prefix=PREFIX, scale_idx=scale_idx)
+            add_mixed_moments(Ms, ZDIR, RUN, CH, s2, "ptj12", wtag="prof_wj12",
+                              w0="prof_wj12_0", n_max=NMIX, prefix=PREFIX,
+                              scale_idx=scale_idx)
+        return Ms
+
+    lam0 = res.report["lam"]
+    scale_w, boot_w = [], []
+    print("\nuncertainty variants: 6 scale re-solves (warm-started) ...", flush=True)
+    for s_ in range(1, 7):
+        try:
+            scale_w.append(upgrade(ev, build_M(seeds, s_), {**cfg, "lam0": lam0}).weights)
+        except Exception as e_:
+            print(f"  scale {s_} re-solve FAILED: {e_}")
+    NBOOT = 20
+    print(f"uncertainty variants: {NBOOT} seed-bootstrap re-solves ...", flush=True)
+    rng = np.random.default_rng(20260816)
+    for b_ in range(NBOOT):
+        try:
+            boot_w.append(upgrade(ev, build_M(rng.choice(seeds, len(seeds), replace=True)),
+                                  {**cfg, "lam0": lam0}).weights)
+        except Exception as e_:
+            print(f"  bootstrap {b_} re-solve FAILED: {e_}")
+    print(f"  variants ready: {len(scale_w)}/6 scale, {len(boot_w)}/{NBOOT} bootstrap")
+
+    def fo_band_members(tag, e):
+        """7-point scale members + per-seed scatter of the FO reference on the
+        final edges e, oriented onto the analysis observable's axis."""
+        mirrored = tag in MIRRORED_TAGS
+        ee = (np.pi - np.asarray(e, float))[::-1] if mirrored else e
+        fb = fo_curve_band(ZDIR, RUN, CH, seeds, tag, edges=ee, prefix=PREFIX,
+                           members=True)
+        if fb is None:
+            return None
+        _, _, cen, _, _, fst, mem = fb
+        mem = np.asarray(mem)
+        if mirrored:
+            cen, fst, mem = cen[::-1], fst[::-1], mem[:, ::-1]
+        return cen, fst, mem
+
     # ---------------- figure ----------------
-    panels = [("ptj1", np.geomspace(20, 500, 26), r"$p_T^{j_1}$ [GeV]", True,  "constrained", "ptj1_a"),
-              ("ptj2", np.geomspace(20, 300, 22), r"$p_T^{j_2}$ [GeV]", True,  "predicted", "ptj2_a"),
-              ("pimdphi", np.geomspace(0.02, 3.0, 22), r"$\pi-\Delta\phi_{\ell\ell}$", True, "predicted", "dphil_a")]
+    def native_edges(tag, mirror=False):
+        """The fixed-order histogram's own edges.  It is the ratio DENOMINATOR:
+        rebinning it coarse->fine makes a staircase and the ratio alternates."""
+        import glob as _g
+        f = sorted(_g.glob(ZDIR + f"/**/*.{tag}.s*.dat", recursive=True))[0]
+        rows = [l.split() for l in open(f) if l.strip() and not l.startswith("#")]
+        lo = np.array([float(r[0]) for r in rows]); hi = np.array([float(r[2]) for r in rows])
+        e_ = np.concatenate([lo[:1], hi])
+        if mirror: e_ = (np.pi - e_)[::-1]
+        return e_[e_ > 0]
+    panels = [("ptj1", native_edges("ptj1_a"), r"$p_T^{j_1}$ [GeV]", True,  "constrained", "ptj1_a"),
+              ("ptj2", native_edges("ptj2_a"), r"$p_T^{j_2}$ [GeV]", True,  "predicted", "ptj2_a"),
+              ("pimdphi", native_edges("dphil_a", mirror=True), r"$\pi-\Delta\phi_{\ell\ell}$", True, "predicted", "dphil_a")]
 
     def fo_ref(tag):
         """channel-summed FO reference distribution (lo, hi, density)."""
@@ -181,7 +281,7 @@ def main():
         hp, hq = d(ev["weight"]), d(res.weights)
         ctr_ = np.sqrt(e[:-1] * e[1:])
         # FIXED-ORDER reference, and the ratio denominator (no data loaded for DY+jet)
-        fo_i = None; fo_valid = None
+        fo_i = None; fo_valid = None; fo_band = None; fo_stat = None
         fc = fo_ref(fotag)
         if fc is not None:
             flo, fhi, fv = fc
@@ -212,9 +312,37 @@ def main():
                           lw=1.4, alpha=FADE)
                 fo_i = yy
                 fo_valid = ab
+                # FO band: SHAPE-ONLY 7-point scale envelope (each scale member
+                # normalized to the SAME integral the central is anchored to,
+                # BEFORE the envelope -- this panel shows normalized densities,
+                # on which the sample has no rate freedom) (+) per-seed scatter
+                # in quadrature.
+                fbm = fo_band_members(fotag, e)
+                if fbm is not None:
+                    cen_b, fst_b, mem_b = fbm
+                    bwv = np.diff(e)
+                    tgt = (hq * bwv).sum()      # the central curve's anchor integral
+                    mem_n = []
+                    for c_ in mem_b:
+                        c_ = np.where(gd, c_, np.nan)
+                        I_ = np.nansum(c_ * bwv)
+                        mem_n.append(c_ * (tgt / I_) if I_ > 0
+                                     else np.full(len(bwv), np.nan))
+                    mem_n = np.array(mem_n)
+                    lo_b = np.minimum(yy, np.nanmin(mem_n, 0))
+                    hi_b = np.maximum(yy, np.nanmax(mem_n, 0))
+                    I_c = np.nansum(np.where(gd, cen_b, np.nan) * bwv)
+                    st_b = (fst_b * (tgt / I_c) if I_c > 0
+                            else np.full(len(bwv), np.nan))
+                    fo_band = 0.5 * (hi_b - lo_b)   # BAND = scale
+                    fo_stat = st_b                  # CANDLE = seed scatter
         ref = np.where(np.isfinite(fo_i), fo_i, np.nan) if fo_i is not None else np.maximum(hq, 1e-30)
         a_.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
         a_.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+        hq2 = d(res_dphi.weights) if (key == "pimdphi" and res_dphi is not None) else None
+        if hq2 is not None:
+            a_.stairs(hq2, e, color=C_DPHI, lw=2.4, ls="-.",
+                      label=rf"MaxEnt $+\,\Delta\phi$ tower ($n\le{N_DPHI}$)")
         # The ratio denominator IS the fixed order, so below the seam we would be
         # dividing by the unresummed Sudakov region.  Fade the ratio there too,
         # rather than draw a solid line against a denominator we do not trust.
@@ -224,7 +352,70 @@ def main():
                       ls=LS[ckey], lw=lw_)
             r_.stairs(np.where(~vok, h_ / ref, np.nan), e, color=C[ckey],
                       ls=LS[ckey], lw=lw_ * 0.7, alpha=FADE)
+        if hq2 is not None:
+            r_.stairs(np.where(vok, hq2 / ref, np.nan), e, color=C_DPHI, ls="-.", lw=2.2)
+            m2_ = vok & np.isfinite(hq2) & (hq2 > 0) & np.isfinite(ref)
+            print(f"  pimdphi above seam: median|r-1| prior {100*np.median(np.abs(hp[m2_]/ref[m2_]-1)):.1f}%  "
+                  f"MaxEnt {100*np.median(np.abs(hq[m2_]/ref[m2_]-1)):.1f}%  "
+                  f"+dphi tower {100*np.median(np.abs(hq2[m2_]/ref[m2_]-1)):.1f}%  "
+                  f"(MaxEnt/FO range {np.nanmin(hq[m2_]/ref[m2_]):.2f}..{np.nanmax(hq[m2_]/ref[m2_]):.2f})")
         r_.axhline(1, color="k", lw=0.8)
+        # ---- uncertainty visuals, one style per role (shared convention) ----
+        # FO denominator: gray band around 1 = scale envelope (+) seed scatter.
+        # MaxEnt: translucent fill = envelope over the 6 scale re-solves; bars =
+        # seed-bootstrap spread (+) own MC error.  Prior: own MC bars.  Bars are
+        # staggered per series so they stay legible.
+        if fo_i is not None and fo_band is not None:
+            tot_ = fo_band / np.where(np.isfinite(ref) & (ref > 0), ref, np.inf)
+            r_.fill_between(ctr_, np.where(vok, 1 - tot_, np.nan),
+                            np.where(vok, 1 + tot_, np.nan),
+                            step="mid", color=C["band"], alpha=0.55, lw=0)
+            if fo_stat is not None:
+                r_.errorbar(stagger(e, 0, 3), np.where(vok, np.ones_like(ctr_), np.nan),
+                            yerr=np.where(vok, fo_stat / np.where(
+                                np.isfinite(ref) & (ref > 0), ref, np.inf), np.nan),
+                            fmt="none", ecolor="0.35", elinewidth=1.0, capsize=1.6)
+        # statistics FIRST: the MaxEnt band below is the sample's TOTAL
+        # uncertainty, like for like with the reference band above, which is
+        # that reference's scale envelope combined with its own scatter.  A
+        # scale-only band drawn against a scale-plus-statistics one understates
+        # the upgrade several-fold.
+        boot_sd = (np.array([d(wv) for wv in boot_w]).std(0, ddof=1)
+                   if len(boot_w) > 1 else np.zeros(len(e) - 1))
+
+        def mc_of(wv):
+            ww_ = wv[sub]; qn_ = ww_ / ww_.sum()
+            s2_, _ = np.histogram(ev[key][sub], e, weights=qn_ * qn_)
+            return np.sqrt(s2_) / np.diff(e)
+
+        q_err = np.hypot(boot_sd, mc_of(res.weights)); p_err = mc_of(ev["weight"])
+        q_lo = q_hi = None
+        q_scale_half = None
+        if scale_w:
+            hs_ = np.array([d(wv) for wv in scale_w])
+            q_lo = np.minimum(hq, hs_.min(0)); q_hi = np.maximum(hq, hs_.max(0))
+            q_scale_half = 0.5 * (q_hi - q_lo)   # BAND stays the scale envelope
+            r_.fill_between(ctr_, np.where(vok, q_lo / ref, np.nan),
+                            np.where(vok, q_hi / ref, np.nan),
+                            step="mid", color=C["maxent"], alpha=0.20, lw=0)
+        r_.errorbar(stagger(e, 1, 3), np.where(vok, hp / ref, np.nan),
+                    yerr=np.where(vok, p_err / ref, np.nan), fmt="none",
+                    ecolor=C["prior"], elinewidth=1.1, capsize=1.8)
+        r_.errorbar(stagger(e, 2, 3), np.where(vok, hq / ref, np.nan),
+                    yerr=np.where(vok, q_err / ref, np.nan), fmt="none",
+                    ecolor=C["maxent"], elinewidth=1.3, capsize=2.2)
+        okb = vok & np.isfinite(hq) & (hq > 0)
+        halves = []
+        if q_scale_half is not None:
+            halves.append("MaxEnt scale +-%.2f%%" % (100 * np.nanmedian(
+                (q_scale_half / hq)[okb])))
+        halves.append("MaxEnt stat +-%.2f%%" % (100 * np.nanmedian(
+            np.where(okb, q_err / hq, np.nan))))
+        if fo_band is not None:
+            fo_ok = okb & np.isfinite(fo_i) & (fo_i > 0)
+            halves.append("FO +-%.2f%%" % (100 * np.nanmedian(
+                np.where(fo_ok, fo_band / fo_i, np.nan))))
+        print(f"  {key} band half-widths (median, % of central): " + "  ".join(halves))
         # Where the reweighted effective statistics collapse, the prior simply
         # has no events: pT_j2's hard tail needs a Z+2-jet matrix element, which
         # a Z+1-jet-plus-shower prior cannot supply, and reweighting cannot

@@ -35,7 +35,7 @@ XM, XHI, SOFT = 30.0, 500.0, 0.5
 MLO, MHI = 66.0, 116.0                 # mirrors eval_chebT_mll
 PTL1_LO, PTL1_HI = 27.0, 200.0         # mirrors eval_chebT_ptl1
 NMOM = 6
-PRIOR_FILES = [f"dy_psLO_ext_{i}.npz" for i in (1, 2, 3, 4)]
+PRIOR_FILES = ["dy_psLO_born_1.npz"]   # Born-level leptons (final lepton + own FSR photons)
 
 
 def load_prior():
@@ -45,9 +45,14 @@ def load_prior():
         if not os.path.exists(p):
             continue
         z = np.load(p, allow_pickle=True)
-        lp = np.asarray(z["l_plus"], float); lm = np.asarray(z["l_minus"], float)
-        mll = np.asarray(z["mll"], float); pT = np.asarray(z["pT_ll"], float)
-        yll = np.asarray(z["y_ll"], float); w = np.asarray(z["weight"], float)
+        lpk, lmk = (("l_plus_born", "l_minus_born") if "l_plus_born" in z.files
+                    else ("l_plus", "l_minus"))
+        lp = np.asarray(z[lpk], float); lm = np.asarray(z[lmk], float)
+        s_ = lp + lm
+        mll = np.sqrt(np.maximum(s_[:, 3] ** 2 - (s_[:, :3] ** 2).sum(1), 0.0))
+        pT = np.hypot(s_[:, 0], s_[:, 1])
+        yll = 0.5 * np.log((s_[:, 3] + s_[:, 2]) / np.maximum(s_[:, 3] - s_[:, 2], 1e-12))
+        w = np.asarray(z["weight"], float)
         ptp = np.hypot(lp[:, 0], lp[:, 1]); ptm = np.hypot(lm[:, 0], lm[:, 1])
         yp = 0.5 * np.log((lp[:, 3] + lp[:, 2]) / np.maximum(lp[:, 3] - lp[:, 2], 1e-12))
         ym = 0.5 * np.log((lm[:, 3] + lm[:, 2]) / np.maximum(lm[:, 3] - lm[:, 2], 1e-12))

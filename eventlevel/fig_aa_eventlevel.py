@@ -41,12 +41,17 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style, C, LW, rebin_density
 use_pub_style(base=17)
 from aa_vs_data import load_prior_full, dens
-from nnlojet_moments import _load, common_seeds
+from nnlojet_moments import (_load, common_seeds, fo_curve_band, MIRRORED_TAGS,
+                             fo_moments_smooth_from_nnlojet)
+from maxent_upgrade import upgrade
+from aa_eventlevel_solve import (load_prior, XM, XB, XHI, SOFT, MLO, MHI,
+                                 RUN, PREFIX, CH)
+from bandviz import stagger
 
 D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 W = dict(np.load(os.path.join(HERE, "aa_eventlevel_weights.npz")))
 
-GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments"
+GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments2"   # clipped-map binary
 DPHI_SUPP = 2.0   # below this the reweighted effective statistics fall under
                   # 1000 per bin group (3.8 / 15.2 / 748 in [0,1)/[1,1.5)/[1.5,2)
                   # against 9700 just above): the prior has no support there.
@@ -64,6 +69,86 @@ def fo_ref(tag):
             lo, _, hi, v, _ = r0
             tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
     return (lo, hi, tot) if tot is not None else None
+
+
+def fo_band_members(tag, e):
+    """7-point scale members + per-seed scatter of the FO reference on the data
+    edges e, oriented onto the analysis observable's axis (dphi is booked
+    mirrored)."""
+    seeds = common_seeds(GGDIR, RUN, CH, prefix=PREFIX)
+    mirrored = tag in MIRRORED_TAGS
+    ee = (np.pi - np.asarray(e, float))[::-1] if mirrored else e
+    fb = fo_curve_band(GGDIR, RUN, CH, seeds, tag, edges=ee, prefix=PREFIX,
+                       members=True)
+    if fb is None:
+        return None
+    _, _, cen, _, _, fst, mem = fb
+    mem = np.asarray(mem)
+    if mirrored:
+        cen, fst, mem = cen[::-1], fst[::-1], mem[:, ::-1]
+    return cen, fst, mem
+
+
+def maxent_variants(n_boot=20):
+    r"""Uncertainty variants of the aa_eventlevel_solve.py weights, the shared
+    convention (phistar_prediction.py / fig_dy_spectra.py): 6 warm-started
+    scale re-solves (translucent fill = their per-bin envelope) and
+    bootstrap-over-seeds re-solves (error bars = their spread (+) the sample's
+    own MC error).  The moment construction and config below mirror
+    aa_eventlevel_solve.py VERBATIM (same maps, same tags) -- only scale_idx /
+    the seed list change.  Returns (scale_w, boot_w) aligned with W['weights'];
+    empty lists if the central re-solve does not reproduce the stored weights
+    (stale npz -- then no MaxEnt bands are drawn)."""
+    import functools
+    import nnlojet_moments as _nm
+    if not isinstance(_nm._load, functools._lru_cache_wrapper):
+        _nm._load = functools.lru_cache(maxsize=None)(_nm._load)
+    born_tags = {"m_aa": "maa", "costh_aa": "cts", "dphi_log": "dpa"}
+    need = ["norm_born", "prof_wpt_0"] + [f"prof_{t}_1" for t in born_tags.values()] \
+           + [f"prof_wpt_{n}" for n in range(1, 13)]
+    seeds = common_seeds(GGDIR, RUN, CH, tag=need, prefix=PREFIX)
+    evs = load_prior()
+    evs = {k: v[W["idx"]] for k, v in evs.items()}
+    cfg = dict(
+        born={"m_aa": {"range": (MLO, MHI), "map": "log"},
+              "costh_aa": {"range": (0.0, 1.0), "map": "lin"}},
+        recoil={"pt_aa": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+                          "profile": {"a": XM, "b": XB, "c": XHI}}},
+        followers=["y_abs"], moment_selection=False)
+
+    def build_M(seed_list, scale_idx=0):
+        return fo_moments_smooth_from_nnlojet(
+            GGDIR, RUN, CH, [int(s) for s in seed_list],
+            born_tags=born_tags, n_born=6, n_recoil=12,
+            x_match=XM, x_hi=XHI, soft_lo=SOFT, recoil_cfg_name="pt_aa",
+            norm_born="norm_born", w0="prof_wpt_0", wtag="prof_wpt",
+            prefix=PREFIX, scale_idx=scale_idx)
+
+    print(f"uncertainty variants: central re-solve ({len(seeds)} seeds) ...",
+          flush=True)
+    res0 = upgrade(evs, build_M(seeds), cfg)
+    if not np.allclose(res0.weights, W["weights"], rtol=1e-6, atol=0):
+        print("  WARNING: central re-solve does not reproduce "
+              "aa_eventlevel_weights.npz -- drawing without MaxEnt bands")
+        return [], []
+    lam0 = res0.report["lam"]
+    scale_w, boot_w = [], []
+    for s in range(1, 7):
+        try:
+            scale_w.append(upgrade(evs, build_M(seeds, s),
+                                   {**cfg, "lam0": lam0}).weights)
+        except Exception as err:
+            print(f"  scale {s} re-solve FAILED: {err}")
+    rng = np.random.default_rng(20260816)
+    for b in range(n_boot):
+        try:
+            boot_w.append(upgrade(evs,
+                                  build_M(rng.choice(seeds, len(seeds), replace=True)),
+                                  {**cfg, "lam0": lam0}).weights)
+        except Exception as err:
+            print(f"  bootstrap {b} re-solve FAILED: {err}")
+    print(f"  variants ready: {len(scale_w)}/6 scale, {len(boot_w)}/{n_boot} bootstrap")
+    return scale_w, boot_w
 
 
 PANELS = [
@@ -89,6 +174,12 @@ def main():
     ev = load_prior_full()
     ev = {k: v[W["idx"]] for k, v in ev.items()}
     wpr, wnw = ev["weight"], W["weights"]
+    try:
+        scale_w, boot_w = maxent_variants()
+    except Exception as err:
+        print(f"  WARNING: MaxEnt uncertainty variants failed ({err}) -- "
+              "drawing without MaxEnt bands")
+        scale_w, boot_w = [], []
 
     # ONE observable per figure, as everywhere else.
     for j, (key, dk, lab, logx, role) in enumerate(PANELS):
@@ -112,6 +203,7 @@ def main():
         a.stairs(np.where(m, qq, np.nan), e, color=C["maxent"], lw=3.0,
                  label=rf"MaxEnt ({med(qq):.0f}\%)")
         # FIXED ORDER, normalised over the plotted range
+        fo_band = fn = None
         fc = fo_ref(FOTAG.get(key, key))
         if fc is not None:
             flo, fhi, fv = fc
@@ -132,6 +224,30 @@ def main():
                     a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
                              label=rf"fixed order ({FO_ORDER.get(key, '')})")
                     r.stairs(np.where(m, fn / dv, np.nan), e, color=C["fo"], ls=":", lw=1.9)
+                    # FO band: SHAPE-ONLY 7-point scale envelope (each scale
+                    # member normalized to unit integral BEFORE the envelope --
+                    # this panel shows normalized densities, on which the
+                    # sample has no rate freedom) (+) per-seed scatter in
+                    # quadrature, computed per seed on the data binning.
+                    fbm = fo_band_members(FOTAG.get(key, key), e)
+                    if fbm is not None:
+                        cen_b, fst_b, mem_b = fbm
+                        mem_n = []
+                        for c_ in mem_b:
+                            c_ = np.where(good, c_, np.nan)
+                            I_ = np.nansum(c_ * bw)
+                            mem_n.append(c_ / I_ if I_ > 0
+                                         else np.full(len(bw), np.nan))
+                        mem_n = np.array(mem_n)
+                        lo_b = np.minimum(fn, np.nanmin(mem_n, 0))
+                        hi_b = np.maximum(fn, np.nanmax(mem_n, 0))
+                        I_c = np.nansum(np.where(good, cen_b, np.nan) * bw)
+                        st_b = (fst_b / I_c if I_c > 0
+                                else np.full(len(bw), np.nan))
+                        fo_band = np.hypot(0.5 * (hi_b - lo_b), st_b)
+                        r.fill_between(ctr, np.where(m, (fn - fo_band) / dv, np.nan),
+                                       np.where(m, (fn + fo_band) / dv, np.nan),
+                                       step="mid", color=C["fo"], alpha=0.13, lw=0)
         if key in ("pt_aa", "at_aa"):
             for p_ in (a, r):
                 p_.axvline(28.0, color=C["seam"], lw=2.0, ls="--")
@@ -166,6 +282,49 @@ def main():
         r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
         r.stairs(np.where(m, pp / dv, np.nan), e, color=C["prior"], ls="--", lw=1.8)
         r.stairs(np.where(m, qq / dv, np.nan), e, color=C["maxent"], lw=2.4)
+        # ---- uncertainty visuals, one style per role (shared convention) ----
+        # MaxEnt: translucent fill = envelope over the 6 scale re-solves; bars
+        # = seed-bootstrap spread (+) own MC error.  Prior: own MC bars.  Bars
+        # staggered per series.  The gray data band above stays as is.
+        # statistics FIRST: the MaxEnt band is the sample's TOTAL uncertainty,
+        # like for like with the grey data band it is compared against.  A
+        # scale-only band against a total one understates the upgrade.
+        boot_sd = (np.array([norm(dens(ev[key], wv, e)) for wv in boot_w]).std(0, ddof=1)
+                   if len(boot_w) > 1 else np.zeros(len(e) - 1))
+
+        def mc_of(wv):
+            qn = wv / wv.sum()
+            s2, _ = np.histogram(ev[key], e, weights=qn * qn)
+            return np.sqrt(s2) / bw / (dens(ev[key], wv, e) * bw).sum()
+
+        q_err = np.hypot(boot_sd, mc_of(wnw)); p_err = mc_of(wpr)
+        q_lo = q_hi = q_scale_half = None
+        if scale_w:
+            hs = np.array([norm(dens(ev[key], wv, e)) for wv in scale_w])
+            q_lo = np.minimum(qq, hs.min(0)); q_hi = np.maximum(qq, hs.max(0))
+            q_scale_half = 0.5 * (q_hi - q_lo)   # BAND stays the scale envelope
+            r.fill_between(ctr, np.where(m, q_lo / dv, np.nan),
+                           np.where(m, q_hi / dv, np.nan),
+                           step="mid", color=C["maxent"], alpha=0.20, lw=0)
+        r.errorbar(stagger(e, 0, 3), np.where(m, pp / dv, np.nan),
+                   yerr=np.where(m, p_err / dv, np.nan), fmt="none",
+                   ecolor=C["prior"], elinewidth=1.1, capsize=1.8)
+        r.errorbar(stagger(e, 1, 3), np.where(m, qq / dv, np.nan),
+                   yerr=np.where(m, q_err / dv, np.nan), fmt="none",
+                   ecolor=C["maxent"], elinewidth=1.3, capsize=2.2)
+        okb = m & np.isfinite(qq) & (qq > 0)
+        halves = []
+        if q_scale_half is not None:
+            halves.append("MaxEnt scale +-%.2f%%" % (100 * np.nanmedian(
+                (q_scale_half / qq)[okb])))
+        halves.append("MaxEnt stat +-%.2f%%" % (100 * np.nanmedian(
+            np.where(okb, q_err / qq, np.nan))))
+        if fo_band is not None:
+            fo_ok = okb & np.isfinite(fn) & (fn > 0)
+            halves.append("FO +-%.2f%%" % (100 * np.nanmedian(
+                np.where(fo_ok, fo_band / fn, np.nan))))
+        print(f"  {key}: prior {med(pp):.1f}%  MaxEnt {med(qq):.1f}%  |  "
+              + "  ".join(halves))
         r.set_ylim(0.3, 1.9); r.set_xlabel(lab)
         a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
         r.set_ylabel(r"ratio to data")

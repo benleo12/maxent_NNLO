@@ -23,10 +23,10 @@ NNLO_BASE = os.environ.get("NNLOJET_MOM_DIR",
                            "/Users/user/nnlojet-v1.0.2/dy_profile_poc")
 RUN = "DY_MOMENTS"
 CHANNELS = ["LO", "R", "V"]        # NLO; extend to the six labels for NNLO
-PRIOR = os.path.join(HERE, "dy_prior_atlas_v2.npz")
+PRIOR = os.path.join(HERE, "dy_prior_atlas_v3.npz")
 
 CONFIG = dict(
-    born={"mll":   {"range": (66., 116.), "map": "lin"},
+    born={"mll":   {"range": (66., 116.), "map": "bw"},
           "y_abs": {"range": (0., 2.4),   "map": "lin"}},
     recoil={"pT_ll": {"range": (0.5, 500.), "map": "log", "soft_lo": 0.5}},
     followers=["phistar", "pT_lead"],

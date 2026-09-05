@@ -23,7 +23,7 @@ sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
 
-GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments"
+GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments2"   # clipped-map binary
 RUN, PREFIX = "GG_MOMENTS", "GG"
 CH = ["LO", "R", "V", "RR", "RV", "VV"]   # full NNLO
 # mirrors eval_w_ptaa (pa=28, pb=56, pc=pd=500); see check_seam()

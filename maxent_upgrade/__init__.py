@@ -864,7 +864,9 @@ def upgrade(events, moments, config):
         F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate")
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
-    q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"])
+    # warm start for band variants: re-solving from the central multipliers
+    # reaches the (unique) optimum of a nearby target in a fraction of a second
+    q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"], lam0=config.get("lam0"))
     if not ok or q is None:
         raise RuntimeError("MaxEnt solve did not converge to a positive-weight solution")
     ach = (q[:, None] * Phi).sum(0)
@@ -879,7 +881,15 @@ def upgrade(events, moments, config):
                               snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
         window=(dict(windows[primary]) if primary else {}), windows=windows,
         n_constraints=len(mu),
+        # band machinery: multipliers + targets always; the (large) feature
+        # matrix only on request, for warm-started variants and the linear
+        # response  dO = Cov_q(O, Phi) H^{-1} dmu
+        lam=np.asarray(lam, float), mu=mu.copy(),
+        feature_names=list(names),
     )
+    if config.get("keep_features"):
+        report["Phi"] = Phi
+        report["p"] = p
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,
                          x_match=x_match, report=report, moment_snr=snr_spectra,
                          chosen_moments=dict(chosen), band=None)

@@ -29,9 +29,11 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              _moment_over_seeds, _reduce, oriented_fo_curve)
 from pubstyle import rebin_density
 
-ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments"
+ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments2"   # clipped-map binary, mll = BW map
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
-CH = os.environ.get("ZJ_CH", "LO,R,V,RR,RV,VV").split(",")
+# zj_moments2 covers LO,R,V only; the NNLO channels exist only in the old
+# (unclipped-map) zj_moments and would need re-production before use.
+CH = os.environ.get("ZJ_CH", "LO,R,V").split(",")
 XM, XB, XHI, SOFT = 30.0, 60.0, 1000.0, 10.0
 DP_A, DP_B, DP_C = 0.05, 0.20, 4.0
 N_DPHI = 6
@@ -147,7 +149,7 @@ def main():
                                   profile={"ptj1": dict(a=XM, b=XB, c=XHI, d=XHI),
                                            "ptj2": dict(a=XM, b=XB, c=XHI, d=XHI)},
                                   n=NMIX)
-        cfg = dict(born={"mll": {"range": (66., 116.), "map": "lin"},
+        cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                          "y_abs": {"range": (0., 2.4), "map": "lin"}},
                    recoil=recoil, mixed=mixed, followers=["pimdphi"],
                    moment_selection=False)

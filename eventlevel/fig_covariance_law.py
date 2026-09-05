@@ -23,8 +23,8 @@ from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
 BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
 CH6 = ["LO","R","V","RR","RV","VV"]; XM, XHI, SOFT = 30.0, 500.0, 0.5
 
-P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v2.npz")))
-i = np.random.default_rng(0).choice(len(P["w"]), 1_000_000, replace=False)
+P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
+i = np.random.default_rng(0).choice(len(P["w"]), min(1_000_000, len(P["w"])), replace=False)
 ev = dict(mll=P["mll"][i].astype(float), y_abs=np.abs(P["y_ll"][i]).astype(float),
           pT_ll=P["pT_ll"][i].astype(float), phistar=P["phistar"][i].astype(float),
           pT_lead=P["pT_lead"][i].astype(float), weight=P["w"][i].astype(float))
@@ -32,7 +32,7 @@ M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6,
         common_seeds(BASE, "DY_MOMENTS", CH6), born_tags={"mll":"mll","y_abs":"absyz"},
         n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
 res = upgrade(ev, M, dict(
-    born={"mll":{"range":(66.,116.),"map":"lin"},"y_abs":{"range":(0.,2.4),"map":"lin"}},
+    born={"mll":{"range":(66.,116.),"map":"bw"},"y_abs":{"range":(0.,2.4),"map":"lin"}},
     recoil={"pT_ll":{"range":(SOFT,XHI),"map":"log","soft_lo":SOFT,
                      "profile":{"a":XM,"b":2*XM,"c":XHI}}},
     followers=["phistar","pT_lead"]))
