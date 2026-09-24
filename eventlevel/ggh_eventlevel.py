@@ -34,7 +34,8 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              fo_curve_band)
 from bandviz import stagger
 
-GDIR = "/Users/user/nnlojet-v1.0.2/ggh_moments2"
+GDIR = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "ggh_moments2")
 RUN, PREFIX = "GGH_MOMENTS", "H"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 CHJ = ("R", "RR", "RV")               # channels with partons -> jets, pT_H>0
@@ -214,7 +215,9 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
     # The region below the seam is not dropped from the figure: it gets the
     # bottom panel, where the sample is compared with the shower it must
     # reproduce there.
-    vok = ok & ((ctr >= XM) if anchor_window is not None else np.ones(len(ctr), bool))
+    # ratio to fixed order drawn EVERYWHERE fixed order is positive, below the
+    # seam included: there it is not a prediction and simply leaves the panel
+    vok = ok.copy()
     half = 0.5 * (fo_hi - fo_lo) / np.where(ref > 0, ref, np.inf)     # BAND
     fo_stat = fo_st / np.where(ref > 0, ref, np.inf)                   # CANDLE
     r.fill_between(ctr, np.where(vok, 1 - half, np.nan), np.where(vok, 1 + half, np.nan),
@@ -278,9 +281,7 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         below = np.isfinite(rq) & (ctr < XM)
         if below.sum() > 1:
             rb = rq[below]
-            u.annotate(rf"below seam: shape flat to "
-                       rf"${100*(rb.max()-rb.min())/rb.mean():.1f}\%$",
-                       xy=(0.015, 0.10), xycoords="axes fraction", fontsize=10)
+            print(f"  {name}: below-seam MaxEnt/prior flat to {100*(rb.max()-rb.min())/rb.mean():.1f}%")
         u.set_ylabel(r"MaxEnt / prior", fontsize=13)
         u.set_xlabel(xlab)
         r.tick_params(labelbottom=False); r.set_xlabel("")
@@ -295,10 +296,7 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         # active at 37 GeV, which it is not -- the ramp is why the first window
         # bins still track the prior.
         for p_ in [p for p in (a, r, u) if p is not None]:
-            p_.axvspan(XM, min(XB, e[-1]), color="#ffd24d", alpha=0.10)
-            p_.axvspan(min(XB, e[-1]), min(XHI, e[-1]), color="#ffd24d", alpha=0.22)
             p_.axvline(XM, color=C["seam"], lw=2.0, ls="--")
-            p_.axvline(XB, color=C["seam"], lw=1.2, ls=":")
     a.tick_params(labelbottom=False)
     a.set_title(title)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")

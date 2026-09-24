@@ -29,18 +29,19 @@ import matplotlib.ticker as mticker
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C, LS, LW, rebin_density
+from pubstyle import use_pub_style, C, LS, LW, rebin_density, gen_scale_weights
 use_pub_style(base=18)
 from maxent_upgrade import upgrade
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              fo_curve, fo_curve_band)
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-XM, XHI, SOFT = 30.0, 500.0, 0.5
-GENS = [("MiNNLO$_{\\mathrm{PS}}$", "minnlo", "dy_minnlo_atlas_v3.npz"),
+XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
+GENS = [("MiNNLO$_{\\mathrm{PS}}$", "minnlo", "dy_minnlo_atlas_v4.npz"),
         ("MC@NLO", "mcatnlo", "dy_mcatnlo_atlas_v4.npz"),
-        ("POWHEG", "powheg", "dy_powheg_atlas_v4.npz")]
+        ("POWHEG", "powheg", "dy_powheg_atlas_v6.npz")]
 
 
 def dens(x, w, e):
@@ -50,19 +51,21 @@ def dens(x, w, e):
 
 
 def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
-          logy=True, ratio_to="fo", ylim=(0.85, 1.15), gens=True, unc=None):
+          logy=True, ratio_to="fo", ylim=(0.85, 1.15), gens=True, unc=None,
+          res2=None, unc2=None):
     e = np.asarray(edges, float); bw = np.diff(e); ctr = 0.5 * (e[:-1] + e[1:])
     hp = dens(ev[x_key], ev["weight"], e)
     hq = dens(ev[x_key], res.weights, e)
     hp, hq = hp / (hp * bw).sum(), hq / (hq * bw).sum()
+
+    def nd(w):
+        h = dens(ev[x_key], w, e); return h / (h * bw).sum()
 
     # ---- MaxEnt uncertainty components from the variant weight vectors ----
     # scale: per-bin envelope over the 6 warm-started scale re-solves
     # stat : bootstrap-over-seeds spread (+) the sample's own MC error
     q_lo = q_hi = q_err = q_scale_half = None
     if unc is not None:
-        def nd(w):
-            h = dens(ev[x_key], w, e); return h / (h * bw).sum()
         hs = np.array([nd(w) for w in unc["scale_w"]])
         boot = np.array([nd(w) for w in unc["boot_w"]]).std(0, ddof=1)
         qq = res.weights / res.weights.sum()
@@ -84,6 +87,17 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
         q_lo = np.minimum(hq, hs.min(0))
         q_hi = np.maximum(hq, hs.max(0))
         q_scale_half = 0.5 * (q_hi - q_lo)
+    # the same upgrade with the NNLO Z+jet recoil (Stripper), same treatment
+    hq2 = nd(res2.weights) if res2 is not None else None
+    q2_lo = q2_hi = q2_err = None
+    if hq2 is not None and unc2 is not None:
+        hs2 = np.array([nd(w) for w in unc2["scale_w"]])
+        boot2 = np.array([nd(w) for w in unc2["boot_w"]]).std(0, ddof=1)
+        qq2 = res2.weights / res2.weights.sum()
+        s2b, _ = np.histogram(ev[x_key], e, weights=qq2 * qq2)
+        mc2 = np.sqrt(s2b) / bw / (dens(ev[x_key], res2.weights, e) * bw).sum()
+        q2_err = np.hypot(boot2, mc2)
+        q2_lo = np.minimum(hq2, hs2.min(0)); q2_hi = np.maximum(hq2, hs2.max(0))
 
     fo = fo_lo = fo_hi = fo_st = None
     if fo_tag is not None:
@@ -119,7 +133,7 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
         if gk is None or gk not in G:
             continue
         gen_list.append((lbl, key, G, gk))
-    NSER = 3 + len(gen_list)
+    NSER = 4 + len(gen_list)
     from bandviz import stagger
 
     def stat_bars(x_, w_, h_, col_, k_, extra=None, axr=None):
@@ -143,7 +157,10 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
         a.stairs(fo, e, color=C["fo"], ls=LS["fo"], lw=LW["fo"],
                  label=r"fixed order (NNLO)")
     a.stairs(hp, e, color=C["prior"], ls=LS["prior"], lw=LW["prior"], label=r"PS+LO prior")
-    a.stairs(hq, e, color=C["maxent"], lw=LW["maxent"], label=r"MaxEnt")
+    a.stairs(hq, e, color=C["maxent"], lw=LW["maxent"],
+             label=(r"MaxEnt, NLO$(Zj)$ recoil" if hq2 is not None else r"MaxEnt"))
+    if hq2 is not None:
+        a.stairs(hq2, e, color=C["maxent_nnlo"], lw=LW["maxent_nnlo"], label=r"MaxEnt, NNLO$(Zj)$ recoil")
     gen_ratios = []
     for kg, (lbl, key, G, gk) in enumerate(gen_list):
         v = np.abs(np.asarray(G[gk], float)) if x_key == "y_ll" else np.asarray(G[gk], float)
@@ -154,15 +171,15 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
         gen_ratios.append(hg)
         # this sample's own 7-point scale envelope + MC stat bars
         if "w_scale" in G:
-            hgs = []
-            for kk in range(G["w_scale"].shape[1]):
-                h_ = dens(v, G["w_scale"][:, kk].astype(float), e)
+            hgs = []; WS = gen_scale_weights(G)
+            for kk in range(WS.shape[1]):
+                h_ = dens(v, WS[:, kk], e)
                 hgs.append(h_ / (h_ * bw).sum())
             hgs = np.array(hgs)
             r2.fill_between(ctr, np.minimum(hg, hgs.min(0)) / ref,
                             np.maximum(hg, hgs.max(0)) / ref,
                             step="mid", color=C[key], alpha=0.13, lw=0)
-        stat_bars(v, gw, hg, C[key], 3 + kg, axr=r2)
+        stat_bars(v, gw, hg, C[key], 4 + kg, axr=r2)
     if fo is not None and ratio_to != "fo":
         for rr_ in (r, r2):
             rr_.stairs(fo / ref, e, color=C["fo"], ls=LS["fo"], lw=2.0)
@@ -192,6 +209,15 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
             rr_.errorbar(stagger(e, 2, NSER), hq / ref,
                          yerr=q_err / np.where(ref > 0, ref, np.inf), fmt="none",
                          ecolor=C["maxent"], elinewidth=1.3, capsize=2.2)
+        if hq2 is not None:
+            if q2_lo is not None:
+                rr_.fill_between(ctr, q2_lo / ref, q2_hi / ref, color=C["maxent_nnlo"],
+                                 alpha=0.25, step="mid", lw=0)
+            rr_.stairs(hq2 / ref, e, color=C["maxent_nnlo"], lw=2.6)
+            if q2_err is not None:
+                rr_.errorbar(stagger(e, 3, NSER), hq2 / ref,
+                             yerr=q2_err / np.where(ref > 0, ref, np.inf), fmt="none",
+                             ecolor=C["maxent_nnlo"], elinewidth=1.3, capsize=2.2)
         rr_.axhline(1, color="k", lw=0.8)
     r.stairs(hp / ref, e, color=C["prior"], ls=LS["prior"], lw=1.8)
     stat_bars(ev[x_key], ev["weight"], hp, C["prior"], 1)
@@ -216,7 +242,9 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png")); plt.close(fig)
     m = np.isfinite(ref) & (ref > 0)
     print(f"  {name}: prior {100*np.median(np.abs(hp[m]/ref[m]-1)):5.1f}%   "
-          f"MaxEnt {100*np.median(np.abs(hq[m]/ref[m]-1)):5.1f}%   -> {out}")
+          f"MaxEnt {100*np.median(np.abs(hq[m]/ref[m]-1)):5.1f}%   "
+          + (f"MaxEnt NNLO(Zj) recoil {100*np.median(np.abs(hq2[m]/ref[m]-1)):5.1f}%   " if hq2 is not None else "")
+          + f"-> {out}")
 
 
 def main():
@@ -230,16 +258,35 @@ def main():
     M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6,
                                        common_seeds(BASE, "DY_MOMENTS", CH6),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
-                                       n_born=6, n_recoil=12,
-                                       x_match=XM, x_hi=XHI, soft_lo=SOFT)
+                                       n_born=12, n_recoil=20,
+                                       x_match=XM, x_hi=XMAP, soft_lo=SOFT)
     res = upgrade(ev, M, dict(
         born={"mll": {"range": (66., 116.), "map": "bw"},
               "y_abs": {"range": (0., 2.4), "map": "lin"}},
-        recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+        recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
         followers=["phistar", "pT_lead"]))
     print(f"solve: effN {100*res.effN:.1f}%  closure {res.closure:.2e}  "
           f"neg-wt {100*np.mean(res.weights<=0):.1f}%\n")
+    res2 = None
+    xml = os.path.join(HERE, "ppzj-moments_NNLO.xml")
+    if os.path.exists(xml):
+        os.environ["DY_RECOIL_XML"] = xml
+        try:
+            M2 = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6,
+                                                common_seeds(BASE, "DY_MOMENTS", CH6),
+                                                born_tags={"mll": "mll", "y_abs": "absyz"},
+                                                n_born=12, n_recoil=20,
+                                                x_match=XM, x_hi=XMAP, soft_lo=SOFT)
+        finally:
+            os.environ.pop("DY_RECOIL_XML", None)
+        res2 = upgrade(ev, M2, dict(
+            born={"mll": {"range": (66., 116.), "map": "bw"},
+                  "y_abs": {"range": (0., 2.4), "map": "lin"}},
+            recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
+                              "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
+            followers=["phistar", "pT_lead"]))
+        print(f"solve with the NNLO(Zj) recoil: effN {100*res2.effN:.1f}%  closure {res2.closure:.2e}\n")
 
     # variant weight vectors from moment_bands (6 scale re-solves + bootstrap);
     # produced on the SAME rng(0) event subsample, verified via the stored idx
@@ -255,6 +302,15 @@ def main():
         else:
             print("  WARNING: dy_band_weights.npz does not match this solve -- "
                   "re-run moment_bands; drawing without bands")
+    unc2 = None
+    bwf2 = os.path.join(HERE, "dy_band_weights_nnloZj.npz")
+    if res2 is not None and os.path.exists(bwf2):
+        BW2 = dict(np.load(bwf2))
+        if np.array_equal(BW2["idx"], idx) and np.allclose(BW2["central"], res2.weights, rtol=1e-6, atol=0):
+            unc2 = {"scale_w": BW2["scale_w"], "boot_w": BW2["boot_w"]}
+            print(f"  NNLO(Zj) variants loaded (6 scale + {len(BW2['boot_w'])} bootstrap)")
+        else:
+            print("  WARNING: dy_band_weights_nnloZj.npz does not match this solve; NNLO(Zj) curve without bands")
 
     # No generators here.  The showered samples carry QED final-state radiation
     # and the fixed-order calculation does not, so their low-mass tails differ
@@ -264,13 +320,13 @@ def main():
     # than that, and over-resolving it only shows the fit oscillating.
     panel("fig_dy_mll", "mll", np.linspace(66, 116, 26), r"$m_{\ell\ell}$ [GeV]",
           r"$m_{\ell\ell}$, constrained at NNLO", "mll_fine", ev, res, unc=unc,
-          logy=True, ylim=(0.80, 1.20), gens=True)
+          logy=True, ylim=(0.80, 1.20), gens=True, res2=res2, unc2=unc2)
     panel("fig_dy_yll", "y_ll", np.linspace(0.0, 2.4, 25), r"$|y_{\ell\ell}|$",
           r"$|y_{\ell\ell}|$, constrained at NNLO", "absyz_fine", ev, res, unc=unc,
-          logy=False, ylim=(0.85, 1.15))
+          logy=False, ylim=(0.85, 1.15), res2=res2, unc2=unc2)
     panel("fig_dy_ptl1", "pT_lead", np.geomspace(27, 200, 26), r"$p_T^{\ell_1}$ [GeV]",
           r"$p_T^{\ell_1}$, never constrained", "ptl1_a", ev, res, unc=unc,
-          logx=True, logy=True, ratio_to="fo", ylim=(0.6, 1.6))
+          logx=True, logy=True, ratio_to="fo", ylim=(0.6, 1.6), res2=res2, unc2=unc2)
 
 
 if __name__ == "__main__":

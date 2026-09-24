@@ -1,13 +1,16 @@
-#!/Users/user/miniconda3/envs/nnloreweight/bin/python3
+#!/usr/bin/env python3
 """Shower DY LHE events with Pythia8, save per-event lepton kinematics.
 
 For LO LHE: standard shower (pTmaxMatch=2, kinematic limit).
 For NLO LHE: MC@NLO matching mode (pTmaxMatch=1, uses SCALUP per event).
 
-Final state: two charged leptons (e+/e- or mu+/mu-). After Pythia FSR, take the
-status-stable lepton pair (post-photon-FSR) — for unfolded reweighting we want the
-"dressed" leptons including collinear photons within a small cone, but for this
-toy validation we just take the highest-pT same-flavor opposite-charge pair.
+Final state: two charged leptons (e+/e- or mu+/mu-). TWO conventions are stored:
+  l_plus / l_minus            BARE -- the highest-pT same-flavour opposite-charge
+                              pair after Pythia FSR, no photon recombination.
+  l_plus_born / l_minus_born  BORN -- the same leptons with their own QED FSR
+                              photons added back (see find_born_leptons).
+The published Drell-Yan results use the BORN arrays; the bare ones are kept
+alongside so nothing is lost. Note find_bare_leptons does NOT dress.
 
 Outputs NPZ with: l_plus (Nx4), l_minus (Nx4), mll, pT_ll, y_ll, dy_pm, dphi_pm,
                   weight, in_fo (FO cut flag), n_total, sum_w_total, sum_w_fo, sigma_FO.
@@ -24,7 +27,7 @@ def hard_exit(code=0):
         os._exit(code)
 
 
-def find_dressed_leptons(evt):
+def find_bare_leptons(evt):
     """Return (l_plus_4mom, l_minus_4mom) as numpy arrays (px,py,pz,E), or None.
     Picks final-state e+/e- or mu+/mu- with highest pT per charge sign.
     """
@@ -57,7 +60,7 @@ def find_born_leptons(evt):
     ISR recoil in Pythia's record and have pT_ll identically zero.
     Returns (l_plus, l_minus) as (px,py,pz,E) arrays, or None.
     """
-    leps = find_dressed_leptons(evt)
+    leps = find_bare_leptons(evt)
     if leps is None:
         return None
     l_plus, l_minus = leps[0].copy(), leps[1].copy()
@@ -223,7 +226,7 @@ def main():
         if args.max_events and n_total > args.max_events:
             n_total -= 1; break
 
-        leps = find_dressed_leptons(p.event)
+        leps = find_bare_leptons(p.event)
         if leps is None:
             out['l_plus'].append(np.zeros(4)); out['l_minus'].append(np.zeros(4))
             out['l_plus_born'].append(np.zeros(4)); out['l_minus_born'].append(np.zeros(4))

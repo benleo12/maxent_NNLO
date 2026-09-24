@@ -46,9 +46,10 @@ from maxent_upgrade import upgrade, chebyshev_moment
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              _moment_over_seeds, _reduce, fo_curve)
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-XM, XHI, SOFT = 30.0, 500.0, 0.5
+XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
 # Born-level prior: final leptons + their own QED FSR photons (post-ISR-recoil,
 # pre-FSR), the convention of a QCD-only fixed-order calculation.  The older
 # dy_psLO_ext_* files stored only bare leptons.
@@ -77,7 +78,7 @@ def solve():
     M = fo_moments_smooth_from_nnlojet(
         BASE, "DY_MOMENTS", CH6, seeds,
         born_tags={"mll": "mll", "y_abs": "absyz"},
-        n_born=NMOM, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
+        n_born=12, n_recoil=20, x_match=XM, x_hi=XMAP, soft_lo=SOFT)
     ev = load_prior()
     n = len(ev["weight"])
     idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)   # same draw as the ATLAS figures
@@ -85,16 +86,30 @@ def solve():
     # "bw" mirrors the Breit-Wigner map compiled into eval_chebT_mll
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
-               recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+               recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
                followers=["pt_l1", "pt_l2"])
     res = upgrade(ev, M, cfg)
     print(f"  prior events {len(ev['weight']):,}   effN {100*res.effN:.1f}%   "
           f"closure {res.closure:.2e}   neg-wt {100*np.mean(res.weights<=0):.1f}%")
-    return ev, res, seeds
+    # the same upgrade with the NNLO Z+jet recoil (Stripper) through the hook
+    res2 = None
+    xml = os.path.join(HERE, "ppzj-moments_NNLO.xml")
+    if os.path.exists(xml):
+        os.environ["DY_RECOIL_XML"] = xml
+        try:
+            M2 = fo_moments_smooth_from_nnlojet(
+                BASE, "DY_MOMENTS", CH6, seeds,
+                born_tags={"mll": "mll", "y_abs": "absyz"},
+                n_born=12, n_recoil=20, x_match=XM, x_hi=XMAP, soft_lo=SOFT)
+        finally:
+            os.environ.pop("DY_RECOIL_XML", None)
+        res2 = upgrade(ev, M2, cfg)
+        print(f"  NNLO(Zj) recoil: effN {100*res2.effN:.1f}%   closure {res2.closure:.2e}")
+    return ev, res, seeds, res2
 
 
-def fig_moments(ev, res, seeds):
+def fig_moments(ev, res, seeds, res2=None):
     """<T_n> of the PREDICTED lepton pT: prior / MaxEnt / fixed order + errors."""
     # bare (no $) so it can be nested inside other math, plus a display form
     obs = [("pt_l1", "prof_ptl1", r"p_T^{\ell_1}"),
@@ -136,6 +151,20 @@ def fig_moments(ev, res, seeds):
                 mq_err = np.hypot(mb, half)
             else:
                 print("    WARNING: dy_band_weights.npz stale; no MaxEnt bars")
+        mq2 = mq2_err = None
+        if res2 is not None:
+            mq2 = chebyshev_moment(ev[key], res2.weights, NMOM, lo_, hi_, "log")
+            bwf2 = os.path.join(HERE, "dy_band_weights_nnloZj.npz")
+            if os.path.exists(bwf2):
+                BW2 = dict(np.load(bwf2))
+                if np.allclose(BW2["central"], res2.weights, rtol=1e-6, atol=0):
+                    mb2 = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log")
+                                    for w_ in BW2["boot_w"]]).std(0, ddof=1)
+                    ms2 = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log")
+                                    for w_ in BW2["scale_w"]])
+                    mq2_err = np.hypot(mb2, 0.5 * (ms2.max(0) - ms2.min(0)))
+                else:
+                    print("    WARNING: dy_band_weights_nnloZj.npz stale; no bars on the NNLO(Zj) points")
 
         fig, ax = plt.subplots(2, 1, figsize=(6.8, 7.4),
                                gridspec_kw={"height_ratios": [2.0, 1.15], "hspace": 0.08})
@@ -145,7 +174,11 @@ def fig_moments(ev, res, seeds):
         a.errorbar(nn, mp, yerr=mp_err, fmt="o", color=C["prior"], ms=9,
                    lw=LW["prior"], capsize=3, label=r"PS+LO prior")
         a.errorbar(nn, mq, yerr=mq_err, fmt="o", color=C["maxent"], ms=9,
-                   lw=LW["maxent"], capsize=3, label=r"MaxEnt (predicted)")
+                   lw=LW["maxent"], capsize=3,
+                   label=(r"MaxEnt, NLO$(Zj)$ recoil (predicted)" if mq2 is not None else r"MaxEnt (predicted)"))
+        if mq2 is not None:
+            a.errorbar(nn + 0.15, mq2, yerr=mq2_err, fmt="o", color=C["maxent_nnlo"], ms=9,
+                       lw=LW["maxent_nnlo"], capsize=3, label=r"MaxEnt, NNLO$(Zj)$ recoil (predicted)")
         a.axhline(0, color="k", lw=0.8)
         a.set_ylabel(rf"$\langle T_n({lab})\rangle$")   # lab is bare math
         a.set_title(rf"${lab}$ predicted at NNLO")
@@ -159,6 +192,11 @@ def fig_moments(ev, res, seeds):
                    yerr=(mq_err / np.maximum(er, 1e-12) if mq_err is not None else None),
                    fmt="o", color=C["maxent"], ms=9, ls=LS["maxent"],
                    lw=LW["maxent"], capsize=3)
+        if mq2 is not None:
+            r.errorbar(nn + 0.15, (mq2 - fo) / np.maximum(er, 1e-12),
+                       yerr=(mq2_err / np.maximum(er, 1e-12) if mq2_err is not None else None),
+                       fmt="o", color=C["maxent_nnlo"], ms=9, ls=LS["maxent_nnlo"],
+                       lw=LW["maxent_nnlo"], capsize=3)
         r.axhspan(-1, 1, color=C["band"], alpha=0.45)
         r.axhline(0, color="k", lw=0.8)
         r.set_xlabel(r"Chebyshev order $n$")
@@ -168,7 +206,8 @@ def fig_moments(ev, res, seeds):
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png")); plt.close(fig)
         print("wrote", out)
         print(f"    {lab}: prior pull {np.abs((mp-fo)/np.maximum(er,1e-12)).mean():6.1f}"
-              f"   MaxEnt pull {np.abs((mq-fo)/np.maximum(er,1e-12)).mean():6.1f}")
+              f"   MaxEnt pull {np.abs((mq-fo)/np.maximum(er,1e-12)).mean():6.1f}"
+              + (f"   MaxEnt NNLO(Zj) recoil pull {np.abs((mq2-fo)/np.maximum(er,1e-12)).mean():6.1f}" if mq2 is not None else ""))
 
 
 def fig_yll(ev, res, seeds):
@@ -209,8 +248,8 @@ def fig_yll(ev, res, seeds):
 
 def main():
     print("solving (NNLO Born constraints) ...", flush=True)
-    ev, res, seeds = solve()
-    fig_moments(ev, res, seeds)
+    ev, res, seeds, res2 = solve()
+    fig_moments(ev, res, seeds, res2)
     # |y_ll| lives in fig_dy_spectra.py (fig_dy_yll); duplicating it here
     # would put the same observable in two figures from two solves.
 

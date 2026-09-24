@@ -158,7 +158,14 @@ def fo_curve_band(base, run, channels, seeds, tag, edges=None, prefix="Z",
             per_seed[s].append(rebin_density(lo[g], hi[g], tot[g][:, s], e))
     if not per_seed[0]:
         return None
-    means = {s: np.nanmean(np.array(per_seed[s]), 0) for s in range(nscale)}
+    # NaN-aware on purpose.  A bin of the analysis binning that lies outside the
+    # booked NNLOJET axis, or on which the fixed order genuinely has no support
+    # (the phi* -> 0 bin is the standing example), is NaN for every seed, and
+    # numpy warns "Mean of empty slice" / "All-NaN slice encountered" on it.
+    # That is expected: such bins are left NaN and simply not drawn.  Check the
+    # NaN bins are outside the region you quote -- they are for every figure here.
+    with np.errstate(invalid="ignore"):
+        means = {s: np.nanmean(np.array(per_seed[s]), 0) for s in range(nscale)}
     central = means[0]
     A0 = np.array(per_seed[0])
     n = A0.shape[0]
@@ -366,9 +373,13 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
     (must match maxent_upgrade.profile_w in the solver config).
     """
     moments = {"born": {}, "recoil": {}}
+    # n_born may be one depth for every Born tower (int) or a per-observable dict
+    # ({cfg_obs: depth}); towers booked to different depths (e.g. m_ll to 12,
+    # cos theta* to 6) are then loaded each to its own depth.
+    nb_of = (lambda o: int(n_born[o])) if isinstance(n_born, dict) else (lambda o: int(n_born))
     for cfg_obs, tag in born_tags.items():
         vals, errs, stats, scls = [], [], [], []
-        for n in range(1, n_born + 1):
+        for n in range(1, nb_of(cfg_obs) + 1):
             m = _moment_over_seeds(base, run, channels, seeds, f"prof_{tag}_{n}", norm_born, prefix)
             c, st, sc, tot = _reduce(m, scale_idx)
             vals.append(c); errs.append(tot); stats.append(st); scls.append(sc)
@@ -382,21 +393,79 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
         m = _moment_over_seeds(base, run, channels, seeds, f"{wtag}_{n}", w0, prefix)
         c, st, sc, tot = _reduce(m, scale_idx)
         vals.append(c); errs.append(tot); stats.append(st); scls.append(sc)
-    rate_ps = []
+    rate_all = []                      # per seed, per scale choice
     for s in seeds:
         wnum = _sum_channels(base, run, channels, w0, s, prefix)
         nb = _sum_channels(base, run, channels, norm_born, s, prefix)
         if wnum is not None and nb is not None:
-            rate_ps.append(wnum[scale_idx] / nb[scale_idx])
-    R = float(np.mean(rate_ps)) if rate_ps else float("nan")
+            rate_all.append(wnum / nb)
+    rate_all = np.asarray(rate_all, float)
+    rate_ps = rate_all[:, scale_idx] if len(rate_all) else np.zeros(0)
+    R = float(np.mean(rate_ps)) if len(rate_ps) else float("nan")
+    # half-range of the seed-mean rate over the scale choices (the rate's scale error)
+    rate_scale = (float(0.5 * (rate_all.mean(0).max() - rate_all.mean(0).min()))
+                  if len(rate_all) and rate_all.shape[1] > 1 else 0.0)
 
     moments["recoil"][recoil_cfg_name] = dict(
         window_values=vals, window_errors=errs,
         stat_errors=stats, scale_errors=scls,
         rate_stat=(float(np.std(rate_ps, ddof=1) / np.sqrt(len(rate_ps)))
                    if len(rate_ps) > 1 else 0.0),
+        rate_scale=rate_scale,
         wprofile_values=vals, wprofile_rate=R, rate=R,
         x_match=float(x_match), x_hi=float(x_hi), soft_lo=float(soft_lo))
+    # ---- optional external recoil: the Stripper NNLO Z+jet moments (R. Poncelet) ----
+    # DY_RECOIL_XML=<ppzj-moments_*.xml> replaces the pT_ll recoil of THIS run by the
+    # profiled moments of that file, normalised to this run's fiducial cross section at
+    # the same scale choice (R = W0/sigma_fid).  Stripper orders its 7 scale choices
+    # (1,1),(2,2),(.5,.5),(1,.5),(1,2),(.5,1),(2,1); NNLOJET's runcard has (2,1) and
+    # (1,.5) at indices 3 and 6, so the two are swapped to keep Born and recoil variants
+    # paired at the same (muR, muF).  DY_RECOIL_REPLICA_SEED=<int> draws one Gaussian
+    # statistical replica of the file's moments and rate for band builders that
+    # bootstrap the Born towers; DY_RECOIL_REPLICA_MODE = rate (default) | full |
+    # corr (histogram-correlated, see make_rene_recoil_cov.py).
+    xml = os.environ.get("DY_RECOIL_XML")
+    if xml and recoil_cfg_name == "pT_ll":
+        from stripper_moments import load_stripper_recoil
+        nb_all = np.asarray([_sum_channels(base, run, channels, norm_born, s, prefix) for s in seeds], float)
+        sig_fid_pb = float(nb_all[:, scale_idx].mean() * 2.002 / 1000.0)   # single bin of width 2.002, fb -> pb
+        NNLOJET_TO_STRIPPER = {0: 0, 1: 1, 2: 2, 3: 6, 4: 4, 5: 5, 6: 3}
+        rc = load_stripper_recoil(xml, sig_fid_pb, x_match=x_match, x_hi=x_hi, soft_lo=soft_lo,
+                                  scale_idx=NNLOJET_TO_STRIPPER[int(scale_idx)])
+        meta = rc.pop("_meta")
+        rep = os.environ.get("DY_RECOIL_REPLICA_SEED")
+        if rep:
+            # DY_RECOIL_REPLICA_MODE: "rate" (default) perturbs the window rate only;
+            # "full" also perturbs every order independently.  The file's per-order
+            # errors are strongly correlated (one event sample), and independent draws
+            # at the 1-7% level produce moment vectors no distribution has (effN 89+-7%,
+            # tail scattered by 20 points, measured 2026-09-21), so "full" is only
+            # honest once a covariance or per-run moments are available.
+            rng = np.random.default_rng(int(rep))
+            mode = os.environ.get("DY_RECOIL_REPLICA_MODE", "rate")
+            if mode == "corr":
+                # correlated draw of (T_1..T_n, R): marginals from the file, correlations
+                # from its own pT_Z histogram -- the estimate of make_rene_recoil_cov.py,
+                # stored beside the XML; the in-between of "rate" and "full" until
+                # per-run moments allow a real bootstrap.
+                cov = np.load(os.path.splitext(xml)[0] + "_cov.npz")
+                C = np.asarray(cov["cov"], float); n = len(rc["window_values"])
+                if C.shape != (n + 1, n + 1):
+                    raise ValueError(f"{xml}: covariance is {C.shape}, tower has {n} orders + rate")
+                d = np.linalg.cholesky(C + 1e-12 * np.eye(n + 1)) @ rng.normal(0.0, 1.0, n + 1)
+                v = np.asarray(rc["window_values"], float) + d[:n]
+                rc["window_values"] = v; rc["wprofile_values"] = v
+                Rr = float(rc["rate"]) + float(d[n])
+            else:
+                if mode == "full":
+                    v = np.asarray(rc["window_values"], float) + rng.normal(0.0, 1.0, len(rc["window_values"])) * np.asarray(rc["stat_errors"], float)
+                    rc["window_values"] = v; rc["wprofile_values"] = v
+                Rr = float(rc["rate"]) + float(rng.normal(0.0, 1.0)) * float(rc["rate_stat"])
+            rc["rate"] = Rr; rc["wprofile_rate"] = Rr
+        rc["_source"] = dict(file=xml, sigma_fid_pb=sig_fid_pb, W0_pb=meta["W0_pb"], n_orders=meta["n_orders"],
+                             stripper_scale_idx=NNLOJET_TO_STRIPPER[int(scale_idx)], replica=rep,
+                             replica_mode=(os.environ.get("DY_RECOIL_REPLICA_MODE", "rate") if rep else None))
+        moments["recoil"][recoil_cfg_name] = rc
     return moments
 
 
@@ -466,7 +535,7 @@ if __name__ == "__main__":
     import json
     import sys
     base = sys.argv[1] if len(sys.argv) > 1 else \
-        "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+        "/Users/user/nnlojet-v1.0.2/dy_profile_log30_hi"
     run = "DY_MOMENTS"
     channels = ["LO", "R", "V"]
     seeds = seeds_in(base, run)
@@ -475,5 +544,5 @@ if __name__ == "__main__":
         base, run, channels, seeds,
         born_tags={"mll": "mll", "y_abs": "absyz"}, recoil_tag="ptz",
         recoil_cfg_name="pT_ll",
-        n_born=6, n_recoil=12, x_match=10.0, x_hi=500.0, soft_lo=0.5)
+        n_born=12, n_recoil=20, x_match=30.0, x_hi=2500.0, soft_lo=30.0)
     print(json.dumps(mom, indent=2))

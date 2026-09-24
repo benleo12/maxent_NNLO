@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-r"""Companion to the phi* plot, answering the obvious referee objection:
-"phi* is basically pT, so of course it works."
+r"""Predictions for lepton-angle observables nearly uncorrelated with the
+constrained recoil (JHEP, transport section), drawn with the uncertainty
+conventions of every other Drell-Yan figure: band = seven-point scale
+envelope, bars = statistics (MaxEnt: seed bootstrap (+) own MC error;
+generators and prior: own MC error).
 
-We therefore predict observables that are DECORRELATED from the recoil we
-constrained (Spearman |rho| vs pT_ll, measured on the prior):
-
-    phi*                0.83   <- essentially the recoil
-    |Delta eta(l1,l2)|  0.10
-    |eta| leading lep   0.06
-    |cos theta*| (CS)   0.06
-
-None of these lepton-angle observables is constrained: the FO moments are
-imposed ONLY on {m_ll, |y_ll|, pT_ll}.  They are pure predictions, compared
-head-to-head with the matched generators (which all store lepton four-vectors,
-so every curve is built identically).
+The observables (|delta eta_ll|, |eta_lead|, |cos theta*_CS|) need the lepton
+four-vectors, which the fiducial samples of the other figures (v3/v4 npz) do
+not keep.  They are rebuilt here from the showered PARENTS of those samples in
+exactly the order the samples were built (fiducial mask of
+make_dy_atlas_npz_born.py on the concatenated parents), and the lengths are
+checked, so the per-event weights, the stored seven-point scale weights and
+the MaxEnt band variants of dy_band_weights.npz all apply unchanged.
 """
 import os
 import sys
+import itertools
 
 import numpy as np
 import matplotlib
@@ -25,180 +24,172 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C, LW, rebin_density
+from pubstyle import use_pub_style, C, gen_scale_weights
 use_pub_style(base=17)
+from bandviz import norm_dens, mc_err, stagger, draw_series_unc
 from maxent_upgrade import upgrade
-from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
+from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
-XM, XHI, SOFT = 30.0, 500.0, 0.5
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
+XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-SEEDS = None
-PRIOR_FILES = ["dy_psLO_born_1.npz"]   # Born-level leptons (see fig_nnlo_born.py)
+
+# fiducial sample of the other DY figures -> its showered parents (build order)
+# Showered parent files.  These are large and live outside the repo; set
+# DY_PARENTS to wherever they were unpacked.  Only the parent-order rebuild
+# needs them -- every other script reads the small *_atlas_*.npz in this dir.
+PARENTS = os.environ.get("DY_PARENTS", os.path.expanduser("~/dy_workdir"))
+
+SAMPLES = {
+    "prior":   ("dy_prior_atlas_v3.npz",   ["dy_psLO_born_1.npz"]),
+    "minnlo":  ("dy_minnlo_atlas_v4.npz",
+                [f"{PARENTS}/minnlo_matched/dy_minnlo_matched_s{i}.npz" for i in range(1, 17)]),
+    "mcatnlo": ("dy_mcatnlo_atlas_v4.npz", ["dy_mcatnlo_born_sh.npz", "dy_mcatnlo_born_ext_sh.npz"]),
+    "powheg":  ("dy_powheg_atlas_v6.npz",
+                [f"{PARENTS}/powheg_gmu/dy_powheg_gmu_s{i}.npz" for i in range(1, 9)]),
+}
+GENS = [("minnlo", r"MiNNLO$_{\mathrm{PS}}$", 23), ("mcatnlo", "MC@NLO", 5), ("powheg", "POWHEG", 1)]
+OBS = [("deta", r"$|\Delta\eta_{\ell\ell}|$", np.linspace(0, 4.0, 26)),
+       ("eta_lead", r"$|\eta_{\ell,\mathrm{lead}}|$", np.linspace(0, 2.5, 26)),
+       ("cts", r"$|\cos\theta^*_{\mathrm{CS}}|$", np.linspace(0, 1.0, 26))]
 
 
-def ptyphi(v):
-    px, py, pz, E = v[:, 0], v[:, 1], v[:, 2], v[:, 3]
-    return np.hypot(px, py), 0.5 * np.log((E + pz) / np.maximum(E - pz, 1e-12)), np.arctan2(py, px)
+def _pt(v):
+    return np.hypot(v[:, 0], v[:, 1])
 
 
-def build(fn):
-    """Load a showered sample -> dict of observables + weight, fiducial cut applied."""
-    z = np.load(os.path.join(HERE, fn), allow_pickle=True)
-    lpk, lmk = (("l_plus_born", "l_minus_born") if "l_plus_born" in z.files
-                else ("l_plus", "l_minus"))
-    lp = np.asarray(z[lpk], float); lm = np.asarray(z[lmk], float)
-    s_ = lp + lm
-    mll = np.sqrt(np.maximum(s_[:, 3] ** 2 - (s_[:, :3] ** 2).sum(1), 0.0))
-    pT = np.hypot(s_[:, 0], s_[:, 1])
-    yll = 0.5 * np.log((s_[:, 3] + s_[:, 2]) / np.maximum(s_[:, 3] - s_[:, 2], 1e-12))
-    w = np.asarray(z["weight"], float) if "weight" in z.files else np.ones(len(mll))
-    ptp, yp, _ = ptyphi(lp); ptm, ym, _ = ptyphi(lm)
-    m = (ptp > 27) & (ptm > 27) & (np.abs(yp) < 2.5) & (np.abs(ym) < 2.5) \
-        & (mll > 66) & (mll < 116) & np.isfinite(pT) & np.isfinite(w)
+def _eta(v):
+    pm = np.sqrt((v[:, 0:3] ** 2).sum(1))
+    return np.arctanh(np.clip(v[:, 2] / np.maximum(pm, 1e-30), -1 + 1e-12, 1 - 1e-12))
+
+
+def fid_mask(lpb, lmb, lp, lm):
+    """EXACTLY the mask of make_dy_atlas_npz_born.py (kin() on the Born
+    leptons, plus its `good` requirement on both lepton sets)."""
+    s = lpb + lmb
+    mll = np.sqrt(np.maximum(s[:, 3] ** 2 - (s[:, 0:3] ** 2).sum(1), 0.0))
+    fid = ((mll >= 66) & (mll <= 116) & (_pt(lpb) > 27) & (_pt(lmb) > 27)
+           & (np.abs(_eta(lpb)) < 2.5) & (np.abs(_eta(lmb)) < 2.5))
+    good = (lpb[:, 3] > 0) & (lp[:, 3] > 0)
+    return fid & good
+
+
+def angles(lp, lm):
+    s = lp + lm
+    mll = np.sqrt(np.maximum(s[:, 3] ** 2 - (s[:, 0:3] ** 2).sum(1), 0.0))
+    pT = np.hypot(s[:, 0], s[:, 1])
+    ep, em = _eta(lp), _eta(lm)
     p1p = (lp[:, 3] + lp[:, 2]) / np.sqrt(2); p1m = (lp[:, 3] - lp[:, 2]) / np.sqrt(2)
     p2p = (lm[:, 3] + lm[:, 2]) / np.sqrt(2); p2m = (lm[:, 3] - lm[:, 2]) / np.sqrt(2)
     pz = lp[:, 2] + lm[:, 2]
     cs = np.abs(np.sign(pz) * 2 * (p1p * p2m - p1m * p2p)
                 / np.maximum(mll * np.sqrt(mll ** 2 + pT ** 2), 1e-12))
-    return dict(mll=mll[m], y_abs=np.abs(yll)[m], pT_ll=pT[m],
-                deta=np.abs(yp - ym)[m],
-                eta_lead=np.where(ptp >= ptm, np.abs(yp), np.abs(ym))[m],
-                cts=np.clip(cs, 0, 1)[m], weight=w[m])
+    return dict(deta=np.abs(ep - em), eta_lead=np.where(_pt(lp) >= _pt(lm), np.abs(ep), np.abs(em)),
+                cts=np.clip(cs, 0, 1), pT_ll=pT)
 
 
-def cat(ds):
-    return {k: np.concatenate([d[k] for d in ds]) for k in ds[0]}
+def rebuild(parents, n_expect):
+    """Angular observables of the fiducial sample, in the sample's order."""
+    parts = [np.load(os.path.join(HERE, f), allow_pickle=True) for f in parents]
+    arr = {k: [np.asarray(p[k], float) for p in parts]
+           for k in ("l_plus_born", "l_minus_born", "l_plus", "l_minus")}
+    for perm in itertools.permutations(range(len(parts))):
+        cat = {k: np.concatenate([v[i] for i in perm]) for k, v in arr.items()}
+        m = fid_mask(cat["l_plus_born"], cat["l_minus_born"], cat["l_plus"], cat["l_minus"])
+        if int(m.sum()) == n_expect:
+            return angles(cat["l_plus_born"][m], cat["l_minus_born"][m]), [parents[i] for i in perm]
+    raise RuntimeError(f"no parent order reproduces the fiducial sample length {n_expect:,} "
+                       f"for {parents}")
 
 
-def dens(x, w, e):
-    h, _ = np.histogram(x, e, weights=w / w.sum()); return h / np.diff(e)
-
-
-OBS = [("deta", r"$|\Delta\eta_{\ell\ell}|$", np.linspace(0, 4.0, 26), 0.10),
-       ("eta_lead", r"$|\eta_{\ell,\mathrm{lead}}|$", np.linspace(0, 2.5, 26), 0.06),
-       ("cts", r"$|\cos\theta^*_{\mathrm{CS}}|$", np.linspace(0, 1.0, 26), 0.06)]
+def spearman(x, y, n=300_000, seed=1):
+    idx = np.random.default_rng(seed).choice(len(x), min(n, len(x)), replace=False)
+    rx = np.argsort(np.argsort(x[idx])).astype(float)
+    ry = np.argsort(np.argsort(y[idx])).astype(float)
+    return abs(float(np.corrcoef(rx, ry)[0, 1]))
 
 
 def main():
-    print("loading prior ...", flush=True)
-    ev = cat([build(f) for f in PRIOR_FILES if os.path.exists(os.path.join(HERE, f))])
-    n = len(ev["weight"])
-    idx = np.random.default_rng(0).choice(n, min(1_200_000, n), replace=False)
-    ev = {k: v[idx] for k, v in ev.items()}
-    print(f"  prior events (fiducial): {len(ev['weight']):,}", flush=True)
-
-    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, (SEEDS or common_seeds(BASE, 'DY_MOMENTS', CH6)),
+    # ---- prior: the same 1M rng(0) subsample and band variants as every DY figure
+    P = dict(np.load(os.path.join(HERE, SAMPLES["prior"][0])))
+    n = len(P["w"])
+    ang, order = rebuild(SAMPLES["prior"][1], n)
+    print(f"prior: {n:,} fiducial events rebuilt from {order}")
+    idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)
+    ev = dict(mll=P["mll"][idx].astype(float), y_abs=np.abs(P["y_ll"][idx]).astype(float),
+              pT_ll=P["pT_ll"][idx].astype(float), phistar=P["phistar"][idx].astype(float),
+              weight=P["w"][idx].astype(float))
+    for k in ("deta", "eta_lead", "cts"):
+        ev[k] = ang[k][idx]
+    print("  |rho_S(., pT_ll)| on the prior: " + "  ".join(
+        f"{k}={spearman(ev[k], ev['pT_ll']):.3f}" for k in ("deta", "eta_lead", "cts")))
+    M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, common_seeds(BASE, "DY_MOMENTS", CH6),
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
-                                       n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
+                                       n_born=12, n_recoil=20, x_match=XM, x_hi=XMAP, soft_lo=SOFT)
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
-               recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+               recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
-               followers=[o for o, _, _, _ in OBS])
+               followers=["deta", "eta_lead", "cts"])
     print("solving ...", flush=True)
     res = upgrade(ev, M, cfg)
-    print(f"  effN={100*res.effN:.0f}%  closure={res.closure:.1e}  neg-wt={100*np.mean(res.weights<=0):.0f}%", flush=True)
+    print(f"  effN={100*res.effN:.1f}%  closure={res.closure:.1e}  neg-wt={100*np.mean(res.weights<=0):.0f}%")
+    mx_ws = mx_boot_w = None
+    bwf = os.path.join(HERE, "dy_band_weights.npz")
+    if os.path.exists(bwf):
+        BW = dict(np.load(bwf))
+        if np.allclose(BW["central"], res.weights, rtol=1e-6, atol=0):
+            mx_ws = np.column_stack([res.weights] + list(BW["scale_w"])); mx_boot_w = BW["boot_w"]
+        else:
+            print("  WARNING: dy_band_weights.npz stale; MaxEnt drawn without bands")
 
+    # ---- generators: the paper's fiducial samples, their weights and 7-point scale weights
     gens = {}
-    for lbl, fn, col, neg in [("MiNNLO", "dy_minnlo_born_s1.npz", C["minnlo"], 23),
-                              ("POWHEG", "dy_powheg_born_sh.npz", C["powheg"], 1)]:
-        p = os.path.join(HERE, fn)
-        if os.path.exists(p):
-            try:
-                gens[lbl] = (build(fn), col, neg)
-                print(f"  {lbl}: {len(gens[lbl][0]['weight']):,} events")
-            except Exception as e:
-                print(f"  {lbl}: skipped ({e})")
+    for key, lbl, neg in GENS:
+        fn, parents = SAMPLES[key]
+        G = dict(np.load(os.path.join(HERE, fn)))
+        try:
+            a_, order = rebuild(parents, len(G["w"]))
+        except RuntimeError as err:
+            print(f"  {lbl}: {err} -- skipped"); continue
+        gens[key] = dict(lbl=lbl, neg=neg, w=G["w"].astype(float),
+                         ws=(gen_scale_weights(G) if "w_scale" in G else None), **a_)
+        print(f"  {lbl}: {len(G['w']):,} fiducial events from {order}")
 
     fig, ax = plt.subplots(2, len(OBS), figsize=(5.6 * len(OBS), 7.2), squeeze=False,
-                           gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07,
-                                        "wspace": 0.28})
-    for j, (key, lab, e, rho) in enumerate(OBS):
+                           gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07, "wspace": 0.28})
+    nser = 2 + len(gens)
+    for j, (key, lab, e) in enumerate(OBS):
         a, r = ax[0, j], ax[1, j]
-        hp = dens(ev[key], ev["weight"], e)
-        hq = dens(ev[key], res.weights, e)
-        # No fixed-order curve is drawn on these three panels, and that is a
-        # statement about the fixed-order calculation rather than an omission.
-        # |eta_lead| IS booked (abs_yl1) and its INTEGRAL is exact -- it
-        # reproduces norm_born channel by channel, seed scatter 5e-4.  But the
-        # differential distribution is not resolved: at NNLO the real-emission
-        # and subtraction terms land in DIFFERENT |eta_lead| bins, so per-bin
-        # values are ~300x the physical density with relative error ~1 and
-        # cancel only over the full range (40 seeds: rel = 1.06 at 25 bins,
-        # 1.08 merged to 5, <5e-4 at 1).  phi*_eta is immune because phi* > 0
-        # requires a real emission, so LO and V do not contribute at all and
-        # there is no large cancellation (rel = 0.011).
-        #
-        # This is exactly why the moment interface is built on integrals:
-        # moments converge where the differential spectrum does not.
-        fo_h = None
-        if False:  # kept for reference; re-enable with far higher FO statistics
-            lo = hi = None; tot = None; var = None
-            sds = common_seeds(BASE, "DY_MOMENTS", CH6, tag="yl1_a")
-            for s_ in sds:
-                for ch in CH6:
-                    r0 = _load(os.path.join(BASE, f"ch_{ch}", f"Z.DY_MOMENTS.{ch}.yl1_a.s{s_}.dat"))
-                    if r0 is None: continue
-                    lo, _, hi, v, er = r0
-                    tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
-                    var = er[:, 0]**2 if var is None else var + er[:, 0]**2
-            if tot is not None:
-                # The R-V cancellation leaves large errors in NNLOJET's native
-                # fine bins, so merge adjacent bins before judging significance:
-                # the moments are integrals and do not care about the binning,
-                # and this is only a reference curve.  Merging K bins buys a
-                # factor sqrt(K) on the relative error.
-                K = 5
-                nb = (len(tot) // K) * K
-                glo = lo[:nb].reshape(-1, K)[:, 0]
-                ghi = hi[:nb].reshape(-1, K)[:, -1]
-                gtot = (tot[:nb] * np.diff(np.stack([lo[:nb], hi[:nb]]), axis=0)[0]
-                        ).reshape(-1, K).sum(1)
-                gvar = (var[:nb] * np.diff(np.stack([lo[:nb], hi[:nb]]), axis=0)[0] ** 2
-                        ).reshape(-1, K).sum(1)
-                gw = ghi - glo
-                gd = (gtot > 0) & (gw > 0) & (np.sqrt(gvar) / np.maximum(gtot, 1e-300) < 0.15)
-                n_drop = int(((gtot > 0) & ~gd).sum())
-                print(f"    |eta_lead| FO: {gd.sum()}/{len(gtot)} merged bins kept "
-                      f"({len(sds)} seeds, {n_drop} dropped)")
-                if gd.sum() > 2:
-                    # SAME EDGES as every other line on the panel
-                    dens_g = gtot[gd] / gw[gd]
-                    fo_h = rebin_density(glo[gd], ghi[gd], dens_g, e)
-                    fo_h = fo_h / np.nansum(fo_h * np.diff(e))
-                    a.stairs(fo_h, e, color=C["fo"], ls=":", lw=LW["fo"],
-                             label=r"fixed order (NNLO)")
-        ref = np.maximum(hp, 1e-30)   # no data: ratio to the prior
+        hp = norm_dens(ev[key], ev["weight"], e)
+        hq = norm_dens(ev[key], res.weights, e)
+        ref = np.maximum(hp, 1e-30)
         a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
         a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
-        r.stairs(hp / ref, e, color=C["prior"], ls="--", lw=1.8)
         r.stairs(hq / ref, e, color=C["maxent"], lw=2.4)
-        if fo_h is not None:
-            r.stairs(fo_h / ref, e, color="k", ls=":", lw=2.0)
-        for lbl, (g, col, neg) in gens.items():
-            hg = dens(g[key], g["weight"], e)
-            a.stairs(hg, e, color=col, lw=1.9, label=rf"{lbl} (${neg}\%\ w<0$)")
-            r.stairs(hg / ref, e, color=col, lw=1.8)
+        # prior: its own MC bars at one; MaxEnt: scale band (+) bootstrap-and-MC bars
+        r.errorbar(stagger(e, 0, nser), np.ones(len(e) - 1), yerr=mc_err(ev[key], ev["weight"], e) / ref,
+                   fmt="none", ecolor=C["prior"], elinewidth=1.1, capsize=1.8)
+        boot = (np.array([norm_dens(ev[key], w_, e) for w_ in mx_boot_w]).std(0, ddof=1)
+                if mx_boot_w is not None else None)
+        draw_series_unc(r, ev[key], res.weights, mx_ws, e, ref, C["maxent"], 1, nser, boot=boot, alpha=0.18)
+        for k, (gk, g) in enumerate(gens.items()):
+            hg = norm_dens(g[key], g["w"], e)
+            a.stairs(hg, e, color=C[gk], lw=1.9, label=rf"{g['lbl']} (${g['neg']}\%\ w<0$)")
+            r.stairs(hg / ref, e, color=C[gk], lw=1.8)
+            draw_series_unc(r, g[key], g["w"], g["ws"], e, ref, C[gk], 2 + k, nser, alpha=0.13)
+            ok = (hg > 0) & (hq > 0) & (hp > 0)
+            print(f"  {key:9s} vs {g['lbl']:22s}: median|MaxEnt/gen-1| = {100*np.median(np.abs(hq[ok]/hg[ok]-1)):.1f}%   "
+                  f"median|prior/gen-1| = {100*np.median(np.abs(hp[ok]/hg[ok]-1)):.1f}%")
         r.axhline(1, color="k", lw=0.8)
         r.set_ylim(0.80, 1.30); r.set_xlabel(lab)
         a.tick_params(labelbottom=False)
-        a.set_title(rf"{lab}:  $|\rho_{{\rm S}}(p_T^{{\ell\ell}})| = {rho:.2f}$")
+        a.set_title(rf"{lab}, predicted")
         if j == 0:
             a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
             r.set_ylabel(r"ratio to PS+LO prior")
-            a.legend(loc="lower center", labelspacing=0.3, fontsize=12)
-    fig.suptitle(r"Predictions for observables \emph{decorrelated} from the constrained recoil "
-                 r"($\phi^*_\eta$ has $|\rho_{\rm S}|=0.83$ by comparison)", y=1.085)
-    # Say why there is no fixed-order curve here, rather than leave it missing.
-    fig.text(0.5, 0.982,
-             r"no fixed-order curve: at NNLO the real and subtraction terms populate "
-             r"different bins of these Born angular variables, so the \emph{differential}"
-             "\n"
-             r"spectrum is unresolved (rel.\ err.\ $\simeq 1$) while its integral is exact "
-             r"($<5\times10^{-4}$);  MC@NLO is absent, its stored sample keeps no lepton "
-             r"four-vectors",
-             ha="center", va="top", fontsize=13, color=C["seam"], linespacing=1.5)
+            a.legend(loc="upper right", labelspacing=0.3, fontsize=12)
     out = os.path.join(HERE, "fig_decorrelated_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)

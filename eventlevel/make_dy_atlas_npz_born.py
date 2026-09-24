@@ -17,7 +17,7 @@ Shower weights (prior): w_shower passed through.
 Usage:
   make_dy_atlas_npz_born.py --parent dy_psLO_born_1.npz --out dy_prior_atlas_v3.npz
   make_dy_atlas_npz_born.py --parent dy_mcatnlo_born_sh.npz --lhe dy_NLO_500k.lhe.gz --out dy_mcatnlo_atlas_v3.npz
-  make_dy_atlas_npz_born.py --parent A.npz --parent B.npz --powheg --out dy_minnlo_atlas_v3.npz
+  make_dy_atlas_npz_born.py --parent A.npz --parent B.npz --powheg --out dy_minnlo_atlas_v4.npz
 """
 import argparse, os, numpy as np
 from make_dy_atlas_npz import SEVEN, POWHEG_IDS, mg5_id_map

@@ -33,6 +33,8 @@ Public API
     upgrade(events, fo_low, fo_high, config) -> UpgradeResult
     moment_snr(fo_low, fo_high, events, obs, a, b, mp, Nmax, ...) -> np.ndarray
     resolved_order(snr, threshold=1.0) -> int
+    combine_moments(anchor, target, n=None) -> dict   # precision-weighted target for
+                                                      # soft_constraints=True (README)
     FOHist(bin_low, bin_high, value, error, scales=None, scale_errors=None)
     fo_from_dat(paths, nscales=7) -> FOHist          # NNLOJET-style .dat reader
     UpgradeResult                                     # dataclass returned by upgrade()
@@ -60,7 +62,7 @@ from .dy_method import cheb as _cheb, umap as _umap
 __all__ = [
     "upgrade", "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
     "profile_w", "matching_scale", "check_seam",
-    "moment_snr", "resolved_order",
+    "moment_snr", "resolved_order", "combine_moments",
     "FOHist", "fo_from_dat", "UpgradeResult", "DEFAULTS",
 ]
 
@@ -83,6 +85,11 @@ DEFAULTS: Dict[str, Any] = dict(
     CLIP=_DIALS["CLIP"],     # clamp on the differential K-factor
     MINSUP=_DIALS["MINSUP"], # min prior events per recoil bin to trust it
     RSUP=_DIALS["RSUP"],     # max target/prior probability ratio per recoil bin
+    # --- band variants: impose the CENTRAL solve's constraint set ---------------
+    fixed_orders=None,       # {obs: N}: impose exactly N orders of that tower (overrides the SNR rule)
+    # --- Gaussian soft constraints (see README, "Soft constraints") -----------
+    soft_constraints=False,  # impose each moment with a Gaussian penalty of width = its error
+    soft_errors="stat",      # width: "stat" = Monte Carlo error of the target; "total" = stat (+) scale
     # --- band -----------------------------------------------------------------
     band=True,               # also solve every FO scale variation + rate scheme
     # --- fixed counts (used only when moment_selection is False) --------------
@@ -318,13 +325,16 @@ class UpgradeResult:
     moment_snr: Dict[str, np.ndarray]   # per-observable SNR spectrum (orders 1..Nmax)
     chosen_moments: Dict[str, int] = field(default_factory=dict)  # #moments imposed per obs
     band: Optional[Dict[str, np.ndarray]] = None   # variant weights (scales + rate schemes)
+    soft_pulls: Optional[np.ndarray] = None        # soft mode: (achieved - target)/sigma per constraint
 
     def summary(self) -> str:
         cm = ", ".join(f"{k}={v}" for k, v in self.chosen_moments.items())
         return (f"effN={100*self.effN:.2f}%  closure={self.closure:.1e}  "
                 f"x_match={self.x_match:.3g}  moments[{cm}]  "
                 f"positive={(self.weights > 0).all()}"
-                + (f"  band_variants={len(self.band)}" if self.band else ""))
+                + (f"  band_variants={len(self.band)}" if self.band else "")
+                + (f"  worst_soft_pull={np.nanmax(np.abs(self.soft_pulls)):.2f}"
+                   if self.soft_pulls is not None and np.isfinite(self.soft_pulls).any() else ""))
 
 
 # ---------------------------------------------------------------------------
@@ -354,8 +364,8 @@ def upgrade_from_histograms(events: Dict[str, np.ndarray],
             config = {
               'born':    {'mll':   {'range': (66., 116.), 'map': 'lin'},
                           'y_abs': {'range': (0., 2.4),   'map': 'lin'}},
-              'recoil':  {'pT_ll': {'range': (0.5, 500.), 'map': 'log',
-                                    'soft_lo': 0.5}},
+              'recoil':  {'pT_ll': {'range': (30., 2500.), 'map': 'log',
+                                    'soft_lo': 30.}},
               'followers': ['phistar', 'pT_lead'],
               # optional knobs (see DEFAULTS / README): weight_key, moment_selection,
               # snr_threshold, snr_max_order, L2, RELMAX, DELTA, WSIG, CLIP,
@@ -732,7 +742,23 @@ def upgrade(events, moments, config):
     thr = cfg["snr_threshold"]; do_sel = cfg["moment_selection"]
 
     F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
+    SIG = [0.0]      # per-constraint target error (feature units); used only in soft mode
     snr_spectra = {}; chosen = {}
+    soft = bool(cfg["soft_constraints"])
+
+    def _soft_err(d, total_key):
+        """Per-order width for the soft penalty: the Monte Carlo error by default."""
+        st = d.get("stat_errors") if cfg["soft_errors"] == "stat" else None
+        if st is not None and len(st):
+            return np.asarray(st, float)
+        tot = d.get(total_key)
+        return np.asarray(tot, float) if tot is not None else np.zeros(0)
+
+    def _rate_err(d):
+        st = float(d.get("rate_stat", 0.0) or 0.0)
+        if cfg["soft_errors"] == "total":
+            st = float(np.hypot(st, float(d.get("rate_scale", 0.0) or 0.0)))
+        return st
 
     # ---- ONE rule for every observable ------------------------------------
     # Impose the FO moments inside the observable's validity window [XM, XHI];
@@ -743,9 +769,13 @@ def upgrade(events, moments, config):
     # composite reduces to imposing the FO moment); for the recoil it is the
     # window [x_match, x_hi] and the shower is preserved outside. There is no
     # separate "recoil procedure".
-    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor, wprof=None):
+    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor, wprof=None,
+                sig=None, rate_sig=0.0):
         XL = np.asarray(events[obs], float)
         Nmax = len(vals)
+        sigv = np.zeros(Nmax) if sig is None or not len(sig) else np.asarray(sig, float)[:Nmax]
+        if len(sigv) < Nmax:
+            sigv = np.concatenate([sigv, np.zeros(Nmax - len(sigv))])
         win = (XL >= XM) & (XL < XHI)
         mu_prior_win = (chebyshev_moment(XL[win], w[win], Nmax, lo_map, hi_map, mp)
                         if win.any() else np.zeros(Nmax))
@@ -753,6 +783,13 @@ def upgrade(events, moments, config):
                if np.asarray(errs).any() else np.full(Nmax, np.inf))
         snr_spectra[obs] = snr
         N = max(resolved_order(snr, thr) if do_sel else Nmax, floor)
+        # a band variant (scale choice, bootstrap replica) must impose the SAME
+        # constraint set as the central solve: near the SNR threshold the rule can
+        # flip an order in or out between variants, which would change the number
+        # of multipliers and make the variant a different problem, not a shifted one
+        fixed = (cfg.get("fixed_orders") or {}).get(obs)
+        if fixed is not None:
+            N = min(max(int(fixed), floor), Nmax)
         chosen[obs] = N
         u = _umap(np.clip(XL, lo_map, hi_map), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
         if wprof is None:
@@ -765,7 +802,7 @@ def upgrade(events, moments, config):
                 tail_mom = float((p[I_T] * C[I_T, n]).sum()) / P_tail if P_tail > 0 else 0.0
                 fo_mom = float(vals[n - 1])
                 F.append(C[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
-                names.append(f"{obs}_T{n}")
+                names.append(f"{obs}_T{n}"); SIG.append(rate * float(sigv[n - 1]))
         else:
             # -------- profiled features: exact shower preservation --------
             # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an
@@ -778,7 +815,8 @@ def upgrade(events, moments, config):
             for n in range(1, N + 1):
                 F.append(C[:, n] * wprof); mu.append(float(vals[n - 1]) * R)
                 names.append(f"{obs}_T{n}")
-            F.append(wprof.copy()); mu.append(R); names.append(f"{obs}_rate")
+                SIG.append(float(np.hypot(float(sigv[n - 1]) * R, float(vals[n - 1]) * float(rate_sig))))
+            F.append(wprof.copy()); mu.append(R); names.append(f"{obs}_rate"); SIG.append(float(rate_sig))
 
     # Born observables: validity is the full fiducial range.
     for o in born_cfg:
@@ -786,7 +824,7 @@ def upgrade(events, moments, config):
         _impose(o, a, b, mp, -np.inf, np.inf,
                 np.asarray(moments["born"][o]["values"], float),
                 np.asarray(moments["born"][o].get("errors", []), float),
-                rate=1.0, floor=0)
+                rate=1.0, floor=0, sig=_soft_err(moments["born"][o], "errors"))
     # Recoil observables: validity is the window [x_match, x_hi]; shower kept
     # outside.  There may be MORE THAN ONE -- e.g. the diphoton upgrade
     # constrains both pT_gg and pi-dphi_gg, because constraining pT alone leaves
@@ -818,13 +856,15 @@ def upgrade(events, moments, config):
         _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
                 xm, XHI, vals,
                 np.asarray(rc.get("window_errors", []), float),
-                rate=R, floor=1, wprof=wprof)
+                rate=R, floor=1, wprof=wprof,
+                sig=_soft_err(rc, "window_errors"), rate_sig=_rate_err(rc))
       else:
         _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
                 float(rc["x_match"]), XHI,
                 np.asarray(rc["window_values"], float),
                 np.asarray(rc.get("window_errors", []), float),
-                rate=float(rc["rate"]), floor=1)
+                rate=float(rc["rate"]), floor=1,
+                sig=_soft_err(rc, "window_errors"), rate_sig=_rate_err(rc))
 
     # ---- MIXED (two-observable) constraints -------------------------------
     # Separate moments of x and y constrain the two MARGINALS and say nothing
@@ -858,19 +898,25 @@ def upgrade(events, moments, config):
         Cx = _cheb(_umap(np.clip(X, ax, bx), ax, bx, mpx), mc["n"])
         Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), mc["n"])
         R = float(rc["rate"])
+        merr = rc.get("stat_errors" if cfg["soft_errors"] == "stat" else "errors") or {}
         for (mm, nn), v in rc["values"].items():
             F.append(Cx[:, mm] * Cy[:, nn] * wxy); mu.append(float(v) * R)
-            names.append(f"{key}_T{mm}{nn}")
-        F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate")
+            names.append(f"{key}_T{mm}{nn}"); SIG.append(float(merr.get((mm, nn), 0.0)) * R)
+        F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate"); SIG.append(_rate_err(rc))
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
     # warm start for band variants: re-solving from the central multipliers
     # reaches the (unique) optimum of a nearby target in a fraction of a second
-    q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"], lam0=config.get("lam0"))
+    sig = np.asarray(SIG, float)
+    q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"], lam0=config.get("lam0"),
+                         sigma=(sig if soft else None))
     if not ok or q is None:
         raise RuntimeError("MaxEnt solve did not converge to a positive-weight solution")
     ach = (q[:, None] * Phi).sum(0)
     worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
+    # soft mode: the residual is by construction -sd r lam, i.e. a moment is met to within
+    # its own error; report (achieved - target)/sigma per constraint (nan where sigma = 0)
+    pulls = np.where(sig > 0, (ach - mu) / np.where(sig > 0, sig, 1.0), np.nan)
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
     # the PRIMARY recoil (first in the config) defines the reported seam;
     # a mixed-only configuration has no single seam to report
@@ -886,10 +932,73 @@ def upgrade(events, moments, config):
         # response  dO = Cov_q(O, Phi) H^{-1} dmu
         lam=np.asarray(lam, float), mu=mu.copy(),
         feature_names=list(names),
+        soft=dict(enabled=soft, errors=cfg["soft_errors"], sigma=sig.copy(), pulls=pulls),
     )
     if config.get("keep_features"):
         report["Phi"] = Phi
         report["p"] = p
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,
                          x_match=x_match, report=report, moment_snr=snr_spectra,
-                         chosen_moments=dict(chosen), band=None)
+                         chosen_moments=dict(chosen), band=None,
+                         soft_pulls=(pulls if soft else None))
+
+
+def combine_moments(anchor, target, n=None):
+    r"""Precision-weighted combination of two moment dicts for the SAME observable and map.
+
+    `anchor` is the precise lower-order input (e.g. our NLO Z+jet recoil from a 40-seed
+    NNLOJET run); its scale half-range per moment, `scale_errors` (and `rate_scale` for
+    the window rate), is taken as the prior width on the true higher-order value.
+    `target` is the higher-order Monte Carlo (e.g. an NNLO Z+jet run with large errors);
+    its `stat_errors` (and `rate_stat`) are the measurement widths.  Per moment
+
+        1/s^2 = 1/sA^2 + 1/sT^2 ,      mu = (muA/sA^2 + muT/sT^2) * s^2 ,
+
+    and the same for the rate.  Where the target's error is much larger than the anchor's
+    scale width the combination stays at the anchor; where it is much smaller it follows
+    the target.  The result is a dict shaped like `target` whose values/rate are the
+    posterior means and whose `stat_errors`/`rate_stat` are the posterior widths; it is
+    meant to be imposed with `soft_constraints=True` (the widths then set the penalty).
+    `errors`/`window_errors` (the SNR veto's total error) are the posterior width (+) the
+    anchor's scale half-range.  A `_combine` block records the target's weight per moment.
+    Assumes the moments are independent (no covariance is shipped by either input) and,
+    for a recoil dict, that both were computed on the same window and map (checked).
+    """
+    rec = "window_values" in target
+    if rec != ("window_values" in anchor):
+        raise ValueError("anchor and target must both be recoil dicts or both Born dicts")
+    if rec:
+        for k in ("x_match", "x_hi", "soft_lo"):
+            if not np.isclose(float(anchor.get(k, np.nan)), float(target.get(k, np.nan)), rtol=1e-9, atol=1e-9):
+                raise ValueError(f"anchor and target differ in {k}: {anchor.get(k)} vs {target.get(k)}")
+    vkey = "window_values" if rec else "values"; ekey = "window_errors" if rec else "errors"
+    muA = np.asarray(anchor[vkey], float); muT = np.asarray(target[vkey], float)
+    N = min(len(muA), len(muT)) if n is None else int(n)
+    muA, muT = muA[:N], muT[:N]
+    sA = np.asarray(anchor.get("scale_errors", np.zeros(N)), float)[:N]
+    sT = np.asarray(target.get("stat_errors", target.get(ekey)), float)[:N]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pA = np.where(sA > 0, 1.0 / sA ** 2, np.inf); pT = np.where(sT > 0, 1.0 / sT ** 2, np.inf)
+        both_inf = np.isinf(pA) & np.isinf(pT)
+        wT = np.where(np.isinf(pA), 0.0, np.where(np.isinf(pT), 1.0, pT / (pA + pT)))
+        wT = np.where(both_inf, 0.5, wT)
+        s2 = np.where(np.isinf(pA) | np.isinf(pT), 0.0, 1.0 / (pA + pT))
+    mu = (1.0 - wT) * muA + wT * muT; s = np.sqrt(s2)
+    out = dict(target)
+    out[vkey] = mu.tolist(); out["stat_errors"] = s.tolist()
+    out["scale_errors"] = sA.tolist(); out[ekey] = np.hypot(s, sA).tolist()
+    meta = dict(n=int(N), target_weight=wT.tolist())
+    if rec:
+        out["wprofile_values"] = out[vkey]
+        RA = float(anchor.get("wprofile_rate", anchor["rate"])); RT = float(target.get("wprofile_rate", target["rate"]))
+        rA = float(anchor.get("rate_scale", 0.0) or 0.0); rT = float(target.get("rate_stat", 0.0) or 0.0)
+        if rA > 0 and rT > 0:
+            pa, pt = 1.0 / rA ** 2, 1.0 / rT ** 2; wR = pt / (pa + pt); R = (1 - wR) * RA + wR * RT; rs = (pa + pt) ** -0.5
+        elif rA == 0:
+            wR, R, rs = 0.0, RA, 0.0
+        else:
+            wR, R, rs = 1.0, RT, 0.0
+        out["rate"] = out["wprofile_rate"] = float(R); out["rate_stat"] = float(rs); out["rate_scale"] = rA
+        meta.update(rate_target_weight=float(wR), rate_anchor=RA, rate_target=RT)
+    out["_combine"] = meta
+    return out

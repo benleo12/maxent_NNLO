@@ -1,0 +1,261 @@
+!#############################################################
+!## SUPPLEMENTARY DY moment run (2026-09-18, runs/dy_log30_hi): the 2026-09-18
+!## production booking, plus the orders needed to evaluate the truncation term
+!## of the imposed towers:
+!##   Born   : <T_n(m_ll)>   n=1..12 (was 1..6)   BW map [66,116]
+!##            <T_n(|y_ll|)> n=1..12 (was 1..6)   lin [0,2.4]
+!##   recoil : <T_n(pT_ll)>  n=1..20 (was 1..12)  log map [30,2500], window [30,500]
+!## Same physics inputs, same map, same EW scheme (Gmu, as booked below), same
+!## statistics per seed (400000[10]); seeds 41-60, each in its own directory.
+!## Denominators (single normal single-bin histograms, same edges => binwidth
+!## cancels in the ratio):
+!##   norm_born     : sigma over the full fiducial region
+!##   norm_ptzwin   : sigma over the recoil window ptz in [30,500]
+!## 7-point scale variation => per-scale <T_n> => scale-uncertainty envelope.
+!#############################################################
+
+PROCESS  Z
+  collider = pp
+  sqrts = 13000.0
+  decay_type = 1
+END_PROCESS
+
+RUN  DY_MOMENTS
+  PDF = CT18NNLO[0]
+  tcut = 1e-07
+  iseed = 1
+  warmup = 40000[5]
+  production = 400000[10]
+END_RUN
+
+PARAMETERS
+  MASS[Z]  = 91.1876
+  WIDTH[Z] = 2.4952
+  MASS[W]  = 80.385
+  WIDTH[W] = 2.085
+  SCHEME[alpha] = Gmu
+  GF = 1.1663787d-5
+END_PARAMETERS
+
+SELECTORS
+  select mll   min = 66   max = 116
+  select ptlp  min = 27
+  select ptlm  min = 27
+  select abs_ylp  max = 2.5
+  select abs_ylm  max = 2.5
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- reference distributions for the follower figures (FO curves)
+  phi_star  > phistar_a  min=0.004 max=10 nbins=60 binning=LOG
+  abs_yl1   > yl1_a      min=0 max=2.5 nbins=25
+  ! ---- cross-check fine histograms
+  mll     > mll_fine     min=66 max=116 nbins=200
+  abs_yz  > absyz_fine   min=0  max=6.0 nbins=300
+  ptz     > ptz_winfine  min=30 max=500 nbins=100 binning=LOG
+
+  ! ---- shared denominators (normal single-bin; binwidth cancels in ratio)
+  chebT_mll_1 > norm_born    min=-1.001 max=1.001 nbins=1
+  chebT_ptz_1 > norm_ptzwin  min=-1.001 max=1.001 nbins=1
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+
+  ! ---- Born: m_ll moments (profile, no window)
+  chebT_mll_1 > prof_mll_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_2 > prof_mll_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_3 > prof_mll_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_4 > prof_mll_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_5 > prof_mll_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_6 > prof_mll_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_7 > prof_mll_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_8 > prof_mll_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_9 > prof_mll_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_10 > prof_mll_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_11 > prof_mll_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mll_12 > prof_mll_12  min=-1.001 max=1.001 nbins=1 profile = T
+
+  ! ---- Born: |y_ll| moments (profile, no window)
+  chebT_absyz_1 > prof_absyz_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_2 > prof_absyz_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_3 > prof_absyz_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_4 > prof_absyz_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_5 > prof_absyz_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_6 > prof_absyz_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_7 > prof_absyz_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_8 > prof_absyz_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_9 > prof_absyz_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_10 > prof_absyz_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_11 > prof_absyz_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyz_12 > prof_absyz_12  min=-1.001 max=1.001 nbins=1 profile = T
+
+  ! ---- recoil: pT_ll moments (profile, windowed to ptz in [30,500])
+  chebT_ptz_1 > prof_ptz_1   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_2 > prof_ptz_2   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_3 > prof_ptz_3   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_4 > prof_ptz_4   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_5 > prof_ptz_5   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_6 > prof_ptz_6   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_7 > prof_ptz_7   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_8 > prof_ptz_8   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_9 > prof_ptz_9   min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_10 > prof_ptz_10 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_11 > prof_ptz_11 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_12 > prof_ptz_12 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_13 > prof_ptz_13 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_14 > prof_ptz_14 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_15 > prof_ptz_15 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_16 > prof_ptz_16 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_17 > prof_ptz_17 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_18 > prof_ptz_18 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_19 > prof_ptz_19 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  chebT_ptz_20 > prof_ptz_20 min=-1.001 max=1.001 nbins=1 profile = T
+  HISTOGRAM_SELECTORS
+    select ptz min=30 max=500
+  END_HISTOGRAM_SELECTORS
+  ! ---- SMOOTH-profile recoil moments (single-bin profile, NO selector; w windows)
+  w_ptz > prof_wptz_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_1 > prof_wptz_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_2 > prof_wptz_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_3 > prof_wptz_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_4 > prof_wptz_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_5 > prof_wptz_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_6 > prof_wptz_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_7 > prof_wptz_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_8 > prof_wptz_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_9 > prof_wptz_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_10 > prof_wptz_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_11 > prof_wptz_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_12 > prof_wptz_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_13 > prof_wptz_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_14 > prof_wptz_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_15 > prof_wptz_15  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_16 > prof_wptz_16  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_17 > prof_wptz_17  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_18 > prof_wptz_18  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_19 > prof_wptz_19  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptz_20 > prof_wptz_20  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- DY lepton moments (Born-type, single-bin profile, no selector)
+  chebT_ptl1_1 > prof_ptl1_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl1_2 > prof_ptl1_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl1_3 > prof_ptl1_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl1_4 > prof_ptl1_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl1_5 > prof_ptl1_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl1_6 > prof_ptl1_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_1 > prof_ptl2_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_2 > prof_ptl2_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_3 > prof_ptl2_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_4 > prof_ptl2_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_5 > prof_ptl2_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ptl2_6 > prof_ptl2_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_1 > prof_yl1_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_2 > prof_yl1_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_3 > prof_yl1_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_4 > prof_yl1_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_5 > prof_yl1_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl1_6 > prof_yl1_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_1 > prof_yl2_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_2 > prof_yl2_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_3 > prof_yl2_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_4 > prof_yl2_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_5 > prof_yl2_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_yl2_6 > prof_yl2_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- |cos theta*_CS| of the leptons (Born observable, lin [0,1])
+  chebT_ctl_1 > prof_ctl_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_2 > prof_ctl_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_3 > prof_ctl_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_4 > prof_ctl_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_5 > prof_ctl_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctl_6 > prof_ctl_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- CROSS moments <T_m(m_ll) T_n(|cos th*|)>: the JOINT distribution,
+  ! ---- which is what determines the lepton transverse momenta
+  chebTT_mllct_11 > prof_mct_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_12 > prof_mct_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_13 > prof_mct_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_14 > prof_mct_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_21 > prof_mct_21  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_22 > prof_mct_22  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_23 > prof_mct_23  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_24 > prof_mct_24  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_31 > prof_mct_31  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_32 > prof_mct_32  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_33 > prof_mct_33  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_34 > prof_mct_34  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_41 > prof_mct_41  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_42 > prof_mct_42  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_43 > prof_mct_43  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_mllct_44 > prof_mct_44  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- reference histogram for the lepton pT (there was none before)
+  ptl1 > ptl1_a  min=27 max=200 nbins=40 binning=LOG
+END_HISTOGRAMS
+
+SCALES
+  mur = 1.0 * mll  muf = 1.0 * mll
+  mur = 2.0 * mll  muf = 2.0 * mll
+  mur = 0.5 * mll  muf = 0.5 * mll
+  mur = 2.0 * mll  muf = 1.0 * mll
+  mur = 1.0 * mll  muf = 2.0 * mll
+  mur = 0.5 * mll  muf = 1.0 * mll
+  mur = 1.0 * mll  muf = 0.5 * mll
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

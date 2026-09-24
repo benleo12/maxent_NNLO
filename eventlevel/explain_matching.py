@@ -21,9 +21,10 @@ use_pub_style(base=20)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds, _load
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-XM, XHI, SOFT = 30.0, 500.0, 0.5
+XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
 # The "parton shower" curve in panel 1 IS the prior, so it takes the prior
 # colour: blue means MiNNLO on every other figure and must not mean two
 # different things across the paper.
@@ -34,8 +35,8 @@ def main():
     seeds = common_seeds(BASE, "DY_MOMENTS", CH6)
     M = fo_moments_smooth_from_nnlojet(BASE, "DY_MOMENTS", CH6, seeds,
                                        born_tags={"mll": "mll", "y_abs": "absyz"},
-                                       n_born=6, n_recoil=12,
-                                       x_match=XM, x_hi=XHI, soft_lo=SOFT)
+                                       n_born=12, n_recoil=20,
+                                       x_match=XM, x_hi=XMAP, soft_lo=SOFT)
     P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
     i = np.random.default_rng(0).choice(len(P["w"]), min(600000, len(P["w"])), replace=False)
     ev = dict(mll=P["mll"][i].astype(float), y_abs=np.abs(P["y_ll"][i]).astype(float),
@@ -43,29 +44,22 @@ def main():
     res = upgrade(ev, M, dict(
         born={"mll": {"range": (66., 116.), "map": "bw"},
               "y_abs": {"range": (0., 2.4), "map": "lin"}},
-        recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+        recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": 2 * XM, "c": XHI}}}))
     x, wpr, wpo = ev["pT_ll"], ev["weight"], res.weights
 
-    # FO recoil curve (only pT>0 channels populate the window)
-    flo = fhi = None; tot = None
-    for s_ in seeds:
-        for ch in ("R", "RR", "RV"):
-            r0 = _load(os.path.join(BASE, f"ch_{ch}", f"Z.DY_MOMENTS.{ch}.ptz_winfine.s{s_}.dat"))
-            if r0 is None: continue
-            flo, _, fhi, v, _ = r0
-            tot = v[:, 0].copy() if tot is None else tot + v[:, 0]
-
-    e = np.geomspace(2, 300, 34); ctr = np.sqrt(e[:-1] * e[1:]); bw = np.diff(e)
+    # Fixed order (NLO Z+jet) normalised ABSOLUTELY to the NNLO fiducial
+    # cross section and drawn everywhere, below the seam included where the
+    # separate ptz_full production exists; an edge is placed at the seam so
+    # the two histograms splice without a gap.
+    from fo_ptll_full import fo_ptll
+    e = np.unique(np.concatenate([np.geomspace(2, 300, 34), [XM]]))
+    ctr = np.sqrt(e[:-1] * e[1:]); bw = np.diff(e)
     d = lambda w: np.histogram(x, e, weights=w / w.sum())[0] / bw
     hpr, hpo = d(wpr), d(wpo)
-    g = (tot > 0) & (fhi > flo)
-    inw = (x >= XM) & (x < XHI)
-    # SAME EDGES as the shower curves on these panels
-    fo = rebin_density(flo[g], fhi[g], tot[g], e)
-    gd = np.isfinite(fo) & (fo > 0)
-    fv = np.where(gd, fo, np.nan)
-    fv = fv * (float(wpo[inw].sum() / wpo.sum()) / np.nansum(fv * bw))
+    fv, _, _, have_full, _ = fo_ptll(e, seam=XM)
+    fv = np.where(np.isfinite(fv) & (fv > 0), fv, np.nan)
+    print(f"  fixed order below the seam: {'drawn' if have_full else 'ABSENT (ptz_full not produced yet)'}")
 
     fig, ax = plt.subplots(1, 3, figsize=(19.5, 6.0))
     for a in ax:
@@ -75,12 +69,12 @@ def main():
 
     # -------- 1. ingredients
     a = ax[0]
-    below = ctr < XM
-    a.plot(ctr[below], hpr[below], color=C_SH, lw=3.4, label=r"parton shower")
-    a.plot(ctr[~below], hpr[~below], color=C_SH, lw=2.0, alpha=0.30)
+    # both inputs in full: the shower everywhere, fixed order everywhere it
+    # is positive -- each fails visibly outside its region, no fade needed
+    a.plot(ctr, hpr, color=C_SH, lw=3.4, label=r"parton shower")
     a.stairs(fv, e, color=C_FO, ls=":", lw=3.0, label=r"fixed order")
     a.set_yscale("log"); a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_T$")
-    a.set_title(r"1.\ \ each trusted in its own region")
+    a.set_title(r"(a) the two inputs")
     a.legend(loc="lower left")
 
     # -------- 2. result
@@ -88,7 +82,7 @@ def main():
     a.plot(ctr, hpr, color="0.6", lw=2.2, ls="--", label=r"prior")
     a.stairs(fv, e, color=C_FO, ls=":", lw=2.6, label=r"fixed order")
     a.plot(ctr, hpo, color=C_ME, lw=3.6, label=r"reweighted")
-    a.set_yscale("log"); a.set_title(r"2.\ \ shower below, fixed order above")
+    a.set_yscale("log"); a.set_title(r"(b) reweighted sample")
     a.legend(loc="lower left")
 
     # -------- 3. the ratio
@@ -100,7 +94,7 @@ def main():
     a.axhline(z, color="0.25", lw=2.2, ls="--")
     a.set_ylim(0.4, 2.4)
     a.set_ylabel(r"reweighted\,/\,prior")
-    a.set_title(r"3.\ \ flat below the seam $\Rightarrow$ shape kept")
+    a.set_title(r"(c) ratio to the prior")
     a.text(3.0, z + 0.10, rf"$1/Z={z:.2f}$", color="0.25", fontsize=19)
 
     out = os.path.join(HERE, "fig_explain_matching.pdf")

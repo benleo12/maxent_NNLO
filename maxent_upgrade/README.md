@@ -317,6 +317,39 @@ All knobs are optional keys in `config`; every default lives in `maxent_upgrade.
 | `MINSUP` | `30` | **support guard:** a recoil window bin needs at least this many *unweighted* prior events to be trusted, else it is dropped (and the window is capped at the last supported bin). |
 | `RSUP` | `20.0` | **support guard:** a recoil window bin is dropped if its target/prior probability ratio exceeds this (prevents a starved prior bin from being blown up). |
 
+### Soft constraints (Gaussian penalties instead of exact moments)
+
+| knob | default | meaning |
+|------|---------|---------|
+| `fixed_orders` | `None` | `{obs: N}`: impose exactly `N` orders of that tower, overriding the SNR rule. Band variants (scale choices, bootstrap replicas) pass the central solve's `chosen_moments` here so every variant imposes the same constraint set. |
+| `soft_constraints` | `False` | impose every moment with a **Gaussian penalty of width equal to its error** instead of exactly. |
+| `soft_errors` | `'stat'` | which error sets the width: `'stat'` = the target's Monte Carlo error (`stat_errors`, `rate_stat`); `'total'` = stat (+) scale (`errors`/`window_errors`, `rate_scale`). |
+
+With `soft_constraints=True` the solve minimises `KL(q‖p) + ½ Σ_k (E_q[f_k] − μ_k)² / σ_k²`.
+Its dual is the hard-constraint dual plus a per-moment ridge `½ (σ_k/s_k)² λ_k²`, where
+`s_k` is the prior's own spread of feature `k` (the z-scoring unit); `L2` is added on top.
+At the optimum each moment is met to within its error, `E_q[f_k] − μ_k = −s_k r_k λ_k` with
+`r_k = L2 + (σ_k/s_k)²`, and `UpgradeResult.soft_pulls` reports `(achieved − target)/σ_k`
+per constraint. What this does and does not do:
+
+* a moment known to much better than the prior's spread of its feature (`σ_k ≪ s_k`) is
+  imposed as if hard: on the paper's NNLOJET inputs (`σ/s ≈ 3×10⁻⁴`) soft and hard weights
+  agree to `5×10⁻⁶`;
+* a moment with `σ_k ~ s_k` is imposed only in part (a fraction `1/(1+r_k)` of the requested
+  shift in the linear regime) — this is the Bayesian replacement for dropping it;
+* it does **not** protect against a wrong **rate**: shifting the window rate costs almost no
+  entropy, so even a rate with a 10 % error is imposed nearly exactly. A noisy higher-order
+  input is used sensibly only through an anchor, see `combine_moments` below.
+
+`combine_moments(anchor, target)` builds a precision-weighted target from a precise
+lower-order input (its **scale half-range** per moment and `rate_scale` for the rate are
+the prior widths on the true higher-order value) and a noisy higher-order Monte Carlo (its
+`stat_errors` and `rate_stat` are the measurement widths): posterior mean
+`(μ_A/σ_A² + μ_T/σ_T²)/(1/σ_A² + 1/σ_T²)` and width `(1/σ_A² + 1/σ_T²)^(−1/2)` per moment,
+to be imposed with `soft_constraints=True`. Where the higher-order run is noisier than the
+lower-order scale band the result stays at the lower order; as its statistics grow it moves
+over. Moments are treated as independent (neither input ships a covariance).
+
 ### x_match rule (no free knob — it is data-blind)
 
 The recoil matching scale is chosen automatically:
@@ -347,7 +380,7 @@ the uncertainty envelope. Set `band=False` for just the central solve (much fast
 
 ## API reference
 
-### `upgrade(events, moments, config) -> UpgradeResult`
+### `upgrade(events, fo_low, fo_high, config) -> UpgradeResult`
 
 The one entry point. `UpgradeResult` fields:
 
@@ -360,7 +393,7 @@ The one entry point. `UpgradeResult` fields:
 | `.report` | `dict` | full engine report (diff-K masks, window, rate, solve stats) plus a `moment_selection` block with the SNR spectra and chosen counts. |
 | `.moment_snr` | `dict{obs: np.ndarray}` | per-observable SNR spectrum (orders 1…Nmax). |
 | `.chosen_moments` | `dict{obs: int}` | number of moments actually imposed per observable. |
-| `.band` | `None` | reserved; the uncertainty bands are built outside the solver, see *Uncertainty bands* below. |
+| `.band` | `dict{tag: np.ndarray}` or `None` | variant weight vectors (scales + rate schemes) for the uncertainty envelope. |
 
 `.summary()` returns a one-line human-readable digest.
 
@@ -372,6 +405,16 @@ The per-moment SNR spectrum for one observable (see (e)). `a, b` are the physica
 ### `resolved_order(snr, threshold=1.0) -> int`
 
 Largest moment order with `SNR_n > threshold` (0 if none) — the selection rule.
+
+
+### `combine_moments(anchor, target, n=None) -> dict`
+
+Precision-weighted combination of two moment dicts for the same observable, window and
+map (checked for recoil dicts): `anchor` supplies the prior widths (`scale_errors`,
+`rate_scale`), `target` the measurement widths (`stat_errors`, `rate_stat`). Returns a dict
+shaped like `target` with posterior means and widths, the SNR-veto total error set to
+posterior width (+) anchor scale half-range, and a `_combine` block with the target's weight
+per moment and for the rate. Impose it with `soft_constraints=True`.
 
 ### `fo_from_dat(paths, nscales=7) -> FOHist`
 
@@ -403,27 +446,6 @@ It runs end to end and lands on a **positive-weight** solution with `effN ≈ 98
    FO series is breaking down).
 2. **Recoil** pT → a **composite window**: FO-shaped above the data-blind `x_match`, prior
    Sudakov shape below it, glued by the FO-region rate.
-3. **One convex MaxEnt solve** (z-scored Newton on the dual, ridge `L2`) → positive weights;
+3. **One convex MaxEnt solve** (z-scored Newton on the dual, ridge `L2`; optionally Gaussian
+   soft constraints with the targets' own errors as widths) → positive weights;
    re-solved per scale/rate variation for the band.
-
-## Uncertainty bands (how the paper's bands are made)
-
-`upgrade()` does one central solve. The bands are three loops over the same call,
-implemented in `eventlevel/make_dy_band_weights.py`:
-
-1. **Scale band**: re-solve once per seven-point scale variant of the target moments
-   (`fo_moments_smooth_from_nnlojet(..., scale_idx=s)`), each warm-started from the
-   central multipliers via `config["lam0"] = res.report["lam"]`, with the moment counts
-   frozen (`moment_selection: False`, `born_N`, `recoil_N`). The per-bin envelope of the
-   six variant predictions around the central one is the scale band.
-2. **Target statistics**: bootstrap the independent fixed-order seeds, rebuild the pooled
-   moments per replica, re-solve; the per-bin spread is the moments' Monte Carlo error.
-3. **Sample statistics**: the usual per-bin error of the weighted events, sum of q_i^2.
-
-The figures combine 2 and 3 in quadrature as error bars and draw 1 as a band, and apply
-the same split (band = scale, bars = statistics) to the fixed-order reference and to every
-generator. `config["keep_features"] = True` makes `upgrade()` return the feature matrix,
-prior weights, multipliers and targets in `res.report`, from which the first-order response
-`dO = Cov_q(O, m) H^{-1} dmu` reproduces the envelope edges without re-solving
-(`eventlevel/moment_bands.py` is that cross-check). The Born-lepton Pythia driver is
-`eventlevel/shower_dy.py` and the fiducial-sample builder `eventlevel/make_dy_atlas_npz_born.py`.

@@ -94,7 +94,7 @@ def main():
 
     ev = load_prior()
     n = len(ev["weight"])
-    idx = np.random.default_rng(0).choice(n, min(1_200_000, n), replace=False)
+    idx = np.random.default_rng(0).choice(n, min(int(os.environ.get("AA_NMAX", n)), n), replace=False)   # default: ALL fiducial prior events
     ev = {k: v[idx] for k, v in ev.items()}
     print(f"  prior events: {len(ev['weight']):,}")
 

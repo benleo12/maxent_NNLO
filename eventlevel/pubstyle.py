@@ -38,6 +38,19 @@ def use_pub_style(base=20):
         "errorbar.capsize": 2.5,
         "axes.grid": False,
     })
+    # Journal look for step histograms: matplotlib's `stairs` closes the step
+    # path down to y=0 at both ends (and at every NaN gap), which draws
+    # vertical lines that read as spurious features.  Default to baseline=None
+    # for every un-filled stairs call made by the figure scripts.
+    import matplotlib.axes as _axes
+    if not getattr(_axes.Axes.stairs, "_pub_patched", False):
+        _orig = _axes.Axes.stairs
+        def _stairs(self, *a, **k):
+            if not k.get("fill", False):
+                k.setdefault("baseline", None)
+            return _orig(self, *a, **k)
+        _stairs._pub_patched = True
+        _axes.Axes.stairs = _stairs
 
 
 # ---------------------------------------------------------------------------
@@ -56,6 +69,7 @@ C = {
     "data":    "k",
     "prior":   "0.55",
     "maxent":  "#d62728",
+    "maxent_nnlo": "#ff7f0e",   # the same upgrade with the NNLO Z+jet recoil (Stripper)
     "fo":      "k",
     "minnlo":  "#1f77b4",
     "mcatnlo": "#2ca02c",
@@ -63,13 +77,31 @@ C = {
     "seam":    "0.35",
     "band":    "0.75",
 }
-LS = {"data": "none", "prior": "--", "maxent": "-", "fo": ":",
+LS = {"data": "none", "prior": "--", "maxent": "-", "maxent_nnlo": "-", "fo": ":",
       "minnlo": "-", "mcatnlo": "-", "powheg": "-"}
-LW = {"prior": 2.0, "maxent": 3.2, "fo": 2.4, "minnlo": 1.9,
+LW = {"prior": 2.0, "maxent": 3.2, "maxent_nnlo": 3.2, "fo": 2.4, "minnlo": 1.9,
       "mcatnlo": 1.9, "powheg": 1.9}
-LAB = {"data": None, "prior": r"PS+LO prior", "maxent": r"MaxEnt",
-       "fo": r"fixed order", "minnlo": r"MiNNLO", "mcatnlo": r"MC@NLO",
+LAB = {"data": None, "prior": r"PS+LO prior", "maxent": r"MaxEnt", "maxent_nnlo": r"MaxEnt, NNLO$(Zj)$ recoil",
+       "fo": r"fixed order", "minnlo": r"MiNNLO$_{\mathrm{PS}}$", "mcatnlo": r"MC@NLO",
        "powheg": r"POWHEG"}
+# Per-event scale-variation weights of a generator sample.  Reweighting an event
+# whose nominal weight sits near a cancellation gives variation weights hundreds
+# of times the nominal one (all three matched samples have such events: 7 of
+# 902k in MiNNLO, 2 of 1.12M in MC@NLO, 0 of 928k in POWHEG beyond 100x), and one
+# such event can move a whole bin of a scale envelope by ten percent.  Every
+# figure therefore clips the ratio to the nominal weight at +-GEN_SCALE_CAP, the
+# same rule for every sample, and the papers say so.
+GEN_SCALE_CAP = 100.0
+
+
+def gen_scale_weights(G, cap=GEN_SCALE_CAP):
+    """(N, 7) variation weights of sample dict G with |w_scale/w| clipped at cap."""
+    w = np.asarray(G["w"], float)[:, None]
+    ws = np.asarray(G["w_scale"], float)
+    r = np.clip(ws / np.where(w == 0, 1.0, w), -cap, cap)
+    return r * w
+
+
 # fraction of negative weights each generator carries (0 for ours, by construction)
 NEG = {"maxent": 0, "minnlo": 23, "mcatnlo": 5, "powheg": 1}
 FADE = 0.22        # alpha for fixed order outside its region of validity

@@ -51,7 +51,8 @@ from bandviz import stagger
 D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 W = dict(np.load(os.path.join(HERE, "aa_eventlevel_weights.npz")))
 
-GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments2"   # clipped-map binary
+GGDIR = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "gg_moments2")   # clipped-map binary
 DPHI_SUPP = 2.0   # below this the reweighted effective statistics fall under
                   # 1000 per bin group (3.8 / 15.2 / 748 in [0,1)/[1,1.5)/[1.5,2)
                   # against 9700 just above): the prior has no support there.
@@ -248,7 +249,7 @@ def main():
                         r.fill_between(ctr, np.where(m, (fn - fo_band) / dv, np.nan),
                                        np.where(m, (fn + fo_band) / dv, np.nan),
                                        step="mid", color=C["fo"], alpha=0.13, lw=0)
-        if key in ("pt_aa", "at_aa"):
+        if key == "pt_aa":       # the seam is exact on the recoil axis only
             for p_ in (a, r):
                 p_.axvline(28.0, color=C["seam"], lw=2.0, ls="--")
         if key == "dphi_aa":
@@ -270,8 +271,8 @@ def main():
             # overall at every moment count tried, because the fixed-order
             # pi-dphi moments carry errors 0.024-0.069 against 0.002-0.007 for
             # |cos theta*|.  It needs more fixed-order statistics.
-            a.text(DPHI_SUPP * 0.97, 0.97,
-                   rf"outside prior support ($N={nlow}$, $N_{{\rm eff}}={effl:.0f}$)",
+            print(f"  dphi_aa below {DPHI_SUPP}: N={nlow}  N_eff={effl:.0f}")
+            a.text(DPHI_SUPP * 0.97, 0.97, r"outside prior support",
                    transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
                    fontsize=11, color=C["seam"])
         if logx:
@@ -325,11 +326,11 @@ def main():
                 np.where(fo_ok, fo_band / fn, np.nan))))
         print(f"  {key}: prior {med(pp):.1f}%  MaxEnt {med(qq):.1f}%  |  "
               + "  ".join(halves))
-        r.set_ylim(0.3, 1.9); r.set_xlabel(lab)
+        r.set_ylim(0.5, 1.6); r.set_xlabel(lab)
         a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
         r.set_ylabel(r"ratio to data")
         a.legend(loc="lower left", fontsize=12)
-        a.set_title(rf"{lab}, {role}")
+        a.set_title(rf"{lab.replace(' [GeV]', '')}, {role}")
         out = os.path.join(HERE, f"fig_aa_{key}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)

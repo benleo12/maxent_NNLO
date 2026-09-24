@@ -31,7 +31,8 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_mixed_moments, fo_curve_band, MIRRORED_TAGS)
 from bandviz import stagger
 
-ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments2"   # clipped-map binary, mll = BW map
+ZDIR = os.path.join(os.environ.get("NNLOJET_ROOT",
+        os.path.expanduser("~/nnlojet-v1.0.2")), "zj_moments2")   # clipped-map binary, mll = BW map
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
 # NLO (LO+R+V) by default.  The full NNLO set (LO,R,V,RRa,RRb,RV,VV) exists at
 # 20 seeds and is selectable with ZJ_CH, but at the statistics reachable here its
@@ -303,8 +304,9 @@ def main():
                 # the seam maps over as pi-dphi ~ pT/pT_lep ~ XM/45; below it the
                 # unresummed Sudakov logarithms flatten the curve and it means
                 # nothing, so draw it faded rather than let it read as a target.
-                xs_ = XM / 45.0 if key == "pimdphi" else XM
-                ab = ctr_ >= xs_
+                # the seam is exact on a jet-pT axis; the acoplanarity has no
+                # sharp image of it, so its fixed order is drawn everywhere
+                ab = np.ones(len(ctr_), bool)      # fixed order drawn everywhere, no fade
                 a_.stairs(np.where(ab, yy, np.nan), e, color=C["fo"], ls=":", lw=LW["fo"],
                           label=(r"fixed order (NLO $Z$+jet)" if key == "ptj1"
                                  else r"fixed order (LO $Z$+2 jets)"))
@@ -416,17 +418,23 @@ def main():
             halves.append("FO +-%.2f%%" % (100 * np.nanmedian(
                 np.where(fo_ok, fo_band / fo_i, np.nan))))
         print(f"  {key} band half-widths (median, % of central): " + "  ".join(halves))
+        # medians over the bins drawn at full strength, with and without the
+        # unsupported (grey) bins, for the text
+        bad_, _ = support_mask(ev[key], res.weights, e, min_eff=100.0)
+        for nm_, h_ in (("prior", hp), ("MaxEnt", hq)) + ((("+dphi tower", hq2),) if hq2 is not None else ()):
+            mm_ = vok & np.isfinite(h_) & (h_ > 0) & np.isfinite(ref) & (ref > 0)
+            print(f"  {key} median|{nm_}/FO-1|: all valid bins {100*np.median(np.abs(h_[mm_]/ref[mm_]-1)):.1f}%  "
+                  f"supported only {100*np.median(np.abs(h_[mm_ & ~bad_]/ref[mm_ & ~bad_]-1)):.1f}%  "
+                  f"({int(mm_.sum())} / {int((mm_ & ~bad_).sum())} bins)")
         # Where the reweighted effective statistics collapse, the prior simply
         # has no events: pT_j2's hard tail needs a Z+2-jet matrix element, which
         # a Z+1-jet-plus-shower prior cannot supply, and reweighting cannot
         # create events.  Grey those bins rather than let them read as failure.
         bad, _eff = support_mask(ev[key], res.weights, e, min_eff=100.0)
         shade_unsupported((a_, r_), e, bad)
-        for p in (a_, r_):
-            if key == "ptj1":
-                p.axvspan(XM, min(XHI, e[-1]), color="#ffd24d", alpha=0.13)
-            p.axvline(XM / 45.0 if key == "pimdphi" else XM,
-                      color=C["seam"], lw=2.0, ls="--")
+        if key != "pimdphi":     # the seam is exact on a jet-pT axis only
+            for p in (a_, r_):
+                p.axvline(XM, color=C["seam"], lw=2.0, ls="--")
         if logx: a_.set_xscale("log"); r_.set_xscale("log")
         a_.set_yscale("log"); a_.tick_params(labelbottom=False)
         r_.set_xlabel(lab); r_.set_ylim(0.5, 1.6)
@@ -434,10 +442,10 @@ def main():
         r_.set_ylabel(r"ratio to fixed order")
         a_.legend(loc="lower left", fontsize=12)
         constrained = key in ("ptj1",) or (bool(mixed) and key == "ptj2")
-        role_now = "constrained" if constrained else "predicted (never constrained)"
+        role_now = "constrained" if constrained else "predicted"
         extra = (r", with the mixed $\langle T_m(p_T^{j_1})T_n(p_T^{j_2})\rangle$"
                  if bool(mixed) and key in ("ptj1", "ptj2") else "")
-        a_.set_title(rf"{lab}, {role_now}")
+        a_.set_title(rf"{lab.replace(' [GeV]', '')}, {role_now}")
         out = os.path.join(HERE, f"fig_zj_{key}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)
