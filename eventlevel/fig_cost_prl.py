@@ -7,8 +7,8 @@ read the provenance there before trusting any number.  Differences here:
     (dy_profile_log30_hi), at the uncontended per-seed rate measured in the
     forty-seed dedicated-node campaign, 28.82 core-h per seed set
     (timing_per_seed.csv: 1152.94 core-h / 40): 3 seeds = 86.5 core-h fix the
-    central values, 60 seeds = 1729 core-h as run.  As CHARGED in the shared
-    queue the sixty-seed run cost 2484 core-h (timing_per_seed_hi.csv), a 1.44x
+    central values; the production as run is 298 seeds = 8588 core-h at the
+    uncontended rate (12137 core-h of CPU consumed in the shared queue), a 1.41x
     contention factor of the same kind the generator timings exclude.
   * a dotted line for the sample with the NNLO Z+jet recoil, which adds the
     1e5 CPU-hours of the Stripper input (R. Poncelet) to the fixed cost.
@@ -32,8 +32,10 @@ use_pub_style(base=17)
 MS = 1e-3
 PER_SEED = 1152.94 / 40 * 3600.0            # core-s per seed set, uncontended (40-seed campaign)
 C_FIXED_3   = 3 * PER_SEED                  # 86.5 core-h
-C_FIXED_60  = 60 * PER_SEED                 # 1729 core-h, the production as run
-C_FIXED_CHARGED = 2483.6 * 3600.0           # as charged in the shared queue (not drawn)
+C_FIXED_60  = 60 * PER_SEED                 # 1729 core-h, the 60-seed production of the first submission
+N_SEEDS_RUN = 298                           # seeds 41-340 minus two incomplete (2026-09-27)
+C_FIXED_RUN = N_SEEDS_RUN * PER_SEED        # 8588 core-h, the production as run at the uncontended rate
+C_FIXED_CHARGED = 12137.0 * 3600.0          # CPU consumed in the shared queue (per-seed /usr/bin/time; not drawn)
 C_STRIPPER = 1.0e5 * 3600.0                 # NNLO Z+jet input, as reported
 C_WARMUP = {"POWHEG": 38.1, r"MiNNLO$_{\mathrm{PS}}$": 1607.1}
 SH_COMMON = 6.1 * MS
@@ -79,18 +81,18 @@ def main():
     ne = np.geomspace(1e4, 3e9, 300)
     for lbl, g, sh, d, col, nnlo, _ in SAMPLES:
         if lbl == "MaxEnt":
-            lo = (C_FIXED_3 + ne * per_eff(BY[lbl])) / 3600.0; hi = (C_FIXED_60 + ne * per_eff(BY[lbl])) / 3600.0
+            lo = (C_FIXED_3 + ne * per_eff(BY[lbl])) / 3600.0; hi = (C_FIXED_RUN + ne * per_eff(BY[lbl])) / 3600.0
             b.fill_between(ne, lo, hi, color=col, alpha=0.25, lw=0, zorder=2)
-            b.plot(ne, hi, color=col, lw=3.0, zorder=3, label=r"MaxEnt ($C_{\rm fixed}$ $86$--$1730$ core-h)")
+            b.plot(ne, hi, color=col, lw=3.0, zorder=3, label=rf"MaxEnt ($C_{{\rm fixed}}$ ${C_FIXED_3/3600:.0f}$--${C_FIXED_RUN/3600:.0f}$ core-h)")
             b.plot(ne, lo, color=col, lw=1.2, zorder=3)
-            b.plot(ne, (C_FIXED_60 + C_STRIPPER + ne * per_eff(BY[lbl])) / 3600.0, color=C["maxent_nnlo"], lw=2.0, ls=":",
+            b.plot(ne, (C_FIXED_RUN + C_STRIPPER + ne * per_eff(BY[lbl])) / 3600.0, color=C["maxent_nnlo"], lw=2.0, ls=":",
                    zorder=3, label=r"MaxEnt, NNLO$(Zj)$ recoil ($+10^{5}$ core-h)")
         else:
             b.plot(ne, (C_WARMUP.get(lbl, 0.0) + ne * per_eff(BY[lbl])) / 3600.0, color=col, lw=3.0 if nnlo else 2.0,
                    ls="-" if nnlo else "--", label=lbl + ("" if nnlo else r" (NLO)"))
     b.legend(loc="upper left", fontsize=11.5, labelspacing=0.3, handlelength=1.8, borderaxespad=0.5)
     dm = per_eff(MINNLO) - per_eff(MAXENT); cm = C_WARMUP[r"MiNNLO$_{\mathrm{PS}}$"]
-    n_lo, n_hi = (C_FIXED_3 - cm) / dm, (C_FIXED_60 - cm) / dm
+    n_lo, n_hi = (C_FIXED_3 - cm) / dm, (C_FIXED_RUN - cm) / dm
     b.axvspan(n_lo, n_hi, color="0.5", alpha=0.13, lw=0, zorder=1)
     b.axvline(N_OURS, color="0.55", lw=1.4, ls="--")
     b.annotate("this work", (N_OURS, 4e4), rotation=90, fontsize=12, color="0.45", ha="right", va="top")
@@ -100,12 +102,12 @@ def main():
     for lbl, g, sh, d, col, nnlo, _ in SAMPLES:
         print(f"  {lbl:22s} gen {1000*g:6.2f} + shower {1000*SH_COMMON:.1f} core-ms, N/Neff {d:.3f} -> {1000*per_eff(BY[lbl]):7.2f} core-ms per effective event")
     print(f"  MiNNLO/MaxEnt per effective event {per_eff(MINNLO)/per_eff(MAXENT):.2f}x = ME {c_event(MINNLO)/c_event(MAXENT):.2f}x x dilution {MINNLO[3]/MAXENT[3]:.2f}x")
-    print(f"  fixed cost: 3 seeds {C_FIXED_3/3600:.1f} core-h, 60 seeds {C_FIXED_60/3600:.0f} core-h (charged {C_FIXED_CHARGED/3600:.0f}); crossover N_eff {n_lo:.3g} to {n_hi:.3g}; this work {N_OURS:.3g}")
-    for lbl, fixed in (("MaxEnt", C_FIXED_60), (r"MiNNLO$_{\mathrm{PS}}$", cm)):
+    print(f"  fixed cost: 3 seeds {C_FIXED_3/3600:.1f} core-h, {N_SEEDS_RUN} seeds {C_FIXED_RUN/3600:.0f} core-h (consumed {C_FIXED_CHARGED/3600:.0f}); crossover N_eff {n_lo:.3g} to {n_hi:.3g}; this work {N_OURS:.3g}")
+    for lbl, fixed in (("MaxEnt", C_FIXED_RUN), (r"MiNNLO$_{\mathrm{PS}}$", cm)):
         print(f"  total at this work's N_eff: {lbl:22s} {(fixed + N_OURS*per_eff(BY[lbl]))/3600:8.1f} core-h")
     with open(os.path.join(HERE, "fig_cost_prl_stripper.txt"), "w") as f:
-        f.write(f"crossover with the NNLO(Zj) recoil fixed cost: N_eff {(C_FIXED_60 + C_STRIPPER - cm)/dm:.3g}\n")
-    print(f"  crossover with the Stripper input added: N_eff {(C_FIXED_60 + C_STRIPPER - cm)/dm:.3g}")
+        f.write(f"crossover with the NNLO(Zj) recoil fixed cost: N_eff {(C_FIXED_RUN + C_STRIPPER - cm)/dm:.3g}\n")
+    print(f"  crossover with the Stripper input added: N_eff {(C_FIXED_RUN + C_STRIPPER - cm)/dm:.3g}")
 
 
 if __name__ == "__main__":

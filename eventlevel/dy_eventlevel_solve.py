@@ -20,7 +20,7 @@ from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_from_nnlojet, seeds_in
 
 NNLO_BASE = os.environ.get("NNLOJET_MOM_DIR",
-                           "/Users/user/nnlojet-v1.0.2/dy_profile_poc")
+                           os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc"))
 RUN = "DY_MOMENTS"
 CHANNELS = ["LO", "R", "V"]        # NLO; extend to the six labels for NNLO
 PRIOR = os.path.join(HERE, "dy_prior_atlas_v3.npz")

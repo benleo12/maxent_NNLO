@@ -20,7 +20,7 @@ import os, sys, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_log30_hi"; CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi"); CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0; N_BOOT = 20
 KW = dict(born_tags={"mll": "mll", "y_abs": "absyz"}, n_born=12, n_recoil=20,
           x_match=XM, x_hi=XMAP, soft_lo=SOFT)

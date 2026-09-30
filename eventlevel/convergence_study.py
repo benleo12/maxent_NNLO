@@ -24,7 +24,7 @@ from maxent_upgrade import upgrade
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, _load, _sum_channels,
                              _moment_over_seeds, seeds_in, common_seeds)
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 CH_PT = ["R", "RR", "RV"]          # only these populate pT>0
 XM, XHI, SOFT = 30.0, 500.0, 0.5

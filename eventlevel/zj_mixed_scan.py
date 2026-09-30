@@ -29,7 +29,7 @@ from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              _moment_over_seeds, _reduce, oriented_fo_curve)
 from pubstyle import rebin_density
 
-ZDIR = "/Users/user/nnlojet-v1.0.2/zj_moments2"   # clipped-map binary, mll = BW map
+ZDIR = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "zj_moments2")   # clipped-map binary, mll = BW map
 RUN, PREFIX = "ZJ_MOMENTS", "ZJ"
 # zj_moments2 covers LO,R,V only; the NNLO channels exist only in the old
 # (unclipped-map) zj_moments and would need re-production before use.

@@ -15,10 +15,10 @@ D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
 
 
 def load_prior_full():
+    from aa_eventlevel_solve import prior_files   # AA_PRIOR selects the slice set
     parts = []
-    for f in ("aa_prior_v4_a.npz", "aa_prior_v4_b.npz", "aa_prior_v4_c.npz",
-              "aa_prior_v4_d.npz", "aa_prior_v4_e.npz"):
-        p = os.path.join(HERE, f)
+    for f in prior_files():
+        p = f if os.path.isabs(f) else os.path.join(HERE, f)
         if os.path.exists(p):
             d = dict(np.load(p, allow_pickle=True))
             # EXCLUSIVE pT-hat slices [pthatmin, pthatmax): each event is
@@ -27,10 +27,9 @@ def load_prior_full():
             # overlapped and the hard region was counted once per slice --
             # sigma(pt1>200) came out identical from all three.  Sum of the v4
             # slice cross sections is 42.84 pb against the v3 inclusive 42.82.
-            # The stored per-event weight is 1, so each slice is normalised by
-            # sigma_i / n_generated_i before concatenation.
-            n = len(np.asarray(d["weight"], float))
-            d["weight"] = np.full(n, float(d["sigma_pb"]) / float(d["n_generated"]))
+            # Relative per-event weight (1 for Pythia-internal slices, the
+            # merging weight for the merged MG5 sample) times sigma_i / n_gen,i.
+            d["weight"] = np.asarray(d["weight"], float) * (float(d["sigma_pb"]) / float(d["n_generated"]))
             parts.append(d)
     g = lambda k: np.concatenate([np.asarray(p[k], float) for p in parts])
     g1, g2 = g("g1"), g("g2")

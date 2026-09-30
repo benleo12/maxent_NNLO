@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from pubstyle import use_pub_style, C, LW, rebin_density
+from pubstyle import use_pub_style, C, LW, rebin_density, support_mask
 use_pub_style(base=17)
 from aa_vs_data import load_prior_full, dens
 from nnlojet_moments import (_load, common_seeds, fo_curve_band, MIRRORED_TAGS,
@@ -49,7 +49,8 @@ from aa_eventlevel_solve import (load_prior, XM, XB, XHI, SOFT, MLO, MHI,
 from bandviz import stagger
 
 D = dict(np.load(os.path.join(HERE, "atlas_aa_8tev.npz"), allow_pickle=True))
-W = dict(np.load(os.path.join(HERE, "aa_eventlevel_weights.npz")))
+W = dict(np.load(os.path.join(HERE, os.environ.get("AA_WEIGHTS", "aa_eventlevel_weights.npz"))))
+FIG_SUFFIX = os.environ.get("AA_FIG_SUFFIX", "")   # e.g. "_v4" to keep a second prior's figures apart
 
 GGDIR = os.path.join(os.environ.get("NNLOJET_ROOT",
         os.path.expanduser("~/nnlojet-v1.0.2")), "gg_moments2")   # clipped-map binary
@@ -125,12 +126,22 @@ def maxent_variants(n_boot=20):
             norm_born="norm_born", w0="prof_wpt_0", wtag="prof_wpt",
             prefix=PREFIX, scale_idx=scale_idx)
 
+    # cache of the variants, keyed on the central weights (a re-render must not
+    # cost 26 re-solves on 10^7 events)
+    wfile = os.environ.get("AA_WEIGHTS", "aa_eventlevel_weights.npz")
+    cache = os.path.join(HERE, os.path.splitext(wfile)[0] + "_bands.npz")
+    if os.path.exists(cache):
+        Z = dict(np.load(cache))
+        if Z["central"].shape == W["weights"].shape and np.allclose(Z["central"], W["weights"], rtol=1e-6, atol=0):
+            print(f"  band cache hit ({len(Z['scale_w'])} scale + {len(Z['boot_w'])} bootstrap) <- {os.path.basename(cache)}")
+            return list(Z["scale_w"]), list(Z["boot_w"])
+        print("  band cache stale; recomputing")
     print(f"uncertainty variants: central re-solve ({len(seeds)} seeds) ...",
           flush=True)
     res0 = upgrade(evs, build_M(seeds), cfg)
     if not np.allclose(res0.weights, W["weights"], rtol=1e-6, atol=0):
         print("  WARNING: central re-solve does not reproduce "
-              "aa_eventlevel_weights.npz -- drawing without MaxEnt bands")
+              f"{wfile} -- drawing without MaxEnt bands")
         return [], []
     lam0 = res0.report["lam"]
     scale_w, boot_w = [], []
@@ -149,6 +160,9 @@ def maxent_variants(n_boot=20):
         except Exception as err:
             print(f"  bootstrap {b} re-solve FAILED: {err}")
     print(f"  variants ready: {len(scale_w)}/6 scale, {len(boot_w)}/{n_boot} bootstrap")
+    if len(scale_w) == 6 and len(boot_w) == n_boot:
+        np.savez_compressed(cache, central=W["weights"], scale_w=np.array(scale_w), boot_w=np.array(boot_w))
+        print(f"  cached -> {os.path.basename(cache)}")
     return scale_w, boot_w
 
 
@@ -259,11 +273,22 @@ def main():
             # Reweighting cannot create events, so nothing here is a statement
             # about the method.  Reaching it needs a gamma-gamma+jet (2->3)
             # matrix element, not more statistics.
-            wl = wnw[ev[key] < DPHI_SUPP]
+            # The boundary is set by effective statistics, not by eye (and not
+            # by the prior generation used for the first submission): shade the
+            # contiguous low-dphi region whose REWEIGHTED Kish count per bin
+            # stays below 100.  A merged gamma-gamma+jet prior populates it and
+            # then nothing is shaded.
+            bad, _eff = support_mask(ev[key], wnw, e, min_eff=100.0)
+            k = 0
+            while k < len(bad) and bad[k]:
+                k += 1
+            supp = float(e[k]) if k > 0 else None
+            wl = wnw[ev[key] < (supp if supp else DPHI_SUPP)]
             effl = float(wl.sum() ** 2 / max((wl ** 2).sum(), 1e-300))
-            nlow = int((ev[key] < DPHI_SUPP).sum())
-            for p_ in (a, r):
-                p_.axvspan(e[0], DPHI_SUPP, color="0.5", alpha=0.16, zorder=0)
+            nlow = int((ev[key] < (supp if supp else DPHI_SUPP)).sum())
+            if supp:
+                for p_ in (a, r):
+                    p_.axvspan(e[0], supp, color="0.5", alpha=0.16, zorder=0)
             # The excursion just ABOVE the shaded band, near dphi = 2.2 rad, is
             # a known limitation and not a support artefact -- N_eff ~ 1e4
             # there.  Constraining pi-dphi as a profiled recoil does reduce it
@@ -271,10 +296,12 @@ def main():
             # overall at every moment count tried, because the fixed-order
             # pi-dphi moments carry errors 0.024-0.069 against 0.002-0.007 for
             # |cos theta*|.  It needs more fixed-order statistics.
-            print(f"  dphi_aa below {DPHI_SUPP}: N={nlow}  N_eff={effl:.0f}")
-            a.text(DPHI_SUPP * 0.97, 0.97, r"outside prior support",
-                   transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
-                   fontsize=11, color=C["seam"])
+            print(f"  dphi_aa support boundary: {supp}  (below it N={nlow}, N_eff={effl:.0f}; "
+                  f"per-bin N_eff of the first six bins {np.round(_eff[:6]).astype(int).tolist()})")
+            if supp:
+                a.text(supp * 0.97, 0.97, r"outside prior support",
+                       transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
+                       fontsize=11, color=C["seam"])
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
@@ -329,9 +356,9 @@ def main():
         r.set_ylim(0.5, 1.6); r.set_xlabel(lab)
         a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
         r.set_ylabel(r"ratio to data")
-        a.legend(loc="lower left", fontsize=12)
+        a.legend(loc="upper left" if key == "dphi_aa" else "lower left", fontsize=12)
         a.set_title(rf"{lab.replace(' [GeV]', '')}, {role}")
-        out = os.path.join(HERE, f"fig_aa_{key}.pdf")
+        out = os.path.join(HERE, f"fig_aa_{key}{FIG_SUFFIX}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)
         print("wrote", out)

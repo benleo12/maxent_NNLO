@@ -1,0 +1,151 @@
+{
+ "process": "pp -> H (gluon fusion, heavy-top effective theory)",
+ "order": "NNLO QCD (NNLOJET)",
+ "sqrt_s_TeV": 13,
+ "pdf": "CT18NNLO",
+ "ew_scheme": "-",
+ "scale": "muR = muF = m_H",
+ "fiducial": "none (fully inclusive)",
+ "sigma_fid_note": "NOT VALIDATED: the norm_born accumulator of this production carries an overall normalization that does not reproduce the known inclusive gg -> H cross section (it comes out about 600 times too large); the paper uses only the shape moments, which are ratios and unaffected. sigma_fid_pb is therefore set to null; take the inclusive cross section from elsewhere to normalize an upgraded sample.",
+ "n_independent_runs": 40,
+ "channels": [
+  "LO",
+  "R",
+  "V",
+  "RR",
+  "RV",
+  "VV"
+ ],
+ "towers": {
+  "y_abs": {
+   "kind": "born",
+   "observable": "y_abs",
+   "map": "lin",
+   "range": [
+    0.0,
+    4.0
+   ],
+   "n_orders": 6,
+   "orders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "values": [
+    -0.3766447500240649,
+    -0.25395896798754714,
+    0.2910087370250513,
+    -0.09877541058170432,
+    0.054920314889573704,
+    -0.0074474971321462444
+   ],
+   "stat_errors": [
+    0.0006565648035941159,
+    0.000663982488933569,
+    0.0005673459936442455,
+    0.0007167883691527547,
+    0.0007009092140714989,
+    0.0006012000187462824
+   ],
+   "scale_errors": [
+    0.007771681957078752,
+    0.005395876229413635,
+    0.003654670835139401,
+    0.005343048154687349,
+    0.0018807188295651804,
+    0.001296957794631437
+   ],
+   "note": "|y_H|"
+  },
+  "pT_H": {
+   "kind": "window",
+   "observable": "pT_H",
+   "map": "log",
+   "range": [
+    1.0,
+    1000.0
+   ],
+   "n_orders": 12,
+   "orders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "values": [
+    0.3715606716775217,
+    -0.6613280766712957,
+    -0.7523013938008822,
+    0.08235353557509753,
+    0.6218071440192333,
+    0.23694518132217776,
+    -0.3564645268057455,
+    -0.3112727371479346,
+    0.15780351443193427,
+    0.28698416462847753,
+    -0.03587825257993783,
+    -0.23787664885780105
+   ],
+   "stat_errors": [
+    0.00014125206041904823,
+    0.00020990543737863594,
+    0.0001850774742515261,
+    0.0004938810833128571,
+    0.00023954378512068395,
+    0.0005429955726450221,
+    0.000517863698058087,
+    0.00043132383599824925,
+    0.000672185622552472,
+    0.0004214159619916348,
+    0.0006726620491047504,
+    0.0005424659342960653
+   ],
+   "scale_errors": [
+    0.003011988452893022,
+    0.00872063451597671,
+    0.010308464964045083,
+    0.008744255465345692,
+    0.013820274095364515,
+    0.018894394670400924,
+    0.009476020210788194,
+    0.012536281245964426,
+    0.014406708200636414,
+    0.004558463075694658,
+    0.013322547452506007,
+    0.00531368957977095
+   ],
+   "note": "recoil, C^2 window 37-74 GeV, hard cut 1000 GeV",
+   "soft_lo": 1.0,
+   "profile": {
+    "a": 37.0,
+    "b": 74.0,
+    "c": 1000.0
+   },
+   "window_rate": 0.27487402195693017,
+   "window_rate_stat": 0.00033336140413038883,
+   "window_rate_scale": 0.010325362495181123
+  }
+ },
+ "joint": {},
+ "default_constraints": {
+  "born": [
+   "y_abs"
+  ],
+  "recoil": [
+   "pT_H"
+  ],
+  "mixed": []
+ },
+ "sigma_fid_pb": null
+}

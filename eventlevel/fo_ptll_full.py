@@ -16,8 +16,8 @@ import os
 import numpy as np
 from nnlojet_moments import fo_curve, fo_curve_band, common_seeds
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_log30_hi"
-BASE2 = "/Users/user/nnlojet-v1.0.2/dy_profile_poc_ptzfull"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
+BASE2 = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc_ptzfull")
 RUN = "DY_MOMENTS"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 CHR = ("R", "RR", "RV")

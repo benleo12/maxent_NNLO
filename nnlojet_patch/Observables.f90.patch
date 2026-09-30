@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90	2026-08-13 22:35:28
-@@ -187,6 +187,179 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/Observables.f90	2026-09-27 03:27:59
+@@ -187,6 +187,256 @@
                      EvalObs_t(eval=eval_pt_V), ifac=2)
        call bind_obs("mll", "invariant mass of Z", &
                      EvalObs_t(eval=eval_minv_V), ifac=1)
@@ -43,6 +43,18 @@
 +                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-5), ifac=1)
 +      call bind_obs("chebT_mll_6", "T_6 of m_ll (lin 66-116)", &
 +                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-6), ifac=1)
++      call bind_obs("chebT_mll_7", "T_7 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-7), ifac=1)
++      call bind_obs("chebT_mll_8", "T_8 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-8), ifac=1)
++      call bind_obs("chebT_mll_9", "T_9 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-9), ifac=1)
++      call bind_obs("chebT_mll_10", "T_10 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-10), ifac=1)
++      call bind_obs("chebT_mll_11", "T_11 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-11), ifac=1)
++      call bind_obs("chebT_mll_12", "T_12 of m_ll (lin 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebT_mll, imem=-12), ifac=1)
 +      ! Chebyshev moments T_n(u(|y_ll|)), linear map on [0,2.4].
 +      call bind_obs("chebT_absyz_1", "T_1 of |y_ll| (lin 0-2.4)", &
 +                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-1))
@@ -56,49 +68,114 @@
 +                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-5))
 +      call bind_obs("chebT_absyz_6", "T_6 of |y_ll| (lin 0-2.4)", &
 +                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-6))
-+      ! Chebyshev moments T_n(u(pT_ll)), LOG map on recoil window [10,500].
-+      ! Book with per-histogram selector: select ptz min=10 max=500.
-+      call bind_obs("chebT_ptz_1", "T_1 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_absyz_7", "T_7 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-7))
++      call bind_obs("chebT_absyz_8", "T_8 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-8))
++      call bind_obs("chebT_absyz_9", "T_9 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-9))
++      call bind_obs("chebT_absyz_10", "T_10 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-10))
++      call bind_obs("chebT_absyz_11", "T_11 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-11))
++      call bind_obs("chebT_absyz_12", "T_12 of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebT_absyz, imem=-12))
++      ! WEIGHTED Chebyshev T_n(u)/sqrt(1-u^2), event-level, no regulator (basis test).
++      call bind_obs("chebW_mll_0", "T_0/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-10), ifac=1)
++      call bind_obs("chebW_mll_1", "T_1/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-1), ifac=1)
++      call bind_obs("chebW_mll_2", "T_2/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-2), ifac=1)
++      call bind_obs("chebW_mll_3", "T_3/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-3), ifac=1)
++      call bind_obs("chebW_mll_4", "T_4/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-4), ifac=1)
++      call bind_obs("chebW_mll_5", "T_5/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-5), ifac=1)
++      call bind_obs("chebW_mll_6", "T_6/sqrt(1-u^2) of m_ll (BW 66-116)", &
++                    EvalObs_t(eval_mem=eval_chebW_mll, imem=-6), ifac=1)
++      call bind_obs("chebW_absyz_0", "T_0/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-10))
++      call bind_obs("chebW_absyz_1", "T_1/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-1))
++      call bind_obs("chebW_absyz_2", "T_2/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-2))
++      call bind_obs("chebW_absyz_3", "T_3/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-3))
++      call bind_obs("chebW_absyz_4", "T_4/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-4))
++      call bind_obs("chebW_absyz_5", "T_5/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-5))
++      call bind_obs("chebW_absyz_6", "T_6/sqrt(1-u^2) of |y_ll| (lin 0-2.4)", &
++                    EvalObs_t(eval_mem=eval_chebW_absyz, imem=-6))
++      ! Chebyshev moments T_n(u(pT_ll)), LOG map [30,2500] (orders 1-20; 13-20 added 2026-09-18).
++      ! Book with per-histogram selector: select ptz min=30 max=500.
++      call bind_obs("chebT_ptz_1", "T_1 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-1), ifac=2)
-+      call bind_obs("chebT_ptz_2", "T_2 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_2", "T_2 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-2), ifac=2)
-+      call bind_obs("chebT_ptz_3", "T_3 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_3", "T_3 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-3), ifac=2)
-+      call bind_obs("chebT_ptz_4", "T_4 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_4", "T_4 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-4), ifac=2)
-+      call bind_obs("chebT_ptz_5", "T_5 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_5", "T_5 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-5), ifac=2)
-+      call bind_obs("chebT_ptz_6", "T_6 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_6", "T_6 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-6), ifac=2)
-+      call bind_obs("chebT_ptz_7", "T_7 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_7", "T_7 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-7), ifac=2)
-+      call bind_obs("chebT_ptz_8", "T_8 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_8", "T_8 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-8), ifac=2)
-+      call bind_obs("chebT_ptz_9", "T_9 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_9", "T_9 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-9), ifac=2)
-+      call bind_obs("chebT_ptz_10", "T_10 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_10", "T_10 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-10), ifac=2)
-+      call bind_obs("chebT_ptz_11", "T_11 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_11", "T_11 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-11), ifac=2)
-+      call bind_obs("chebT_ptz_12", "T_12 of pT_ll (log 10-500)", &
++      call bind_obs("chebT_ptz_12", "T_12 of pT_ll (log 30-2500)", &
 +                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-12), ifac=2)
++      call bind_obs("chebT_ptz_13", "T_13 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-13), ifac=2)
++      call bind_obs("chebT_ptz_14", "T_14 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-14), ifac=2)
++      call bind_obs("chebT_ptz_15", "T_15 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-15), ifac=2)
++      call bind_obs("chebT_ptz_16", "T_16 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-16), ifac=2)
++      call bind_obs("chebT_ptz_17", "T_17 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-17), ifac=2)
++      call bind_obs("chebT_ptz_18", "T_18 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-18), ifac=2)
++      call bind_obs("chebT_ptz_19", "T_19 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-19), ifac=2)
++      call bind_obs("chebT_ptz_20", "T_20 of pT_ll (log 30-2500)", &
++                    EvalObs_t(eval_mem=eval_chebT_ptz, imem=-20), ifac=2)
 +      ! SMOOTH-profile recoil moments: w(pT)*T_n, profile [30,60]->500, log map
-+      ! [0.5,500].  Single-bin PROFILE histograms, NO selector (w does the window).
++      ! [30,2500].  Single-bin PROFILE histograms, NO selector (w does the window).
 +      ! <T_n>_FO(w)=prof(chebTw_ptz_n)/prof(w_ptz); R=prof(w_ptz)/sigma_fid.
 +      call bind_obs("w_ptz", "recoil profile w(pT_ll) [30,60,500]", &
 +                    EvalObs_t(eval=eval_w_ptz), ifac=2)
-+      call bind_obs("chebTw_ptz_1", "w*T_1 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-1), ifac=2)
-+      call bind_obs("chebTw_ptz_2", "w*T_2 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-2), ifac=2)
-+      call bind_obs("chebTw_ptz_3", "w*T_3 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-3), ifac=2)
-+      call bind_obs("chebTw_ptz_4", "w*T_4 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-4), ifac=2)
-+      call bind_obs("chebTw_ptz_5", "w*T_5 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-5), ifac=2)
-+      call bind_obs("chebTw_ptz_6", "w*T_6 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-6), ifac=2)
-+      call bind_obs("chebTw_ptz_7", "w*T_7 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-7), ifac=2)
-+      call bind_obs("chebTw_ptz_8", "w*T_8 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-8), ifac=2)
-+      call bind_obs("chebTw_ptz_9", "w*T_9 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-9), ifac=2)
-+      call bind_obs("chebTw_ptz_10", "w*T_10 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-10), ifac=2)
-+      call bind_obs("chebTw_ptz_11", "w*T_11 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-11), ifac=2)
-+      call bind_obs("chebTw_ptz_12", "w*T_12 pT_ll", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-12), ifac=2)
++      call bind_obs("chebTw_ptz_1", "w*T_1 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-1), ifac=2)
++      call bind_obs("chebTw_ptz_2", "w*T_2 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-2), ifac=2)
++      call bind_obs("chebTw_ptz_3", "w*T_3 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-3), ifac=2)
++      call bind_obs("chebTw_ptz_4", "w*T_4 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-4), ifac=2)
++      call bind_obs("chebTw_ptz_5", "w*T_5 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-5), ifac=2)
++      call bind_obs("chebTw_ptz_6", "w*T_6 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-6), ifac=2)
++      call bind_obs("chebTw_ptz_7", "w*T_7 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-7), ifac=2)
++      call bind_obs("chebTw_ptz_8", "w*T_8 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-8), ifac=2)
++      call bind_obs("chebTw_ptz_9", "w*T_9 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-9), ifac=2)
++      call bind_obs("chebTw_ptz_10", "w*T_10 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-10), ifac=2)
++      call bind_obs("chebTw_ptz_11", "w*T_11 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-11), ifac=2)
++      call bind_obs("chebTw_ptz_12", "w*T_12 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-12), ifac=2)
++      call bind_obs("chebTw_ptz_13", "w*T_13 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-13), ifac=2)
++      call bind_obs("chebTw_ptz_14", "w*T_14 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-14), ifac=2)
++      call bind_obs("chebTw_ptz_15", "w*T_15 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-15), ifac=2)
++      call bind_obs("chebTw_ptz_16", "w*T_16 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-16), ifac=2)
++      call bind_obs("chebTw_ptz_17", "w*T_17 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-17), ifac=2)
++      call bind_obs("chebTw_ptz_18", "w*T_18 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-18), ifac=2)
++      call bind_obs("chebTw_ptz_19", "w*T_19 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-19), ifac=2)
++      call bind_obs("chebTw_ptz_20", "w*T_20 pT_ll (log 30-2500)", EvalObs_t(eval_mem=eval_chebTw_ptz, imem=-20), ifac=2)
 +      ! ---- DY+jet (ZJ) smooth-profile moments: pT_j1, pT_j2 (above cut), dphi(l1,l2) (away from pi)
 +      call bind_obs("w_ptj1", "profile w(pT_j1)", EvalObs_t(eval=eval_w_ptj1, min_njets=1), ifac=2)
 +      call bind_obs("chebTw_ptj1_1", "w*T_1 pT_j1", EvalObs_t(min_njets=1, eval_mem=eval_chebTw_ptj1, imem=-1), ifac=2)
@@ -180,7 +257,181 @@
        call bind_obs("etz", "transverse energy: sqrt(mll^2 + ptz^2)", &
                      EvalObs_t(eval=eval_et_V), ifac=1)
        call bind_obs("yz", "rapidity of Z", &
-@@ -1253,6 +1426,26 @@
+@@ -399,6 +649,86 @@
+                     EvalObs_t(eval=eval_r_V))
+       call bind_obs("etw", "transverse energy: sqrt(mln^2 + ptw^2)", &
+                     EvalObs_t(eval=eval_et_V), ifac=1)
++      ! ---- W event-level Chebyshev moments (maxent_upgrade input): m_W BW map, |y_W| lin, pT_W profiled
++      call bind_obs("chebT_mw_1", "T_1 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-1), ifac=1)
++      call bind_obs("chebT_mw_2", "T_2 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-2), ifac=1)
++      call bind_obs("chebT_mw_3", "T_3 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-3), ifac=1)
++      call bind_obs("chebT_mw_4", "T_4 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-4), ifac=1)
++      call bind_obs("chebT_mw_5", "T_5 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-5), ifac=1)
++      call bind_obs("chebT_mw_6", "T_6 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-6), ifac=1)
++      call bind_obs("chebT_mw_7", "T_7 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-7), ifac=1)
++      call bind_obs("chebT_mw_8", "T_8 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-8), ifac=1)
++      call bind_obs("chebT_mw_9", "T_9 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-9), ifac=1)
++      call bind_obs("chebT_mw_10", "T_10 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-10), ifac=1)
++      call bind_obs("chebT_mw_11", "T_11 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-11), ifac=1)
++      call bind_obs("chebT_mw_12", "T_12 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-12), ifac=1)
++      call bind_obs("chebT_absyw_1", "T_1 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-1))
++      call bind_obs("chebT_absyw_2", "T_2 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-2))
++      call bind_obs("chebT_absyw_3", "T_3 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-3))
++      call bind_obs("chebT_absyw_4", "T_4 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-4))
++      call bind_obs("chebT_absyw_5", "T_5 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-5))
++      call bind_obs("chebT_absyw_6", "T_6 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-6))
++      call bind_obs("chebT_absyw_7", "T_7 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-7))
++      call bind_obs("chebT_absyw_8", "T_8 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-8))
++      call bind_obs("chebT_absyw_9", "T_9 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-9))
++      call bind_obs("chebT_absyw_10", "T_10 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-10))
++      call bind_obs("chebT_absyw_11", "T_11 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-11))
++      call bind_obs("chebT_absyw_12", "T_12 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-12))
++      call bind_obs("w_ptw", "recoil profile w(pT_W) [25,50,500]", EvalObs_t(eval=eval_w_ptw), ifac=2)
++      call bind_obs("chebTw_ptw_1", "w*T_1 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-1), ifac=2)
++      call bind_obs("chebTw_ptw_2", "w*T_2 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-2), ifac=2)
++      call bind_obs("chebTw_ptw_3", "w*T_3 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-3), ifac=2)
++      call bind_obs("chebTw_ptw_4", "w*T_4 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-4), ifac=2)
++      call bind_obs("chebTw_ptw_5", "w*T_5 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-5), ifac=2)
++      call bind_obs("chebTw_ptw_6", "w*T_6 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-6), ifac=2)
++      call bind_obs("chebTw_ptw_7", "w*T_7 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-7), ifac=2)
++      call bind_obs("chebTw_ptw_8", "w*T_8 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-8), ifac=2)
++      call bind_obs("chebTw_ptw_9", "w*T_9 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-9), ifac=2)
++      call bind_obs("chebTw_ptw_10", "w*T_10 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-10), ifac=2)
++      call bind_obs("chebTw_ptw_11", "w*T_11 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-11), ifac=2)
++      call bind_obs("chebTw_ptw_12", "w*T_12 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-12), ifac=2)
++      call bind_obs("chebTw_ptw_13", "w*T_13 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-13), ifac=2)
++      call bind_obs("chebTw_ptw_14", "w*T_14 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-14), ifac=2)
++      call bind_obs("chebTw_ptw_15", "w*T_15 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-15), ifac=2)
++      call bind_obs("chebTw_ptw_16", "w*T_16 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-16), ifac=2)
++      call bind_obs("chebTw_ptw_17", "w*T_17 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-17), ifac=2)
++      call bind_obs("chebTw_ptw_18", "w*T_18 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-18), ifac=2)
++      call bind_obs("chebTw_ptw_19", "w*T_19 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-19), ifac=2)
++      call bind_obs("chebTw_ptw_20", "w*T_20 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-20), ifac=2)
++      ! ---- signed Collins-Soper decay angle of the charged lepton, lin map [-1,1]
++      call bind_obs("chebT_ctw_1", "T_1 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-1))
++      call bind_obs("chebT_ctw_2", "T_2 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-2))
++      call bind_obs("chebT_ctw_3", "T_3 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-3))
++      call bind_obs("chebT_ctw_4", "T_4 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-4))
++      call bind_obs("chebT_ctw_5", "T_5 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-5))
++      call bind_obs("chebT_ctw_6", "T_6 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-6))
++      call bind_obs("chebT_ctw_7", "T_7 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-7))
++      call bind_obs("chebT_ctw_8", "T_8 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwm, imem=-8))
++      call bind_obs("costh_w", "signed cos th*_CS of the charged lepton (W rest frame)", EvalObs_t(eval_mem=eval_costhCS_w, imem=-1))
++      call bind_obs("w_ctw", "decay-angle window w(cos th*) [|c|<0.5, ramp to 0.7]", EvalObs_t(eval_mem=eval_w_ctw, imem=-1))
++      call bind_obs("chebTw_ctw_1", "w*T_1 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-1))
++      call bind_obs("chebTw_ctw_2", "w*T_2 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-2))
++      call bind_obs("chebTw_ctw_3", "w*T_3 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-3))
++      call bind_obs("chebTw_ctw_4", "w*T_4 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-4))
++      call bind_obs("chebTw_ctw_5", "w*T_5 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-5))
++      call bind_obs("chebTw_ctw_6", "w*T_6 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwm, imem=-6))
++      call bind_obs("w_ptwctw", "joint window w(pT_W) w(cos th*)", EvalObs_t(eval_mem=eval_w_ptwctw, imem=-1))
++      call bind_obs("chebTT_ptwctw_11", "w T_1(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-11))
++      call bind_obs("chebTT_ptwctw_12", "w T_1(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-12))
++      call bind_obs("chebTT_ptwctw_13", "w T_1(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-13))
++      call bind_obs("chebTT_ptwctw_14", "w T_1(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-14))
++      call bind_obs("chebTT_ptwctw_21", "w T_2(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-21))
++      call bind_obs("chebTT_ptwctw_22", "w T_2(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-22))
++      call bind_obs("chebTT_ptwctw_23", "w T_2(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-23))
++      call bind_obs("chebTT_ptwctw_24", "w T_2(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-24))
++      call bind_obs("chebTT_ptwctw_31", "w T_3(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-31))
++      call bind_obs("chebTT_ptwctw_32", "w T_3(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-32))
++      call bind_obs("chebTT_ptwctw_33", "w T_3(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-33))
++      call bind_obs("chebTT_ptwctw_34", "w T_3(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-34))
++      call bind_obs("chebTT_ptwctw_41", "w T_4(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-41))
++      call bind_obs("chebTT_ptwctw_42", "w T_4(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-42))
++      call bind_obs("chebTT_ptwctw_43", "w T_4(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-43))
++      call bind_obs("chebTT_ptwctw_44", "w T_4(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwm, imem=-44))
+       call bind_obs("dscale1", "sqrt(mln^2 + sum pt{jets}^2)", &
+                     EvalObs_t(eval=eval_ZJ_dscale1))
+       call bind_obs("dscale2", "etw + ptj1", &
+@@ -593,6 +923,86 @@
+                     EvalObs_t(eval=eval_r_V))
+       call bind_obs("etw", "transverse energy: sqrt(mln^2 + ptw^2)", &
+                     EvalObs_t(eval=eval_et_V), ifac=1)
++      ! ---- W event-level Chebyshev moments (maxent_upgrade input): m_W BW map, |y_W| lin, pT_W profiled
++      call bind_obs("chebT_mw_1", "T_1 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-1), ifac=1)
++      call bind_obs("chebT_mw_2", "T_2 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-2), ifac=1)
++      call bind_obs("chebT_mw_3", "T_3 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-3), ifac=1)
++      call bind_obs("chebT_mw_4", "T_4 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-4), ifac=1)
++      call bind_obs("chebT_mw_5", "T_5 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-5), ifac=1)
++      call bind_obs("chebT_mw_6", "T_6 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-6), ifac=1)
++      call bind_obs("chebT_mw_7", "T_7 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-7), ifac=1)
++      call bind_obs("chebT_mw_8", "T_8 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-8), ifac=1)
++      call bind_obs("chebT_mw_9", "T_9 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-9), ifac=1)
++      call bind_obs("chebT_mw_10", "T_10 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-10), ifac=1)
++      call bind_obs("chebT_mw_11", "T_11 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-11), ifac=1)
++      call bind_obs("chebT_mw_12", "T_12 of m_W (BW 40-1000)", EvalObs_t(eval_mem=eval_chebT_mw, imem=-12), ifac=1)
++      call bind_obs("chebT_absyw_1", "T_1 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-1))
++      call bind_obs("chebT_absyw_2", "T_2 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-2))
++      call bind_obs("chebT_absyw_3", "T_3 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-3))
++      call bind_obs("chebT_absyw_4", "T_4 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-4))
++      call bind_obs("chebT_absyw_5", "T_5 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-5))
++      call bind_obs("chebT_absyw_6", "T_6 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-6))
++      call bind_obs("chebT_absyw_7", "T_7 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-7))
++      call bind_obs("chebT_absyw_8", "T_8 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-8))
++      call bind_obs("chebT_absyw_9", "T_9 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-9))
++      call bind_obs("chebT_absyw_10", "T_10 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-10))
++      call bind_obs("chebT_absyw_11", "T_11 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-11))
++      call bind_obs("chebT_absyw_12", "T_12 of |y_W| (lin 0-4)", EvalObs_t(eval_mem=eval_chebT_absyw, imem=-12))
++      call bind_obs("w_ptw", "recoil profile w(pT_W) [25,50,500]", EvalObs_t(eval=eval_w_ptw), ifac=2)
++      call bind_obs("chebTw_ptw_1", "w*T_1 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-1), ifac=2)
++      call bind_obs("chebTw_ptw_2", "w*T_2 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-2), ifac=2)
++      call bind_obs("chebTw_ptw_3", "w*T_3 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-3), ifac=2)
++      call bind_obs("chebTw_ptw_4", "w*T_4 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-4), ifac=2)
++      call bind_obs("chebTw_ptw_5", "w*T_5 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-5), ifac=2)
++      call bind_obs("chebTw_ptw_6", "w*T_6 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-6), ifac=2)
++      call bind_obs("chebTw_ptw_7", "w*T_7 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-7), ifac=2)
++      call bind_obs("chebTw_ptw_8", "w*T_8 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-8), ifac=2)
++      call bind_obs("chebTw_ptw_9", "w*T_9 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-9), ifac=2)
++      call bind_obs("chebTw_ptw_10", "w*T_10 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-10), ifac=2)
++      call bind_obs("chebTw_ptw_11", "w*T_11 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-11), ifac=2)
++      call bind_obs("chebTw_ptw_12", "w*T_12 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-12), ifac=2)
++      call bind_obs("chebTw_ptw_13", "w*T_13 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-13), ifac=2)
++      call bind_obs("chebTw_ptw_14", "w*T_14 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-14), ifac=2)
++      call bind_obs("chebTw_ptw_15", "w*T_15 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-15), ifac=2)
++      call bind_obs("chebTw_ptw_16", "w*T_16 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-16), ifac=2)
++      call bind_obs("chebTw_ptw_17", "w*T_17 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-17), ifac=2)
++      call bind_obs("chebTw_ptw_18", "w*T_18 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-18), ifac=2)
++      call bind_obs("chebTw_ptw_19", "w*T_19 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-19), ifac=2)
++      call bind_obs("chebTw_ptw_20", "w*T_20 pT_W (log 25-2500)", EvalObs_t(eval_mem=eval_chebTw_ptw, imem=-20), ifac=2)
++      ! ---- signed Collins-Soper decay angle of the charged lepton, lin map [-1,1]
++      call bind_obs("chebT_ctw_1", "T_1 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-1))
++      call bind_obs("chebT_ctw_2", "T_2 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-2))
++      call bind_obs("chebT_ctw_3", "T_3 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-3))
++      call bind_obs("chebT_ctw_4", "T_4 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-4))
++      call bind_obs("chebT_ctw_5", "T_5 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-5))
++      call bind_obs("chebT_ctw_6", "T_6 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-6))
++      call bind_obs("chebT_ctw_7", "T_7 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-7))
++      call bind_obs("chebT_ctw_8", "T_8 of cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebT_ctwp, imem=-8))
++      call bind_obs("costh_w", "signed cos th*_CS of the charged lepton (W rest frame)", EvalObs_t(eval_mem=eval_costhCS_w, imem=-2))
++      call bind_obs("w_ctw", "decay-angle window w(cos th*) [|c|<0.5, ramp to 0.7]", EvalObs_t(eval_mem=eval_w_ctw, imem=-2))
++      call bind_obs("chebTw_ctw_1", "w*T_1 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-1))
++      call bind_obs("chebTw_ctw_2", "w*T_2 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-2))
++      call bind_obs("chebTw_ctw_3", "w*T_3 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-3))
++      call bind_obs("chebTw_ctw_4", "w*T_4 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-4))
++      call bind_obs("chebTw_ctw_5", "w*T_5 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-5))
++      call bind_obs("chebTw_ctw_6", "w*T_6 cos th*_CS(W)", EvalObs_t(eval_mem=eval_chebTw_ctwp, imem=-6))
++      call bind_obs("w_ptwctw", "joint window w(pT_W) w(cos th*)", EvalObs_t(eval_mem=eval_w_ptwctw, imem=-2))
++      call bind_obs("chebTT_ptwctw_11", "w T_1(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-11))
++      call bind_obs("chebTT_ptwctw_12", "w T_1(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-12))
++      call bind_obs("chebTT_ptwctw_13", "w T_1(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-13))
++      call bind_obs("chebTT_ptwctw_14", "w T_1(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-14))
++      call bind_obs("chebTT_ptwctw_21", "w T_2(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-21))
++      call bind_obs("chebTT_ptwctw_22", "w T_2(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-22))
++      call bind_obs("chebTT_ptwctw_23", "w T_2(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-23))
++      call bind_obs("chebTT_ptwctw_24", "w T_2(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-24))
++      call bind_obs("chebTT_ptwctw_31", "w T_3(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-31))
++      call bind_obs("chebTT_ptwctw_32", "w T_3(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-32))
++      call bind_obs("chebTT_ptwctw_33", "w T_3(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-33))
++      call bind_obs("chebTT_ptwctw_34", "w T_3(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-34))
++      call bind_obs("chebTT_ptwctw_41", "w T_4(pT_W) T_1(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-41))
++      call bind_obs("chebTT_ptwctw_42", "w T_4(pT_W) T_2(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-42))
++      call bind_obs("chebTT_ptwctw_43", "w T_4(pT_W) T_3(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-43))
++      call bind_obs("chebTT_ptwctw_44", "w T_4(pT_W) T_4(cos th*)", EvalObs_t(eval_mem=eval_chebTT_ptwctwp, imem=-44))
+       call bind_obs("dscale1", "sqrt(mln^2 + sum_i ptj_i^2)", &
+                     EvalObs_t(eval=eval_ZJ_dscale1))
+       call bind_obs("dscale2", "etw + ptj1", &
+@@ -1253,6 +1663,26 @@
      case ("H", "HJ", "HJJ", "HJJJ",  &
           & "HM", "HJMREW", "HJJMREW", "HJM", "HJJM", "HJJJM",  &
           & "HINC", "HQT")
@@ -207,7 +458,7 @@
        ! H-boson
        call bind_obs("pth", "transverse momentum of H", &
                      EvalObs_t(eval=eval_pt_V), ifac=2)
-@@ -1906,6 +2099,46 @@
+@@ -1906,6 +2336,46 @@
                      EvalObs_t(eval=eval_imbalance_pt_gam1j1, min_njets=1, min_nphotons=1))
  
      case ("GG", "GG_FRAG", "GGJ", "GGJFC", "GGJJ", "GGJJFC", "GGJJJFC", "GG_EW", "GGQT")

@@ -535,7 +535,7 @@ if __name__ == "__main__":
     import json
     import sys
     base = sys.argv[1] if len(sys.argv) > 1 else \
-        "/Users/user/nnlojet-v1.0.2/dy_profile_log30_hi"
+        os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
     run = "DY_MOMENTS"
     channels = ["LO", "R", "V"]
     seeds = seeds_in(base, run)

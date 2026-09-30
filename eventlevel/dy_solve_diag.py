@@ -26,7 +26,7 @@ from maxent_upgrade.dy_method import cheb as _cheb, umap as _umap
 from maxent_upgrade.maxent_match import _newton_maxent
 from nnlojet_moments import fo_moments_from_nnlojet
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
 RUN = "DY_MOMENTS"
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 SEEDS = [1, 2]

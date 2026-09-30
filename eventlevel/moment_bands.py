@@ -167,7 +167,7 @@ def targets_of(M, cfg_like_names):
 # the check
 # --------------------------------------------------------------------------
 def main():
-    BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+    BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
     CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
     XM, XHI, SOFT = 30.0, 500.0, 0.5
     loader_kw = dict(born_tags={"mll": "mll", "y_abs": "absyz"},

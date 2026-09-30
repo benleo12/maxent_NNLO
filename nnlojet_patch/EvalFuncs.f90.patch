@@ -1,6 +1,6 @@
 --- /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90.bak_profilemoment	2026-08-03 22:50:39
-+++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-08-13 22:35:09
-@@ -2463,7 +2463,509 @@
++++ /Users/user/nnlojet-v1.0.2/driver/core/EvalFuncs.f90	2026-09-27 03:27:59
+@@ -2463,7 +2463,733 @@
      pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
      eval_minv_V = v1_minv(pV)
    end function eval_minv_V
@@ -137,21 +137,77 @@
 +    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
 +    x = abs(v1_y(pV))
 +    u = 2.0_wp*(x - lo)/(hi - lo) - 1.0_wp
++    u = max(-1.0_wp, min(1.0_wp, u))   ! out-of-range events sit at the edge
 +    eval_chebT_absyz = cheb_T(u, n)
 +  end function eval_chebT_absyz
 +
++  !===========================================================================
++  !  WEIGHTED Chebyshev observables  T_n(u)/sqrt(1-u^2)  (basis test, 2026-09).
++  !  The classical Chebyshev orthogonality weight, accumulated EVENT-LEVEL like
++  !  the plain moments, no regulator: a phase-space point with u^2 >= 1 exactly
++  !  (measure zero) contributes 0.  n = 0 is the pure weight 1/sqrt(1-u^2).
++  !===========================================================================
++  pure function cheb_W(u_in, n) result(res)
++    real(kind=wp), intent(in) :: u_in
++    integer, intent(in) :: n
++    real(kind=wp) :: res, u, s2
++    integer :: nn
++    u  = max(-1.0_wp, min(1.0_wp, u_in))
++    s2 = 1.0_wp - u*u
++    nn = abs(n)
++    if (nn == 10) nn = 0            ! imem=-10 encodes order 0 (imem must be nonzero)
++    if (s2 <= 0.0_wp) then
++      res = 0.0_wp
++    else
++      res = cheb_T(u, nn)/sqrt(s2)
++    end if
++  end function cheb_W
++
++  !> T_n(u)/sqrt(1-u^2) of m_ll on the Breit-Wigner map [66,116].  Bind as chebW_mll_n.
++  real(kind=wp) function eval_chebW_mll(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 66.0_wp, hi = 116.0_wp
++    real(kind=wp), parameter :: mz = 91.1876_wp, gz = 2.4952_wp
++    if (npar < 1) then
++      eval_chebW_mll = 0.0_wp
++      return
++    end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = v1_minv(pV)
++    u = bw_u(x, lo, hi, mz, gz)
++    eval_chebW_mll = cheb_W(u, n)
++  end function eval_chebW_mll
++
++  !> T_n(u)/sqrt(1-u^2) of |y_ll| on the linear map [0,2.4].  Bind as chebW_absyz_n.
++  real(kind=wp) function eval_chebW_absyz(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 0.0_wp, hi = 2.4_wp
++    if (npar < 1) then
++      eval_chebW_absyz = 0.0_wp
++      return
++    end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = abs(v1_y(pV))
++    u = 2.0_wp*(x - lo)/(hi - lo) - 1.0_wp
++    eval_chebW_absyz = cheb_W(u, n)
++  end function eval_chebW_absyz
++
 +  !> T_n of the dilepton transverse momentum pT_ll, LOG map on the composite
-+  !> recoil axis [soft_lo, x_hi] = [0.5,500] GeV (MUST match the engine map
++  !> recoil axis [soft_lo, x_hi] = [30,2500] GeV (MUST match the engine map
 +  !> u = umap(x, soft_lo, x_hi, 'log') so the FO moment composes with the soft
 +  !> and tail pieces).  The FO REGION is imposed only inside the window: book
-+  !> with a per-histogram selector ptz in [x_match, x_hi] (e.g. [10,500]); below
++  !> with a per-histogram selector ptz in [x_match, 500] (e.g. [30,500]); below
 +  !> the seam the shower is preserved.  Map floor is soft_lo, NOT x_match.
 +  !> imem = n.  Bind as chebT_ptz_n.
 +  real(kind=wp) function eval_chebT_ptz(npar, n)
 +    integer, intent(in) :: npar, n
 +    real(kind=wp), dimension(4) :: pV
 +    real(kind=wp) :: x, u, lnlo, lnhi
-+    real(kind=wp), parameter :: lo = 0.5_wp, hi = 500.0_wp
++    real(kind=wp), parameter :: lo = 30.0_wp, hi = 2500.0_wp
 +    if (npar < 1) then
 +      eval_chebT_ptz = 0.0_wp
 +      return
@@ -199,14 +255,15 @@
 +    eval_w_ptz = prof_w(v1_pt(pV), pa, pb, pc, pd)
 +  end function eval_w_ptz
 +
-+  !> w(pT_ll) * T_n(u(pT_ll)), LOG map [0.5,500], smooth profile [30,60](->500).
++  !> w(pT_ll) * T_n(u(pT_ll)), LOG map [30,2500], smooth profile [30,60](->500).
++  !> (map [0.5,500] until 2026-09-18; [30,2500] matches Rene Poncelet's Stripper run)
 +  !> Book as a single-bin PROFILE histogram (no selector; the profile windows it).
 +  !> <T_n>_FO(w) = prof(chebTw_ptz_n) / prof(w_ptz);  R = prof(w_ptz)/sigma_fid.
 +  real(kind=wp) function eval_chebTw_ptz(npar, n)
 +    integer, intent(in) :: npar, n
 +    real(kind=wp), dimension(4) :: pV
 +    real(kind=wp) :: x, u, lnlo, lnhi
-+    real(kind=wp), parameter :: lo = 0.5_wp, hi = 500.0_wp
++    real(kind=wp), parameter :: lo = 30.0_wp, hi = 2500.0_wp
 +    real(kind=wp), parameter :: pa = 30.0_wp, pb = 60.0_wp, pc = 500.0_wp, pd = 500.0_wp
 +    if (npar < 1) then
 +      eval_chebTw_ptz = 0.0_wp
@@ -219,6 +276,170 @@
 +    u = 2.0_wp*(log(x) - lnlo)/(lnhi - lnlo) - 1.0_wp
 +    eval_chebTw_ptz = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
 +  end function eval_chebTw_ptz
++
++  !===========================================================================
++  !  W production (WP / WM) event-level Chebyshev moments.  The W is the
++  !  colour singlet built from the last two particles (charged lepton and
++  !  neutrino), exactly as ptw/mln/yw are bound (eval_pt_V, eval_minv_V,
++  !  eval_y_V).  Same construction as Drell-Yan with the W in place of the Z:
++  !    Born   : m_W   Breit-Wigner map on [40,1000] GeV around (M_W, Gamma_W)
++  !             |y_W| linear map on [0,4]
++  !    recoil : pT_W  log map [25,2500], smooth profile [25,50] -> 500 (hard)
++  !  matching_scale(80.385) = 24.9 GeV -> seam 25 (DY: 27.9 -> 30, H: 37.1 -> 37)
++  !===========================================================================
++  real(kind=wp) function eval_chebT_mw(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 40.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: mw = 80.385_wp, gw = 2.085_wp
++    if (npar < 1) then; eval_chebT_mw = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = v1_minv(pV)
++    u = bw_u(x, lo, hi, mw, gw)
++    eval_chebT_mw = cheb_T(u, n)
++  end function eval_chebT_mw
++
++  real(kind=wp) function eval_chebT_absyw(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: u
++    real(kind=wp), parameter :: hi = 4.0_wp
++    if (npar < 1) then; eval_chebT_absyw = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    u = 2.0_wp*abs(v1_y(pV))/hi - 1.0_wp
++    eval_chebT_absyw = cheb_T(u, n)
++  end function eval_chebT_absyw
++
++  real(kind=wp) function eval_w_ptw(npar)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pa = 25.0_wp, pb = 50.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; eval_w_ptw = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_ptw = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function eval_w_ptw
++
++  real(kind=wp) function eval_chebTw_ptw(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u, lnlo, lnhi
++    real(kind=wp), parameter :: lo = 25.0_wp, hi = 2500.0_wp
++    real(kind=wp), parameter :: pa = 25.0_wp, pb = 50.0_wp, pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; eval_chebTw_ptw = 0.0_wp; return; end if
++    lnlo = log(lo); lnhi = log(hi)
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - lnlo)/(lnhi - lnlo) - 1.0_wp
++    eval_chebTw_ptw = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function eval_chebTw_ptw
++
++  !> Signed Collins-Soper decay angle of the CHARGED lepton in W production:
++  !>   cos th* = sign(p_z^W) * [(E_l+p_zl)(E_nu-p_znu) - (E_l-p_zl)(E_nu+p_znu)] / (m sqrt(m^2+q_T^2)),
++  !> with the CS z-axis along the W longitudinal momentum.  It is the Born-level
++  !> variable the lepton acceptance depends on and the V-A structure makes
++  !> asymmetric, so unlike |cos th*| of the Z it must keep its sign.  ilep is the
++  !> index of the charged lepton in the last pair (WM: 1 = npar-1, WP: 2 = npar).
++  real(kind=wp) function eval_costhCS_w(npar, ilep) result(res)
++    integer, intent(in) :: npar, ilep
++    real(kind=wp), dimension(4) :: pl, pn, pV
++    real(kind=wp) :: lp, lm, np_, nm, m, qt, den
++    if (npar < 1) then; res = 0.0_wp; return; end if
++    if (ilep == 1) then
++      pl(1:4) = kin(npar)%p(1:4, npar - 1); pn(1:4) = kin(npar)%p(1:4, npar)
++    else
++      pl(1:4) = kin(npar)%p(1:4, npar);     pn(1:4) = kin(npar)%p(1:4, npar - 1)
++    end if
++    pV(1:4) = pl(1:4) + pn(1:4)
++    m  = v1_minv(pV)
++    qt = v1_pt(pV)
++    lp = pl(4) + pl(3); lm = pl(4) - pl(3)
++    np_ = pn(4) + pn(3); nm = pn(4) - pn(3)
++    den = m*sqrt(m*m + qt*qt)
++    if (den <= 0.0_wp) then; res = 0.0_wp; return; end if
++    res = (lp*nm - lm*np_)/den
++    if (pV(3) < 0.0_wp) res = -res
++    res = max(-1.0_wp, min(1.0_wp, res))
++  end function eval_costhCS_w
++
++  real(kind=wp) function eval_chebT_ctwm(npar, n)   ! T_n(cos th*), W-: charged lepton first
++    integer, intent(in) :: npar, n
++    if (npar < 1) then; eval_chebT_ctwm = 0.0_wp; return; end if
++    eval_chebT_ctwm = cheb_T(eval_costhCS_w(npar, 1), n)
++  end function eval_chebT_ctwm
++
++  real(kind=wp) function eval_chebT_ctwp(npar, n)   ! T_n(cos th*), W+: charged lepton second
++    integer, intent(in) :: npar, n
++    if (npar < 1) then; eval_chebT_ctwp = 0.0_wp; return; end if
++    eval_chebT_ctwp = cheb_T(eval_costhCS_w(npar, 2), n)
++  end function eval_chebT_ctwp
++
++  !> WINDOWED decay-angle tower.  The fiducial cos th* distribution has a
++  !> kinematic edge at |cos th*| ~ sqrt(1-(2 pT_nu,min/m_W)^2) = 0.78 where only
++  !> boosted W's survive the cuts; imposing moments over the full range writes
++  !> that (recoil-driven) edge into the tilt.  Constrain the polarization where
++  !> it lives, in the bulk: profile w(c) = 1 for |c| < 0.5, C2 ramp to 0 by 0.7,
++  !> written on x = c + 1 in (0,2) so the standard ln-space prof_w applies
++  !> (a=0.3, b=0.4 rising; c=1.6, d=1.7 falling).  Moments T_n(c) on the linear
++  !> map [-1,1].  Book prof_wctw_0 (= w) and prof_wctw_n (= w T_n) as profiles.
++  real(kind=wp) function eval_w_ctw(npar, ilep)
++    integer, intent(in) :: npar, ilep
++    real(kind=wp), parameter :: pa = 0.3_wp, pb = 0.4_wp, pc = 1.6_wp, pd = 1.7_wp
++    if (npar < 1) then; eval_w_ctw = 0.0_wp; return; end if
++    eval_w_ctw = prof_w(eval_costhCS_w(npar, ilep) + 1.0_wp, pa, pb, pc, pd)
++  end function eval_w_ctw
++
++  real(kind=wp) function eval_chebTw_ctwm(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: c
++    if (npar < 1) then; eval_chebTw_ctwm = 0.0_wp; return; end if
++    c = eval_costhCS_w(npar, 1)
++    eval_chebTw_ctwm = eval_w_ctw(npar, 1) * cheb_T(c, n)
++  end function eval_chebTw_ctwm
++
++  real(kind=wp) function eval_chebTw_ctwp(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp) :: c
++    if (npar < 1) then; eval_chebTw_ctwp = 0.0_wp; return; end if
++    c = eval_costhCS_w(npar, 2)
++    eval_chebTw_ctwp = eval_w_ctw(npar, 2) * cheb_T(c, n)
++  end function eval_chebTw_ctwp
++
++  !> JOINT recoil x decay-angle moments  w_ptw(pT_W) w_ctw(c) T_m(u_log(pT_W)) T_n(c),
++  !> orders packed as imem = -(10 m + n), 1 <= m,n <= 9 (chebTT_ pattern).  Separate
++  !> towers fix the two marginals only; the m_T tail above M_W lives at small
++  !> |cos th*| AND large pT_W, so it depends on their correlation, which the
++  !> leading-order prior gets wrong at large pT_W (LO polarization).
++  real(kind=wp) function eval_w_ptwctw(npar, ilep)
++    integer, intent(in) :: npar, ilep
++    if (npar < 1) then; eval_w_ptwctw = 0.0_wp; return; end if
++    eval_w_ptwctw = eval_w_ptw(npar) * eval_w_ctw(npar, ilep)
++  end function eval_w_ptwctw
++
++  real(kind=wp) function eval_chebTT_ptwctw_i(npar, mn, ilep) result(res)
++    integer, intent(in) :: npar, mn, ilep
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u, c
++    real(kind=wp), parameter :: lo = 25.0_wp, hi = 2500.0_wp
++    integer :: m, n
++    if (npar < 1) then; res = 0.0_wp; return; end if
++    m = abs(mn)/10; n = mod(abs(mn), 10)
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    c = eval_costhCS_w(npar, ilep)
++    res = eval_w_ptwctw(npar, ilep) * cheb_T(u, m) * cheb_T(c, n)
++  end function eval_chebTT_ptwctw_i
++
++  real(kind=wp) function eval_chebTT_ptwctwm(npar, mn)
++    integer, intent(in) :: npar, mn
++    eval_chebTT_ptwctwm = eval_chebTT_ptwctw_i(npar, mn, 1)
++  end function eval_chebTT_ptwctwm
++
++  real(kind=wp) function eval_chebTT_ptwctwp(npar, mn)
++    integer, intent(in) :: npar, mn
++    eval_chebTT_ptwctwp = eval_chebTT_ptwctw_i(npar, mn, 2)
++  end function eval_chebTT_ptwctwp
 +
 +  !===========================================================================
 +  !  DY lepton Chebyshev moments (leading/subleading by pT).  Born-type: full
@@ -282,6 +503,7 @@
 +    if (npar < 1) then; eval_chebT_yh = 0.0_wp; return; end if
 +    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
 +    u = 2.0_wp*abs(v1_y(pV))/hi - 1.0_wp
++    u = max(-1.0_wp, min(1.0_wp, u))   ! out-of-range events sit at the edge
 +    eval_chebT_yh = cheb_T(u, n)
 +  end function eval_chebT_yh
 +
@@ -420,7 +642,7 @@
 +    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
 +    eval_chebTw_dphill = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
 +  end function eval_chebTw_dphill
-+
+ 
 +  !> SMOOTH-PROFILE recoil moments of (pi - dphi_gg).  pi - dphi is a RECOIL
 +  !> observable: it vanishes at Born level and is Sudakov-divergent as dphi->pi,
 +  !> so it may only be constrained ABOVE a resolution scale.  The profile turns
@@ -449,9 +671,9 @@
 +  !  Diphoton Chebyshev moments (GG process).  Photons are pT-ORDERED in
 +  !  kin(npar)%pphotons(:,1..2) -- the same accessor eval_minv_gam12 uses.
 +  !  Bind with min_nphotons=2.
-+  !  m_aa Born (log [80,700]); pt_aa recoil with smooth profile [11,22]->500.
++  !  m_aa Born (log [80,700]); pt_aa recoil with smooth profile [28,56]->500.
 +  !===========================================================================
- 
++
 +  !> T_n of |cos theta*_CS| (diphoton), linear map on [0,1].  imem = n.
 +  real(kind=wp) function eval_chebT_cts(npar, n)
 +    integer, intent(in) :: npar, n
@@ -470,6 +692,7 @@
 +    if (npar < 1) then; eval_chebT_dpa = 0.0_wp; return; end if
 +    x = max(eval_pi_deltaphi_gam12(npar), 1.0e-8_wp)
 +    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    u = max(-1.0_wp, min(1.0_wp, u))   ! out-of-range events sit at the edge
 +    eval_chebT_dpa = cheb_T(u, n)
 +  end function eval_chebT_dpa
 +
@@ -482,6 +705,7 @@
 +    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
 +    x = v1_minv(pV)
 +    u = 2.0_wp*(log(max(x, 1.0e-6_wp)) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    u = max(-1.0_wp, min(1.0_wp, u))   ! out-of-range events sit at the edge
 +    eval_chebT_maa = cheb_T(u, n)
 +  end function eval_chebT_maa
 +
@@ -494,7 +718,7 @@
 +    eval_w_ptaa = prof_w(v1_pt(pV), pa, pb, pc, pd)
 +  end function eval_w_ptaa
 +
-+  real(kind=wp) function eval_chebTw_ptaa(npar, n)  ! w*T_n(pt_aa), log [1,500], prof [11,22]->500
++  real(kind=wp) function eval_chebTw_ptaa(npar, n)  ! w*T_n(pt_aa), log [1,500], prof [28,56]->500
 +    integer, intent(in) :: npar, n
 +    real(kind=wp), dimension(4) :: pV
 +    real(kind=wp) :: x, u

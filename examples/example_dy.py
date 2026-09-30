@@ -12,7 +12,7 @@ Roles:
   * followers (no FO input): phi*_eta and the leading-lepton pT
 
 Run:
-    /Users/user/miniconda3/envs/nnloreweight/bin/python3 maxent_upgrade/example_dy.py
+    python3 examples/example_dy.py
 """
 import os
 import sys

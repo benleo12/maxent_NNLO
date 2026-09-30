@@ -36,8 +36,8 @@ codesign -f -s - install/lib/libnnlojet_core.dylib
 |---|---|
 | `Histograms.f90` | adds a `profile` flag to `Histogram_t`; a profile histogram accumulates `w * valObs` instead of `w`. Threaded through `newVariableWidth` / `newEqualWidth`. |
 | `IOHelper.f90` | parses `profile = T` on a histogram line and passes it to `register_hist`. |
-| `EvalFuncs.f90` | `cheb_T(u,n)` (clipped Chebyshev recurrence), `prof_w(x,a,b,c,d)` (C² smootherstep matching window), and the `chebT_*` / `chebTw_*` observables for DY, Z+jet, diphoton and gg→H. |
-| `Observables.f90` | `bind_obs` registrations, **each inside its own process `case` block** (`Z`/`ZJ`, `H`, `GG`). |
+| `EvalFuncs.f90` | `cheb_T(u,n)` (clipped Chebyshev recurrence), `prof_w(x,a,b,c,d)` (C² smootherstep matching window), and the `chebT_*` / `chebTw_*` observables for DY, Z+jet, diphoton, gg→H and W± (`m_W` Breit-Wigner tower, `|y_W|`, profiled `pT_W`; the signed Collins-Soper decay angle `costh_w` with a full-range tower `chebT_ctw_n`, a windowed tower `chebTw_ctw_n` (|cos θ*| < 0.5, ramp to 0.7) and joint `chebTT_ptwctw_mn` moments with the recoil window). |
+| `Observables.f90` | `bind_obs` registrations, **each inside its own process `case` block** (`Z`/`ZJ`, `H`, `GG`, `WM`, `WP`; the W blocks differ only in which of the last two particles is the charged lepton). |
 
 ## Usage
 

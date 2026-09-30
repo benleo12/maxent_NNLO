@@ -51,6 +51,34 @@ moments for you from the data, and packages the result.
 
 ---
 
+## Quick start: upgrade your own prior with the released moments
+
+The fixed-order moments behind every application of the paper are released in
+[`moments/`](moments/) as self-describing tables (Drell-Yan, W+ and W- at NNLO,
+diphoton at NNLO, gluon-fusion Higgs at NNLO, Z+jet at NLO). You bring the
+prior, a positive-weight LO+PS sample of the same process in the same fiducial
+region, and the package returns positive weights that carry the fixed-order
+information:
+
+```bash
+pip install -e .                                   # or: sys.path.insert(0, <this directory>)
+python moments/load_moments.py dy                  # which arrays your events must carry
+python examples/upgrade_with_released_moments.py dy my_prior.npz
+```
+
+```python
+from maxent_upgrade import upgrade
+from moments.load_moments import load
+moments, config = load("dy")                       # the paper's constraint set for Drell-Yan
+result = upgrade(events, moments, config)          # events: dict of arrays + positive 'weight'
+w = result.weights                                 # positive, sums to one; effN, closure in result
+```
+
+What the prior must provide, and the definitions that matter (Born-level
+leptons, Collins-Soper angles), are stated in [`moments/README.md`](moments/README.md).
+
+---
+
 ## Accuracy statement (read this first)
 
 > The reweighted sample is accurate to **order *N+k*** in the **constrained moments** and in
@@ -102,7 +130,8 @@ calculation it comes from, not by the inclusive order of the process. See
 
 ## Installation
 
-Pure Python + NumPy. Copy the `maxent_upgrade/` directory next to your analysis and
+Pure Python + NumPy. Either `pip install -e .` from a clone of this repository, or copy the
+`maxent_upgrade/` directory next to your analysis and
 
 ```python
 import sys; sys.path.insert(0, "/path/to/parent/of/maxent_upgrade")

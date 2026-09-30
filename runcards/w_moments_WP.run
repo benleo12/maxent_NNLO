@@ -1,0 +1,158 @@
+!#############################################################
+!## WP production, 7 TeV, ATLAS 1109.5141 fiducial (pT_l>20, |eta_l|<2.5, ET_miss>25, m_T>40) (W -> l nu).
+!## Event-level Chebyshev moments for maxent_upgrade, same construction as
+!## the Drell-Yan production (dy_moments_log30_hi.run) with the W in place
+!## of the Z:
+!##   Born   : <T_n(m_W)>   n=1..12  (Breit-Wigner map [40,1000] around M_W, Gamma_W)
+!##            <T_n(|y_W|)> n=1..12  (linear map [0,4])
+!##            <T_n(cos th*)> n=1..8 (signed CS decay angle of the charged lepton, linear map [-1,1])
+!##   recoil : <T_n(pT_W)>_w n=1..20 (log map [25,2500], smooth profile [25,50] -> 500)
+!## Denominators: norm_born = sigma_fid (single bin of chebT_mw_1),
+!##               prof_wptw_0 = sum_j w_j w(pT_W,j)  ->  w-rate R = prof_wptw_0/sigma_fid
+!## Reference histograms for the follower comparisons: lepton |eta| on the
+!## ATLAS binning, lepton pT, m_T, ET_miss, pT_W, |y_W|, m_W.
+!#############################################################
+
+PROCESS  WP
+  collider = pp
+  sqrts = 7000.0
+  jet = none[0]
+END_PROCESS
+
+RUN  W_MOMENTS
+  PDF = CT18NNLO[0]
+  tcut = 1e-07
+  iseed = 1
+  warmup = 40000[5]
+  production = 200000[10]
+END_RUN
+
+PARAMETERS
+  MASS[Z]  = 91.1876
+  WIDTH[Z] = 2.4952
+  MASS[W]  = 80.385
+  WIDTH[W] = 2.085
+  CKM = FULL
+  SCHEME[alpha] = Gmu
+  SCHEME[WIDTH_V] = CMS
+  GF = 1.1663787d-5
+END_PARAMETERS
+
+SELECTORS
+  select ptlp  min = 20
+  select abs_ylp  max = 2.5
+  select etmiss  min = 25
+  select mt  min = 40
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- reference distributions
+  abs_ylp > etal_atlas [0.0, 0.21, 0.42, 0.63, 0.84, 1.05, 1.37, 1.52, 1.74, 1.95, 2.18, 2.5]
+  abs_ylp > etal_fine  min=0 max=2.5 nbins=25
+  ptlp   > ptl_fine   min=20 max=120 nbins=50
+  mt       > mt_fine    min=40 max=200 nbins=40
+  etmiss   > etmiss_fine min=25 max=125 nbins=50
+  ptw      > ptw_full   min=0 max=500 nbins=250
+  ptw      > ptw_winfine min=25 max=500 nbins=95
+  abs_yw   > absyw_fine min=0 max=4 nbins=40
+  mln      > mw_fine    min=40 max=200 nbins=80
+  costh_w  > ctw_fine    min=-1 max=1 nbins=20
+  ! ---- denominators
+  chebT_mw_1 > norm_born  min=-1.001 max=1.001 nbins=1
+  w_ptw      > prof_wptw_0 min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- Born towers (profile single-bin = event-level sums)
+  chebT_mw_1 > prof_mw_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_2 > prof_mw_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_3 > prof_mw_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_4 > prof_mw_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_5 > prof_mw_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_6 > prof_mw_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_7 > prof_mw_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_8 > prof_mw_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_9 > prof_mw_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_10 > prof_mw_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_11 > prof_mw_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_mw_12 > prof_mw_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_1 > prof_absyw_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_2 > prof_absyw_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_3 > prof_absyw_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_4 > prof_absyw_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_5 > prof_absyw_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_6 > prof_absyw_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_7 > prof_absyw_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_8 > prof_absyw_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_9 > prof_absyw_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_10 > prof_absyw_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_11 > prof_absyw_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_absyw_12 > prof_absyw_12  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- signed decay angle of the charged lepton (Born tower)
+  chebT_ctw_1 > prof_ctw_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_2 > prof_ctw_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_3 > prof_ctw_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_4 > prof_ctw_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_5 > prof_ctw_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_6 > prof_ctw_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_7 > prof_ctw_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebT_ctw_8 > prof_ctw_8  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- windowed decay angle: w = 1 for |cos th*| < 0.5, C2 ramp to 0 by 0.7 (profile in c+1: [0.3,0.4] up, [1.6,1.7] down)
+  w_ctw > prof_wctw_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_1 > prof_wctw_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_2 > prof_wctw_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_3 > prof_wctw_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_4 > prof_wctw_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_5 > prof_wctw_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ctw_6 > prof_wctw_6  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- joint recoil x decay-angle moments (both windows), orders m,n <= 4
+  w_ptwctw > prof_wptwctw_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_11 > prof_ptwctw_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_12 > prof_ptwctw_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_13 > prof_ptwctw_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_14 > prof_ptwctw_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_21 > prof_ptwctw_21  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_22 > prof_ptwctw_22  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_23 > prof_ptwctw_23  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_24 > prof_ptwctw_24  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_31 > prof_ptwctw_31  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_32 > prof_ptwctw_32  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_33 > prof_ptwctw_33  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_34 > prof_ptwctw_34  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_41 > prof_ptwctw_41  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_42 > prof_ptwctw_42  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_43 > prof_ptwctw_43  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTT_ptwctw_44 > prof_ptwctw_44  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- recoil tower (profiled)
+  chebTw_ptw_1 > prof_wptw_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_2 > prof_wptw_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_3 > prof_wptw_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_4 > prof_wptw_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_5 > prof_wptw_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_6 > prof_wptw_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_7 > prof_wptw_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_8 > prof_wptw_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_9 > prof_wptw_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_10 > prof_wptw_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_11 > prof_wptw_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_12 > prof_wptw_12  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_13 > prof_wptw_13  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_14 > prof_wptw_14  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_15 > prof_wptw_15  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_16 > prof_wptw_16  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_17 > prof_wptw_17  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_18 > prof_wptw_18  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_19 > prof_wptw_19  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_ptw_20 > prof_wptw_20  min=-1.001 max=1.001 nbins=1 profile = T
+END_HISTOGRAMS
+
+SCALES
+  mur = 1.0 * mln  muf = 1.0 * mln
+  mur = 2.0 * mln  muf = 2.0 * mln
+  mur = 0.5 * mln  muf = 0.5 * mln
+  mur = 2.0 * mln  muf = 1.0 * mln
+  mur = 1.0 * mln  muf = 2.0 * mln
+  mur = 0.5 * mln  muf = 1.0 * mln
+  mur = 1.0 * mln  muf = 0.5 * mln
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

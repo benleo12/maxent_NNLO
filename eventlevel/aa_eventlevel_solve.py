@@ -23,7 +23,7 @@ sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, common_seeds
 
-GGDIR = "/Users/user/nnlojet-v1.0.2/gg_moments2"   # clipped-map binary
+GGDIR = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "gg_moments2")   # clipped-map binary
 RUN, PREFIX = "GG_MOMENTS", "GG"
 CH = ["LO", "R", "V", "RR", "RV", "VV"]   # full NNLO
 # mirrors eval_w_ptaa (pa=28, pb=56, pc=pd=500); see check_seam()
@@ -32,11 +32,37 @@ Q_HARD = 90.0
 MLO, MHI = 80.0, 700.0
 
 
+# The prior is a set of exclusive slices that concatenate with sigma_i/n_gen,i
+# weights.  AA_PRIOR (comma-separated npz list) selects the set; the default is
+# the v4 Pythia-internal set of the first submission.  The v5 set adds the
+# quark-initiated part from a CKKW-L-merged MG5 aa+aaj sample
+# (diphoton_shower_merged.py) and takes the gg box from Pythia alone
+# (diphoton_generate_v5.py --channels gg).
+AA_PRIOR_SETS = {
+    # the 2->2 prior of the first submission (Pythia q qbar -> aa + gg box), exclusive pT-hat slices
+    "v4": ("aa_prior_v4_a.npz", "aa_prior_v4_b.npz", "aa_prior_v4_c.npz",
+           "aa_prior_v4_d.npz", "aa_prior_v4_e.npz"),
+    # the merged prior of the paper: MG5 aa + aaj (CKKW-L in Pythia), leading-photon-pT slices A-D,
+    # + the Pythia gg box in pT-hat slices a-e
+    "v5": ("aa_prior_v5_mgA.npz", "aa_prior_v5_mgB.npz", "aa_prior_v5_mgC.npz", "aa_prior_v5_mgD.npz",
+           "aa_prior_v5_boxa.npz", "aa_prior_v5_boxb.npz", "aa_prior_v5_boxc.npz",
+           "aa_prior_v5_boxd.npz", "aa_prior_v5_boxe.npz"),
+}
+AA_PRIOR_DEFAULT = AA_PRIOR_SETS["v5"]
+
+
+def prior_files():
+    """AA_PRIOR (explicit comma list) > AA_PRIOR_SET (v4 | v5) > the paper's set (v5)."""
+    env = os.environ.get("AA_PRIOR")
+    if env:
+        return [f.strip() for f in env.split(",") if f.strip()]
+    return list(AA_PRIOR_SETS[os.environ.get("AA_PRIOR_SET", "v5")])
+
+
 def load_prior():
     parts = []
-    for f in ("aa_prior_v4_a.npz", "aa_prior_v4_b.npz", "aa_prior_v4_c.npz",
-              "aa_prior_v4_d.npz", "aa_prior_v4_e.npz"):
-        p = os.path.join(HERE, f)
+    for f in prior_files():
+        p = f if os.path.isabs(f) else os.path.join(HERE, f)
         if os.path.exists(p):
             d = dict(np.load(p, allow_pickle=True))
             # EXCLUSIVE pT-hat slices [pthatmin, pthatmax): each event is
@@ -45,10 +71,11 @@ def load_prior():
             # overlapped and the hard region was counted once per slice --
             # sigma(pt1>200) came out identical from all three.  Sum of the v4
             # slice cross sections is 42.84 pb against the v3 inclusive 42.82.
-            # The stored per-event weight is 1, so each slice is normalised by
+            # The stored per-event weight is RELATIVE (1 for the Pythia-internal
+            # slices; the CKKW-L merging weight, mean 1 over the generated
+            # events, for the merged MG5 sample), so each slice is normalised by
             # sigma_i / n_generated_i before concatenation.
-            n = len(np.asarray(d["weight"], float))
-            d["weight"] = np.full(n, float(d["sigma_pb"]) / float(d["n_generated"]))
+            d["weight"] = np.asarray(d["weight"], float) * (float(d["sigma_pb"]) / float(d["n_generated"]))
             parts.append(d)
     if not parts:
         sys.exit("no diphoton prior found")
@@ -121,9 +148,17 @@ def main():
     res = upgrade(ev, M, cfg)
     print(f"\n  effN {100*res.effN:.1f}%   closure {res.closure:.2e}   "
           f"neg-wt {100*np.mean(res.weights<=0):.1f}%   x_match {res.x_match:g}")
-    np.savez(os.path.join(HERE, "aa_eventlevel_weights.npz"),
-             weights=res.weights, idx=idx)
-    print("  saved aa_eventlevel_weights.npz")
+    # A SLICED prior (sigma_i/n_i weights) has an effective count well below N
+    # of its own; the slicing-independent statement is the fraction of the
+    # prior's Kish count that the tilt retains.
+    kish = lambda w: float(np.sum(w) ** 2 / np.sum(np.asarray(w, float) ** 2))
+    kp, kq = kish(ev["weight"]), kish(res.weights)
+    print(f"  Kish counts: prior {kp:,.0f} ({100*kp/len(ev['weight']):.1f}% of N), "
+          f"tilted {kq:,.0f} ({100*kq/len(res.weights):.2f}% of N); retained {100*kq/kp:.1f}% of the prior's")
+    out = os.environ.get("AA_WEIGHTS_OUT", "aa_eventlevel_weights.npz")
+    np.savez(os.path.join(HERE, out), weights=res.weights, idx=idx,
+             prior_files=np.array(prior_files()), effN=res.effN, closure=res.closure)
+    print(f"  saved {out}")
     return res
 
 

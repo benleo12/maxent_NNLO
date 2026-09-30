@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maxent_upgrade"
+version = "1.0.0"
+description = "Maximum-entropy moment matching: upgrade positive-weight LO+PS event samples to NLO/NNLO accuracy without negative weights"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.20"]
+
+[project.urls]
+Repository = "https://github.com/benleo12/maxent_NNLO"
+
+[tool.setuptools]
+packages = ["maxent_upgrade"]

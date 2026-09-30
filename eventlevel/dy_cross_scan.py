@@ -29,7 +29,7 @@ from maxent_upgrade import upgrade, chebyshev_moment
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_mixed_moments, _moment_over_seeds, _reduce)
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 XM, XHI, SOFT = 30.0, 500.0, 0.5
 MLO, MHI = 66.0, 116.0                 # mirrors eval_chebT_mll

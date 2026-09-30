@@ -22,7 +22,7 @@ sys.path.insert(0, HERE)
 from maxent_upgrade import upgrade
 from nnlojet_moments import fo_moments_smooth_from_nnlojet, _load
 
-BASE = "/Users/user/nnlojet-v1.0.2/dy_profile_poc"
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 SEEDS = None
 XM, XHI, SOFT = 30.0, 500.0, 0.5
