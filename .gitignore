@@ -5,3 +5,6 @@ __pycache__/
 *.lhe
 *.lhe.gz
 .DS_Store
+*.egg-info/
+build/
+dist/
