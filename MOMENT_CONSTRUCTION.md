@@ -80,13 +80,14 @@ the fixed-order cross-section fraction in [x_match, x_hi] (the window rate).
 
 ## 4. How many moments
 
-Return moments up to a generous ceiling (say N = 12). The reweighting keeps moment n
-only while it is resolved above its own fixed-order uncertainty,
+Return moments up to a generous ceiling (say N = 12). The reweighting imposes every moment
+up to the highest order n that is resolved above its own fixed-order uncertainty,
 
     SNR_n = | mu_n(order N+k) - mu_n(prior) | / sigma_n  >  1,
 
-and drops the rest. This is why sigma_n matters as much as mu_n. A moment the fixed-order
-calculation does not determine above its scale-and-statistics error is not imposed.
+and drops the orders beyond it. Unresolved orders below that depth are kept: their targets
+agree with the prior within the error, so imposing them holds those moments in place. This is
+why sigma_n matters as much as mu_n: it sets how deep each tower goes.
 
 ## 5. The orders, stated precisely (this is where we must be careful)
 

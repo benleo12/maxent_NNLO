@@ -36,7 +36,7 @@ histogram.** Your FO calculation already integrates any observable, so it integr
 
 with its genuine Monte-Carlo error `sigma_n`. That number, per Chebyshev order `n`, is
 the target. Nothing is re-binned. `sigma_n` is what drives the moment-resolution
-selection (a moment is imposed only while `|mu_n^FO - mu_n^prior| / sigma_n > 1`).
+selection (each tower is imposed up to its highest order with `|mu_n^FO - mu_n^prior| / sigma_n > 1`).
 If you happen to have your FO events in Python, `compute_fo_moments(fo_events, config,
 x_match, x_hi)` builds the `moments` dict for you with the correct maps; otherwise fill
 it in from your own FO code (structure below). A histogram-based entry point
@@ -264,10 +264,13 @@ where
   errors** (resample every bin of both orders within its error, recompute the moment) —
   added in quadrature.
 
-The selection rule (default): **constrain moments up to the largest order *n* with
-`SNR_n > threshold` (default `threshold = 1.0`)**, per observable. A moment with `SNR_n < 1`
-is one the FO calculation cannot pin down beyond its own uncertainty, so constraining it only
-injects FO noise into the weights; it is dropped. The chosen counts are recorded in
+The selection rule (default): **constrain every moment up to the largest order *n* with
+`SNR_n > threshold` (default `threshold = 1.0`)**, per observable. Orders above it are dropped,
+since the FO calculation does not determine them beyond its own uncertainty. Unresolved orders
+below it are kept. Their targets agree with the prior within the error, so imposing them holds
+those moments at the value both share, while leaving them free lets the resolved orders drag
+them, by more than their error in a measured case. A complete polynomial up to the depth is what the
+convergence bound of the paper assumes. The chosen counts are recorded in
 `result.chosen_moments` and the full spectra in `result.moment_snr`.
 
 This is the systematic replacement for fixed, hand-tuned moment counts. You can inspect the
@@ -298,7 +301,7 @@ All knobs are optional keys in `config`; every default lives in `maxent_upgrade.
 | knob | default | meaning |
 |------|---------|---------|
 | `moment_selection` | `True` | choose #moments per observable from the SNR rule (below). Set `False` to use fixed counts. |
-| `snr_threshold` | `1.0` | a moment is "resolved" (kept) when `SNR_n >` this. Raise it to be more conservative. |
+| `snr_threshold` | `1.0` | a moment is "resolved" when `SNR_n >` this, and each tower is imposed up to its highest resolved order. Raise it to be more conservative. |
 | `snr_max_order` | `{'born':10,'recoil':12}` | ceiling of the SNR scan per role (how many moments to even test). |
 | `snr_n_stat` | `200` | Monte-Carlo resamples for the FO **statistical** part of `σ_FO`. |
 | `snr_seed` | `0` | RNG seed for that resampling (reproducibility). |
