@@ -8,8 +8,8 @@ r"""Upgrade YOUR prior with the released fixed-order moments.
 the same length, for events inside the table's fiducial selection, with the observables
 defined as moments/README.md states (Born-level leptons, Collins-Soper angles; Z+jet: events
 with at least one jet).  The output holds the same arrays plus 'weight_upgraded', normalized
-to the fixed-order fiducial cross section in pb (or to the prior's own sum of weights where
-the table's cross section is not validated, as for the Higgs table).
+to the fixed-order cross section of the table in pb (`sigma_fid(process)`; for the Higgs
+boson the paper normalizes to the N3LO cross section instead, see the table's note).
 """
 import os
 import sys
@@ -31,12 +31,10 @@ def main():
     res = upgrade(events, moments, config)          # stops with a clear message if an array is missing
     print(res.describe())
     sig = sigma_fid(process)
-    if sig is not None:
-        w = res.weights / res.weights.sum() * sig["value"]
-        print(f"normalized to the fixed-order fiducial cross section, {sig['value']:.4g} pb")
-    else:
-        w = res.weights / res.weights.sum() * events["weight"].sum()
-        print("this table's cross section is not validated: kept the prior's sum of weights")
+    w = res.weights / res.weights.sum() * sig["value"]
+    print(f"normalized to the fixed-order cross section of the table, {sig['value']:.4g} pb")
+    if sig.get("note"):
+        print(f"  note: {sig['note']}")
     np.savez_compressed(out, **P, weight_upgraded=w)
     print(f"wrote {out} (original arrays + 'weight_upgraded')")
 

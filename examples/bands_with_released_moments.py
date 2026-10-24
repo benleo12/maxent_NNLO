@@ -3,16 +3,19 @@ r"""The uncertainty bands of the paper, from the released per-run tables.
 
     python examples/bands_with_released_moments.py dy my_prior.npz [n_boot] [out.npz]
 
-Three loops over the same call (README, "Uncertainty bands"):
+Loops over the same call (README, "Uncertainty bands"):
   * scale:     one re-solve per scale choice k = 1..6 of the seven-point variation
                (load_moments(process, scale=k));
   * target statistics: one re-solve per bootstrap replica of the independent fixed-order
                runs (load_moments(process, runs=resample));
+  * matching ("ggh" and "aa" only): one re-solve per window variant A, B, C of the recoil
+               tower (load_moments(process, window=V)); the envelope of the nominal solve and
+               the three variants is the matching uncertainty, drawn hatched in the paper;
   * sample statistics: the usual per-bin error of the weighted events, sum of q_i^2.
 Every variant imposes the central solve's constraint set (fixed_orders) and starts from its
-multipliers (lam0).  The output holds the central weights, the six scale variants and the
-bootstrap replicas; the per-bin envelope of the scale variants is the band, the bootstrap
-spread (+) the sample's own error the error bar.
+multipliers (lam0).  The output holds the central weights, the six scale variants, the
+bootstrap replicas and, where released, the window variants; the per-bin envelope of the
+scale variants is the band, the bootstrap spread (+) the sample's own error the error bar.
 """
 import os
 import sys
@@ -51,7 +54,16 @@ def main():
     print(f"  {n_boot} bootstrap replicas of the {n_runs} runs: effN "
           f"{100*min(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}-{100*max(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}%")
 
-    np.savez_compressed(out, central=central.weights, scale_w=np.array(scale_w), boot_w=np.array(boot_w))
+    window_w = {}
+    for V in released.windows(process):
+        if V == "nominal":
+            continue
+        m_v, c_v = load_moments(process, window=V)
+        r = upgrade(events, m_v, {**c_v, "fixed_orders": frozen["fixed_orders"], "lam0": frozen["lam0"]})
+        window_w[f"window_{V}"] = r.weights
+        print(f"  window {V} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
+
+    np.savez_compressed(out, central=central.weights, scale_w=np.array(scale_w), boot_w=np.array(boot_w), **window_w)
     print(f"wrote {out}")
 
 
