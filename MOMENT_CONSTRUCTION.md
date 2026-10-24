@@ -27,9 +27,12 @@ That is the same as booking the observable T_n(u(v)) as a one-bin histogram and 
 the fiducial cross section. The patch in `nnlojet_patch/` does exactly this for NNLOJET.
 
 The map matters. It decides how much a few moments resolve:
-- on the Drell-Yan mass, twelve moments on the Breit-Wigner map reach 0.6% of NNLO, and twelve
-  on the linear map reach 1.2%;
+- on the Drell-Yan mass, six moments on the Breit-Wigner map bring the spectrum to 0.9% of
+  NNLO and twelve to 0.75%, while the same six on the linear map leave it at 1.1%, little
+  better than the unconstrained prior (1.5%);
 - the map must be identical on both sides, because the prior side evaluates the same T_n(u).
+  On the Drell-Yan prior, declaring the linear map for moments booked on the Breit-Wigner map
+  converges with clean closure and collapses N_eff/N from 99.9% to 10.8%.
 
 ## 2. Born towers and recoil windows
 
@@ -52,9 +55,24 @@ diverges in the soft limit. Examples are the singlet transverse momentum, the ac
       μ_n = Σ_j w_j w(v_j) T_n(u(v_j)) / Σ_j w_j w(v_j),      r = Σ_j w_j w(v_j) / Σ_j w_j,
 
   with u the logarithmic map on [soft_lo, x_hi].
+- That is all the fixed order supplies. `upgrade()` forms the blended target of each order,
+  μ_n = (1 − r) ⟨T_n⟩_{p, 1−w} + r ⟨T_n⟩_{FO, w}, from these numbers and the prior itself
+  (or, with `transition="windowed"`, imposes w T_n and w directly).
 - The matching scale follows from power counting, α_s(p_T) ln²(Q/p_T) < 0.2 with Q the hard
   scale (`maxent_upgrade.matching_scale(Q)`): 27.9 GeV for Q = m_Z, 24.9 GeV for Q = m_W,
-  37.1 GeV for Q = m_H.
+  27.6 GeV for diphoton production (Q = 90 GeV) and 37.1 GeV for Q = m_H. The released tables
+  use 30 (rounded up), 25, 28 and 37 GeV.
+
+**Joint moments.** To constrain a correlation that the marginal towers cannot reach, book the
+products ⟨w_x w_y T_m(u(x)) T_n(u(y))⟩/⟨w_x w_y⟩ for m, n = 1 … 4 and their rate
+⟨w_x w_y⟩/⟨1⟩, with w = 1 for an observable that has no window. They are imposed in the
+windowed form, and every recoil tower they couple must be windowed too.
+
+**Matching uncertainty.** To estimate it, book the same windowed moments and rate with a few
+other windows, for instance rising over [⅔ v_m, ⁴⁄₃ v_m], [⁴⁄₃ v_m, ⁸⁄₃ v_m] and [v_m, 4 v_m],
+and re-solve with each (`load_moments(process, window=V)` for the released Higgs and diphoton
+variants). Dedicated runs need only the channels with a nonzero recoil and can reuse the main
+run's Vegas grids; their rate then needs σ_fid from all channels of the main run.
 
 Putting a recoil observable in the Born slot is not merely inaccurate. Imposing the
 full-range moments of π − Δφ contradicts the window, which keeps the shower below the
@@ -100,4 +118,5 @@ To constrain the recoil at NNLO, take its window from the V+jet calculation at N
    recoil.
 
 `export_moments.py` shows how the released tables were assembled from NNLOJET runs.
-`maxent_upgrade.compute_fo_moments` does the same from fixed-order events held in Python.
+`maxent_upgrade.compute_fo_moments` does the same, joint blocks included, from fixed-order
+events held in Python.

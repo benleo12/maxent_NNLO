@@ -8,16 +8,17 @@ r"""maxent_upgrade -- positive-weight event samples carrying fixed-order (NLO/NN
 
 `upgrade` reweights the prior p_i by the maximum-entropy exponential tilt
 q_i = p_i exp(sum_a lambda_a m_a(Phi_i)) / Z that reproduces the fixed-order event-level
-Chebyshev moments: Born towers over the full fiducial range, recoil towers inside a smooth
-window above the matching scale.  The weights are positive by construction; every observable
-that is not constrained (a follower) inherits them.  See README.md for the contract.
+Chebyshev moments: Born towers over the full fiducial range, recoil towers through a smooth
+window above the matching scale, blended with the prior's own spectrum across the window's
+rise (or, per tower, in the windowed form).  The weights are positive by construction; every
+observable that is not constrained (a follower) inherits them.  See README.md for the contract.
 
 Public API
 ----------
     upgrade(events, moments, config) -> UpgradeResult    # event-level moments (the method)
-    load_moments(process, ...) -> (moments, config)      # the paper's released tables
-    sigma_fid(process) -> dict or None                   # their fiducial cross sections
-    released                                             # table(), summary(), processes()
+    load_moments(process, ..., window=None)              # the paper's released tables -> (moments, config)
+    sigma_fid(process) -> dict                           # their fixed-order cross sections
+    released                                             # table(), summary(), processes(), windows()
     compute_fo_moments(fo_events, config, x_match, ...)  # moments from FO events in Python
     chebyshev_moment(x, w, n_max, a, b, mp)              # the moment definition itself
     profile_w(x, a, b, c=None, d=None)                   # the C^2 window

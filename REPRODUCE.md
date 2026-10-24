@@ -1,75 +1,106 @@
-# Reproducing the papers
+# Reproducing the paper
 
-## Prerequisites
+The repository reproduces two steps of the paper (B. Assi, *Maximum-entropy moment matching for
+color-singlet processes*):
 
-Each step needs:
-- the package installed: `pip install -e .`;
-- the NNLOJET productions under `$NNLOJET_ROOT`. They were made with `nnlojet_patch/` and the
-  run cards in `runcards/`;
-- the shower samples, produced by the scripts in `eventlevel/` and not distributed.
+1. the released moment tables, from the NNLOJET productions;
+2. the paper's solves, from the released tables, given the paper's priors.
 
-Run every script from `eventlevel/` with the samples in that directory, and set
-`OPENBLAS_NUM_THREADS=1`.
+It does not distribute the event samples (the priors) or the NNLOJET output files, which are too
+large, nor the scripts that draw the paper's figures.
 
-The released moment tables come from the same productions:
-- `python export_moments.py` regenerates them;
-- `python tests/test_released.py` checks them.
+## 1. The tables, from NNLOJET
 
-## JHEP paper (maximum-entropy moment matching for color-singlet processes)
+1. Patch and build NNLOJET v1.0.2 with [`nnlojet_patch/`](nnlojet_patch/README.md) (the two
+   `winvar_*` patches only for the window-variant runs).
+2. Run every card of [`runcards/`](runcards/README.md) once per perturbative channel and per
+   seed. Each table's `provenance` lists the run directory, run card, channels and seeds; the
+   run-card README says which runs made the Vegas grids.
+3. Pool the runs into the tables:
 
-| figure | script | settings | inputs |
-|---|---|---|---|
-| `fig_explain_matching_2p.pdf` | `explain_matching.py` | `EXPLAIN_LAYOUT=2` | `dy_prior_atlas_v3.npz`; `dy_profile_log30_hi`; `dy_profile_poc_ptzfull` (run card `dy_ptz_full.run`, through `fo_ptll_full.py`) |
-| `fig_weight_dists.pdf` | `fig_weight_dists.py` | | `dy_prior_atlas_v3.npz`; `dy_band_weights.npz` (from `make_dy_band_weights.py`); `dy_minnlo_atlas_v4.npz`, `dy_mcatnlo_atlas_v4.npz`, `dy_powheg_atlas_v6.npz` |
-| `fig_transport_law.pdf` | `fig_transport_law.py` | | `dy_prior_atlas_v3.npz`; `dy_profile_log30_hi` |
-| `fig_ggh_ptj1.pdf` | `ggh_eventlevel.py` | | `ggh_prior_v2_s1.npz`, `ggh_prior_v2_s2.npz`; `ggh_moments2`; band cache `ggh_band_weights.npz` |
-| `fig_w_asym.pdf` | `w_eventlevel.py` twice, then `fig_w_asym_combined.py` | `W_CH=LO,R,V,RR,RV,VV W_CHARGES=WP,WM`, with first `W_CTW_MODE=off W_FIG_SUFFIX=_nnlo`, then `W_CTW_MODE=window W_FIG_SUFFIX=_nnlo_window` | `wp_s201.npz`, `wm_s301.npz` (`W_PRIOR_DIR`); `w_moments/{WP,WM}`; ATLAS 7 TeV W asymmetry |
-| `fig_aa_priors.pdf` | `fig_aa_priors.py` (or `bash aa_v5_pipeline.sh priors`) | `AA_PRIOR=$V5 AA_PRIOR_V5=$V5 AA_WEIGHTS_V5=aa_eventlevel_weights_v5.npz` | `aa_prior_v5_*.npz` (merged prior) and `aa_prior_v4_*.npz` (2 → 2 prior); weights from `aa_eventlevel_solve.py` |
-| `fig_aa_dphi_aa.pdf` | `fig_aa_eventlevel.py` | `AA_PRIOR=$V5 AA_WEIGHTS=aa_eventlevel_weights_v5.npz AA_FIG_SUFFIX=""` | the same priors; `gg_moments2`; `atlas_aa_8tev.npz`; band cache |
-| `fig_zj_cross.pdf` | `fig_zj_cross.py` | | the sixteen rows are embedded; `zj_cross_demo.py` and `zj_cross_err.py` regenerate them from `zj_prior.npz` (≥ 1 jet) and `zj_moments2` |
-| `fig_depth.pdf` (appendix) | `fig_snr_spectra.py` | | `dy_prior_atlas_v3.npz`; `dy_profile_log30_hi` (298 runs) |
-| `fig_code_flow.pdf` (appendix) | `docs/flowchart.tex` | | |
+   ```bash
+   NNLOJET_ROOT=<dir with the run directories> NNLOJET_WINVAR_ROOT=<dir with ggh_winvar, gg_winvar> \
+       python export_moments.py            # or a subset: dy wp wm aa ggh zj ggh_winvar aa_winvar
+   ```
 
-Numbers quoted in the text without a figure:
-- the Drell-Yan scale and bootstrap bands: `make_dy_band_weights.py`;
-- the map comparison: `fig_map_choice.py`;
-- the matching scales: `fig_seam_rule.py`, or `maxent_upgrade.matching_scale`;
-- the diphoton angle tower: `aa_angular_test.py`, with `AA_PRIOR_SET=v4` for the 2 → 2 prior;
-- the Z+jet acoplanarity: `zj_eventlevel.py`.
+4. `python tests/test_released.py` checks that pooling the per-run accumulators shipped with
+   every table reproduces every released number.
 
-The effective statistics, closures and resolution spectra of every application also come out
-of `maxent_upgrade.load_moments(process)` and `upgrade()` on the same priors (the round-trip
-checks in `moments/README.md`).
+## 2. The paper's solves, from the tables
 
-## PRL (Assi, Poncelet, Whitehead)
+Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
+paper's own prior, and compared with the numbers of the paper and, where the paper's solve
+stored them, its weights. "Tables" are the released tables as they are; "paper's rates" replaces
+each window rate by the convention of the paper's solves (see the note below the table). Effective
+statistics are N_eff/N, or for the sliced diphoton priors the retained fraction N_eff/N_eff^p.
 
-| figure file | script and flag | content |
+| solve | `load_moments` call | paper | this release (tables) | max \|q/q_paper − 1\|: tables / paper's rates |
+|---|---|---|---|---|
+| Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.5 × 10⁻⁵ / 2.9 × 10⁻¹³ |
+| Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | 2.4 × 10⁻⁵ / 8.8 × 10⁻¹¹ |
+| Drell-Yan, 20 bootstrap re-solves | `"dy", runs=...` | | | 2.3 × 10⁻⁵ / – |
+| Drell-Yan, linear mass map | `"dy"`, `mll` map `"lin"` | 10.8% | 10.80% | |
+| W+ | `"wp"` | 99.8% | 99.762%; closure 5.2 × 10⁻⁴; max pull 0.026 | 6.2 × 10⁻⁶ / 1.5 × 10⁻¹² |
+| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 3.1 × 10⁻⁵ / 3.2 × 10⁻¹² |
+| W- | `"wm"` | 99.8% | 99.750%; closure 5.2 × 10⁻⁴; max pull 0.024 | 6.2 × 10⁻⁶ / 8.2 × 10⁻¹³ |
+| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 2.8 × 10⁻⁵ / 1.8 × 10⁻¹² |
+| W±, six scale re-solves each | `"wp"`, `"wm"`, `scale=k` | | | 4.9 × 10⁻⁵ / – |
+| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 8.0 × 10⁻⁸ / 3.6 × 10⁻¹² |
+| gg → H, six scale re-solves | `"ggh", scale=k` | | | 2.6 × 10⁻⁷ / – |
+| gg → H, windows A, B, C | `"ggh", window=V` | matching band | 84.43%, 91.13%, 92.30% | 2.8 × 10⁻¹¹ (the same in both) |
+| diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | **94.85%**; [0.540, 2.617] | 6.3 × 10⁻³ / 7.6 × 10⁻¹³ |
+| diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 1.3 × 10⁻¹² (the same in both) |
+| diphoton, 2 → 2 prior | `"aa"`, `moment_selection=False` | 4.0%; tilts up to 3 × 10⁴ | 3.97%; up to 3.1 × 10⁴ | 1.3 × 10⁻² / 2.6 × 10⁻¹² |
+| Z+jet, jet towers | `"zj", mixed=[]` | 61.7% | 61.666% | no stored weights |
+| Z+jet, + 16 joint moments | `"zj"` | 35.9%; closure 6 × 10⁻² | 35.877%; 6.12 × 10⁻² | no stored weights |
+| Z+jet, + acoplanarity tower | `"zj", recoil=["ptj1", "ptj2", "pimdphi"]` | 35.3% | 35.337%; 6.20 × 10⁻² | no stored weights |
+
+For Z+jet, the sixteen joint moments reached by the two solves agree with the paper's to
+4 × 10⁻⁴ of their uncertainty: up to 3.74σ from fixed order with the jet towers alone (3.7σ in
+the paper) and within 0.41σ with the joint moments imposed (0.4σ). For Drell-Yan the standard
+deviation of ln(q/p) is 0.025, as in the paper. The closures of all these solves are below 10⁻³
+except for Z+jet. Closure and max pull are taken over the moments; `describe()` prints the
+window shares separately (the share above the Drell-Yan recoil cut, for instance, is met to
+0.78 of its Monte Carlo error).
+
+**Window rates.** The paper's solves took each window rate as the mean over the runs of the
+per-run rate; the tables pool the rate as the ratio of summed accumulators, like every other
+number. Under the blend the rate enters every recoil target. Only the merged diphoton prior
+moves a quoted number at its printed precision: 94.85% with the tables, 94.87% (94.9%) in the
+paper. To use the paper's convention, replace the rate before the solve:
+
+```python
+import gzip, json, numpy as np
+from maxent_upgrade import upgrade, load_moments
+
+moments, config = load_moments("aa")
+r = json.load(gzip.open("moments/aa_nnlo_moments_runs.json.gz", "rt"))
+A, tag = np.array(r["acc"]), r["tags"].index
+rate = float(np.mean(A[:, tag("prof_wpt_0"), 0] / A[:, tag("norm_born"), 0]))   # central scale
+moments["recoil"]["pt_aa"]["rate"] = moments["recoil"]["pt_aa"]["wprofile_rate"] = rate
+```
+
+The denominator tag of each window tower is its `denominator_tag` in the table.
+
+**Orders imposed.** The paper's diphoton, Higgs and Z+jet solves imposed every booked order
+(`moment_selection=False`). On the paper's priors the default resolution criterion selects
+every booked order anyway, except on the 2 → 2 diphoton prior, where it drops the sixth
+\|cos θ*\| order (the default solve then retains 4.4%).
+
+**Re-solves.** The scale, bootstrap and window re-solves hold the central solve's orders
+(`fixed_orders`) and start from its multipliers (`lam0`), as in
+`examples/bands_with_released_moments.py`. The bootstrap replicas of the paper drew
+`np.random.default_rng(1).choice(n_runs, n_runs)` positions per replica.
+
+## The priors
+
+| prior | events | used for |
 |---|---|---|
-| `fig_dy_imposed_follows.pdf` (Fig. 1) | `fig_dy_spectra.py --imposed-follows` | what is imposed closes (\|y_ll\|), what is never imposed follows (p_T^ℓ1) |
-| `fig_dy_eventlevel.pdf` (Fig. 2, left) | `fig_dy_eventlevel.py` | p_T^ℓℓ against ATLAS, with the NLO and NNLO (Z+jet) recoil inputs |
-| `fig_phistar_prediction.pdf` (Fig. 2, right) | `phistar_prediction.py` | φ*_η against ATLAS |
-| `fig_cost_prl.pdf` (End Matter) | `fig_cost_prl.py` | cost to reach an effective sample size |
-| `fig_lepton_pulls.pdf` (End Matter, optional) | `fig_nnlo_born.py --pulls-strip` | pulls of the never-constrained lepton-p_T moments |
+| MG5_aMC LO pp → ℓ⁺ℓ⁻ + Pythia 8.312, 13 TeV, ATLAS fiducial selection on Born-level leptons | 747,028 | Drell-Yan |
+| MG5_aMC LO pp → μ⁺ν, μ⁻ν̄ + Pythia 8.312, 7 TeV, the NNLOJET W selection | 521,316 (W+), 487,992 (W-) | W± |
+| Pythia 8.312 gg → H, 13 TeV, inclusive | 2,000,000 | gg → H |
+| merged MG5_aMC γγ + γγj (CKKW-L) with the Pythia gg box, nine slices, 8 TeV, ATLAS selection | 10,644,601 | diphoton (merged) |
+| Pythia q q̄ → γγ and gg box, five slices, 8 TeV, ATLAS selection | 6,938,827 | diphoton (2 → 2) |
+| MG5_aMC LO pp → ℓ⁺ℓ⁻ + Pythia 8.312, 13 TeV, parton-level jets, ≥ 1 jet | 934,906 | Z+jet |
 
-Without the flags, `fig_dy_spectra.py` writes the single-observable spectra `fig_dy_mll`,
-`fig_dy_yll`, `fig_dy_ptl1` and `fig_nnlo_born.py` writes `fig_nnlo_pt_l{1,2}_moments` and `fig_nnlo_yll`, the
-figures of earlier versions.  The bands are drawn by `bandviz.py` (`step_band`, and
-`draw_series_unc(..., edge_to_edge=True)` for whole-bin bands; the default keeps the
-centre-to-centre fill of the JHEP figures).
-
-The PRL's NNLO Z+jet recoil variant reads the Stripper moments through `stripper_moments.py`
-(`DY_RECOIL_XML`); those moments are not part of this repository.
-
-## Event samples
-
-| process | how the sample was made |
-|---|---|
-| Drell-Yan | `shower_dy.py` on MG5_aMC LO events, then `make_dy_atlas_npz_born.py` (ATLAS fiducial, Born-level leptons) |
-| W | `shower_w.py` on MG5_aMC LO `p p > mu+ vm` / `mu- vm~` at 7 TeV |
-| Z+jet | `build_zj_prior.py` (anti-k_T R = 0.4 jets from the Drell-Yan shower) |
-| diphoton, merged prior | `diphoton_shower_merged.py` on MG5 `p p > a a` / `p p > a a j` (CKKW-L), plus the Pythia gg box from `diphoton_generate_v5.py --channels gg`, combined with `aa_merge_slices.py`; driver `aa_v5_pipeline.sh` |
-| diphoton, 2 → 2 prior | `diphoton_generate_v4.py` |
-| gluon-fusion Higgs | `ggh_generate_prior.py` (Pythia 8 `HiggsSM:gg2H`, H stable, 13 TeV, inclusive) |
-
-All samples are Pythia 8.312 at parton level: hadronization is off. Multiparton interactions
-are on for Drell-Yan, W and Z+jet, and off for diphoton and the Higgs.
+The paper describes them; they are not distributed with the repository.
