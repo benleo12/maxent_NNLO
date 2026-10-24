@@ -864,6 +864,9 @@ def _check_inputs(events, moments, config, wkey):
     # blended joint constraints have no solution.  Every tower a joint block couples
     # must therefore be windowed too.
     for key, mc in mixed_cfg.items():
+        if mc.get("transition", "windowed") != "windowed":
+            raise ValueError(f"config['mixed']['{key}']['transition'] = {mc['transition']!r}: joint blocks are "
+                             f"imposed in the windowed form only (blended joint constraints have no solution)")
         for o in mc["observables"]:
             if o in recoil_cfg and _transition(recoil_cfg[o], o) == "blend":
                 raise ValueError(

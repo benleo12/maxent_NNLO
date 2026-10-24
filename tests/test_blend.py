@@ -138,6 +138,12 @@ def test_joint_block_refuses_blended_tower():
         assert "'blend' or 'windowed'" in str(e)
     else:
         raise AssertionError("an unknown transition must raise")
+    try:
+        upgrade(ev, mom, {**cfg, "mixed": {"xy": {**cfg["mixed"]["xy"], "transition": "blend"}}})
+    except ValueError as e:
+        assert "windowed form only" in str(e)
+    else:
+        raise AssertionError("a blended joint block must raise")
 
 
 if __name__ == "__main__":
