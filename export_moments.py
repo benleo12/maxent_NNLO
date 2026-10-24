@@ -415,7 +415,7 @@ def export_winvar(name):
     Sm, Se = S.mean(0), S.std(0, ddof=1) / np.sqrt(len(S))
     out = {k: main[k] for k in ("process", "order", "sqrt_s_TeV", "pdf", "ew_scheme", "scale", "fiducial", "hard_scale_GeV")}
     out.update(variant_of=M["file"], replaces_tower=W["tower"], n_independent_runs=len(seeds), channels=REAL, scales=M["scales"])
-    out["provenance"] = dict(nnlojet=NNLOJET + " and nnlojet_patch/winvar/ (the variant windows)", run_directory=W["base"],
+    out["provenance"] = dict(nnlojet=NNLOJET + " and nnlojet_patch/winvar_*.f90.patch (the variant windows)", run_directory=W["base"],
                              run_name=run, runcard=W["runcard"], n_runs=len(seeds), seeds=[int(x) for x in seeds], channels=REAL,
                              **({"decay_type": W["decay_type"]} if "decay_type" in W else {}),
                              vegas_grids=f"warm-up grids copied from the main run {M['base']} (runcards/README.md)",

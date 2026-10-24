@@ -63,7 +63,8 @@ Every other tower is the main table's, and the seam check is skipped for the var
 `released.windows(process)` lists the windows. The variants come from dedicated NNLOJET runs
 (channels R, RV and RR, seeds 101–140, `runcards/ggh_winvar.run` and `gg_winvar.run`), which
 also book the nominal window: it reproduces the main table, with a worst pull of 2.1 (Higgs)
-and 0.7 (diphoton) over the twelve orders and the window rate to 10⁻⁴ (field `validation`).
+and 0.7 (diphoton) over the twelve orders and window rates of 0.21659 against 0.21661 (Higgs)
+and 0.28041 against 0.28070 (diphoton), well within their errors (field `validation`).
 Their window rate is W0_V / σ_fid, with σ_fid from the six channels of the main run.
 
 ## What your prior must provide
