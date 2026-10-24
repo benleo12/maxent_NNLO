@@ -423,7 +423,30 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
     # paired at the same (muR, muF).  DY_RECOIL_REPLICA_SEED=<int> draws one Gaussian
     # statistical replica of the file's moments and rate for band builders that
     # bootstrap the Born towers; DY_RECOIL_REPLICA_MODE = rate (default) | full |
-    # corr (histogram-correlated, see make_rene_recoil_cov.py).
+    # corr (histogram-correlated covariance, estimated outside this repository).
+    # DY_RECOIL_RATE_XML=<xml>: take ONLY the windowed RATE from the external file and
+    # keep this run's own shape moments.  A diagnostic only: it separates the effect of the
+    # external rate from that of its shape moments.  The paper imposes the full tower
+    # (every order up to the highest resolved one) plus the rate.
+    rate_xml = os.environ.get("DY_RECOIL_RATE_XML")
+    if rate_xml and recoil_cfg_name == "pT_ll":
+        from stripper_moments import load_stripper_recoil
+        nb_all = np.asarray([_sum_channels(base, run, channels, norm_born, s, prefix) for s in seeds], float)
+        sig_fid_pb = float(nb_all[:, scale_idx].mean() * 2.002 / 1000.0)
+        NNLOJET_TO_STRIPPER = {0: 0, 1: 1, 2: 2, 3: 6, 4: 4, 5: 5, 6: 3}
+        ext = load_stripper_recoil(rate_xml, sig_fid_pb, x_match=x_match, x_hi=x_hi, soft_lo=soft_lo,
+                                   scale_idx=NNLOJET_TO_STRIPPER[int(scale_idx)])
+        rc = moments["recoil"][recoil_cfg_name]
+        R = float(ext["rate"])
+        rep = os.environ.get("DY_RECOIL_REPLICA_SEED")
+        if rep:
+            R += float(np.random.default_rng(int(rep)).normal(0.0, 1.0)) * float(ext["rate_stat"])
+        rc["rate"] = rc["wprofile_rate"] = R
+        rc["rate_stat"] = float(ext["rate_stat"]); rc["rate_scale"] = float(ext["rate_scale"])
+        rc["_source"] = dict(file=rate_xml, mode="rate_only", sigma_fid_pb=sig_fid_pb,
+                             W0_pb=ext["_meta"]["W0_pb"], replica=rep,
+                             note="window rate from the external NNLO Z+jet file; shape moments are this run's own")
+
     xml = os.environ.get("DY_RECOIL_XML")
     if xml and recoil_cfg_name == "pT_ll":
         from stripper_moments import load_stripper_recoil
@@ -445,7 +468,7 @@ def fo_moments_smooth_from_nnlojet(base, run, channels, seeds, born_tags,
             mode = os.environ.get("DY_RECOIL_REPLICA_MODE", "rate")
             if mode == "corr":
                 # correlated draw of (T_1..T_n, R): marginals from the file, correlations
-                # from its own pT_Z histogram -- the estimate of make_rene_recoil_cov.py,
+                # from its own pT_Z histogram -- the covariance estimate made outside this repository,
                 # stored beside the XML; the in-between of "rate" and "full" until
                 # per-run moments allow a real bootstrap.
                 cov = np.load(os.path.splitext(xml)[0] + "_cov.npz")

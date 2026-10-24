@@ -6,6 +6,7 @@
  "ew_scheme": "G_mu",
  "scale": "muR = muF = m_ll",
  "fiducial": "66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5, Born-level leptons (ATLAS 13 TeV)",
+ "hard_scale_GeV": 91.1876,
  "n_independent_runs": 298,
  "channels": [
   "LO",
@@ -14,6 +15,15 @@
   "RR",
   "RV",
   "VV"
+ ],
+ "scales": [
+  "muR = m_ll, muF = m_ll",
+  "muR = 2 m_ll, muF = 2 m_ll",
+  "muR = 0.5 m_ll, muF = 0.5 m_ll",
+  "muR = 2 m_ll, muF = m_ll",
+  "muR = m_ll, muF = 2 m_ll",
+  "muR = 0.5 m_ll, muF = m_ll",
+  "muR = m_ll, muF = 0.5 m_ll"
  ],
  "towers": {
   "mll": {
@@ -82,6 +92,21 @@
     3.581635353810432e-05
    ],
    "note": "dilepton mass",
+   "numerator_tags": [
+    "prof_mll_1",
+    "prof_mll_2",
+    "prof_mll_3",
+    "prof_mll_4",
+    "prof_mll_5",
+    "prof_mll_6",
+    "prof_mll_7",
+    "prof_mll_8",
+    "prof_mll_9",
+    "prof_mll_10",
+    "prof_mll_11",
+    "prof_mll_12"
+   ],
+   "denominator_tag": "norm_born",
    "bw": [
     91.1876,
     2.4952
@@ -152,7 +177,22 @@
     7.877707746547927e-05,
     0.0002671488407156473
    ],
-   "note": "|y_ll|"
+   "note": "|y_ll|",
+   "numerator_tags": [
+    "prof_absyz_1",
+    "prof_absyz_2",
+    "prof_absyz_3",
+    "prof_absyz_4",
+    "prof_absyz_5",
+    "prof_absyz_6",
+    "prof_absyz_7",
+    "prof_absyz_8",
+    "prof_absyz_9",
+    "prof_absyz_10",
+    "prof_absyz_11",
+    "prof_absyz_12"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pT_ll": {
    "kind": "window",
@@ -252,6 +292,29 @@
     0.00020309848739301231
    ],
    "note": "recoil, C^2 window 30-60 GeV, hard cut 500 GeV",
+   "numerator_tags": [
+    "prof_wptz_1",
+    "prof_wptz_2",
+    "prof_wptz_3",
+    "prof_wptz_4",
+    "prof_wptz_5",
+    "prof_wptz_6",
+    "prof_wptz_7",
+    "prof_wptz_8",
+    "prof_wptz_9",
+    "prof_wptz_10",
+    "prof_wptz_11",
+    "prof_wptz_12",
+    "prof_wptz_13",
+    "prof_wptz_14",
+    "prof_wptz_15",
+    "prof_wptz_16",
+    "prof_wptz_17",
+    "prof_wptz_18",
+    "prof_wptz_19",
+    "prof_wptz_20"
+   ],
+   "denominator_tag": "prof_wptz_0",
    "soft_lo": 30.0,
    "profile": {
     "a": 30.0,
@@ -260,14 +323,15 @@
    },
    "window_rate": 0.10300518242096668,
    "window_rate_stat": 3.273778789392894e-05,
-   "window_rate_scale": 0.00691122003202263
+   "window_rate_scale": 0.00691122003202263,
+   "matching_scale_rule": true
   },
-  "costh": {
+  "abs_costh": {
    "kind": "reference",
-   "observable": "costh",
+   "observable": "abs_costh",
    "map": "lin",
    "range": [
-    -1.0,
+    0.0,
     1.0
    ],
    "n_orders": 6,
@@ -303,7 +367,16 @@
     0.003103000673456223,
     0.0026683663802452955
    ],
-   "note": "Collins-Soper cos theta* of the negative lepton; booked, not imposed in the paper"
+   "note": "|cos theta*| of the lepton pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_ll), linear map on [0,1]; booked, not imposed in the paper",
+   "numerator_tags": [
+    "prof_ctl_1",
+    "prof_ctl_2",
+    "prof_ctl_3",
+    "prof_ctl_4",
+    "prof_ctl_5",
+    "prof_ctl_6"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pT_l1": {
    "kind": "reference",
@@ -311,7 +384,7 @@
    "map": "log",
    "range": [
     27.0,
-    1000.0
+    200.0
    ],
    "n_orders": 6,
    "orders": [
@@ -346,7 +419,16 @@
     0.013206762652484327,
     0.015485358224576473
    ],
-   "note": "leading-lepton pT; a prediction of the paper, released for validation, never imposed"
+   "note": "leading-lepton pT on the log map [27,200] compiled into NNLOJET (eval_chebT_ptl1); a prediction of the paper, released for validation, never imposed",
+   "numerator_tags": [
+    "prof_ptl1_1",
+    "prof_ptl1_2",
+    "prof_ptl1_3",
+    "prof_ptl1_4",
+    "prof_ptl1_5",
+    "prof_ptl1_6"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pT_l2": {
    "kind": "reference",
@@ -354,7 +436,7 @@
    "map": "log",
    "range": [
     27.0,
-    1000.0
+    150.0
    ],
    "n_orders": 6,
    "orders": [
@@ -389,14 +471,23 @@
     0.012651976108277098,
     0.00845426777424621
    ],
-   "note": "subleading-lepton pT; a prediction of the paper, released for validation, never imposed"
+   "note": "subleading-lepton pT on the log map [27,150] compiled into NNLOJET (eval_chebT_ptl2); a prediction of the paper, released for validation, never imposed",
+   "numerator_tags": [
+    "prof_ptl2_1",
+    "prof_ptl2_2",
+    "prof_ptl2_3",
+    "prof_ptl2_4",
+    "prof_ptl2_5",
+    "prof_ptl2_6"
+   ],
+   "denominator_tag": "norm_born"
   }
  },
  "joint": {
-  "mll_x_costh": {
+  "mll_x_abs_costh": {
    "observables": [
     "mll",
-    "costh"
+    "abs_costh"
    ],
    "n": 4,
    "profile": null,
@@ -454,7 +545,26 @@
     "4,3": 0.00021909820001872384,
     "4,4": 0.00047537056013740274
    },
-   "note": "<T_m(u_BW(m_ll)) T_n(cos theta*)>, no window; closes the decay correlation, redundant for the lepton spectra (paper)",
+   "note": "<T_m(u_BW(m_ll)) T_n(u_lin(|cos theta*|))> over the fiducial region, no window (eval_chebTT_mllct); closes the decay correlation, redundant for the lepton spectra (paper)",
+   "numerator_tags": {
+    "1,1": "prof_mct_11",
+    "1,2": "prof_mct_12",
+    "1,3": "prof_mct_13",
+    "1,4": "prof_mct_14",
+    "2,1": "prof_mct_21",
+    "2,2": "prof_mct_22",
+    "2,3": "prof_mct_23",
+    "2,4": "prof_mct_24",
+    "3,1": "prof_mct_31",
+    "3,2": "prof_mct_32",
+    "3,3": "prof_mct_33",
+    "3,4": "prof_mct_34",
+    "4,1": "prof_mct_41",
+    "4,2": "prof_mct_42",
+    "4,3": "prof_mct_43",
+    "4,4": "prof_mct_44"
+   },
+   "denominator_tag": "norm_born",
    "window_rate": 1.0,
    "window_rate_stat": 0.0,
    "window_rate_scale": 0.0
@@ -468,7 +578,8 @@
   "recoil": [
    "pT_ll"
   ],
-  "mixed": []
+  "mixed": [],
+  "max_orders": {}
  },
  "sigma_fid_pb": {
   "value": 710.3611257116524,

@@ -6,6 +6,7 @@
  "ew_scheme": "alpha(0)",
  "scale": "muR = muF = m_gg",
  "fiducial": "pT_g1 > 40, pT_g2 > 30 GeV, |eta_g| < 2.37 excl. 1.37-1.56, dR_gg > 0.4, Frixione isolation r=0.4 ET_max=11 GeV (ATLAS 8 TeV)",
+ "hard_scale_GeV": 90.0,
  "n_independent_runs": 40,
  "channels": [
   "LO",
@@ -14,6 +15,15 @@
   "RR",
   "RV",
   "VV"
+ ],
+ "scales": [
+  "muR = m_gg, muF = m_gg",
+  "muR = 2 m_gg, muF = 2 m_gg",
+  "muR = 0.5 m_gg, muF = 0.5 m_gg",
+  "muR = 2 m_gg, muF = m_gg",
+  "muR = m_gg, muF = 2 m_gg",
+  "muR = m_gg, muF = 0.5 m_gg",
+  "muR = 0.5 m_gg, muF = m_gg"
  ],
  "towers": {
   "m_aa": {
@@ -57,11 +67,20 @@
     0.010792391663305992,
     0.010280086784844905
    ],
-   "note": "diphoton mass"
+   "note": "diphoton mass",
+   "numerator_tags": [
+    "prof_maa_1",
+    "prof_maa_2",
+    "prof_maa_3",
+    "prof_maa_4",
+    "prof_maa_5",
+    "prof_maa_6"
+   ],
+   "denominator_tag": "norm_born"
   },
-  "costh_aa": {
+  "abs_costh_aa": {
    "kind": "born",
-   "observable": "costh_aa",
+   "observable": "abs_costh_aa",
    "map": "lin",
    "range": [
     0.0,
@@ -100,7 +119,16 @@
     0.0018453375987085678,
     0.0013093012791015012
    ],
-   "note": "|cos theta*| (Collins-Soper)"
+   "note": "|cos theta*| of the photon pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_gam12)",
+   "numerator_tags": [
+    "prof_cts_1",
+    "prof_cts_2",
+    "prof_cts_3",
+    "prof_cts_4",
+    "prof_cts_5",
+    "prof_cts_6"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pt_aa": {
    "kind": "window",
@@ -168,6 +196,21 @@
     0.012132851285329371
    ],
    "note": "recoil, C^2 window 28-56 GeV, hard cut 500 GeV",
+   "numerator_tags": [
+    "prof_wpt_1",
+    "prof_wpt_2",
+    "prof_wpt_3",
+    "prof_wpt_4",
+    "prof_wpt_5",
+    "prof_wpt_6",
+    "prof_wpt_7",
+    "prof_wpt_8",
+    "prof_wpt_9",
+    "prof_wpt_10",
+    "prof_wpt_11",
+    "prof_wpt_12"
+   ],
+   "denominator_tag": "prof_wpt_0",
    "soft_lo": 1.0,
    "profile": {
     "a": 28.0,
@@ -176,19 +219,21 @@
    },
    "window_rate": 0.28069895424878943,
    "window_rate_stat": 0.0029160540028171367,
-   "window_rate_scale": 0.0186683687257877
+   "window_rate_scale": 0.0186683687257877,
+   "matching_scale_rule": true
   }
  },
  "joint": {},
  "default_constraints": {
   "born": [
    "m_aa",
-   "costh_aa"
+   "abs_costh_aa"
   ],
   "recoil": [
    "pt_aa"
   ],
-  "mixed": []
+  "mixed": [],
+  "max_orders": {}
  },
  "sigma_fid_pb": {
   "value": 13.497529475024644,

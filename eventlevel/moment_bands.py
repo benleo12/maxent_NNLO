@@ -96,9 +96,7 @@ def band_solve(ev, Msets, cfg, table=None, n_boot=30, seed=1):
     # re-ran the selection could change the feature count, and the warm start
     # (and the band) would no longer be like-for-like
     chosen = dict(res0.report["moment_selection"]["chosen"])
-    cfg = {**cfg, "moment_selection": False,
-           "born_N": {o: int(chosen[o]) for o in cfg["born"]},
-           "recoil_N": int(chosen[next(iter(cfg["recoil"]))])}
+    cfg = {**cfg, "fixed_orders": {o: int(n) for o, n in chosen.items()}}
     res0.report["frozen_cfg"] = cfg
     scale_w = []
     for s in range(1, NSCALE):
@@ -167,11 +165,11 @@ def targets_of(M, cfg_like_names):
 # the check
 # --------------------------------------------------------------------------
 def main():
-    BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
+    BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
     CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-    XM, XHI, SOFT = 30.0, 500.0, 0.5
+    XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
     loader_kw = dict(born_tags={"mll": "mll", "y_abs": "absyz"},
-                     n_born=6, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
+                     n_born=12, n_recoil=20, x_match=XM, x_hi=XMAP, soft_lo=SOFT)
     seeds = common_seeds(BASE, "DY_MOMENTS", CH6)
     print(f"seeds {len(seeds)}; loading 7 scale sets ...", flush=True)
     Msets = moment_sets(BASE, "DY_MOMENTS", CH6, seeds, loader_kw)
@@ -183,7 +181,7 @@ def main():
               weight=P["w"][idx].astype(float))
     cfg = dict(born={"mll": {"range": (66., 116.), "map": "bw"},
                      "y_abs": {"range": (0., 2.4), "map": "lin"}},
-               recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+               recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                                  "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
                followers=["phistar"])
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Load event-level Chebyshev moments from a Stripper XML (Rene's Z+jet runs)
+r"""Load event-level Chebyshev moments from a Stripper XML (the NNLO Z+jet runs of R. Poncelet)
 into the `moments["recoil"][obs]` dict that maxent_upgrade.upgrade() consumes.
 
 File conventions (verified 2026-09-15/16 against the LO test file):

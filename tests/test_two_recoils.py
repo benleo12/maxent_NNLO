@@ -15,7 +15,7 @@ import sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))          # the repository root, if not pip-installed
 from maxent_upgrade import upgrade, profile_w, chebyshev_moment
 
 XM_PT, XB_PT, XHI_PT, SOFT_PT = 28.0, 56.0, 500.0, 1.0
@@ -101,6 +101,11 @@ def main():
     ok = worst < 1e-3
     print(f"\nworst relative miss {worst:.2e} -> {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
+
+
+def test_closure():
+    """pytest entry point: the solver recovers a known tilt to better than 1e-3."""
+    assert main() == 0
 
 
 if __name__ == "__main__":

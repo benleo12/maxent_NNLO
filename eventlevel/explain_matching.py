@@ -61,11 +61,23 @@ def main():
     fv = np.where(np.isfinite(fv) & (fv > 0), fv, np.nan)
     print(f"  fixed order below the seam: {'drawn' if have_full else 'ABSENT (ptz_full not produced yet)'}")
 
-    fig, ax = plt.subplots(1, 3, figsize=(19.5, 6.0))
+    # EXPLAIN_LAYOUT=2: the two right-hand panels only, at a size that stays
+    # legible across a journal text width (the JHEP paper); default = 3 panels
+    LAYOUT = int(os.environ.get("EXPLAIN_LAYOUT", "3"))
+    if LAYOUT == 2:
+        use_pub_style(base=22)
+        fig, ax2 = plt.subplots(1, 2, figsize=(13.4, 6.4))
+        _dummy, a0 = plt.subplots()
+        ax = [a0, ax2[0], ax2[1]]
+    else:
+        fig, ax = plt.subplots(1, 3, figsize=(19.5, 6.0))
     for a in ax:
         a.set_xscale("log"); a.set_xlim(2, 300)
-        a.set_xlabel(r"$p_T^{\ell\ell}$ [GeV]")
+        a.set_xlabel(r"$p_\mathrm{T}^{\ell\ell}$ [GeV]")
         a.axvline(XM, color=C["seam"], lw=1.6, ls="--")
+        # the matching scale, labelled once per panel at the top of the axes
+        a.text(XM * 1.06, 0.97, r"$v_\mathrm{m}$", transform=a.get_xaxis_transform(),
+               ha="left", va="top", color=C["seam"])
 
     # -------- 1. ingredients
     a = ax[0]
@@ -73,31 +85,48 @@ def main():
     # is positive -- each fails visibly outside its region, no fade needed
     a.plot(ctr, hpr, color=C_SH, lw=3.4, label=r"parton shower")
     a.stairs(fv, e, color=C_FO, ls=":", lw=3.0, label=r"fixed order")
-    a.set_yscale("log"); a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_T$")
+    a.set_yscale("log"); a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_\mathrm{T}^{\ell\ell}$ [GeV$^{-1}$]")
     a.set_title(r"(a) the two inputs")
     a.legend(loc="lower left")
 
     # -------- 2. result
     a = ax[1]
-    a.plot(ctr, hpr, color="0.6", lw=2.2, ls="--", label=r"prior")
-    a.stairs(fv, e, color=C_FO, ls=":", lw=2.6, label=r"fixed order")
-    a.plot(ctr, hpo, color=C_ME, lw=3.6, label=r"reweighted")
-    a.set_yscale("log"); a.set_title(r"(b) reweighted sample")
+    a.plot(ctr, hpr, color="0.6", lw=2.2, ls="--", label=r"LO+PS prior")
+    a.stairs(fv, e, color=C_FO, ls=":", lw=2.6, label=r"fixed order, NLO($Z$+jet)")
+    a.plot(ctr, hpo, color=C_ME, lw=3.6, label=r"MaxEnt")
+    a.set_yscale("log")
+    if LAYOUT != 2:
+        a.set_title(r"(b) reweighted sample")
+    if LAYOUT == 2:
+        a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_\mathrm{T}^{\ell\ell}$ [GeV$^{-1}$]")
     a.legend(loc="lower left")
 
     # -------- 3. the ratio
     a = ax[2]
     r = hpo / np.maximum(hpr, 1e-30)
     z = float(np.mean(r[(ctr < XM) & (hpr > 0)]))
-    a.plot(ctr, r, color=C_ME, lw=3.6)
+    # what the tilt should reproduce above the matching scale: fixed order
+    # divided by the same prior, drawn only on bins wholly above v_m
+    above = (e[:-1] >= XM - 1e-9) & np.isfinite(fv) & (hpr > 0)
+    rfo = np.where(above, fv / np.maximum(hpr, 1e-30), np.nan)
+    a.stairs(rfo, e, color=C_FO, ls=":", lw=2.6, label=r"fixed order / prior")
+    a.plot(ctr, r, color=C_ME, lw=3.6, label=r"MaxEnt / prior")
     a.axhline(1.0, color="k", lw=1.0)
     a.axhline(z, color="0.25", lw=2.2, ls="--")
-    a.set_ylim(0.4, 2.4)
-    a.set_ylabel(r"reweighted\,/\,prior")
-    a.set_title(r"(c) ratio to the prior")
-    a.text(3.0, z + 0.10, rf"$1/Z={z:.2f}$", color="0.25", fontsize=19)
+    a.set_yscale("log")
+    a.set_ylim(0.7, 6.0)
+    a.set_yticks([0.7, 1, 2, 3, 4, 5]); a.set_yticklabels(["0.7", "1", "2", "3", "4", "5"])
+    a.yaxis.set_minor_formatter(plt.NullFormatter())
+    a.set_ylabel(r"ratio to prior")
+    if LAYOUT != 2:
+        a.set_title(r"(c) ratio to the prior")
+    a.text(2.6, z * 1.06, rf"$1/Z={z:.2f}$", color="0.25", va="bottom")
+    a.legend(loc="upper left", bbox_to_anchor=(0.0, 0.90), frameon=True,
+             facecolor="white", edgecolor="none", framealpha=1.0)
+    print(f"  ratio panel: MaxEnt/prior max {np.nanmax(r):.2f}; FO/prior above v_m "
+          f"{np.nanmin(rfo):.2f}-{np.nanmax(rfo):.2f}")
 
-    out = os.path.join(HERE, "fig_explain_matching.pdf")
+    out = os.path.join(HERE, "fig_explain_matching_2p.pdf" if LAYOUT == 2 else "fig_explain_matching.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print(f"wrote {out}   (1/Z={z:.3f}, effN={100*res.effN:.0f}%)")
 

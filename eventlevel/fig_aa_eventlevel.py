@@ -168,11 +168,17 @@ def maxent_variants(n_boot=20):
 
 PANELS = [
     ("m_aa",     "m_aa",     r"$m_{\gamma\gamma}$ [GeV]",            True,  "constrained"),
-    ("pt_aa",    "pt_aa",    r"$p_T^{\gamma\gamma}$ [GeV]",          True,  "constrained"),
+    ("pt_aa",    "pt_aa",    r"$p_\mathrm{T}^{\gamma\gamma}$ [GeV]",          True,  "constrained"),
     ("costh_aa", "costh_aa", r"$|\cos\theta^*|$",                    False, "constrained"),
-    ("dphi_aa",  "dphi_aa",  r"$\Delta\phi_{\gamma\gamma}$",         False, "predicted"),
-    ("at_aa",    "at_aa",    r"$a_T^{\gamma\gamma}$ [GeV]",          True,  "predicted"),
+    ("dphi_aa",  "dphi_aa",  r"$\Delta\phi_{\gamma\gamma}$",         False, "follower"),
+    ("at_aa",    "at_aa",    r"$a_\mathrm{T}^{\gamma\gamma}$ [GeV]",          True,  "follower"),
 ]
+# y-axis label per observable (unit-normalized densities)
+YLAB = {"m_aa": r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}m_{\gamma\gamma}$ [GeV$^{-1}$]",
+        "pt_aa": r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_\mathrm{T}^{\gamma\gamma}$ [GeV$^{-1}$]",
+        "costh_aa": r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}|\cos\theta^*|$",
+        "dphi_aa": r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\Delta\phi_{\gamma\gamma}$",
+        "at_aa": r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}a_\mathrm{T}^{\gamma\gamma}$ [GeV$^{-1}$]"}
 
 # Accuracy is a property of the OBSERVABLE, not of the calculation.  From the
 # inclusive gamma-gamma calculation at NNLO, the Born observables (mass, the
@@ -180,9 +186,9 @@ PANELS = [
 # emission to be non-zero -- the recoil pT, a_T, and dphi away from pi -- is only
 # NLO(gamma-gamma+jet) accurate.  Label each curve by what it actually is.
 FO_ORDER = {"m_aa": r"NNLO", "costh_aa": r"NNLO", "y_aa": r"NNLO",
-            "pt_aa": r"NLO $\gamma\gamma$+jet",
-            "dphi_aa": r"NLO $\gamma\gamma$+jet",
-            "at_aa": r"NLO $\gamma\gamma$+jet"}
+            "pt_aa": r"NLO($\gamma\gamma$+jet)",
+            "dphi_aa": r"NLO($\gamma\gamma$+jet)",
+            "at_aa": r"NLO($\gamma\gamma$+jet)"}
 
 
 def main():
@@ -198,7 +204,12 @@ def main():
 
     # ONE observable per figure, as everywhere else.
     for j, (key, dk, lab, logx, role) in enumerate(PANELS):
-        fig, ax = plt.subplots(2, 1, figsize=(6.6, 7.6), squeeze=False,
+        # sharex: the main and ratio panels MUST share one x-axis.  Without it
+        # each panel autoscales on its own on a log axis, and the main panel of
+        # m_aa (whose first bin starts at 0) was drawn on a different range from
+        # the ratio panel whose tick labels the reader uses (fixed 2026-10-01).
+        # JHEP print size: set at 0.6\textwidth, pubstyle default font sizes.
+        fig, ax = plt.subplots(2, 1, figsize=(6.2, 6.6), squeeze=False, sharex=True,
                                gridspec_kw={"height_ratios": [2.1, 1.15], "hspace": 0.07})
         a, r = ax[0, 0], ax[1, 0]
         lo = np.asarray(D[f"{dk}_lo"], float); hi = np.asarray(D[f"{dk}_hi"], float)
@@ -212,11 +223,11 @@ def main():
         med = lambda h: 100 * np.median(np.abs(h[m] / dv[m] - 1))
 
         a.errorbar(ctr[m], dv[m], yerr=(err / (val * bw).sum())[m], fmt="o", color="k",
-                   ms=4, lw=1.1, label=r"ATLAS 1704.03839", zorder=9)
+                   ms=5, lw=1.1, label=r"ATLAS", zorder=9)
         a.stairs(np.where(m, pp, np.nan), e, color=C["prior"], ls="--", lw=2.0,
-                 label=rf"PS+LO prior ({med(pp):.0f}\%)")
-        a.stairs(np.where(m, qq, np.nan), e, color=C["maxent"], lw=3.0,
-                 label=rf"MaxEnt ({med(qq):.0f}\%)")
+                 label=rf"LO+PS prior (${med(pp):.1f}\%$)")
+        a.stairs(np.where(m, qq, np.nan), e, color=C["maxent"], lw=3.0, zorder=5,
+                 label=rf"MaxEnt (${med(qq):.1f}\%$)")
         # FIXED ORDER, normalised over the plotted range
         fo_band = fn = None
         fc = fo_ref(FOTAG.get(key, key))
@@ -237,7 +248,7 @@ def main():
                     fn = np.where(good, fo, np.nan)
                     fn = fn / np.nansum(fn * bw)          # same normalisation as pp/qq/dv
                     a.stairs(fn, e, color=C["fo"], ls=":", lw=LW["fo"],
-                             label=rf"fixed order ({FO_ORDER.get(key, '')})")
+                             label=rf"fixed order, {FO_ORDER.get(key, '')}")
                     r.stairs(np.where(m, fn / dv, np.nan), e, color=C["fo"], ls=":", lw=1.9)
                     # FO band: SHAPE-ONLY 7-point scale envelope (each scale
                     # member normalized to unit integral BEFORE the envelope --
@@ -274,7 +285,7 @@ def main():
             # about the method.  Reaching it needs a gamma-gamma+jet (2->3)
             # matrix element, not more statistics.
             # The boundary is set by effective statistics, not by eye (and not
-            # by the prior generation used for the first submission): shade the
+            # by the earlier 2->2 prior generation): shade the
             # contiguous low-dphi region whose REWEIGHTED Kish count per bin
             # stays below 100.  A merged gamma-gamma+jet prior populates it and
             # then nothing is shaded.
@@ -301,13 +312,17 @@ def main():
             if supp:
                 a.text(supp * 0.97, 0.97, r"outside prior support",
                        transform=a.get_xaxis_transform(), rotation=90, ha="right", va="top",
-                       fontsize=11, color=C["seam"])
+                       color=C["seam"])
         if logx:
             a.set_xscale("log"); r.set_xscale("log")
         a.set_yscale("log"); a.tick_params(labelbottom=False)
         r.axhline(1, color="k", lw=0.8)
         rel = (err / np.maximum(val, 1e-30))
-        r.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
+        # the data uncertainty as points with error bars at one (the same
+        # numbers that were drawn as a grey band), so that the only grey band
+        # in the ratio panel is the fixed-order one
+        r.errorbar(ctr[m], np.ones(int(m.sum())), yerr=rel[m], fmt="o", color="k", ms=4,
+                   lw=1.1, capsize=0, zorder=9)
         r.stairs(np.where(m, pp / dv, np.nan), e, color=C["prior"], ls="--", lw=1.8)
         r.stairs(np.where(m, qq / dv, np.nan), e, color=C["maxent"], lw=2.4)
         # ---- uncertainty visuals, one style per role (shared convention) ----
@@ -353,11 +368,26 @@ def main():
                 np.where(fo_ok, fo_band / fn, np.nan))))
         print(f"  {key}: prior {med(pp):.1f}%  MaxEnt {med(qq):.1f}%  |  "
               + "  ".join(halves))
-        r.set_ylim(0.5, 1.6); r.set_xlabel(lab)
-        a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+        # every curve on scale (the Delta-phi prior reaches 0.43 of the data)
+        r.set_ylim(0.4 if key == "dphi_aa" else 0.5, 1.6); r.set_xlabel(lab)
+        # explicit x range on the shared axis; a log axis cannot start at a
+        # bin edge of zero, so the first bin is drawn from half its upper edge
+        x_lo = (0.5 * e[1] if e[0] <= 0 else e[0]) if logx else e[0]
+        a.set_xlim(x_lo, e[-1])
+        if key == "m_aa":
+            # the range of the mass tower (moments on [MLO, MHI])
+            for p_ in (a, r):
+                for xv in (MLO, MHI):
+                    p_.axvline(xv, color="0.45", lw=1.0, ls=":", zorder=1)
+            a.text(np.sqrt(MLO * MHI), 0.97, r"mass tower", transform=a.get_xaxis_transform(),
+                   ha="center", va="top", color="0.35")
+        a.set_ylabel(YLAB.get(key, r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$"))
         r.set_ylabel(r"ratio to data")
-        a.legend(loc="upper left" if key == "dphi_aa" else "lower left", fontsize=12)
-        a.set_title(rf"{lab.replace(' [GeV]', '')}, {role}")
+        a.legend(loc="upper left" if key == "dphi_aa" else "lower left",
+                 labelspacing=0.25, handletextpad=0.5)
+        a.text(0.97 if key == "dphi_aa" else 0.99, 0.05 if key == "dphi_aa" else 0.80, role,
+               transform=a.transAxes, ha="right",
+               va="bottom" if key == "dphi_aa" else "top", color="0.3")
         out = os.path.join(HERE, f"fig_aa_{key}{FIG_SUFFIX}.pdf")
         fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
         plt.close(fig)

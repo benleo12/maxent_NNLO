@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 r"""PRL Fig. 4: cost to reach an effective sample size, MEASURED numbers only.
-Derived from for_james_cost/fig_cost_model.py (James Whitehead's template);
-read the provenance there before trusting any number.  Differences here:
+Derived from the cost model of J. Whitehead (not part of this repository).
+Differences here:
 
   * the fixed cost is the SIXTY-seed moment production the papers now use
     (dy_profile_log30_hi), at the uncontended per-seed rate measured in the
@@ -32,7 +32,7 @@ use_pub_style(base=17)
 MS = 1e-3
 PER_SEED = 1152.94 / 40 * 3600.0            # core-s per seed set, uncontended (40-seed campaign)
 C_FIXED_3   = 3 * PER_SEED                  # 86.5 core-h
-C_FIXED_60  = 60 * PER_SEED                 # 1729 core-h, the 60-seed production of the first submission
+C_FIXED_60  = 60 * PER_SEED                 # 1729 core-h, the earlier 60-seed production
 N_SEEDS_RUN = 298                           # seeds 41-340 minus two incomplete (2026-09-27)
 C_FIXED_RUN = N_SEEDS_RUN * PER_SEED        # 8588 core-h, the production as run at the uncontended rate
 C_FIXED_CHARGED = 12137.0 * 3600.0          # CPU consumed in the shared queue (per-seed /usr/bin/time; not drawn)

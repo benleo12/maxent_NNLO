@@ -8,7 +8,7 @@ r"""Build the Drell-Yan uncertainty-band caches consumed by the DY figures:
                               from the NNLO Z+jet Stripper file (DY_RECOIL_XML set):
                               scale = his 7 scales paired with ours, bootstrap = Born
                               seeds x recoil replicas in DY_RECOIL_REPLICA_MODE (corr =
-                              the histogram-correlated estimate of make_rene_recoil_cov.py,
+                              a histogram-correlated covariance estimate (made outside this repository),
                               the paper's choice until per-run moments exist).
                               DY_BAND_OUT overrides the output file name.
 Each cache holds central weights, 6 scale re-solves (7-point variations of the
@@ -60,11 +60,13 @@ def build(ev, cfg, out):
         r = upgrade(ev, Ms, {**cfg, "lam0": lam0}); scale_w.append(r.weights)
         print(f"   scale {s}: effN {100*r.effN:.1f}%", flush=True)
     rng = np.random.default_rng(1); boot_w = []
-    ext = os.environ.get("DY_RECOIL_XML")
+    ext = os.environ.get("DY_RECOIL_XML") or os.environ.get("DY_RECOIL_RATE_XML")
     if ext:
-        print(f"   recoil from {os.path.basename(ext)} (sigma_fid {M['recoil']['pT_ll']['_source']['sigma_fid_pb']:.2f} pb, "
-              f"{M['recoil']['pT_ll']['_source']['n_orders']} orders); bootstrap = Born seeds x Gaussian recoil replicas "
-              f"(mode {os.environ.get('DY_RECOIL_REPLICA_MODE', 'rate')})", flush=True)
+        src = M["recoil"]["pT_ll"]["_source"]
+        what = ("window rate only (shape moments are ours)" if src.get("mode") == "rate_only"
+                else f"{src.get('n_orders')} shape moments + rate")
+        print(f"   recoil from {os.path.basename(ext)}: {what}; sigma_fid {src['sigma_fid_pb']:.2f} pb; "
+              f"bootstrap = Born seeds x Gaussian replicas of the external rate", flush=True)
     for b in range(N_BOOT):
         sb = list(rng.choice(seeds, size=len(seeds), replace=True))
         if ext:
@@ -81,5 +83,6 @@ if __name__ == "__main__":
     which = sys.argv[1:] or ["atlas", "ext"]
     # one prior, one cache, shared by every DY figure; with DY_RECOIL_XML set the
     # NNLO(Zj)-recoil variant is written beside it and never overwrites the default
-    out = os.environ.get("DY_BAND_OUT") or ("dy_band_weights_nnloZj.npz" if os.environ.get("DY_RECOIL_XML") else "dy_band_weights.npz")
+    out = os.environ.get("DY_BAND_OUT") or ("dy_band_weights_nnloZj.npz"
+          if (os.environ.get("DY_RECOIL_RATE_XML") or os.environ.get("DY_RECOIL_XML")) else "dy_band_weights.npz")
     build(*ev_atlas(), out)

@@ -210,6 +210,77 @@ def fig_moments(ev, res, seeds, res2=None):
               + (f"   MaxEnt NNLO(Zj) recoil pull {np.abs((mq2-fo)/np.maximum(er,1e-12)).mean():6.1f}" if mq2 is not None else ""))
 
 
+def fig_pulls_strip(ev, res, seeds, res2=None, name="fig_lepton_pulls"):
+    r"""PRL End Matter (optional): pulls of the never-constrained lepton moments.
+
+    The pull panels of fig_nnlo_pt_l{1,2}_moments, for both leptons, in one
+    column at printed size (3.4 in), markers only.  Same moments, the same FO
+    errors and the same MaxEnt bars (bootstrap (+) scale half-width).  The
+    NNLO(Z+jet)-recoil points carry their scale half-width only: the
+    statistical error of that input's shape moments is not propagated.
+    Prints the mean |pull| per lepton for checking against the log.
+    """
+    rc = {"font.size": 8.5, "axes.titlesize": 8.5, "axes.labelsize": 8.5,
+          "xtick.labelsize": 8, "ytick.labelsize": 8, "legend.fontsize": 7.5,
+          "axes.linewidth": 0.6, "xtick.major.size": 3.5, "ytick.major.size": 3.5,
+          "xtick.minor.size": 2.0, "ytick.minor.size": 2.0, "xtick.major.width": 0.6,
+          "ytick.major.width": 0.6, "errorbar.capsize": 0.0}
+    obs = [("pt_l1", "prof_ptl1", r"p_\mathrm{T}^{\ell_1}"),
+           ("pt_l2", "prof_ptl2", r"p_\mathrm{T}^{\ell_2}")]
+    BW = dict(np.load(os.path.join(HERE, "dy_band_weights.npz")))
+    if not np.allclose(BW["central"], res.weights, rtol=1e-6, atol=0):
+        raise SystemExit("dy_band_weights.npz stale; refusing to draw the pulls without bars")
+    BW2 = None
+    if res2 is not None:
+        BW2 = dict(np.load(os.path.join(HERE, "dy_band_weights_nnloZj.npz")))
+        if not np.allclose(BW2["central"], res2.weights, rtol=1e-6, atol=0):
+            raise SystemExit("dy_band_weights_nnloZj.npz stale")
+    nn = np.arange(1, NMOM + 1)
+    with plt.rc_context(rc):
+        fig, axs = plt.subplots(2, 1, figsize=(3.4, 3.5), sharex=True, gridspec_kw={"hspace": 0.32})
+        for ax, (key, tag, lab) in zip(axs, obs):
+            fo, er = [], []
+            for n in nn:
+                m = _moment_over_seeds(BASE, "DY_MOMENTS", CH6, seeds, f"{tag}_{n}", "norm_born", "Z")
+                c, st, sc, tot = _reduce(m, 0); fo.append(c); er.append(tot)
+            fo, er = np.array(fo), np.maximum(np.array(er), 1e-12)
+            lo_, hi_ = PT_MAP[key]
+            mp = chebyshev_moment(ev[key], ev["weight"], NMOM, lo_, hi_, "log")
+            mq = chebyshev_moment(ev[key], res.weights, NMOM, lo_, hi_, "log")
+            u_ = np.clip((np.log(np.clip(ev[key], lo_, hi_)) - np.log(lo_)) / (np.log(hi_) - np.log(lo_)) * 2 - 1, -1, 1)
+            T_ = [np.ones_like(u_), u_]
+            for _n in range(2, NMOM + 1):
+                T_.append(2 * u_ * T_[-1] - T_[-2])
+            wp_ = np.asarray(ev["weight"], float); sw_ = wp_.sum()
+            mp_err = np.array([np.sqrt((wp_ ** 2 * (T_[n] - mp[n - 1]) ** 2).sum()) / sw_ for n in nn])
+            mb = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log") for w_ in BW["boot_w"]]).std(0, ddof=1)
+            ms_ = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log") for w_ in BW["scale_w"]])
+            mq_err = np.hypot(mb, 0.5 * (ms_.max(0) - ms_.min(0)))
+            ax.axhspan(-1, 1, color=C["band"], alpha=0.45, lw=0)
+            ax.axhline(0, color="k", lw=0.5)
+            ax.errorbar(nn - 0.12, (mp - fo) / er, yerr=mp_err / er, fmt="o", ms=3.6, color=C["prior"],
+                        mfc="white", mew=0.9, elinewidth=0.7, label=r"LO+PS prior")
+            ax.errorbar(nn, (mq - fo) / er, yerr=mq_err / er, fmt="o", ms=3.6, color=C["maxent"],
+                        elinewidth=0.7, label=r"MaxEnt, NLO$(Zj)$ recoil")
+            line = f"    {lab}: prior pull {np.abs((mp - fo) / er).mean():.1f}   MaxEnt pull {np.abs((mq - fo) / er).mean():.1f}"
+            if res2 is not None:
+                mq2 = chebyshev_moment(ev[key], res2.weights, NMOM, lo_, hi_, "log")
+                ms2 = np.array([chebyshev_moment(ev[key], w_, NMOM, lo_, hi_, "log") for w_ in BW2["scale_w"]])
+                ax.errorbar(nn + 0.12, (mq2 - fo) / er, yerr=0.5 * (ms2.max(0) - ms2.min(0)) / er, fmt="s",
+                            ms=3.0, color=C["maxent_nnlo"], elinewidth=0.7, label=r"MaxEnt, NNLO$(Zj)$ recoil")
+                line += f"   MaxEnt NNLO(Zj) recoil pull {np.abs((mq2 - fo) / er).mean():.1f}"
+            print(line)
+            ax.set_title(rf"${lab}$, never constrained", loc="left", pad=2.5)
+            ax.set_ylabel(r"pull to NNLO [$\sigma_\mathrm{FO}$]")
+            ax.set_xticks(nn); ax.set_xlim(0.5, NMOM + 0.5)
+        axs[-1].set_xlabel(r"Chebyshev order $n$", labelpad=1)
+        axs[0].legend(loc="lower left", bbox_to_anchor=(-0.02, 1.14), ncol=2, frameon=False,
+                      handlelength=1.0, columnspacing=0.8, labelspacing=0.25, borderaxespad=0.0)
+        out = os.path.join(HERE, f"{name}.pdf")
+        fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"), dpi=200); plt.close(fig)
+    print("wrote", out)
+
+
 def fig_yll(ev, res, seeds):
     """|y_ll| spectrum against the booked absyz_fine fixed-order histogram."""
     fc = fo_curve(BASE, "DY_MOMENTS", CH6, seeds, "absyz_fine")
@@ -249,6 +320,10 @@ def fig_yll(ev, res, seeds):
 def main():
     print("solving (NNLO Born constraints) ...", flush=True)
     ev, res, seeds, res2 = solve()
+    if "--pulls-strip" in sys.argv:
+        # PRL End Matter strip only (opt-in); the moment figures are not re-rendered
+        fig_pulls_strip(ev, res, seeds, res2)
+        return
     fig_moments(ev, res, seeds, res2)
     # |y_ll| lives in fig_dy_spectra.py (fig_dy_yll); duplicating it here
     # would put the same observable in two figures from two solves.

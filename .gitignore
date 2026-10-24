@@ -8,3 +8,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+# outputs of the analysis scripts when run inside eventlevel/
+eventlevel/*.pdf
+eventlevel/*.png
+eventlevel/*.log

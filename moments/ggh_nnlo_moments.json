@@ -6,6 +6,7 @@
  "ew_scheme": "-",
  "scale": "muR = muF = m_H",
  "fiducial": "none (fully inclusive)",
+ "hard_scale_GeV": 125.0,
  "sigma_fid_note": "NOT VALIDATED: the norm_born accumulator of this production carries an overall normalization that does not reproduce the known inclusive gg -> H cross section (it comes out about 600 times too large); the paper uses only the shape moments, which are ratios and unaffected. sigma_fid_pb is therefore set to null; take the inclusive cross section from elsewhere to normalize an upgraded sample.",
  "n_independent_runs": 40,
  "channels": [
@@ -15,6 +16,15 @@
   "RR",
   "RV",
   "VV"
+ ],
+ "scales": [
+  "muR = m_H, muF = m_H",
+  "muR = 2 m_H, muF = 2 m_H",
+  "muR = 0.5 m_H, muF = 0.5 m_H",
+  "muR = 0.5 m_H, muF = m_H",
+  "muR = m_H, muF = 0.5 m_H",
+  "muR = 2 m_H, muF = m_H",
+  "muR = m_H, muF = 2 m_H"
  ],
  "towers": {
   "y_abs": {
@@ -58,7 +68,16 @@
     0.0018807188295651804,
     0.001296957794631437
    ],
-   "note": "|y_H|"
+   "note": "|y_H|",
+   "numerator_tags": [
+    "prof_yh_1",
+    "prof_yh_2",
+    "prof_yh_3",
+    "prof_yh_4",
+    "prof_yh_5",
+    "prof_yh_6"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pT_H": {
    "kind": "window",
@@ -126,6 +145,21 @@
     0.00531368957977095
    ],
    "note": "recoil, C^2 window 37-74 GeV, hard cut 1000 GeV",
+   "numerator_tags": [
+    "prof_wpt_1",
+    "prof_wpt_2",
+    "prof_wpt_3",
+    "prof_wpt_4",
+    "prof_wpt_5",
+    "prof_wpt_6",
+    "prof_wpt_7",
+    "prof_wpt_8",
+    "prof_wpt_9",
+    "prof_wpt_10",
+    "prof_wpt_11",
+    "prof_wpt_12"
+   ],
+   "denominator_tag": "prof_wpt_0",
    "soft_lo": 1.0,
    "profile": {
     "a": 37.0,
@@ -134,7 +168,8 @@
    },
    "window_rate": 0.27487402195693017,
    "window_rate_stat": 0.00033336140413038883,
-   "window_rate_scale": 0.010325362495181123
+   "window_rate_scale": 0.010325362495181123,
+   "matching_scale_rule": true
   }
  },
  "joint": {},
@@ -145,7 +180,8 @@
   "recoil": [
    "pT_H"
   ],
-  "mixed": []
+  "mixed": [],
+  "max_orders": {}
  },
  "sigma_fid_pb": null
 }

@@ -46,18 +46,39 @@ def stagger(e, k, n, frac=0.30):
     return lo + t * (hi - lo)
 
 
+def step_band(ax, edges, lo, hi, **kw):
+    """Band over whole bins, edge to edge.
+
+    ``fill_between(centres, lo, hi, step="mid")`` -- the older idiom in these
+    scripts -- fills only from the first bin centre to the last, so the outer
+    half of the first and last bins carries no band.  This draws the same band
+    over the full bins.  Opt-in: existing callers are unchanged.
+    """
+    kw.setdefault("lw", 0)
+    return ax.stairs(np.asarray(hi, float), np.asarray(edges, float),
+                     baseline=np.asarray(lo, float), fill=True, **kw)
+
+
 def draw_series_unc(ax, x, w, w_scale, e, ref, color, k, n, boot=None,
-                    alpha=0.14, bars=True):
-    """Scale band + staggered stat bars for one sample, in RATIO to ref."""
+                    alpha=0.14, bars=True, edge_to_edge=False):
+    """Scale band + staggered stat bars for one sample, in RATIO to ref.
+
+    ``edge_to_edge=True`` draws the band with :func:`step_band` (whole bins);
+    the default keeps the original centre-to-centre fill, so figures that do
+    not opt in render exactly as before.
+    """
     h = norm_dens(x, w, e)
     ok = np.isfinite(ref) & (ref > 0)
     r = np.where(ok, h / np.where(ok, ref, 1), np.nan)
     if w_scale is not None:
         lo, hi = scale_envelope(x, w_scale, e, central=h)
-        ax.fill_between(0.5 * (e[:-1] + e[1:]),
-                        np.where(ok, lo / np.where(ok, ref, 1), np.nan),
-                        np.where(ok, hi / np.where(ok, ref, 1), np.nan),
-                        step="mid", color=color, alpha=alpha, lw=0)
+        blo = np.where(ok, lo / np.where(ok, ref, 1), np.nan)
+        bhi = np.where(ok, hi / np.where(ok, ref, 1), np.nan)
+        if edge_to_edge:
+            step_band(ax, e, blo, bhi, color=color, alpha=alpha)
+        else:
+            ax.fill_between(0.5 * (e[:-1] + e[1:]), blo, bhi,
+                            step="mid", color=color, alpha=alpha, lw=0)
     if bars:
         err = mc_err(x, w, e)
         if boot is not None:

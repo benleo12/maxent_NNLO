@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Diphoton LO+PS prior v2 (James-spec cuts, 8 TeV): full kinematics + shower-variation weights.
+"""Diphoton LO+PS prior v2 (ATLAS 8 TeV fiducial cuts): full kinematics + shower-variation weights.
 Fixes the v1 acceptance catastrophe (pTHatMin=0 -> 3e-4 acceptance) with pTHatMin=25.
 Selection identical to generate_prior.py: pT1>40, pT2>30, |y|<2.37 minus crack [1.37,1.56],
 dR(aa)>0.4, Frixione-envelope isolation (linear in r, ETmax at riso), m_aa>80 implicit via CSV use.
@@ -7,7 +7,7 @@ dR(aa)>0.4, Frixione-envelope isolation (linear in r, ETmax at riso), m_aa>80 im
 import argparse, math, numpy as np, pythia8
 
 def frixione_ok(p, ig, riso, etmax):
-    """Linear-in-r Frixione envelope with fixed ETmax (James spec)."""
+    """Linear-in-r Frixione envelope with fixed ETmax (the ATLAS 8 TeV isolation)."""
     g = p.event[ig]
     for r_i in range(1, p.event.size()):
         pass

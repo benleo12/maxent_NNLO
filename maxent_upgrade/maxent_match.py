@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""maxent_match: THE unified MaxEnt-matching pipeline (order-uniform, fully coded criteria).
+"""maxent_match: the LEGACY histogram engine behind `upgrade_from_histograms`, plus the
+convex-dual Newton solver `_newton_maxent` that `upgrade()` uses.
+
+The event-level method of the papers (`upgrade()`) uses only `_newton_maxent` from this
+module.  Everything else here (differential K-factor targets, the data-driven x_match rules,
+the composite window, the rate-scheme band) is an earlier, histogram-based variant of the
+construction, kept for users who only have binned fixed-order output; it was not used for
+the papers' results.  Its description follows.
 
 Algorithm (paper box):
  A1. DOF rule: constrain a minimal spanning set = Born invariants of the hard system
@@ -24,7 +31,7 @@ Algorithm (paper box):
      Chebyshev (N_PRES) moments of the prior (uniform scaling, Sudakov peak intact).
  A4. Solve: z-scored Newton on the convex dual, L2 = 1e-4 (closure = exact to <1e-4 rel).
  A5. Uncertainty: re-solve per FO scale variation and per rate scheme -> envelope; stat from weights.
- All dials live in DIALS below; --scan produces the stability table over all of them.
+ All dials live in DIALS below.
 
 ===========================================================================
 PACKAGE COPY (maxent_upgrade): VERBATIM copy of the frozen physics engine with
@@ -38,17 +45,19 @@ No physics is altered: diff-K, the two-sided validity masks, the composite
 window, the convex-dual Newton solver, and the scale/rate band are untouched.
 ===========================================================================
 """
-import numpy as np, json, argparse, sys
-try:                                    # PACKAGE COPY: resolve the sibling module
-    from .dy_method import maxent, cheb, umap       # when imported as maxent_upgrade.maxent_match
-except ImportError:                                 # when imported as a top-level module
-    from dy_method import maxent, cheb, umap
+import numpy as np
+try:                                                # imported as maxent_upgrade.maxent_match
+    from .basis import cheb, umap
+except ImportError:                                 # imported as a top-level module
+    from basis import cheb, umap
 
 DIALS = dict(N_FO=6, N_PRES=3, L2=1e-4, RELMAX=0.15, DELTA=0.20,
              CLIP=(0.3, 3.0), MINSUP=30, RSUP=20.0, WBASIS='composite', N_W=12, WSIG=2.0)
 # RELMAX gates bins entering the x_match CRITERION and Born diff-K (needs precise ratios).
 # WSIG gates WINDOW admission by significance (val/err > WSIG): a large correction with a
-# large relative error still beats discarding it, its error belongs in the band not a veto.  # window basis: 'cheb' (moment) or 'indicator'  # window-bin support: >=MINSUP prior events AND target/prior prob ratio < RSUP
+# large relative error still beats discarding it, its error belongs in the band not a veto.
+# MINSUP/RSUP: a window bin needs >= MINSUP prior events and a target/prior probability ratio < RSUP.
+# WBASIS: 'composite' (one global Chebyshev tower), 'cheb' (windowed moments) or 'indicator' (bins).
 
 # ---------------- FO input containers ----------------
 def fo_from_dat(paths, nscales=7):

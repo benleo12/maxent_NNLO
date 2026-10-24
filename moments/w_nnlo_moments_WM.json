@@ -6,6 +6,7 @@
  "ew_scheme": "G_mu (complex masses), CKM full",
  "scale": "muR = muF = m_lnu",
  "fiducial": "pT_l > 20 GeV, |eta_l| < 2.5, pT_nu > 25 GeV, m_T > 40 GeV, Born-level leptons (ATLAS 7 TeV)",
+ "hard_scale_GeV": 80.385,
  "n_independent_runs": 40,
  "channels": [
   "LO",
@@ -14,6 +15,15 @@
   "RR",
   "RV",
   "VV"
+ ],
+ "scales": [
+  "muR = m_lnu, muF = m_lnu",
+  "muR = 2 m_lnu, muF = 2 m_lnu",
+  "muR = 0.5 m_lnu, muF = 0.5 m_lnu",
+  "muR = 2 m_lnu, muF = m_lnu",
+  "muR = m_lnu, muF = 2 m_lnu",
+  "muR = 0.5 m_lnu, muF = m_lnu",
+  "muR = m_lnu, muF = 0.5 m_lnu"
  ],
  "towers": {
   "m_w": {
@@ -82,6 +92,21 @@
     0.00011175172809174336
    ],
    "note": "l-nu invariant mass (Born-level)",
+   "numerator_tags": [
+    "prof_mw_1",
+    "prof_mw_2",
+    "prof_mw_3",
+    "prof_mw_4",
+    "prof_mw_5",
+    "prof_mw_6",
+    "prof_mw_7",
+    "prof_mw_8",
+    "prof_mw_9",
+    "prof_mw_10",
+    "prof_mw_11",
+    "prof_mw_12"
+   ],
+   "denominator_tag": "norm_born",
    "bw": [
     80.385,
     2.085
@@ -152,7 +177,22 @@
     0.0001582366833898629,
     0.00016639592310887033
    ],
-   "note": "|y_W|"
+   "note": "|y_W|",
+   "numerator_tags": [
+    "prof_absyw_1",
+    "prof_absyw_2",
+    "prof_absyw_3",
+    "prof_absyw_4",
+    "prof_absyw_5",
+    "prof_absyw_6",
+    "prof_absyw_7",
+    "prof_absyw_8",
+    "prof_absyw_9",
+    "prof_absyw_10",
+    "prof_absyw_11",
+    "prof_absyw_12"
+   ],
+   "denominator_tag": "norm_born"
   },
   "pt_w": {
    "kind": "window",
@@ -252,6 +292,29 @@
     0.00015762417606391028
    ],
    "note": "recoil, C^2 window 25-50 GeV, hard cut 500 GeV",
+   "numerator_tags": [
+    "prof_wptw_1",
+    "prof_wptw_2",
+    "prof_wptw_3",
+    "prof_wptw_4",
+    "prof_wptw_5",
+    "prof_wptw_6",
+    "prof_wptw_7",
+    "prof_wptw_8",
+    "prof_wptw_9",
+    "prof_wptw_10",
+    "prof_wptw_11",
+    "prof_wptw_12",
+    "prof_wptw_13",
+    "prof_wptw_14",
+    "prof_wptw_15",
+    "prof_wptw_16",
+    "prof_wptw_17",
+    "prof_wptw_18",
+    "prof_wptw_19",
+    "prof_wptw_20"
+   ],
+   "denominator_tag": "prof_wptw_0",
    "soft_lo": 25.0,
    "profile": {
     "a": 25.0,
@@ -260,7 +323,8 @@
    },
    "window_rate": 0.08408308584761855,
    "window_rate_stat": 6.732884490936077e-05,
-   "window_rate_scale": 0.0060696667133883775
+   "window_rate_scale": 0.0060696667133883775,
+   "matching_scale_rule": true
   },
   "ctw_window": {
    "kind": "window",
@@ -303,7 +367,16 @@
     0.00020730150741108538,
     0.0017119675878691232
    ],
-   "note": "signed Collins-Soper cos theta* of the charged lepton, shifted by +1 (events key ctw1 = cos theta* + 1); window |cos theta*| < 0.5 with a C^2 ramp to zero at 0.7; the paper's optional decay-angle constraint",
+   "note": "signed Collins-Soper cos theta* of the charged lepton (z axis along the W longitudinal momentum, eval_costhCS_w), shifted by +1 (events key ctw1 = cos theta* + 1); window flat for |cos theta*| < 0.6 with a C^2 ramp to zero at 0.7 (profile in cos theta* + 1); the paper's optional decay-angle constraint",
+   "numerator_tags": [
+    "prof_wctw_1",
+    "prof_wctw_2",
+    "prof_wctw_3",
+    "prof_wctw_4",
+    "prof_wctw_5",
+    "prof_wctw_6"
+   ],
+   "denominator_tag": "prof_wctw_0",
    "soft_lo": 0.0,
    "profile": {
     "a": 0.3,
@@ -313,7 +386,8 @@
    },
    "window_rate": 0.8434968238760434,
    "window_rate_stat": 0.0002866492168736092,
-   "window_rate_scale": 0.0015765928517219585
+   "window_rate_scale": 0.0015765928517219585,
+   "matching_scale_rule": false
   },
   "ctw_full": {
    "kind": "reference",
@@ -364,7 +438,18 @@
     0.00010948857551869697,
     0.0018677770537200537
    ],
-   "note": "the same angle over its full range; booked, shown in the paper to distort m_T, not recommended"
+   "note": "the same signed angle over its full range (events key ctw = cos theta*); booked, shown in the paper to distort m_T, not recommended",
+   "numerator_tags": [
+    "prof_ctw_1",
+    "prof_ctw_2",
+    "prof_ctw_3",
+    "prof_ctw_4",
+    "prof_ctw_5",
+    "prof_ctw_6",
+    "prof_ctw_7",
+    "prof_ctw_8"
+   ],
+   "denominator_tag": "norm_born"
   }
  },
  "joint": {
@@ -443,6 +528,25 @@
     "4,4": 0.000751652639373282
    },
    "note": "<w T_m(u_log(pT_W)) T_n(cos theta*)> / <w>; does not remove the m_T residual (paper)",
+   "numerator_tags": {
+    "1,1": "prof_ptwctw_11",
+    "1,2": "prof_ptwctw_12",
+    "1,3": "prof_ptwctw_13",
+    "1,4": "prof_ptwctw_14",
+    "2,1": "prof_ptwctw_21",
+    "2,2": "prof_ptwctw_22",
+    "2,3": "prof_ptwctw_23",
+    "2,4": "prof_ptwctw_24",
+    "3,1": "prof_ptwctw_31",
+    "3,2": "prof_ptwctw_32",
+    "3,3": "prof_ptwctw_33",
+    "3,4": "prof_ptwctw_34",
+    "4,1": "prof_ptwctw_41",
+    "4,2": "prof_ptwctw_42",
+    "4,3": "prof_ptwctw_43",
+    "4,4": "prof_ptwctw_44"
+   },
+   "denominator_tag": "prof_wptwctw_0",
    "window_rate": 0.07138798473511251,
    "window_rate_stat": 5.9258898949942636e-05,
    "window_rate_scale": 0.005154151938244381
@@ -456,7 +560,8 @@
   "recoil": [
    "pt_w"
   ],
-  "mixed": []
+  "mixed": [],
+  "max_orders": {}
  },
  "sigma_fid_pb": {
   "value": 2092.972957909512,

@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-r"""JHEP figure: resolution AND saturation, side by side.
+r"""JHEP appendix figure fig_depth.pdf: resolution and saturation of the Drell-Yan towers.
 
 Left: SNR_n = |mu_n^target - mu_n^prior| / sigma_FO(mu_n) for the three
 constrained Drell-Yan observables, straight from the solver's own report
-(res.moment_snr), with sigma_FO the seed scatter combined with the scale
-envelope.  Every booked moment clears the threshold, so resolution does NOT
-set the truncation -- which invites the question "then why stop at 12 and 20?"
+(res.moment_snr), with sigma_FO the run-to-run scatter combined with the
+seven-point scale envelope.  Every booked order clears SNR = 1 except the tenth
+mass order (0.36) and the eighth rapidity order (0.55).
 
-Both towers are continued past their booked depth (Born 6, recoil 12) to a
-common n=14 with OPEN markers, using the sub-bin histogram estimator of
-audit_moments2.hist_moment; it reproduces every booked accumulator SNR point
-(worst deviation quoted at run time), so the continuation is a measurement,
-not an extrapolation.
+Right: re-solving at every tower depth N with exactly N orders imposed
+(fixed_orders; the other towers at full depth), the
+median deviation of each constrained spectrum from its fixed-order reference,
+with effN/N (dotted, right axis).  The spectra stop changing well before the
+booked depths (mass n~7, rapidity n~12, recoil n~3) while effN/N stays at
+97.2%, so the deeper orders cost nothing.
 
-Right: the answer.  Re-solving at every tower depth, the delivered spectra
-stop moving: the mll median deviation from NNLO and the above-seam pT_ll
-median deviation from the NLO(Zj) curve both plateau well before the booked
-depths, with effN flat.  Deeper towers are pure cost (more accumulators to
-book in NNLOJET), not more physics.  Both scans run to depth 12; the Born
-points beyond 6, where NNLOJET booked no accumulator, impose the same
-histogram-derived targets and are drawn with open markers.
+Only booked event-level accumulators are DRAWN (Born towers to 12, recoil to
+20).  The script still computes and prints a histogram-derived continuation of
+every tower to n = 20 and a Born depth scan to 20 with those targets; they are
+not drawn because for the mass on the Breit-Wigner map the histogram estimator
+disagrees with the accumulators (printed as the "worst booked-order SNR
+deviation").  The NNLOJET reader is memoized for speed only.
 """
 import os
 import sys
@@ -34,8 +34,25 @@ sys.path.insert(0, HERE)
 from pubstyle import use_pub_style, C, rebin_density
 use_pub_style(base=17)
 from maxent_upgrade import upgrade
-from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
-                             fo_curve, _load)
+import nnlojet_moments as _nm                    # noqa: E402
+# The 40 re-solves below re-read the same ~10^5 NNLOJET .dat files many times.
+# Memoize the reader (pure: a file's content does not change during a run) and
+# hand out copies, so no caller can modify a cached array.  Speed only; the
+# numbers are unchanged.
+_load_uncached = _nm._load
+_LOAD_CACHE = {}
+
+
+def _load(path):
+    if path not in _LOAD_CACHE:
+        _LOAD_CACHE[path] = _load_uncached(path)
+    r = _LOAD_CACHE[path]
+    return None if r is None else tuple(np.array(x, copy=True) for x in r)
+
+
+_nm._load = _load
+from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,  # noqa: E402
+                             fo_curve)
 
 BASE = os.path.join(os.environ.get("NNLOJET_ROOT",
         os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
@@ -206,13 +223,13 @@ def main():
         return pooled[:, 0], np.hypot(stat, 0.5 * (pooled.max(1) - pooled.min(1)))
 
     def prior_tower(key, nmax):
-        """Prior-side moment on EXACTLY the support `_impose` uses: the full
-        fiducial sample for a Born observable, the hard window [XM, XHI) for
-        the recoil (the solver's `mu_prior_win`)."""
+        """Prior-side moment defined as the solver's `mu_prior_win`: the full
+        fiducial sample for a Born observable, and for the recoil the
+        window-weighted <w T_n>/<w>, the same quantity as the target."""
         x = np.asarray(ev[key], float); w = ev["weight"]
         if key == "pT_ll":
-            m = (x >= XM) & (x < XHI)
-            x, w = x[m], w[m]
+            wx = wprof(x) * (x < XHI); m = wx > 0          # window: XM -> 2 XM, cut at XHI
+            x, w = x[m], (w * wx)[m]
             umap = u_logw
         else:
             umap = u_bw if key == "mll" else u_lin
@@ -260,7 +277,10 @@ def main():
     born_scan, recoil_scan = [], []
     for nb in range(1, NSCAN_B + 1):
         try:
-            r_ = upgrade(ev, moments_ext(nb, 20), cfg())
+            # a true depth-N point: impose exactly nb orders of both Born towers
+            # (the SNR rule would drop a failing top order), the recoil at 20
+            r_ = upgrade(ev, moments_ext(nb, 20),
+                         {**cfg(), "fixed_orders": {"mll": nb, "y_abs": nb, "pT_ll": 20}})
         except Exception as exc:                       # pragma: no cover
             print(f"  !! born n<={nb} did NOT converge ({exc}); scan stops here")
             break
@@ -272,7 +292,9 @@ def main():
               + ("  (orders >12 histogram-derived)" if nb > 12 else ""))
     for nr in range(1, NSCAN_R + 1):
         try:
-            r_ = upgrade(ev, moments(12, nr), cfg())
+            # a true depth-N point: exactly nr recoil orders, the Born towers at 12
+            r_ = upgrade(ev, moments(12, nr),
+                         {**cfg(), "fixed_orders": {"mll": 12, "y_abs": 12, "pT_ll": nr}})
         except Exception as exc:                       # pragma: no cover
             print(f"  !! recoil n<={nr} did NOT converge ({exc}); scan stops here")
             break
@@ -282,71 +304,62 @@ def main():
               f"effN {100*r_.effN:.1f}%   imposed {got}"
               + ("  !! SNR selection truncated the tower" if got != nr else ""))
 
-    # ---- figure -----------------------------------------------------------
-    fig, (ax, sx) = plt.subplots(1, 2, figsize=(13.4, 5.2),
-                                 gridspec_kw={"wspace": 0.26})
-    series = [(r"$m_{\ell\ell}$ (BW map, NNLO)", "mll", C["maxent"], "o"),
-              (r"$|y_{\ell\ell}|$ (linear map, NNLO)", "y_abs", C["minnlo"], "s"),
-              (r"$p_T^{\ell\ell}$ (windowed, NLO $Z$+jet)", "pT_ll", C["powheg"], "D")]
+    # ---- figure (JHEP appendix A, fig_depth.pdf, set at the full text width) --
+    # Tower colours are categorical and deliberately avoid the generator
+    # colours of the main-text figures (blue/green/purple).
+    COL = {"mll": C["maxent"], "y_abs": "#8c564b", "pT_ll": "#1b9e9e"}
+    fig, (ax, sx) = plt.subplots(1, 2, figsize=(10.6, 4.5),
+                                 gridspec_kw={"wspace": 0.30})
+    series = [(r"$m_{\ell\ell}$ (Breit-Wigner map, NNLO)", "mll", COL["mll"], "o"),
+              (r"$|y_{\ell\ell}|$ (linear map, NNLO)", "y_abs", COL["y_abs"], "s"),
+              (r"$p_\mathrm{T}^{\ell\ell}$ (window, NLO($Z$+jet))", "pT_ll", COL["pT_ll"], "D")]
+    # Only event-level accumulators are drawn: every point is a booked moment.
+    # The histogram-derived continuation beyond the booked depth is still
+    # computed and printed above, but not drawn: for the mass on the
+    # Breit-Wigner map the histogram estimator disagrees with the accumulators
+    # (see the "worst booked-order SNR deviation" line), so it is not a
+    # measurement there, and the paper's point is that no histogram enters.
     for lbl, key, col, mk in series:
         snr = np.asarray(res.moment_snr[key], float)
         nb = len(snr)
         nn = np.arange(1, nb + 1)
-        ax.plot(nn, snr, mk + "-", color=col, ms=7, lw=1.8, label=lbl)
-        # histogram-derived continuation past the booked depth, open markers
-        se = ext_snr[key]
-        ne = np.arange(nb + 1, len(se) + 1)
-        if len(ne):
-            ax.plot(np.concatenate([[nb], ne]),
-                    np.concatenate([[snr[-1]], se[nb:]]),
-                    mk + "--", color=col, ms=7, lw=1.2, mfc="none", alpha=0.8)
-        xc = ext_cross[key]
-        if xc is not None:
-            ax.annotate(rf"$n={xc}$", (xc, se[xc - 1]),
-                        textcoords="offset points", xytext=(6, -14),
-                        fontsize=12, color=col)
+        ax.plot(nn, snr, mk + "-", color=col, ms=6, lw=1.8, label=lbl)
         print(f"  {key}: SNR " + " ".join(f"{s:.3g}" for s in snr))
     ax.axhline(1.0, color="k", lw=1.4, ls="--")
-    ax.text(0.75, 1.13, r"$\mathrm{SNR}=1$", va="bottom", fontsize=13)
+    ax.text(0.75, 0.88, r"$\mathrm{SNR}=1$", va="top")
     ax.set_yscale("log")
     ax.set_xlabel(r"moment order $n$")
-    ax.set_ylabel(r"$\mathrm{SNR}_n=|\mu_n^{\rm target}-\mu_n^{\rm prior}|/\sigma^{\rm FO}(\mu_n)$")
-    ax.set_xticks(range(1, 21)); ax.set_xlim(0.5, 20.9)
-    # headroom so the deepest open markers clear the legend and the footnote
-    ax.set_ylim(0.08, 6e3)
-    ax.legend(loc="upper right", fontsize=12, labelspacing=0.3)
-
-    ax.text(0.02, 0.03, r"open markers: beyond the booked depth",
-            transform=ax.transAxes, fontsize=11, color="0.35")
+    ax.set_ylabel(r"$\mathrm{SNR}_n$")
+    ax.set_xticks([1, 4, 8, 12, 16, 20]); ax.set_xlim(0.5, 20.9)
+    ax.xaxis.set_minor_locator(plt.MultipleLocator(1))
+    ax.set_ylim(0.1, 3e3)   # SNR spans 0.31-46 (window-weighted recoil prior, 2026-10-01); legend above the data
+    ax.legend(loc="upper right", labelspacing=0.25, handletextpad=0.4)
 
     bs = np.array(born_scan); rs = np.array(recoil_scan)
-    # solid where every imposed moment is a booked accumulator, open beyond it
+    # booked Born depth only (n <= 12); the recoil tower is booked to 20
+    bs = bs[bs[:, 0] <= 12]
     ys = bs[:, [0, 3]]
-    for arr, col, mk, nbook, lbl in (
-            (bs[:, :2], C["maxent"], "o", 12,
-             r"$m_{\ell\ell}$ vs NNLO, Born tower depth"),
-            (ys, C["minnlo"], "s", 12,
-             r"$|y_{\ell\ell}|$ vs NNLO, Born tower depth"),
-            (rs, C["powheg"], "D", 20,
-             r"$p_T^{\ell\ell}$ (window) vs NLO $Zj$, recoil depth")):
-        ms = 8 if mk == "o" else 7
+    for arr, col, mk, lbl in (
+            (bs[:, :2], COL["mll"], "o",
+             r"$m_{\ell\ell}$ (vs NNLO)"),
+            (ys, COL["y_abs"], "s",
+             r"$|y_{\ell\ell}|$ (vs NNLO)"),
+            (rs, COL["pT_ll"], "D",
+             r"$p_\mathrm{T}^{\ell\ell}$ (vs NLO($Z$+jet))")):
+        ms = 7 if mk == "o" else 6
         sx.plot(arr[:, 0], arr[:, 1], mk + "-", color=col, ms=ms, lw=2.0, label=lbl)
-        beyond = arr[:, 0] > nbook
-        if beyond.any():
-            sx.plot(arr[beyond, 0], arr[beyond, 1], mk, color=col, ms=ms,
-                    mfc="white", mew=1.6)
     s2 = sx.twinx()
-    s2.plot(bs[:, 0], bs[:, 2], "o:", color=C["maxent"], ms=4, lw=1.2, alpha=0.55)
-    s2.plot(rs[:, 0], rs[:, 2], "D:", color=C["powheg"], ms=4, lw=1.2, alpha=0.55)
-    s2.set_ylabel(r"$N_\mathrm{eff}/N$ [\%] (dotted)", fontsize=13)
+    s2.plot(bs[:, 0], bs[:, 2], "o:", color=COL["mll"], ms=3.5, lw=1.2, alpha=0.55)
+    s2.plot(rs[:, 0], rs[:, 2], "D:", color=COL["pT_ll"], ms=3.5, lw=1.2, alpha=0.55)
+    s2.set_ylabel(r"$N_\mathrm{eff}/N$ [\%] (dotted)")
     s2.set_ylim(0, 100)
-    sx.set_xlabel(r"imposed tower depth $N_X$")
-    sx.set_ylabel(r"median $|$ratio$-1|$ [\%]")
-    sx.set_xticks(range(1, 21)); sx.set_xlim(0.5, 20.5)
-    sx.set_ylim(0, None)
-    # centre-right: clear of the depth-1 point and of the flat effN dotted lines
-    sx.legend(loc="center right", fontsize=12, labelspacing=0.3)
-    out = os.path.join(HERE, "fig_snr_spectra.pdf")
+    sx.set_xlabel(r"imposed tower depth $N$")
+    sx.set_ylabel(r"median deviation [\%]")
+    sx.set_xticks([1, 4, 8, 12, 16, 20]); sx.set_xlim(0.5, 20.5)
+    sx.xaxis.set_minor_locator(plt.MultipleLocator(1))
+    sx.set_ylim(0, 8.5)
+    sx.legend(loc="upper right", bbox_to_anchor=(1.0, 0.90), labelspacing=0.25, handletextpad=0.4)
+    out = os.path.join(HERE, "fig_depth.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png")); plt.close(fig)
     print("wrote", out)
 

@@ -247,6 +247,148 @@ def panel(name, x_key, edges, xlabel, title, fo_tag, ev, res, logx=False,
           + f"-> {out}")
 
 
+def imposed_follows(ev, res, res2, unc, unc2, name="fig_dy_imposed_follows"):
+    r"""PRL Fig. 1: what is imposed closes, what is never imposed follows.
+
+    One column (drawn at its printed size, 3.4 in, so it is included at
+    \columnwidth with no rescaling): |y_ll| (constrained) and pT_l1 (never
+    constrained) as ratios to NNLO.  The same curves, bands and bars as the
+    two-panel figures this replaces (fig_dy_yll, fig_dy_ptl1), with two
+    changes of presentation only: the orange NNLO(Z+jet)-recoil curve is drawn
+    thin on top of the thick red one and without statistical bars (its input's
+    shape-moment statistics are not propagated; the bars would show only the
+    window rate and Born seeds), and every band covers its bins edge to edge.
+    Prints the same medians as panel() so the figure can be checked against
+    the log.
+    """
+    from bandviz import stagger, step_band
+    rows = [("y_ll", "absyz_fine", np.linspace(0.0, 2.4, 25), r"$|y_{\ell\ell}|$",
+             r"$|y_{\ell\ell}|$, constrained", (0.85, 1.15), False),
+            ("pT_lead", "ptl1_a", np.geomspace(27, 200, 26), r"$p_\mathrm{T}^{\ell_1}$ [GeV]",
+             r"$p_\mathrm{T}^{\ell_1}$, never constrained", (0.6, 1.6), True)]
+    rc = {"font.size": 8.5, "axes.titlesize": 8.5, "axes.labelsize": 9,
+          "xtick.labelsize": 8, "ytick.labelsize": 8, "legend.fontsize": 7.5,
+          "axes.linewidth": 0.6, "xtick.major.size": 3.5, "ytick.major.size": 3.5,
+          "xtick.minor.size": 2.0, "ytick.minor.size": 2.0, "xtick.major.width": 0.6,
+          "ytick.major.width": 0.6, "xtick.minor.width": 0.5, "ytick.minor.width": 0.5,
+          "errorbar.capsize": 0.0}
+    EB = dict(fmt="none", elinewidth=0.6, capsize=0)
+    # the three thin generator lines must stay distinguishable in print and in
+    # greyscale: same palette, distinct dash patterns
+    GLS = {"minnlo": "-", "mcatnlo": (0, (4.0, 1.2, 1.2, 1.2)), "powheg": (0, (1.2, 1.0))}
+    gen_data = []
+    for lbl, key, fn in GENS:
+        p = os.path.join(HERE, fn)
+        if os.path.exists(p):
+            G = dict(np.load(p))
+            gen_data.append((lbl, key, {k: np.asarray(G[k], float) for k in
+                                        ("w", "y_ll", "pT_lead", "w_scale") if k in G}))
+    NSER = 4 + len(gen_data)
+    with plt.rc_context(rc):
+        fig, axs = plt.subplots(2, 1, figsize=(3.4, 4.5), gridspec_kw={"hspace": 0.48})
+        for ax, (x_key, tag, edges, xlabel, title, ylim, logx) in zip(axs, rows):
+            e = np.asarray(edges, float); bw = np.diff(e)
+
+            def nd(w, x=None):
+                h = dens(ev[x_key] if x is None else x, w, e); return h / (h * bw).sum()
+
+            hp, hq, hq2 = nd(ev["weight"]), nd(res.weights), nd(res2.weights)
+            fb = fo_curve_band(BASE, "DY_MOMENTS", CH6,
+                               common_seeds(BASE, "DY_MOMENTS", CH6, tag=tag),
+                               tag, edges=e, members=True)
+            _, _, fd, _, _, fst_, allc = fb
+            ok = np.isfinite(fd) & (fd > 0)
+            nrm = np.nansum(np.where(ok, fd, np.nan) * bw)
+            fo = np.where(ok, fd, np.nan) / nrm
+            mem = np.array([np.where(ok, c, np.nan) for c in allc])
+            mem = mem / np.nansum(mem * bw, axis=1, keepdims=True)
+            fo_lo, fo_hi = np.minimum(fo, np.nanmin(mem, 0)), np.maximum(fo, np.nanmax(mem, 0))
+            ref = fo; rr = lambda h: h / ref
+
+            def mcerr(x, w):
+                ww = np.asarray(w, float)
+                s2, _ = np.histogram(x, e, weights=(ww / ww.sum()) ** 2)
+                return np.sqrt(s2) / bw
+
+            # fixed order: shape-only scale band + seed-scatter bars at 1
+            step_band(ax, e, fo_lo / ref, fo_hi / ref, color=C["band"], alpha=0.55, zorder=0)
+            ax.errorbar(stagger(e, 0, NSER), np.ones_like(ref), yerr=(fst_ / nrm) / ref,
+                        ecolor="0.35", zorder=1, **EB)
+            ax.axhline(1, color="k", lw=0.5, zorder=1)
+            # prior
+            ax.stairs(rr(hp), e, color=C["prior"], ls=LS["prior"], lw=1.0, zorder=2)
+            ax.errorbar(stagger(e, 1, NSER), rr(hp), yerr=mcerr(ev[x_key], ev["weight"]) / ref,
+                        ecolor=C["prior"], zorder=2, **EB)
+            # matched generators: thin lines, own 7-point band (light), own MC bars
+            for kg, (lbl, key, G) in enumerate(gen_data):
+                gx = np.abs(G[x_key]) if x_key == "y_ll" else G[x_key]
+                hg = nd(G["w"], gx)
+                if "w_scale" in G:
+                    WS = gen_scale_weights(G)
+                    hgs = np.array([nd(WS[:, kk], gx) for kk in range(WS.shape[1])])
+                    step_band(ax, e, np.minimum(hg, hgs.min(0)) / ref, np.maximum(hg, hgs.max(0)) / ref,
+                              color=C[key], alpha=0.10, zorder=1.5)
+                ax.stairs(rr(hg), e, color=C[key], lw=0.75, ls=GLS.get(key, "-"), zorder=2.5)
+                ax.errorbar(stagger(e, 4 + kg, NSER), rr(hg), yerr=mcerr(gx, G["w"]) / ref,
+                            ecolor=C[key], zorder=2.5, **EB)
+            # MaxEnt (NLO(Zj) recoil): scale band, thick line, stat = bootstrap (+) own MC
+            hs = np.array([nd(w) for w in unc["scale_w"]])
+            boot = np.array([nd(w) for w in unc["boot_w"]]).std(0, ddof=1)
+            step_band(ax, e, np.minimum(hq, hs.min(0)) / ref, np.maximum(hq, hs.max(0)) / ref,
+                      color=C["maxent"], alpha=0.25, zorder=3)
+            ax.stairs(rr(hq), e, color=C["maxent"], lw=1.8, zorder=3.2)
+            ax.errorbar(stagger(e, 2, NSER), rr(hq),
+                        yerr=np.hypot(boot, mcerr(ev[x_key], res.weights)) / ref,
+                        ecolor=C["maxent"], zorder=3.3, **EB)
+            # MaxEnt, NNLO(Zj) recoil: scale band, thin line on top, NO statistical bars
+            hs2 = np.array([nd(w) for w in unc2["scale_w"]])
+            step_band(ax, e, np.minimum(hq2, hs2.min(0)) / ref, np.maximum(hq2, hs2.max(0)) / ref,
+                      color=C["maxent_nnlo"], alpha=0.25, zorder=3.4)
+            ax.stairs(rr(hq2), e, color=C["maxent_nnlo"], lw=0.8, zorder=3.6)
+            # curves that leave the frame (the prior, the generators): an arrow at
+            # the edge in the curve's colour, so nothing is hidden by the y-range
+            y0, y1 = ylim; span = y1 - y0
+            offs = [(1, rr(hp), C["prior"])] + [
+                (4 + kg, rr(nd(G["w"], np.abs(G[x_key]) if x_key == "y_ll" else G[x_key])), C[key])
+                for kg, (lbl, key, G) in enumerate(gen_data)]
+            for k_, rv, col_ in offs:
+                xs_ = stagger(e, k_, NSER)
+                for cx, v in zip(xs_, rv):
+                    if np.isfinite(v) and (v < y0 or v > y1):
+                        lo_end = v < y0
+                        ya, yb = (y0 + 0.01 * span, y0 + 0.10 * span) if lo_end else (y1 - 0.01 * span, y1 - 0.10 * span)
+                        ax.annotate("", (cx, ya), (cx, yb),
+                                    arrowprops=dict(arrowstyle="->", color=col_, lw=0.6, shrinkA=0, shrinkB=0))
+            ax.set_ylim(*ylim); ax.set_xlim(e[0], e[-1])
+            if logx:
+                ax.set_xscale("log")
+                ax.set_xticks([30, 50, 100, 200])
+                ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v:g}"))
+                ax.xaxis.set_minor_formatter(mticker.NullFormatter())
+            ax.set_xlabel(xlabel, labelpad=1)
+            ax.set_ylabel(r"ratio to NNLO")
+            ax.set_title(title, loc="left", pad=2.5)
+            m = np.isfinite(ref) & (ref > 0)
+            med = lambda h: 100 * np.median(np.abs(h[m] / ref[m] - 1))
+            print(f"  {name} [{x_key}]: prior {med(hp):5.1f}%   MaxEnt {med(hq):5.1f}%   "
+                  f"MaxEnt NNLO(Zj) recoil {med(hq2):5.1f}%   "
+                  + "   ".join(f"{lbl} {med(nd(G['w'], np.abs(G[x_key]) if x_key == 'y_ll' else G[x_key])):.1f}%"
+                               for lbl, key, G in gen_data))
+        H = [plt.Rectangle((0, 0), 1, 1, color=C["band"], alpha=0.55, lw=0),
+             plt.Line2D([], [], color=C["prior"], ls=LS["prior"], lw=1.0),
+             plt.Line2D([], [], color=C["maxent"], lw=1.8),
+             plt.Line2D([], [], color=C["maxent_nnlo"], lw=0.8)] + \
+            [plt.Line2D([], [], color=C[key], lw=0.75, ls=GLS.get(key, "-")) for _, key, _ in gen_data]
+        L = [r"NNLO (scale band)", r"LO+PS prior", r"MaxEnt, NLO$(Zj)$ recoil",
+             r"MaxEnt, NNLO$(Zj)$ recoil"] + [lbl for lbl, _, _ in gen_data]
+        axs[0].legend(H, L, loc="lower left", bbox_to_anchor=(-0.02, 1.13), ncol=2,
+                      frameon=False, handlelength=1.6, columnspacing=0.9, labelspacing=0.25,
+                      borderaxespad=0.0)
+        out = os.path.join(HERE, f"{name}.pdf")
+        fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"), dpi=200); plt.close(fig)
+    print(f"  -> {out}")
+
+
 def main():
     P = dict(np.load(os.path.join(HERE, "dy_prior_atlas_v3.npz")))
     n = len(P["w"]); idx = np.random.default_rng(0).choice(n, min(1_000_000, n), replace=False)
@@ -312,6 +454,12 @@ def main():
         else:
             print("  WARNING: dy_band_weights_nnloZj.npz does not match this solve; NNLO(Zj) curve without bands")
 
+    if "--imposed-follows" in sys.argv:
+        # PRL Fig. 1 only (opt-in); the three panels below are not re-rendered
+        if unc is None or unc2 is None:
+            raise SystemExit("band caches do not match this solve; refusing to draw Fig. 1 without bands")
+        imposed_follows(ev, res, res2, unc, unc2)
+        return
     # No generators here.  The showered samples carry QED final-state radiation
     # and the fixed-order calculation does not, so their low-mass tails differ
     # by a physics effect that has nothing to do with the reweighting; putting

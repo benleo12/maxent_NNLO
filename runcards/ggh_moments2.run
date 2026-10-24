@@ -1,6 +1,9 @@
 PROCESS  H
   collider = LHC
   sqrts = 13000.0
+  jet = antikt[0.4]
+  jet_exclusive = .false.
+  jet_recomb = V4
   decay_type = 0
 END_PROCESS
 
@@ -28,6 +31,15 @@ SELECTORS
 END_SELECTORS
 
 HISTOGRAMS
+  ! ---- jet observables (anti-kT R=0.4): FOLLOWER references, never
+  ! ---- constrained.  absyj1 carries a per-histogram ptj1>37 cut (the seam)
+  ! ---- because the yj1 marginal without a jet-pT floor is IR-divergent.
+  ptj1 > ptj1_all  min=20 max=500 nbins=56 binning=LOG
+  abs_yj1 > absyj1_w37  min=0 max=4.4 nbins=22
+  HISTOGRAM_SELECTORS
+    select ptj1 min = 37
+  END_HISTOGRAM_SELECTORS
+
   ! ---- reference distributions
   pth > pth_fine   min=0 max=30 nbins=30
   pth > pth_all    min=1 max=1000 nbins=120 binning=LOG

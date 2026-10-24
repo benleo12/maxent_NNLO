@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Diphoton upgrade driven by EVENT-LEVEL NNLOJET moments (PRL candidate).
+r"""Diphoton upgrade driven by EVENT-LEVEL NNLOJET moments.
 
 Constrained : the BORN observables m_aa (log [80,700]) and |cos theta*| (lin
               [0,1]), plus the RECOIL observable pt_aa (log [1,500] with the
@@ -34,12 +34,12 @@ MLO, MHI = 80.0, 700.0
 
 # The prior is a set of exclusive slices that concatenate with sigma_i/n_gen,i
 # weights.  AA_PRIOR (comma-separated npz list) selects the set; the default is
-# the v4 Pythia-internal set of the first submission.  The v5 set adds the
+# the merged v5 set (the paper's prior).  The v5 set adds the
 # quark-initiated part from a CKKW-L-merged MG5 aa+aaj sample
 # (diphoton_shower_merged.py) and takes the gg box from Pythia alone
 # (diphoton_generate_v5.py --channels gg).
 AA_PRIOR_SETS = {
-    # the 2->2 prior of the first submission (Pythia q qbar -> aa + gg box), exclusive pT-hat slices
+    # the 2->2 prior (Pythia q qbar -> aa + gg box), exclusive pT-hat slices: the paper's stress case
     "v4": ("aa_prior_v4_a.npz", "aa_prior_v4_b.npz", "aa_prior_v4_c.npz",
            "aa_prior_v4_d.npz", "aa_prior_v4_e.npz"),
     # the merged prior of the paper: MG5 aa + aaj (CKKW-L in Pythia), leading-photon-pT slices A-D,
@@ -130,15 +130,15 @@ def main():
               # |cos theta*| is a genuine BORN observable (defined at Born level,
               # infrared-safe over its whole range).  Constraining it pins the
               # m-cos correlation that the photon pT cuts impose and that mass
-              # moments alone cannot reach: it takes cos theta* from 17.8% to
-              # 6.3% against ATLAS and simultaneously relieves m_aa 12.0 -> 9.5%.
+              # moments alone cannot reach (the paper's diphoton section quotes
+              # the effect).
               "costh_aa": {"range": (0.0, 1.0), "map": "lin"}},
         # pi - dphi is deliberately NOT a Born constraint.  It is a RECOIL
         # observable: identically zero at Born level and Sudakov-divergent as
         # dphi -> pi, so imposing it over its full range contradicts the recoil
         # profile (which preserves the shower below the seam) and the dual has
         # no positive-weight solution at any moment order (N=3,4,6 all fail).
-        # Left as a prediction it still improves, 31.8% -> 8.4% vs ATLAS.
+        # Left as a follower it still improves (see the paper).
         recoil={"pt_aa": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
                           "profile": {"a": XM, "b": XB, "c": XHI}}},
         followers=["y_abs"],

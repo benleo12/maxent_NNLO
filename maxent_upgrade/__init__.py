@@ -1,46 +1,35 @@
 #!/usr/bin/env python3
-r"""maxent_upgrade -- upgrade a PS+LO event sample to PS+N^kLO by MaxEnt moment reweighting.
+r"""maxent_upgrade -- positive-weight event samples carrying fixed-order (NLO/NNLO) information.
 
-ONE public entry point::
+    from maxent_upgrade import upgrade, load_moments
+    moments, config = load_moments("dy")          # released event-level moments (or your own)
+    result = upgrade(events, moments, config)    # events: your positive-weight LO+PS prior
+    print(result.describe())
 
-    from maxent_upgrade import upgrade
-    result = upgrade(events, fo_low, fo_high, config)
-
-`result.weights` are new, strictly-positive per-event weights that carry the prior
-sample from order N to order N+k in the *constrained moments and in every observable
-kinematically determined by them*, while preserving the prior parton-shower accuracy
-everywhere the fixed-order (FO) input does not resolve a change.  No negative weights
-are ever produced (the reweighting is an exponential tilt of the prior, q = p * e^{lambda . phi}).
-
-This module is a THIN, documented wrapper around a frozen, already-correct physics
-engine (`maxent_match.py`, functions `build_and_solve` / `band_solve` / the convex-dual
-Newton solver `_newton_maxent`, plus `dy_method.cheb`/`umap`/`maxent`).  It does NOT
-re-implement any physics.  It only:
-
-  * translates a friendly per-observable `config` into the engine's internal `cfg`;
-  * assembles the user's per-observable FO histograms into the engine's multi-part
-    container and wires up the per-observable histogram dispatch;
-  * chooses the number of constrained Chebyshev moments PER observable from the
-    moment signal-to-noise spectrum (`moment_snr`), the systematic replacement for
-    hand-picked moment counts;
-  * packages the outputs (weights, effN, closure, x_match, scale/rate band, report)
-    into a single `UpgradeResult`.
-
-See `README.md` for the physics contract and the full list of knobs.
+`upgrade` reweights the prior p_i by the maximum-entropy exponential tilt
+q_i = p_i exp(sum_a lambda_a m_a(Phi_i)) / Z that reproduces the fixed-order event-level
+Chebyshev moments: Born towers over the full fiducial range, recoil towers inside a smooth
+window above the matching scale.  The weights are positive by construction; every observable
+that is not constrained (a follower) inherits them.  See README.md for the contract.
 
 Public API
 ----------
-    upgrade(events, fo_low, fo_high, config) -> UpgradeResult
-    moment_snr(fo_low, fo_high, events, obs, a, b, mp, Nmax, ...) -> np.ndarray
-    resolved_order(snr, threshold=1.0) -> int
-    combine_moments(anchor, target, n=None) -> dict   # precision-weighted target for
-                                                      # soft_constraints=True (README)
-    FOHist(bin_low, bin_high, value, error, scales=None, scale_errors=None)
-    fo_from_dat(paths, nscales=7) -> FOHist          # NNLOJET-style .dat reader
-    UpgradeResult                                     # dataclass returned by upgrade()
-    DEFAULTS                                          # dict of default knobs
+    upgrade(events, moments, config) -> UpgradeResult    # event-level moments (the method)
+    load_moments(process, ...) -> (moments, config)      # the paper's released tables
+    sigma_fid(process) -> dict or None                   # their fiducial cross sections
+    released                                             # table(), summary(), processes()
+    compute_fo_moments(fo_events, config, x_match, ...)  # moments from FO events in Python
+    chebyshev_moment(x, w, n_max, a, b, mp)              # the moment definition itself
+    profile_w(x, a, b, c=None, d=None)                   # the C^2 window
+    matching_scale(Q), check_seam(x_match, Q)            # the matching-scale rule
+    combine_moments(anchor, target, n=None)              # for soft_constraints=True
+    UpgradeResult, DEFAULTS
+Legacy (an earlier, histogram-based variant; not used for the papers' results):
+    upgrade_from_histograms(events, fo_low, fo_high, config), moment_snr, resolved_order,
+    FOHist, fo_from_dat
 """
 import os
+import warnings
 from dataclasses import dataclass, field
 from typing import Optional, Dict, List, Any
 
@@ -57,10 +46,15 @@ from .maxent_match import (
     DIALS as _DIALS,
     _newton_maxent as _newton,
 )
-from .dy_method import cheb as _cheb, umap as _umap
+from .basis import cheb as _cheb, umap as _umap
+from .released import load_moments, sigma_fid          # the paper's fixed-order moments
+from . import released                                 # released.table(), .summary(), .processes()
+
+__version__ = "1.1.0"
 
 __all__ = [
-    "upgrade", "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
+    "upgrade", "load_moments", "sigma_fid", "released",
+    "upgrade_from_histograms", "compute_fo_moments", "chebyshev_moment",
     "profile_w", "matching_scale", "check_seam",
     "moment_snr", "resolved_order", "combine_moments",
     "FOHist", "fo_from_dat", "UpgradeResult", "DEFAULTS",
@@ -317,24 +311,80 @@ _install_multi_dispatch()
 # ---------------------------------------------------------------------------
 @dataclass
 class UpgradeResult:
+    """What `upgrade()` returns.
+
+    Attributes
+    ----------
+    weights : np.ndarray
+        The new per-event weights q_i, strictly positive, summing to one.
+    effN : float
+        Kish effective sample fraction 1/(N sum q_i^2), in (0, 1].
+    effN_retained : float
+        Fraction of the PRIOR's own Kish count that the upgrade keeps,
+        Kish(q)/Kish(p).  Equals effN for an unweighted prior; for a weighted (e.g.
+        sliced) prior it is the meaningful cost of the upgrade.
+    closure : float
+        Worst relative deviation of an achieved moment from its target, max|ach/mu - 1|.
+        Near-zero targets inflate it; see max_pull.
+    max_pull : float
+        Worst |achieved - target| / sigma over the constraints, with sigma the target's
+        Monte Carlo (stat) error where the moments carry `stat_errors`, otherwise its total
+        error.
+    x_match : float
+        Matching scale of the first recoil window (nan without one).
+    moment_snr : dict {observable: array}
+        Resolution spectrum SNR_n = |mu_n(target) - mu_n(prior)| / sigma_n, orders 1..N.
+    chosen_moments : dict {observable or joint key: int}
+        Number of moments imposed per tower (towers are imposed up to their highest
+        resolved order) and per joint block.
+    report : dict
+        Multipliers `lam`, targets `mu`, `feature_names`, `towers` (per-tower table used by
+        describe()), `moment_selection`, `windows`, the soft-constraint block, and with
+        `keep_features=True` the feature matrix `Phi` and prior `p`.
+    band : None
+        Reserved; bands are re-solves of upgrade() (see README, "Uncertainty bands").
+    soft_pulls : np.ndarray or None
+        soft_constraints=True only: (achieved - target)/sigma per constraint.
+    """
     weights: np.ndarray                 # new positive per-event weights (central solve)
     effN: float                         # effective sample FRACTION in (0, 1]
     closure: float                      # worst relative moment closure |achieved/target - 1|
-    x_match: float                      # recoil matching scale (seam) chosen by the engine
-    report: Dict[str, Any]              # full engine report + moment-selection block
+    x_match: float                      # matching scale of the first recoil window
+    report: Dict[str, Any]              # multipliers, targets, per-tower table, moment selection
     moment_snr: Dict[str, np.ndarray]   # per-observable SNR spectrum (orders 1..Nmax)
-    chosen_moments: Dict[str, int] = field(default_factory=dict)  # #moments imposed per obs
-    band: Optional[Dict[str, np.ndarray]] = None   # variant weights (scales + rate schemes)
+    chosen_moments: Dict[str, int] = field(default_factory=dict)  # #moments imposed per tower
+    band: Optional[Dict[str, np.ndarray]] = None   # legacy histogram path only
     soft_pulls: Optional[np.ndarray] = None        # soft mode: (achieved - target)/sigma per constraint
+    effN_retained: float = float("nan")            # Kish(q)/Kish(p)
+    max_pull: float = float("nan")                 # worst |achieved - target|/sigma
 
     def summary(self) -> str:
+        """One line: effN, closure, worst pull, moments imposed, positivity."""
         cm = ", ".join(f"{k}={v}" for k, v in self.chosen_moments.items())
-        return (f"effN={100*self.effN:.2f}%  closure={self.closure:.1e}  "
-                f"x_match={self.x_match:.3g}  moments[{cm}]  "
+        return (f"effN={100*self.effN:.2f}%  closure={self.closure:.1e}"
+                + (f"  max_pull={self.max_pull:.2f}" if np.isfinite(self.max_pull) else "")
+                + f"  x_match={self.x_match:.3g}  moments[{cm}]  "
                 f"positive={(self.weights > 0).all()}"
                 + (f"  band_variants={len(self.band)}" if self.band else "")
                 + (f"  worst_soft_pull={np.nanmax(np.abs(self.soft_pulls)):.2f}"
                    if self.soft_pulls is not None and np.isfinite(self.soft_pulls).any() else ""))
+
+    def describe(self) -> str:
+        """A table of what was imposed and how well it closed, one row per tower."""
+        towers = self.report.get("towers") or []
+        out = [f"{'tower':16s} {'kind':6s} {'map':4s} {'imposed':>9s}  {'orders below SNR 1 (SNR)':28s} {'max pull':>8s}"]
+        for t in towers:
+            below = ", ".join(f"{n}({s:.2f})" for n, s in t.get("below", [])) or "-"
+            mp = t.get("max_pull", float("nan"))
+            out.append(f"{t['name']:16s} {t['kind']:6s} {str(t.get('map', '-'))[:4]:4s} "
+                       f"{t['imposed']:>4d} / {t['supplied']:<3d} {below[:28]:28s} "
+                       f"{(f'{mp:8.3f}' if np.isfinite(mp) else '       -')}")
+        qp = self.report.get("q_over_p_range", (float("nan"), float("nan")))
+        out.append(f"N = {len(self.weights):,}   effN = {100*self.effN:.2f}%   "
+                   f"retained of the prior's effective count = {100*self.effN_retained:.2f}%")
+        out.append(f"closure (max rel.) = {self.closure:.2e}   max pull = {self.max_pull:.3f}   "
+                   f"q/p in [{qp[0]:.3g}, {qp[1]:.3g}]   negative weights: {int((self.weights <= 0).sum())}")
+        return "\n".join(out)
 
 
 # ---------------------------------------------------------------------------
@@ -517,19 +567,18 @@ def upgrade_from_histograms(events: Dict[str, np.ndarray],
 
 
 # ===========================================================================
-# EVENT-LEVEL MOMENT INTERFACE  (primary; the fixed-order input is the moments
-# themselves, computed as weighted sums over FO phase-space points, NOT a
-# re-binned histogram).  This is what a shower/pQCD expert should use: their FO
-# calculation already integrates any observable, so it can integrate T_n(u(x))
-# directly and hand back the number mu_n with its genuine Monte-Carlo error.
+# EVENT-LEVEL MOMENT INTERFACE (the method of the papers).  The fixed-order
+# input is the moments themselves, weighted sums over the fixed-order phase-space
+# points, never a re-binned histogram.
 # ===========================================================================
 def chebyshev_moment(x, w, n_max, a, b, mp):
     r"""Event-level Chebyshev moments <T_1..T_n_max> of observable x under weights w.
 
         mu_n = sum_i w_i T_n(u(x_i)) / sum_i w_i ,   u = umap(x, a, b, mp)
 
-    This is EXACTLY the weighted sum a fixed-order code performs when it books the
-    observable T_n(u(x)); there is no binning.  `mp` is 'lin' or 'log'.
+    This is the weighted sum a fixed-order code performs when it books the observable
+    T_n(u(x)); there is no binning.  `mp` is 'lin', 'log', 'bw' or ('bw', M, Gamma);
+    values outside [a, b] are clipped to the edge, as in the NNLOJET patch.
     """
     x = np.asarray(x, float); w = np.asarray(w, float)
     u = _umap(np.clip(x, a, b), a, b, mp)
@@ -550,21 +599,14 @@ def alpha_s(mu, mz=91.1876, az=0.118, nf=5):
 
 
 def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
-    r"""Seam x_match for a process with hard scale Q, from resummation power counting.
+    r"""The matching scale v_m for a process with hard scale Q, from power counting:
 
-        x_match = min { pT :  alpha_s(pT) ln^2(Q/pT)  <  thr }
+        v_m = min { pT :  alpha_s(pT) ln^2(Q/pT)  <  thr }      (thr = 0.2)
 
-    Below it the fixed-order prediction is contaminated by unresummed Sudakov
-    logarithms and only the shower is trusted; above it the fixed order is
-    imposed.  Data-blind, no tuning, and one prescription for every process --
-    the process enters only through Q.
-
-    This is the SINGLE SOURCE OF TRUTH for the seam.  Hard-coding a number per
-    analysis lets it drift from the criterion the paper quotes: gg->H has
-    Q = m_H = 125 GeV and therefore a seam at 37 GeV, not the 30 GeV that the
-    colour-singlet analyses inherited from Drell-Yan.
-
-    Returns the scale in GeV (float).
+    Below it unresummed Sudakov logarithms spoil the fixed-order series and the shower
+    is kept; above it the fixed order is imposed.  The process enters only through Q:
+    27.9 GeV for Q = m_Z, 24.9 GeV for Q = m_W, 27.6 GeV for Q = 90 GeV (diphoton),
+    37.1 GeV for Q = m_H.  Returns the scale in GeV.
     """
     Q = float(Q)
     hi = 0.9 * Q if hi is None else float(hi)
@@ -577,28 +619,24 @@ def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
 
 
 def check_seam(x_match, Q, tol=0.15, label="", thr=0.2):
-    r"""Warn when the seam in use disagrees with the power-counting criterion.
+    r"""Warn when a matching scale disagrees with `matching_scale(Q)` by more than `tol`.
 
-    The seam is NOT a free parameter of the reweighting: the smooth profile is
-    compiled into NNLOJET (``eval_w_ptz`` etc.) and the fixed-order input is
-    ``<T_n w>`` with THAT w, so ``x_match`` here must mirror the Fortran.
-    Changing it on the Python side alone imposes moments built with one weight
-    function against features built with another -- for gg->H that costs a
-    factor 10 in closure and a third of the effective statistics.
+    The matching scale is not a free parameter of the reweighting: the window is
+    compiled into the fixed-order run (NNLOJET `eval_w_*`), and the targets are the
+    windowed moments <w T_n>/<w> with that window, so `x_match` must mirror it.
+    Changing it on the Python side alone imposes moments built with one window
+    against features built with another.  This function therefore only warns (it
+    prints); moving the matching scale means re-running the fixed order.
+    `load_moments` calls it for every recoil window of a released table.
 
-    So this does not silently "fix" anything.  It reports the discrepancy and
-    says what would have to be re-run, which is the honest state of affairs:
-    moving the seam is an NNLOJET change, not a plotting change.
-
-    Returns the criterion value.
+    Returns the rule's value in GeV.
     """
     want = matching_scale(Q, thr=thr)
     if abs(x_match - want) / want > tol:
-        print(f"  [seam] {label or 'process'}: using x_match = {x_match:.1f} GeV, "
+        print(f"  [matching scale] {label or 'process'}: the window starts at x_match = {x_match:.1f} GeV, "
               f"but alpha_s ln^2(Q/pT) < {thr} at Q = {Q:g} GeV gives {want:.1f} GeV "
-              f"({100*(x_match-want)/want:+.0f}%).  The profile is compiled into "
-              f"NNLOJET -- to adopt {want:.1f}, edit the pa/pb parameters in "
-              f"EvalFuncs.f90 and regenerate the moments.")
+              f"({100*(x_match-want)/want:+.0f}%).  The window is compiled into the fixed-order "
+              f"run: to adopt {want:.1f} GeV, change it there and regenerate the moments.")
     return want
 
 
@@ -609,12 +647,12 @@ def _smootherstep(t):
 
 
 def profile_w(x, a, b, c=None, d=None):
-    r"""Smooth compact-support recoil profile in ln(x).
+    r"""The C^2 window w(x) in ln(x) (the paper's eq. for the recoil window).
 
-    w = 0 for x<=a, rises C2 to 1 over [a,b], stays 1, then falls C2 back to 0
-    over [c,d] (default: hard cut at x_hi if only c is given, no upper cut if c
-    is None).  a==b gives a hard lower step (the plain window indicator), so the
-    hard window is the a->b limit of this profile.
+    w = 0 for x <= a, rises as 6t^5 - 15t^4 + 10t^3 with t = ln(x/a)/ln(b/a) to 1 at b,
+    stays 1, then either stops at a hard cut at c (d None) or falls C^2 to 0 between
+    c and d; no upper edge if c is None.  a == b gives a hard lower step.
+    The released tables give (a, b, c[, d]) as `profile`; `config` uses the same key.
     """
     x = np.asarray(x, float)
     lx = np.log(np.maximum(x, 1e-30))
@@ -629,25 +667,24 @@ def profile_w(x, a, b, c=None, d=None):
     return up * down
 
 
-def compute_fo_moments(fo_events, config, x_match, x_hi=None, n_max=None,
+def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
                        weight_key="weight", scale_key="weight_scales"):
-    r"""Build the `moments` argument of `upgrade` FROM a user's fixed-order EVENTS.
+    r"""Build the `moments` argument of `upgrade` from fixed-order EVENTS held in Python.
 
-    Use this only if you have FO phase-space points in memory; otherwise compute the
-    same weighted sums inside your own FO code and fill the `moments` dict by hand
-    (see README).  `fo_events` is a dict of 1D arrays: every constrained observable,
-    the FO weight array under `weight_key`, and OPTIONALLY a (n_scale, n_event) array
-    under `scale_key` giving the per-event weight for each scale choice (row 0 =
-    central).  The moment uncertainty sigma_n is the quadrature of the scale envelope
-    (half-spread over scale rows) and the weighted Monte-Carlo statistical error.
+    Use this only if you have the fixed-order phase-space points in memory; otherwise
+    accumulate the same weighted sums inside your fixed-order code (MOMENT_CONSTRUCTION.md)
+    and fill the dict by hand.  `fo_events` is a dict of 1D arrays: every constrained
+    observable, the weights under `weight_key`, and optionally a (n_scale, n_event) array
+    under `scale_key` with the weight of each scale choice (row 0 = central).
 
-    Born moments are taken over the full declared range; the recoil moments are taken
-    over the window [x_match, x_hi] with the composite map [soft_lo, x_hi] (log), the
-    same convention the solver uses.  The window rate is the FO cross-section fraction
-    in [x_match, x_hi].
+    Born towers are taken over the full declared range.  Each recoil tower uses the window
+    of its `config['recoil'][obs]['profile']` (a, b, c[, d]) when one is given -- the
+    windowed moments <w T_n>/<w> and the window rate <w>/<1>, as the solver imposes them --
+    and otherwise the hard window [x_match, x_hi).  Errors: `stat_errors` is the weighted
+    Monte Carlo error, `scale_errors` the half-range over the scale rows, `errors` (and
+    `window_errors`) their quadrature sum.
     """
-    born_cfg = config["born"]; recoil_cfg = config["recoil"]
-    recoil_obs = next(iter(recoil_cfg))
+    born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
     w = np.asarray(fo_events[weight_key], float)
     wsc = fo_events.get(scale_key)
     wsc = None if wsc is None else np.atleast_2d(np.asarray(wsc, float))
@@ -661,89 +698,196 @@ def compute_fo_moments(fo_events, config, x_match, x_hi=None, n_max=None,
         return np.array([np.sqrt((ww**2 * (C[:, n] - mu[n-1])**2).sum()) / s
                          for n in range(1, nmax + 1)])
 
-    def scale_env(x, nmax, a, b, mp, mask=None):
-        if wsc is None: return None
-        vals = []
-        for r in range(wsc.shape[0]):
-            ww = wsc[r] if mask is None else wsc[r][mask]
-            xx = x if mask is None else x[mask]
-            vals.append(chebyshev_moment(xx, ww, nmax, a, b, mp))
-        vals = np.array(vals)
+    def scale_env(x, nmax, a, b, mp):
+        if wsc is None:
+            return None
+        vals = np.array([chebyshev_moment(x, wsc[r], nmax, a, b, mp) for r in range(wsc.shape[0])])
         return 0.5 * (vals.max(0) - vals.min(0))
+
+    def pack(mu, se, sc):
+        d = dict(stat_errors=se.tolist(),
+                 errors=(se if sc is None else np.sqrt(se**2 + sc**2)).tolist())
+        if sc is not None:
+            d["scale_errors"] = sc.tolist()
+        return d
 
     moments = {"born": {}, "recoil": {}}
     for o in born_cfg:
         a, b = born_cfg[o]["range"]; mp = born_cfg[o].get("map", "lin")
         x = np.asarray(fo_events[o], float)
         mu = chebyshev_moment(x, w, Nb, a, b, mp)
-        se = stat_err(x, w, Nb, a, b, mp)
-        sc = scale_env(x, Nb, a, b, mp)
-        sig = se if sc is None else np.sqrt(se**2 + sc**2)
-        moments["born"][o] = dict(values=mu.tolist(), errors=sig.tolist())
+        moments["born"][o] = dict(values=mu.tolist(), **pack(mu, stat_err(x, w, Nb, a, b, mp),
+                                                             scale_env(x, Nb, a, b, mp)))
 
-    # recoil window
-    xr = np.asarray(fo_events[recoil_obs], float)
-    soft_lo = recoil_cfg[recoil_obs].get("soft_lo", max(recoil_cfg[recoil_obs]["range"][0], 1e-6))
-    xhi = x_hi if x_hi is not None else float(recoil_cfg[recoil_obs]["range"][1])
-    win = (xr >= x_match) & (xr < xhi)
-    muw = chebyshev_moment(xr[win], w[win], Nr, soft_lo, xhi, "log")
-    sew = stat_err(xr[win], w[win], Nr, soft_lo, xhi, "log")
-    scw = scale_env(xr, Nr, soft_lo, xhi, "log", mask=win)
-    sigw = sew if scw is None else np.sqrt(sew**2 + scw**2)
-    rate = float(w[win].sum() / w.sum())
-    moments["recoil"][recoil_obs] = dict(
-        window_values=muw.tolist(), window_errors=sigw.tolist(),
-        rate=rate, x_match=float(x_match), x_hi=float(xhi), soft_lo=float(soft_lo))
+    for obs, rc in recoil_cfg.items():
+        xr = np.asarray(fo_events[obs], float)
+        soft_lo = float(rc.get("soft_lo", max(rc["range"][0], 1e-6)))
+        xhi = float(x_hi if x_hi is not None else rc["range"][1])
+        mp = rc.get("map", "log")
+        prof = rc.get("profile")
+        if prof:
+            a = float(prof.get("a", x_match)); b = float(prof.get("b", a))
+            c = prof.get("c", xhi); d = prof.get("d", None)
+            if x_match is not None and not np.isclose(float(x_match), a):
+                warnings.warn(f"compute_fo_moments: {obs} has a window starting at a={a:g}; x_match={x_match:g} is ignored")
+            wf = profile_w(xr, a, b, None if c is None else float(c), None if d is None else float(d))
+            xm = a
+        else:
+            if x_match is None:
+                raise ValueError(f"compute_fo_moments: {obs} has no 'profile' in config, so x_match is needed")
+            wf = ((xr >= x_match) & (xr < xhi)).astype(float); xm = float(x_match)
+        sel = wf > 0
+        ww = w * wf
+        muw = chebyshev_moment(xr[sel], ww[sel], Nr, soft_lo, xhi, mp)
+        sc = (None if wsc is None else
+              0.5 * np.ptp([chebyshev_moment(xr[sel], wsc[r][sel] * wf[sel], Nr, soft_lo, xhi, mp)
+                            for r in range(wsc.shape[0])], axis=0))
+        dd = pack(muw, stat_err(xr[sel], ww[sel], Nr, soft_lo, xhi, mp), sc)
+        R = float(ww.sum() / w.sum())
+        R_stat = float(np.sqrt(((w * (wf - R)) ** 2).sum()) / w.sum())
+        R_scale = (0.0 if wsc is None else
+                   float(0.5 * np.ptp([(wsc[r] * wf).sum() / wsc[r].sum() for r in range(wsc.shape[0])])))
+        moments["recoil"][obs] = dict(
+            window_values=muw.tolist(), window_errors=dd["errors"],
+            stat_errors=dd["stat_errors"], **({"scale_errors": dd["scale_errors"]} if "scale_errors" in dd else {}),
+            wprofile_values=muw.tolist(), wprofile_rate=R,
+            rate=R, rate_stat=R_stat, rate_scale=R_scale,
+            x_match=xm, x_hi=xhi, soft_lo=soft_lo)
     return moments
 
 
+# config keys upgrade() reads, and the legacy keys only upgrade_from_histograms() reads
+_UPGRADE_KEYS = {"born", "recoil", "mixed", "followers", "weight_key", "moment_selection",
+                 "snr_threshold", "L2", "fixed_orders", "lam0", "keep_features",
+                 "soft_constraints", "soft_errors"}
+_HIST_ONLY_KEYS = {"band", "RELMAX", "DELTA", "WSIG", "CLIP", "MINSUP", "RSUP", "born_N",
+                   "recoil_N", "snr_max_order", "snr_n_stat", "snr_seed"}
+
+
+def _check_inputs(events, moments, config, wkey):
+    """Fail early, with a message that says what to fix, on inconsistent inputs."""
+    for k in config:
+        if k in _HIST_ONLY_KEYS:
+            warnings.warn(f"config['{k}'] is read only by the legacy upgrade_from_histograms(); "
+                          f"upgrade() ignores it", stacklevel=3)
+        elif k not in _UPGRADE_KEYS:
+            warnings.warn(f"config['{k}'] is not a key upgrade() knows; it is ignored "
+                          f"(known: {sorted(_UPGRADE_KEYS)})", stacklevel=3)
+    born_cfg = config.get("born", {}) or {}; recoil_cfg = config.get("recoil", {}) or {}
+    mixed_cfg = config.get("mixed", {}) or {}
+    if not recoil_cfg and not mixed_cfg and not born_cfg:
+        raise ValueError("config declares no constraint: give at least one of 'born', 'recoil', 'mixed'")
+    need = list(born_cfg) + list(recoil_cfg) + [o for m in mixed_cfg.values() for o in m["observables"]]
+    need = list(dict.fromkeys(need))
+    missing = [k for k in need + [wkey] if k not in events]
+    if missing:
+        raise KeyError(f"events lacks {missing}. This config needs one array per constrained observable "
+                       f"{need} plus the prior weights '{wkey}'; events has {sorted(events)}")
+    n = len(np.asarray(events[wkey]))
+    bad = {k: len(np.asarray(events[k])) for k in need if len(np.asarray(events[k])) != n}
+    if bad:
+        raise ValueError(f"events arrays differ in length: '{wkey}' has {n}, but {bad}")
+    for k in need + [wkey]:
+        nf = int((~np.isfinite(np.asarray(events[k], float))).sum())
+        if nf:
+            raise ValueError(f"events['{k}'] has {nf} non-finite entries; remove those events first")
+    for role, keys in (("born", born_cfg), ("recoil", recoil_cfg), ("mixed", mixed_cfg)):
+        for k in keys:
+            if k not in (moments.get(role) or {}):
+                raise KeyError(f"config['{role}'] names '{k}', but moments['{role}'] has no entry for it "
+                               f"(has {sorted(moments.get(role) or {})})")
+    for o, bc in born_cfg.items():
+        a, b = bc["range"]; x = np.asarray(events[o], float)
+        out = float(np.mean((x < a) | (x > b)))
+        if out > 0.05:
+            warnings.warn(f"{100*out:.1f}% of the prior's '{o}' lies outside the tower range [{a:g}, {b:g}]; "
+                          f"those events are clipped to the edge.  Same fiducial cuts and units on both sides?",
+                          stacklevel=3)
+    for o, rc in recoil_cfg.items():
+        mrc = moments["recoil"][o]; x = np.asarray(events[o], float)
+        prof = rc.get("profile")
+        if prof:
+            win = profile_w(x, float(prof.get("a", mrc["x_match"])), float(prof.get("b", mrc["x_match"])),
+                            None if prof.get("c") is None else float(prof["c"]),
+                            None if prof.get("d") is None else float(prof["d"])) > 0
+        else:
+            win = (x >= float(mrc["x_match"])) & (x < float(mrc.get("x_hi", np.inf)))
+        nin = int(win.sum())
+        if nin == 0:
+            raise ValueError(f"no prior event lies inside the '{o}' window (from {float(mrc['x_match']):g}); "
+                             f"check the units (GeV) and the fiducial selection of events['{o}']")
+        if nin < 100:
+            warnings.warn(f"only {nin} prior events lie inside the '{o}' window; the upgrade there is "
+                          f"Monte Carlo noise times a tilt", stacklevel=3)
+
+
 def upgrade(events, moments, config):
-    r"""Upgrade a PS+NLO sample to PS+N^kLO from EVENT-LEVEL fixed-order moments.
+    r"""Reweight a positive-weight prior so that it reproduces event-level fixed-order moments.
 
     Parameters
     ----------
-    events : dict of 1D np.ndarray
-        Prior events; must contain the positive weight array and every Born and recoil
-        observable named in `config`.  Extra keys are unconstrained followers.
+    events : dict of 1D np.ndarray, all the same length
+        The prior: the strictly positive weights under 'weight' (or `config['weight_key']`)
+        and one array per observable named in `config`.  Every other array is a follower:
+        it is not used here and inherits `result.weights`.  No cuts are applied; prior and
+        moments must integrate the same phase space.
     moments : dict
-        The fixed-order targets, computed EVENT-LEVEL in your FO calculation::
+        The fixed-order targets, accumulated event by event (never a histogram)::
 
             moments = {
-              'born':   {'mll':   {'values':[mu_1..], 'errors':[sig_1..]},
-                         'y_abs': {'values':[...],    'errors':[...]}},
-              'recoil': {'pT_ll': {'window_values':[mu_1..], 'window_errors':[sig_1..],
-                                   'rate': R, 'x_match': xm, 'x_hi': xh, 'soft_lo': s}},
+              'born':   {obs: {'values': [mu_1, ..], 'errors': [s_1, ..],
+                               'stat_errors': [..], 'scale_errors': [..]}},     # last two optional
+              'recoil': {obs: {'window_values': [..], 'window_errors': [..],
+                               'rate': r, 'x_match': a, 'x_hi': xh, 'soft_lo': s0,
+                               'stat_errors': [..], 'rate_stat': .., 'rate_scale': ..}},
+              'mixed':  {key: {'values': {(m, n): mu_mn}, 'errors': {..}, 'rate': r}},  # optional
             }
 
-        `born[obs].values[n-1]` is  sum_j w_j T_n(u(x_j)) / sum_j w_j  over your FO
-        events (full fiducial), with `u = umap(x, a, b, map)` for that observable.
-        `recoil[obs].window_values[n-1]` is the same sum restricted to your FO events
-        with x in [x_match, x_hi], using `u = umap(x, soft_lo, x_hi, 'log')`.
-        `rate` is the FO cross-section fraction in [x_match, x_hi].  `errors` are the
-        FO Monte-Carlo uncertainties on those moments (they drive the SNR selection).
-        Use `compute_fo_moments` if you have the FO events in Python.
+        Born: values[n-1] = sum_j w_j T_n(u(x_j)) / sum_j w_j over the fixed-order points.
+        Recoil: the windowed moments <w T_n(u)>/<w> with u the log map on [soft_lo, x_hi]
+        and w the window of `config['recoil'][obs]['profile']` (or the hard window
+        [x_match, x_hi) without a profile), and the window rate r = <w>/<1>.  `errors` are
+        the total fixed-order uncertainties (Monte Carlo scatter combined with the scale
+        envelope); they decide which orders are resolved.  `load_moments(process)` returns
+        this dict for the paper's processes; `compute_fo_moments` builds it from FO events.
     config : dict
-        Same `config` as `upgrade_from_histograms` (born/recoil roles, ranges, maps),
-        plus the usual optional knobs.
+        Roles, maps and windows, plus optional knobs::
+
+            config = {
+              'born':   {'mll':   {'range': (66., 116.), 'map': 'bw'},   # 'lin', 'log', 'bw'
+                         'y_abs': {'range': (0., 2.4),   'map': 'lin'}},
+              'recoil': {'pT_ll': {'range': (30., 2500.), 'map': 'log', 'soft_lo': 30.,
+                                   'profile': {'a': 30., 'b': 60., 'c': 500.}}},
+            }
+
+        Knobs (defaults in DEFAULTS): moment_selection=True (impose each tower up to its
+        highest order with SNR > snr_threshold=1.0), L2=1e-4 (ridge of the dual), fixed_orders
+        ({obs: N}: impose exactly N orders, e.g. for band variants), lam0 (warm start from a
+        previous result.report['lam']), keep_features=False (return Phi and p in the report),
+        soft_constraints=False and soft_errors='stat' (Gaussian soft constraints),
+        weight_key='weight'.  Unknown keys raise a warning.
 
     Returns
     -------
-    UpgradeResult
+    UpgradeResult (see its docstring): weights, effN, effN_retained, closure, max_pull,
+    moment_snr, chosen_moments, x_match, report; result.describe() prints a summary table.
     """
     cfg = {**DEFAULTS, **config}
     wkey = cfg["weight_key"]
     born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
-    if not recoil_cfg and not config.get("mixed"):
-        raise ValueError("config must declare at least one recoil or mixed constraint")
+    if wkey not in events:
+        raise KeyError(f"events lacks the prior weights '{wkey}' (events has {sorted(events)})")
     w = np.asarray(events[wkey], float)
     if not np.all(w > 0):
-        raise ValueError("prior weights must be strictly positive")
+        raise ValueError(f"prior weights must be strictly positive: {int((w <= 0).sum())} of {len(w)} are not "
+                         f"(fold or remove negative weights before the upgrade)")
+    _check_inputs(events, moments, config, wkey)
     p = w / w.sum()
     thr = cfg["snr_threshold"]; do_sel = cfg["moment_selection"]
 
     F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
     SIG = [0.0]      # per-constraint target error (feature units); used only in soft mode
-    snr_spectra = {}; chosen = {}
+    snr_spectra = {}; chosen = {}; towers = []     # towers: one row per tower for describe()
     soft = bool(cfg["soft_constraints"])
 
     def _soft_err(d, total_key):
@@ -776,9 +920,18 @@ def upgrade(events, moments, config):
         sigv = np.zeros(Nmax) if sig is None or not len(sig) else np.asarray(sig, float)[:Nmax]
         if len(sigv) < Nmax:
             sigv = np.concatenate([sigv, np.zeros(Nmax - len(sigv))])
-        win = (XL >= XM) & (XL < XHI)
-        mu_prior_win = (chebyshev_moment(XL[win], w[win], Nmax, lo_map, hi_map, mp)
-                        if win.any() else np.zeros(Nmax))
+        # The prior's moment in the resolution criterion must be the same quantity as the
+        # target: for a windowed tower the window-weighted <w T_n>/<w> (the target is
+        # booked that way in the fixed-order code), for a Born tower or a hard window the
+        # plain average over [XM, XHI).
+        if wprof is not None:
+            wpr = np.asarray(wprof, float); win = wpr > 0
+            mu_prior_win = (chebyshev_moment(XL[win], (w * wpr)[win], Nmax, lo_map, hi_map, mp)
+                            if win.any() else np.zeros(Nmax))
+        else:
+            win = (XL >= XM) & (XL < XHI)
+            mu_prior_win = (chebyshev_moment(XL[win], w[win], Nmax, lo_map, hi_map, mp)
+                            if win.any() else np.zeros(Nmax))
         snr = (np.abs(vals - mu_prior_win) / np.maximum(errs, 1e-30)
                if np.asarray(errs).any() else np.full(Nmax, np.inf))
         snr_spectra[obs] = snr
@@ -791,6 +944,9 @@ def upgrade(events, moments, config):
         if fixed is not None:
             N = min(max(int(fixed), floor), Nmax)
         chosen[obs] = N
+        towers.append(dict(name=obs, kind="born" if floor == 0 else "window", map=mp if isinstance(mp, str) else mp[0],
+                           supplied=int(Nmax), imposed=int(N),
+                           below=[(n, float(snr[n - 1])) for n in range(1, N + 1) if snr[n - 1] <= thr]))
         u = _umap(np.clip(XL, lo_map, hi_map), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
         if wprof is None:
             # -------- composite (unmasked) target: legacy path --------
@@ -903,6 +1059,8 @@ def upgrade(events, moments, config):
             F.append(Cx[:, mm] * Cy[:, nn] * wxy); mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}"); SIG.append(float(merr.get((mm, nn), 0.0)) * R)
         F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate"); SIG.append(_rate_err(rc))
+        towers.append(dict(name=key, kind="joint", map="-", supplied=len(rc["values"]),
+                           imposed=len(rc["values"]), below=[]))
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
     # warm start for band variants: re-solving from the central multipliers
@@ -911,13 +1069,25 @@ def upgrade(events, moments, config):
     q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"], lam0=config.get("lam0"),
                          sigma=(sig if soft else None))
     if not ok or q is None:
-        raise RuntimeError("MaxEnt solve did not converge to a positive-weight solution")
+        raise RuntimeError("MaxEnt solve did not converge to a positive-weight solution.  The usual causes: a "
+                           "target the prior cannot reach (no prior events where the fixed order puts weight), "
+                           "a map or window that differs from the one compiled into the fixed-order run, or "
+                           "inconsistent units.  Inspect result.report after a solve with fewer orders "
+                           "(config['fixed_orders']).")
     ach = (q[:, None] * Phi).sum(0)
     worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
     # soft mode: the residual is by construction -sd r lam, i.e. a moment is met to within
     # its own error; report (achieved - target)/sigma per constraint (nan where sigma = 0)
     pulls = np.where(sig > 0, (ach - mu) / np.where(sig > 0, sig, 1.0), np.nan)
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
+    effN_retained = float((p ** 2).sum() / (q ** 2).sum())        # Kish(q) / Kish(p)
+    fin = np.isfinite(pulls)
+    max_pull = float(np.max(np.abs(pulls[fin]))) if fin.any() else float("nan")
+    for t in towers:
+        idx = [i for i, nm in enumerate(names) if nm.startswith(t["name"] + "_T") or nm == t["name"] + "_rate"]
+        pt = np.abs(pulls[idx]); pt = pt[np.isfinite(pt)]
+        t["max_pull"] = float(pt.max()) if len(pt) else float("nan")
+    qp = q / p
     # the PRIMARY recoil (first in the config) defines the reported seam;
     # a mixed-only configuration has no single seam to report
     primary = next(iter(recoil_cfg), None)
@@ -933,14 +1103,18 @@ def upgrade(events, moments, config):
         lam=np.asarray(lam, float), mu=mu.copy(),
         feature_names=list(names),
         soft=dict(enabled=soft, errors=cfg["soft_errors"], sigma=sig.copy(), pulls=pulls),
+        towers=towers, q_over_p_range=(float(qp.min()), float(qp.max())),
     )
     if config.get("keep_features"):
         report["Phi"] = Phi
         report["p"] = p
+    chosen_all = dict(chosen)
+    chosen_all.update({t["name"]: t["imposed"] for t in towers if t["kind"] == "joint"})
     return UpgradeResult(weights=np.asarray(q, float), effN=effN, closure=worst,
                          x_match=x_match, report=report, moment_snr=snr_spectra,
-                         chosen_moments=dict(chosen), band=None,
-                         soft_pulls=(pulls if soft else None))
+                         chosen_moments=chosen_all, band=None,
+                         soft_pulls=(pulls if soft else None),
+                         effN_retained=effN_retained, max_pull=max_pull)
 
 
 def combine_moments(anchor, target, n=None):

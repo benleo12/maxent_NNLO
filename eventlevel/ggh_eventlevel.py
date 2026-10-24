@@ -112,7 +112,8 @@ def band_weights(ev, seeds, res):
 
 
 def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
-          logx=False, anchor_window=None, sample_cut=None, ratio_ylim=(0.6, 1.4), anchor_mode="sharp"):
+          logx=False, anchor_window=None, sample_cut=None, ratio_ylim=(0.6, 1.4), anchor_mode="sharp",
+          show_profile=None, prior_panel=None, role=None, ylab=None, xticks=None, figw=6.8):
     r"""One observable per figure: main + ratio-to-FO, full band treatment.
 
     anchor_window=(lo,hi): FO (and all its scale members) anchored to the
@@ -190,22 +191,29 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         fo_st = fst / nrm
     fo_lo = np.minimum(fo, np.nanmin(mem, 0)); fo_hi = np.maximum(fo, np.nanmax(mem, 0))
 
-    seam_panel = anchor_window is not None
+    # The window w and the matching-scale line belong to the RECOIL axis
+    # (p_T^H).  A follower plotted against its own axis (the jet) gets neither:
+    # drawing w(p_T^H) on the p_T^{j1} axis would suggest the jet was windowed.
+    if show_profile is None:
+        show_profile = anchor_mode == "profile"
+    if prior_panel is None:
+        prior_panel = anchor_window is not None
+    seam_panel = prior_panel
     if seam_panel:
-        fig, ax = plt.subplots(3, 1, figsize=(6.8, 8.5),
+        fig, ax = plt.subplots(3, 1, figsize=(figw, 8.5), sharex=True,
                                gridspec_kw={"height_ratios": [2.1, 1.15, 0.78],
                                             "hspace": 0.07})
         a, r, u = ax
     else:
-        fig, ax = plt.subplots(2, 1, figsize=(6.8, 7.6),
+        fig, ax = plt.subplots(2, 1, figsize=(figw, 6.6), sharex=True,
                                gridspec_kw={"height_ratios": [2.1, 1.15],
                                             "hspace": 0.07})
         a, r = ax
         u = None
     a.stairs(fo, e, color=C["fo"], ls=LS["fo"], lw=LW["fo"],
-             label=r"fixed order (NLO $H$+jet)" if fo_ch == CHJ else r"fixed order (NNLO)")
-    a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"PS+LO prior")
-    a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt ($0\%\ w<0$)")
+             label=r"fixed order, NLO($H$+jet)" if fo_ch == CHJ else r"fixed order, NNLO")
+    a.stairs(hp, e, color=C["prior"], ls="--", lw=2.0, label=r"LO+PS prior")
+    a.stairs(hq, e, color=C["maxent"], lw=3.0, label=r"MaxEnt", zorder=5)
     ref = fo
     # Nothing is drawn faded.  This panel asks one question -- does the sample
     # agree with fixed order where fixed order is a valid reference -- and it
@@ -251,15 +259,15 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
     # here turns the first window bin from an apparent defect into the
     # statement it actually is -- the sample still carries the shower where
     # w is small, and moves onto fixed order exactly as w -> 1.
-    if anchor_window is not None:
+    if show_profile:
         rw = r.twinx()
         xs = np.geomspace(max(e[0], 1e-3), e[-1], 400)
         rw.plot(xs, profile_w(xs, XM, XB, XHI, XHI), color=C["seam"], lw=1.4,
                 ls="-", alpha=0.75)
         rw.set_ylim(-0.03, 1.55)
         rw.set_yticks([0.0, 0.5, 1.0])
-        rw.set_ylabel(r"profile $w$", fontsize=11, color=C["seam"], labelpad=1)
-        rw.tick_params(axis="y", labelsize=9, colors=C["seam"], length=2.5)
+        rw.set_ylabel(r"window $w$", color=C["seam"], labelpad=1)
+        rw.tick_params(axis="y", colors=C["seam"], length=2.5)
         if logx:
             rw.set_xscale("log")
         rw.set_xlim(e[0], e[-1])
@@ -282,14 +290,14 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         if below.sum() > 1:
             rb = rq[below]
             print(f"  {name}: below-seam MaxEnt/prior flat to {100*(rb.max()-rb.min())/rb.mean():.1f}%")
-        u.set_ylabel(r"MaxEnt / prior", fontsize=13)
+        u.set_ylabel(r"ratio to prior")
         u.set_xlabel(xlab)
         r.tick_params(labelbottom=False); r.set_xlabel("")
     if logx:
         a.set_xscale("log"); r.set_xscale("log"); a.set_yscale("log")
         if u is not None:
             u.set_xscale("log")
-    if anchor_window is not None:
+    if show_profile:
         # The constraint does not switch on at the seam, it RAMPS: the profile
         # is zero below x_m, rises smoothly across [x_m, x_b] and is one above.
         # Shading the whole window uniformly implies a constraint that is fully
@@ -298,14 +306,21 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         for p_ in [p for p in (a, r, u) if p is not None]:
             p_.axvline(XM, color=C["seam"], lw=2.0, ls="--")
     a.tick_params(labelbottom=False)
-    a.set_title(title)
-    a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+    if role is None:
+        a.set_title(title)
+    else:
+        # no title: the caption names the panel; the role of the observable
+        # is a small tag inside the axes
+        a.text(0.97, 0.95, role, transform=a.transAxes, ha="right", va="top", color="0.3")
+    a.set_ylabel(ylab if ylab else r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
     r.set_ylabel(r"ratio to fixed order")
     if u is None:                      # the bottom panel carries the x-axis
         r.set_xlabel(xlab)
     else:
         r.set_xlabel(""); r.tick_params(labelbottom=False)
     r.set_ylim(*ratio_ylim)
+    if ratio_ylim[1] - ratio_ylim[0] > 1.0:
+        r.set_yticks([0.5, 1.0, 1.5])
     a.set_xlim(e[0], e[-1]); r.set_xlim(e[0], e[-1])
     if u is not None:
         u.set_xlim(e[0], e[-1])
@@ -313,12 +328,28 @@ def panel(name, key, e, xlab, title, fo_tag, fo_ch, ev, res, scale_w, boot_w,
         if fin_.any():
             span = max(abs(np.nanmax(rq[fin_]) - 1.0), abs(1.0 - np.nanmin(rq[fin_])))
             u.set_ylim(1 - 1.25 * span, 1 + 1.25 * span)
-    a.legend(loc="lower left", fontsize=12)
+    if xticks is not None:
+        from matplotlib.ticker import FixedLocator, NullFormatter, ScalarFormatter
+        for p_ in [p for p in (a, r, u) if p is not None]:
+            p_.xaxis.set_major_locator(FixedLocator(xticks))
+            p_.xaxis.set_major_formatter(ScalarFormatter())
+            p_.xaxis.set_minor_formatter(NullFormatter())
+    a.legend(loc="lower left", fontsize=None if role is not None else 12)
     out = os.path.join(HERE, f"{name}.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png")); plt.close(fig)
     m_ = vok & np.isfinite(hp) & (ref > 0)
     print(f"  {name}: prior {100*np.median(np.abs(hp[m_]/ref[m_]-1)):5.1f}%   "
           f"MaxEnt {100*np.median(np.abs(hq[m_]/ref[m_]-1)):5.1f}%   -> {out}")
+    # the numbers the paper quotes: medians over the bins at or above the
+    # matching scale (bin centre >= 37 GeV), the region where the recoil
+    # window acts
+    print(f"     ratio to fixed order, MaxEnt: min {np.nanmin((hq/ref)[m_]):.3f} max {np.nanmax((hq/ref)[m_]):.3f};"
+          f"  prior: min {np.nanmin((hp/ref)[m_]):.3f} max {np.nanmax((hp/ref)[m_]):.3f}")
+    if logx:
+        ma_ = m_ & (ctr >= XM)
+        print(f"     [bin centre >= {XM:g} GeV] nbins {int(ma_.sum())}: prior "
+              f"{100*np.median(np.abs(hp[ma_]/ref[ma_]-1)):5.1f}%  MaxEnt "
+              f"{100*np.median(np.abs(hq[ma_]/ref[ma_]-1)):5.1f}%")
 
 
 def native_edges(tag):
@@ -359,10 +390,14 @@ def main():
           r"$|y_H|$, constrained at NNLO", "absyh_a", tuple(CH6),
           ev, res, scale_w, boot_w, ratio_ylim=(0.8, 1.2))
     # ---- jet followers: never constrained, predicted through the prior ----
-    panel("fig_ggh_ptj1", "pT_j1", np.geomspace(20, 500, 25), r"$p_T^{j_1}$ [GeV]",
+    # JHEP figure: the follower alone, two panels, set at 0.6\textwidth.  The
+    # fixed order is normalized to the sample's rate above XB = 74 GeV.
+    panel("fig_ggh_ptj1", "pT_j1", np.geomspace(20, 500, 25), r"$p_\mathrm{T}^{j_1}$ [GeV]",
           r"$p_T^{j_1}$, never constrained", "ptj1_all", CHJ,
           ev, res, scale_w, boot_w, logx=True, anchor_window=(XB, 500.0),
-          ratio_ylim=(0.6, 1.5))
+          ratio_ylim=(0.35, 1.9), show_profile=False, prior_panel=False, role=r"follower",
+          ylab=r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_\mathrm{T}^{j_1}$ [GeV$^{-1}$]",
+          xticks=[20, 50, 100, 200, 500], figw=6.2)
     panel("fig_ggh_yj1", "y_j1", np.linspace(0, 4.4, 23), r"$|y_{j_1}|$",
           r"$|y_{j_1}|\ (p_T^{j_1}>37$ GeV$)$, never constrained", "absyj1_w37", CHJ,
           ev, res, scale_w, boot_w, sample_cut=(ev["pT_j1"] >= 37.0),

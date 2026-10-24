@@ -1,124 +1,103 @@
-# How to construct the moments (recipe for the fixed-order side)
+# How to construct the moments (the fixed-order side)
 
-You provide, per constrained observable, a short list of numbers computed **event
-level** in your fixed-order calculation. Nothing is binned. This is the entire
-fixed-order interface to the reweighting.
+The fixed-order input to `upgrade()` is a short list of numbers per constrained observable,
+accumulated event by event in your fixed-order calculation. They are weighted sums, exactly
+like a cross section, never a histogram. This is the whole fixed-order interface.
 
 ## 1. The moment
 
-For an observable x with a chosen range [lo, hi] and a map (linear or logarithmic),
-map x to the interval [-1, 1]
+Map the observable v onto u ∈ [−1, 1] with the map that suits it:
 
-    linear (mass, rapidity):   u(x) = 2 (x - lo)/(hi - lo) - 1
-    logarithmic (transverse):  u(x) = 2 (ln x - ln lo)/(ln hi - ln lo) - 1
+    linear       (rapidities, angles):           u = 2 (v − lo)/(hi − lo) − 1
+    logarithmic  (transverse momenta,
+                  continuum masses):              u = 2 (ln v − ln lo)/(ln hi − ln lo) − 1
+    Breit-Wigner (resonant masses):               u = 2 (t(v) − t(lo))/(t(hi) − t(lo)) − 1,
+                                                  t(v) = arctan((v² − M²)/(M Γ))
 
-build the Chebyshev polynomials by the standard recurrence
+Values outside [lo, hi] sit at the edge (clip u to [−1, 1]). Build the Chebyshev polynomials,
 
-    T_0(u) = 1,   T_1(u) = u,   T_n(u) = 2 u T_{n-1}(u) - T_{n-2}(u),
+    T_0 = 1,   T_1 = u,   T_n = 2 u T_{n−1} − T_{n−2},
 
-and return, for n = 1, 2, ..., N, the single number
+and accumulate, for n = 1 … N, over your phase-space points j with weights w_j inside the
+fiducial region:
 
-    mu_n = ( sum_j w_j T_n(u(x_j)) ) / ( sum_j w_j )
+    μ_n = Σ_j w_j T_n(u(v_j)) / Σ_j w_j .
 
-where the sum runs over your fixed-order phase-space points j with weight w_j, at the
-target order N+k, inside the fiducial volume. Also return the Monte-Carlo uncertainty
-sigma_n on each mu_n, computed the same way you get the error on any booked observable
-(seed or replica spread, and the seven-point scale envelope). The pair (mu_n, sigma_n)
-per order n is the target. This is identical to booking the observable T_n(u(x)); there
-is no histogram.
+That is the same as booking the observable T_n(u(v)) as a one-bin histogram and dividing by
+the fiducial cross section. The patch in `nnlojet_patch/` does exactly this for NNLOJET.
 
-## 2. Which slot: Born or recoil
+The map matters. It decides how much a few moments resolve:
+- on the Drell-Yan mass, twelve moments on the Breit-Wigner map reach 0.6% of NNLO, and twelve
+  on the linear map reach 1.2%;
+- the map must be identical on both sides, because the prior side evaluates the same T_n(u).
 
-Every observable goes in exactly one of two slots, and the choice is dictated by the
-observable, not by preference.
+## 2. Born towers and recoil windows
 
-**Born slot** — the observable is defined at Born level and is infrared-safe over its
-whole range. Its fixed-order moments may be imposed everywhere. Examples: the invariant
-mass, the rapidity, the Collins-Soper `|cos theta*|`.
+Every constrained observable is either a Born tower or a recoil window. The observable
+decides which, not preference.
 
-**Recoil slot** — the observable vanishes identically at Born level and its fixed-order
-prediction diverges in the soft limit. It may only be constrained through the profile,
-above the matching scale, with the shower left alone below. Examples: `pT` of the
-colour-singlet system, `pi - dphi`, `a_T`.
+**Born tower.** The observable is fixed by the Born kinematics of the color singlet and is
+infrared safe over its whole range: the mass, the rapidity, the Collins-Soper decay angle.
+Its moments are imposed over the full fiducial range.
 
-Putting a recoil observable in the Born slot is not merely inaccurate — it makes the
-dual **infeasible**. Imposing the fixed-order moments of `pi - dphi_gg` over its full
-range directly contradicts the recoil profile, which deliberately preserves the shower
-below the seam, and the MaxEnt solve has no positive-weight solution at any moment order
-(verified for N = 3, 4, 6; `eventlevel/aa_angular_test.py`). `|cos theta*|`, a genuine
-Born observable, converges at all of them. A convergence failure of this kind is a
-diagnosis, not a numerical problem to be tuned away.
+**Recoil window.** The observable vanishes at Born level, and its fixed-order prediction
+diverges in the soft limit. Examples are the singlet transverse momentum, the acoplanarity
+π − Δφ, and a_T.
+- It is constrained only above the matching scale v_m, through the C² window
+  w(v) = 6t⁵ − 15t⁴ + 10t³ with t = clip(ln(v/v_m)/ln 2, 0, 1). The window rises from v_m to
+  2 v_m, and is cut at an upper edge c (500 GeV in the released tables, 1000 GeV for the Higgs
+  and the jets).
+- Accumulate the windowed moments and the window rate:
 
-Constraining the Born angular observable matters. For the ATLAS 8 TeV diphoton fiducial
-region the photon `pT` cuts lock `|cos theta*|` to `m_gg`, so mass moments alone move
-the angle the wrong way. Against ATLAS 1704.03839 (median `|shape/data - 1|`):
+      μ_n = Σ_j w_j w(v_j) T_n(u(v_j)) / Σ_j w_j w(v_j),      r = Σ_j w_j w(v_j) / Σ_j w_j,
 
-| observable | prior | Born {m} | Born {m, cos} |
-|---|---|---|---|
-| `m_gg`       | 48.3% | 11.0% *(c)* | **9.8%** *(c)* |
-| `pT_gg`      | 84.7% | **10.5%** *(c)* | 14.1% *(c)* |
-| `|cos theta*|` | 4.0% | 17.9% | **4.7%** *(c)* |
-| `dphi_gg`    | 31.2% | 17.2% | **7.0%** |
-| `a_T`        | 57.8% | 11.3% | **9.8%** |
+  with u the logarithmic map on [soft_lo, x_hi].
+- The matching scale follows from power counting, α_s(p_T) ln²(Q/p_T) < 0.2 with Q the hard
+  scale (`maxent_upgrade.matching_scale(Q)`): 27.9 GeV for Q = m_Z, 24.9 GeV for Q = m_W,
+  37.1 GeV for Q = m_H.
 
-(NNLOJET GG, 40 channel- and tag-complete seeds.)
+Putting a recoil observable in the Born slot is not merely inaccurate. Imposing the
+full-range moments of π − Δφ contradicts the window, which keeps the shower below the
+matching scale, and the solve has no positive-weight solution. A convergence failure of
+this kind is a diagnosis, not a numerical problem to tune away.
 
-*(c)* = constrained. Adding the angle recovers it *and* relieves the mass, because the
-two are correlated by the fiducial cuts. The recoil pays for it (10.5% -> 14.1%);
-`dphi_gg` and `a_T` are never constrained in either column and both improve anyway.
-Effective statistics fall from 7.3% to 1.0%, which is the real price. Note also that the prior's 4.0% on `|cos theta*|` was an accidental
-cancellation; after the upgrade the value is pinned to the fixed order rather than
-landing near the data by luck.
+## 3. Errors
 
-## 3. Range and map per observable
+Return two errors per moment:
+- the **Monte Carlo** error: the scatter of independent runs divided by √(number of runs);
+- the **scale** error: the half-range of μ_n over the seven-point variation.
 
-Use the same [lo, hi] and map you tell the reweighting code (they must match). Mass and
-rapidity use the linear map over the fiducial range. Transverse momenta use the
-logarithmic map. For a recoil constrained only above a resolution scale x_match, compute
-the moment over [x_match, x_hi] with u mapped on [soft_lo, x_hi] (log), and also return
-the fixed-order cross-section fraction in [x_match, x_hi] (the window rate).
+Pool the runs as the ratio of summed numerators to summed denominators, not as the mean of
+per-run ratios. `upgrade()` uses the two errors combined in quadrature (`errors`) to decide
+which orders the input resolves. Keep the per-run, per-scale accumulators: they are what the
+uncertainty bands re-pool (see the `_runs.json.gz` files in `moments/`).
 
 ## 4. How many moments
 
-Return moments up to a generous ceiling (say N = 12). The reweighting imposes every moment
-up to the highest order n that is resolved above its own fixed-order uncertainty,
+Return moments up to a generous depth (12 for Born towers, 20 for a recoil window is ample).
+`upgrade()` imposes each tower up to the highest order whose shift the input resolves,
 
-    SNR_n = | mu_n(order N+k) - mu_n(prior) | / sigma_n  >  1,
+    SNR_n = |μ_n(fixed order) − μ_n(prior)| / σ_n > 1,
 
-and drops the orders beyond it. Unresolved orders below that depth are kept: their targets
-agree with the prior within the error, so imposing them holds those moments in place. This is
-why sigma_n matters as much as mu_n: it sets how deep each tower goes.
+and drops the orders beyond it. This is why σ_n matters as much as μ_n.
 
-## 5. The orders, stated precisely (this is where we must be careful)
+## 5. Which calculation each moment comes from
 
-For an inclusive color-singlet calculation at NNLO:
+Label each tower by the fixed-order calculation it comes from, not by the inclusive order of
+the process. From an inclusive color-singlet calculation at NNLO:
+- the singlet mass and rapidity, inclusive over radiation, are NNLO;
+- the singlet transverse momentum is not NNLO. A nonzero recoil needs a real emission, so
+  the inclusive NNLO result gives the recoil at NLO(V+jet).
 
-  * the singlet MASS and RAPIDITY, inclusive over radiation, are genuinely NNLO;
-  * the singlet TRANSVERSE MOMENTUM (recoil) is NOT NNLO from the inclusive calculation.
-    pT > 0 requires a real emission, so the inclusive-V NNLO result gives the recoil
-    spectrum at NLO(V+jet) accuracy. To constrain the recoil at NNLO you must take it
-    from the V+jet calculation at NNLO, above a jet-resolution cut.
-
-So label each constraint by the fixed-order calculation it comes from, not by the
-inclusive order of the process:
-
-  DY, inclusive Z at NNLO      -> m(ll), y(ll)                 constrained at NNLO
-  DY, Z+jet at NNLO            -> pT(ll)/pT(j1) above cut      constrained at NNLO
-  DY, Z+jet at NLO             -> pT(j2), dphi(l1,l2) off pi   constrained at NLO
-  below the resolution cut     -> parton shower preserved      (its own constraint)
-
-The diphoton case is the same with gamma gamma in place of Z. m(AA), y(AA), and the
-photon rapidities come from inclusive gamma gamma at NNLO; pT(AA)/pT(j1), the
-gamma gamma + jet masses, dY(A1,j1), and dphi(A1,A2) away from pi come from
-gamma gamma + jet at NNLO above a resolution cut; pT(j2) is NLO. The individual photon
-transverse momenta pT(A1), pT(A2) are NNLO for the inclusive observable, but their
-features that depend on the recoil inherit the NLO(V+jet) accuracy of the recoil, so
-state them as inclusive-NNLO with an NLO recoil tail rather than uniformly NNLO.
+To constrain the recoil at NNLO, take its window from the V+jet calculation at NNLO.
 
 ## 6. Practical path
 
-Start at low statistics to fix the observable list and the maps, then raise statistics
-for production. The moments converge fast because they are integrated quantities, so the
-statistical precision on mu_n is reached long before a differential spectrum would be
-smooth. Send back, per observable and per order, the arrays mu_n and sigma_n (and the
-window rate for the recoil). That is all the reweighting needs.
+1. Fix the observable list, the maps and the windows at low statistics.
+2. Raise statistics for production. Integrated moments converge long before a differential
+   spectrum would be smooth.
+3. Send back, per tower and order, μ_n with its two errors, and the window rate for each
+   recoil.
+
+`export_moments.py` shows how the released tables were assembled from NNLOJET runs.
+`maxent_upgrade.compute_fo_moments` does the same from fixed-order events held in Python.

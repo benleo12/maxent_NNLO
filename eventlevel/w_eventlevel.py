@@ -448,6 +448,11 @@ def asymmetry_figure(R):
     print(f"  fig_w_asym: rms pull with the curve's own stat error folded in  MaxEnt {chi(aq, aqb):.2f}  FO {chi(afo, afost):.2f}  "
           f"(FO stat err last two bins {afost[-2]:.3f} {afost[-1]:.3f});  last-bin pull vs data  prior {(ap[-1]-d['y'][-1])/d['eyl'][-1]:+.2f}  "
           f"MaxEnt {(aq[-1]-d['y'][-1])/np.hypot(d['eyl'][-1], aqb[-1]):+.2f}  FO {(afo[-1]-d['y'][-1])/np.hypot(d['eyl'][-1], afost[-1]):+.2f}")
+    # Arrays behind this figure, for the JHEP figure that overlays the two
+    # constraint sets (fig_w_asym_combined.py); nothing is recomputed there.
+    np.savez(os.path.join(HERE, f"w_asym{FIG_SUFFIX}.npz"), e=e, xc=xc, ap=ap, aq=aq, aqs=aqs, aqb=aqb,
+             afo=afo, afos=afos, afost=afost, dx=d["x"], dy=d["y"], deyl=d["eyl"],
+             deyh=d.get("eyh", d["eyl"]), dexl=d["exl"], ctw_mode=CTW_MODE)
 
 
 def main():

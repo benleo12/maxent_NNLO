@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 r"""Build the ATLAS-fiducial generator npz (with scale weights) from a
-showered parent npz.  CHECKED-IN replacement for the throwaway inline recuts
+showered parent npz.  Replaces the inline recuts
 that produced dy_mcatnlo_atlas.npz / dy_powheg_atlas.npz without w_scale.
 
 The recut is the frozen recipe (identical to fig_suite.recut):

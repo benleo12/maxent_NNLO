@@ -29,9 +29,9 @@ from maxent_upgrade import upgrade, chebyshev_moment
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              add_mixed_moments, _moment_over_seeds, _reduce)
 
-BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_poc")
+BASE = os.path.join(os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2")), "dy_profile_log30_hi")
 CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
-XM, XHI, SOFT = 30.0, 500.0, 0.5
+XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
 MLO, MHI = 66.0, 116.0                 # mirrors eval_chebT_mll
 PTL1_LO, PTL1_HI = 27.0, 200.0         # mirrors eval_chebT_ptl1
 NMOM = 6
@@ -105,7 +105,7 @@ def main():
         M = fo_moments_smooth_from_nnlojet(
             BASE, "DY_MOMENTS", CH6, seeds,
             born_tags={"mll": "mll", "y_abs": "absyz", "cts": "ctl"},
-            n_born=NMOM, n_recoil=12, x_match=XM, x_hi=XHI, soft_lo=SOFT)
+            n_born={"mll": 12, "y_abs": 12, "cts": 6}, n_recoil=20, x_match=XM, x_hi=XMAP, soft_lo=SOFT)
         born = {"mll": {"range": (MLO, MHI), "map": "bw"},
                 "y_abs": {"range": (0., 2.4), "map": "lin"},
                 "cts": {"range": (0., 1.), "map": "lin"}}
@@ -119,7 +119,7 @@ def main():
                                   profile=None,     # Born cross moment: no window
                                   n=NX)
         cfg = dict(born=born,
-                   recoil={"pT_ll": {"range": (SOFT, XHI), "map": "log", "soft_lo": SOFT,
+                   recoil={"pT_ll": {"range": (SOFT, XMAP), "map": "log", "soft_lo": SOFT,
                                      "profile": {"a": XM, "b": 2 * XM, "c": XHI}}},
                    mixed=mixed, followers=["pt_l1"], moment_selection=False)
         try:

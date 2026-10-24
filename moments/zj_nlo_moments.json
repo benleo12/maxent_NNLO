@@ -4,13 +4,23 @@
  "sqrt_s_TeV": 13,
  "pdf": "CT18NNLO",
  "ew_scheme": "G_mu",
- "scale": "muR = muF = m_ll",
- "fiducial": "66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5 (Born-level leptons); anti-kT R=0.4 jets pT > 20 GeV, |y| < 4.4, dR(jet, lepton) > 0.4 (ATLAS 13 TeV)",
+ "scale": "muR = muF = H_T/2 (NNLOJET ht_full; see runcards/zj_moments.run)",
+ "fiducial": "66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5 (Born-level leptons); anti-kT R=0.4 jets pT > 20 GeV, |y| < 4.4, dR(jet, lepton) > 0.4 (ATLAS 13 TeV); at least one such jet (Z+jet calculation): restrict the prior to events with >= 1 jet",
+ "hard_scale_GeV": 91.1876,
  "n_independent_runs": 40,
  "channels": [
   "LO",
   "R",
   "V"
+ ],
+ "scales": [
+  "muR = H_T/2, muF = H_T/2",
+  "muR = 2 H_T/2, muF = 2 H_T/2",
+  "muR = 0.5 H_T/2, muF = 0.5 H_T/2",
+  "muR = 0.5 H_T/2, muF = H_T/2",
+  "muR = H_T/2, muF = 0.5 H_T/2",
+  "muR = 2 H_T/2, muF = H_T/2",
+  "muR = H_T/2, muF = 2 H_T/2"
  ],
  "towers": {
   "mll": {
@@ -55,6 +65,15 @@
     9.054503102679835e-05
    ],
    "note": "dilepton mass",
+   "numerator_tags": [
+    "prof_mll_1",
+    "prof_mll_2",
+    "prof_mll_3",
+    "prof_mll_4",
+    "prof_mll_5",
+    "prof_mll_6"
+   ],
+   "denominator_tag": "norm_born",
    "bw": [
     91.1876,
     2.4952
@@ -101,7 +120,16 @@
     6.601559048639155e-05,
     0.0001424828941546533
    ],
-   "note": "|y_ll|"
+   "note": "|y_ll|",
+   "numerator_tags": [
+    "prof_absyz_1",
+    "prof_absyz_2",
+    "prof_absyz_3",
+    "prof_absyz_4",
+    "prof_absyz_5",
+    "prof_absyz_6"
+   ],
+   "denominator_tag": "norm_born"
   },
   "ptj1": {
    "kind": "window",
@@ -169,6 +197,21 @@
     0.002572969037680825
    ],
    "note": "leading-jet pT, C^2 window 30-60 GeV, hard cut 1000 GeV",
+   "numerator_tags": [
+    "prof_wj1_1",
+    "prof_wj1_2",
+    "prof_wj1_3",
+    "prof_wj1_4",
+    "prof_wj1_5",
+    "prof_wj1_6",
+    "prof_wj1_7",
+    "prof_wj1_8",
+    "prof_wj1_9",
+    "prof_wj1_10",
+    "prof_wj1_11",
+    "prof_wj1_12"
+   ],
+   "denominator_tag": "prof_wj1_0",
    "soft_lo": 10.0,
    "profile": {
     "a": 30.0,
@@ -177,7 +220,8 @@
    },
    "window_rate": 0.3728949051229507,
    "window_rate_stat": 0.0003576628724319327,
-   "window_rate_scale": 0.008142004897857713
+   "window_rate_scale": 0.008142004897857713,
+   "matching_scale_rule": true
   },
   "ptj2": {
    "kind": "window",
@@ -228,7 +272,18 @@
     0.005365986086340202,
     0.00854302581700131
    ],
-   "note": "second-jet pT, same window",
+   "note": "second-jet pT, same window; the paper imposed 6 orders",
+   "numerator_tags": [
+    "prof_wj2_1",
+    "prof_wj2_2",
+    "prof_wj2_3",
+    "prof_wj2_4",
+    "prof_wj2_5",
+    "prof_wj2_6",
+    "prof_wj2_7",
+    "prof_wj2_8"
+   ],
+   "denominator_tag": "prof_wj2_0",
    "soft_lo": 10.0,
    "profile": {
     "a": 30.0,
@@ -237,7 +292,8 @@
    },
    "window_rate": 0.08439706035424516,
    "window_rate_stat": 0.00010498920840865041,
-   "window_rate_scale": 0.014576436180524663
+   "window_rate_scale": 0.014576436180524663,
+   "matching_scale_rule": true
   },
   "pimdphi": {
    "kind": "window",
@@ -305,6 +361,21 @@
     0.00141456479378416
    ],
    "note": "lepton-pair acoplanarity pi - dphi_ll, C^2 window 0.05-0.20; the paper imposed 4 orders",
+   "numerator_tags": [
+    "prof_wdphi_1",
+    "prof_wdphi_2",
+    "prof_wdphi_3",
+    "prof_wdphi_4",
+    "prof_wdphi_5",
+    "prof_wdphi_6",
+    "prof_wdphi_7",
+    "prof_wdphi_8",
+    "prof_wdphi_9",
+    "prof_wdphi_10",
+    "prof_wdphi_11",
+    "prof_wdphi_12"
+   ],
+   "denominator_tag": "prof_wdphi_0",
    "soft_lo": 0.01,
    "profile": {
     "a": 0.05,
@@ -313,7 +384,8 @@
    },
    "window_rate": 0.9251205695965489,
    "window_rate_stat": 0.0002516741500806513,
-   "window_rate_scale": 0.004564602153425079
+   "window_rate_scale": 0.004564602153425079,
+   "matching_scale_rule": false
   }
  },
  "joint": {
@@ -392,6 +464,25 @@
     "4,4": 0.0006390707791310568
    },
    "note": "<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation (paper)",
+   "numerator_tags": {
+    "1,1": "prof_wj12_11",
+    "1,2": "prof_wj12_12",
+    "1,3": "prof_wj12_13",
+    "1,4": "prof_wj12_14",
+    "2,1": "prof_wj12_21",
+    "2,2": "prof_wj12_22",
+    "2,3": "prof_wj12_23",
+    "2,4": "prof_wj12_24",
+    "3,1": "prof_wj12_31",
+    "3,2": "prof_wj12_32",
+    "3,3": "prof_wj12_33",
+    "3,4": "prof_wj12_34",
+    "4,1": "prof_wj12_41",
+    "4,2": "prof_wj12_42",
+    "4,3": "prof_wj12_43",
+    "4,4": "prof_wj12_44"
+   },
+   "denominator_tag": "prof_wj12_0",
    "window_rate": 0.08229020859185833,
    "window_rate_stat": 0.00010271813988308225,
    "window_rate_scale": 0.014259535561626513
@@ -408,7 +499,11 @@
   ],
   "mixed": [
    "ptj1_x_ptj2"
-  ]
+  ],
+  "max_orders": {
+   "ptj2": 6,
+   "pimdphi": 4
+  }
  },
  "sigma_fid_pb": {
   "value": 187.88723444285793,

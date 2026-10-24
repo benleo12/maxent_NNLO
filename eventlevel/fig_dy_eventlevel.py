@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -32,9 +33,9 @@ XM, XHI, SOFT, XMAP = 30.0, 500.0, 30.0, 2500.0
 # (<18% Monte Carlo error) and <4% data uncertainty.  Above it every
 # sample on the figure -- ours and the matched generators alike -- is
 # statistics-limited, so the comparison stops being about physics.
-# The medians are insensitive to the choice: cutting at 300/400/470/
-# 2500 GeV gives MaxEnt 4.20/4.48/4.71/5.72% against prior
-# 7.68/10.07/10.10/11.04%.
+# The medians are insensitive to the choice: on the 298-run production,
+# cutting at 300/400 GeV/the end of the measurement gives MaxEnt
+# 5.79/5.79/6.76% against prior 10.22/12.65/14.44%.
 PLOT_HI = 400.0
 Q_HARD = 91.1876
 
@@ -43,18 +44,18 @@ GENS = [("MiNNLO$_{\\mathrm{PS}}$", "dy_minnlo_atlas_v4.npz", C["minnlo"], 23),
         ("POWHEG", "dy_powheg_atlas_v6.npz", C["powheg"], 1)]
 # ONE observable per figure.  phi* has its own figure (fig_phistar_prediction);
 # showing it here as well duplicated the same curves in two places.
-PANELS = [("pT_ll", "atlas_pTll_born.npz", r"$p_T^{\ell\ell}$ [GeV]", "constrained")]
+PANELS = [("pT_ll", "atlas_pTll_born.npz", r"$p_\mathrm{T}^{\ell\ell}$ [GeV]", "constrained")]
 # pT_ll > 0 REQUIRES a real emission, so the inclusive Z calculation at NNLO
 # gives this observable at NLO(Z+jet) accuracy.  m_ll and |y_ll|, the Born
 # observables that are also constrained, are the NNLO ones.
-FO_LABEL = r"fixed order (NLO $Z$+jet)"
+FO_LABEL = r"fixed order, NLO $Z$+jet"
 # The NNLO Z+jet recoil (Stripper, R. Poncelet): the same Born towers, the pT_ll
 # tower replaced through the DY_RECOIL_XML hook of nnlojet_moments.  Its nine
 # moments (1-7% each) build the second MaxEnt curve; its direct pT_Z histogram
 # (ATLAS edges, 10-20% per bin below 85 GeV, 2-7% above) is drawn as the second
 # fixed-order curve from the seam up, his generation cut being pT_Z > 30 GeV.
 NNLO_XML = os.path.join(HERE, "ppzj-moments_NNLO.xml")
-FO2_LABEL = r"fixed order (NNLO $Z$+jet)"
+FO2_LABEL = r"fixed order, NNLO $Z$+jet"
 LAB_NLO = r"MaxEnt, NLO$(Zj)$ recoil"
 LAB_NNLO = r"MaxEnt, NNLO$(Zj)$ recoil"
 
@@ -100,14 +101,15 @@ def main():
         finally:
             os.environ.pop("DY_RECOIL_XML", None)
         src = M2["recoil"]["pT_ll"]["_source"]
-        print(f"  NNLO(Zj) recoil from {os.path.basename(src['file'])}: {src['n_orders']} orders, "
+        what = "window rate only, shape moments ours" if src.get("mode") == "rate_only" else f"{src.get('n_orders')} shape moments + rate"
+        print(f"  NNLO(Zj) input from {os.path.basename(src['file'])}: {what}; "
               f"W0 {src['W0_pb']:.2f} pb / sigma_fid {src['sigma_fid_pb']:.2f} pb -> R {M2['recoil']['pT_ll']['rate']:.4f}")
         res2 = upgrade(ev, M2, cfg)
         print(f"  NNLO(Zj) recoil: effN {100*res2.effN:.1f}%  closure {res2.closure:.2e}  "
               f"neg-wt {100*np.mean(res2.weights<=0):.1f}%  orders {res2.report['moment_selection']['chosen']}")
 
     # uncertainty variants: MaxEnt scale re-solves + bootstrap (moment_bands)
-    from bandviz import stagger
+    from bandviz import stagger, step_band
     mx_scale_w = mx_boot_w = None
     bwf = os.path.join(HERE, "dy_band_weights.npz")
     if os.path.exists(bwf):
@@ -127,8 +129,8 @@ def main():
 
     # Two ratio panels to the data: (r) the upgrade against its prior and the
     # fixed-order input; (r2) the upgrade against the matched generators.
-    fig, ax = plt.subplots(3, len(PANELS), figsize=(6.9 * len(PANELS), 10.6), squeeze=False,
-                           gridspec_kw={"height_ratios": [2.2, 1.0, 1.0], "hspace": 0.07,
+    fig, ax = plt.subplots(3, len(PANELS), figsize=(6.9 * len(PANELS), 8.8), squeeze=False,
+                           gridspec_kw={"height_ratios": [1.3, 1.0, 1.0], "hspace": 0.07,
                                         "wspace": 0.24})
     summary = {}
     summaryA = {}
@@ -138,6 +140,7 @@ def main():
         lo, hi = np.asarray(D["lo"], float), np.asarray(D["hi"], float)
         val, err = np.asarray(D["val"], float), np.asarray(D["err"], float)
         e = np.concatenate([lo[:1], hi]); ctr = np.asarray(D["center"], float)
+        band = lambda ax_, lo_, hi_, **kw: step_band(ax_, e, lo_, hi_, **kw)   # whole bins
         # Show only where the method makes a claim.  The recoil window closes
         # at XHI, so above it no fixed-order information is imposed at all and
         # the sample is the untouched prior; the prior also runs out of events
@@ -155,22 +158,23 @@ def main():
         medA = lambda h: 100 * np.median(np.abs(h[mA] / val[mA] - 1)) if mA.any() else float("nan")
 
         a.errorbar(ctr[m], val[m], yerr=err[m], fmt="o", color="k", ms=4, lw=1.1,
-                   label=r"ATLAS 1912.02844", zorder=10)
+                   label=r"ATLAS data", zorder=10)
         hp = dens(ev[key], ev["weight"], e)
         hq = dens(ev[key], res.weights, e)
         a.stairs(np.where(m, hp, np.nan), e, color=C["prior"], ls="--", lw=2.0,
-                 label=rf"PS+LO prior ({med(hp):.1f}\%)")
+                 label=r"LO+PS prior")
         a.stairs(np.where(m, hq, np.nan), e, color=C["maxent"], lw=3.2,
-                 label=rf"{LAB_NLO} ({med(hq):.1f}\%, $0\%\,w<0$)")
+                 label=LAB_NLO)
         hq2 = dens(ev[key], res2.weights, e) if res2 is not None else None
         if hq2 is not None:
-            a.stairs(np.where(m, hq2, np.nan), e, color=C["maxent_nnlo"], lw=3.2,
-                     label=rf"{LAB_NNLO} ({med(hq2):.1f}\%, $0\%\,w<0$)")
+            # thin on top of the thick red curve, so both stay visible
+            a.stairs(np.where(m, hq2, np.nan), e, color=C["maxent_nnlo"], lw=1.5, zorder=4,
+                     label=LAB_NNLO)
         r.stairs(np.where(m, hp / np.maximum(val, 1e-30), np.nan), e, color=C["prior"], ls="--", lw=1.8)
         for rr_ in (r, r2):
             rr_.stairs(np.where(m, hq / np.maximum(val, 1e-30), np.nan), e, color=C["maxent"], lw=2.6)
             if hq2 is not None:
-                rr_.stairs(np.where(m, hq2 / np.maximum(val, 1e-30), np.nan), e, color=C["maxent_nnlo"], lw=2.6)
+                rr_.stairs(np.where(m, hq2 / np.maximum(val, 1e-30), np.nan), e, color=C["maxent_nnlo"], lw=1.3, zorder=4)
         summary[key] = {"prior": med(hp), "MaxEnt": med(hq)}
         summaryA[key] = {"prior": medA(hp), "MaxEnt": medA(hq)}
         if hq2 is not None:
@@ -197,9 +201,8 @@ def main():
             hs = np.array([dens(ev[key], w_, e) for w_ in mx_scale_w])
             lo_, hi_ = np.minimum(hq, hs.min(0)), np.maximum(hq, hs.max(0))
             for rr_ in (r, r2):
-                rr_.fill_between(ctr, np.where(m, lo_ / vref, np.nan),
-                                 np.where(m, hi_ / vref, np.nan),
-                                 step="mid", color=C["maxent"], alpha=0.15, lw=0)
+                band(rr_, np.where(m, lo_ / vref, np.nan), np.where(m, hi_ / vref, np.nan),
+                     color=C["maxent"], alpha=0.15)
             boot = np.array([dens(ev[key], w_, e)
                              for w_ in mx_boot_w]).std(0, ddof=1)
             stat_bars(ev[key], res.weights, hq, C["maxent"], 1, extra=boot, axes=(r, r2))
@@ -207,12 +210,12 @@ def main():
             hs2 = np.array([dens(ev[key], w_, e) for w_ in mx2_scale_w])
             lo2, hi2 = np.minimum(hq2, hs2.min(0)), np.maximum(hq2, hs2.max(0))
             for rr_ in (r, r2):
-                rr_.fill_between(ctr, np.where(m, lo2 / vref, np.nan),
-                                 np.where(m, hi2 / vref, np.nan),
-                                 step="mid", color=C["maxent_nnlo"], alpha=0.15, lw=0)
-            boot2 = np.array([dens(ev[key], w_, e)
-                              for w_ in mx2_boot_w]).std(0, ddof=1)
-            stat_bars(ev[key], res2.weights, hq2, C["maxent_nnlo"], 2, extra=boot2, axes=(r, r2))
+                band(rr_, np.where(m, lo2 / vref, np.nan), np.where(m, hi2 / vref, np.nan),
+                     color=C["maxent_nnlo"], alpha=0.15)
+            # NO statistical bars on this curve: the statistical error of the
+            # nine NNLO(Z+jet) shape moments is not propagated (the input gives
+            # combined moments only), and bars from the window rate and Born
+            # seeds alone would understate it.  Its scale band stays.
         for kg, (lbl, fn, col, neg) in enumerate(GENS):
             p = os.path.join(HERE, fn)
             if not os.path.exists(p):
@@ -222,15 +225,13 @@ def main():
                 continue
             gx, gw = np.asarray(G[key], float), np.asarray(G["w"], float)
             hg = dens(gx, gw, e)
-            a.stairs(np.where(m, hg, np.nan), e, color=col, lw=1.9,
-                     label=rf"{lbl} ({med(hg):.1f}\%, ${neg}\%\,w<0$)")
+            a.stairs(np.where(m, hg, np.nan), e, color=col, lw=1.9, label=lbl)
             r2.stairs(np.where(m, hg / vref, np.nan), e, color=col, lw=1.7)
             if "w_scale" in G:
                 WS = gen_scale_weights(G)
                 hgs = np.array([dens(gx, WS[:, kk], e) for kk in range(WS.shape[1])])
-                r2.fill_between(ctr, np.where(m, np.minimum(hg, hgs.min(0)) / vref, np.nan),
-                                np.where(m, np.maximum(hg, hgs.max(0)) / vref, np.nan),
-                                step="mid", color=col, alpha=0.12, lw=0)
+                band(r2, np.where(m, np.minimum(hg, hgs.min(0)) / vref, np.nan),
+                     np.where(m, np.maximum(hg, hgs.max(0)) / vref, np.nan), color=col, alpha=0.12)
             stat_bars(gx, gw, hg, col, 3 + kg, axes=(r2,))
             summary[key][lbl] = med(hg)
             summaryA[key][lbl] = medA(hg)
@@ -280,15 +281,15 @@ def main():
                 rr_ = fn / vref
                 rb_ = fhalf / vref                        # BAND = scale only
                 rs_ = fst / vref                          # CANDLE = seed scatter
+                mp_ = m & np.isfinite(fn) & (fn > 0)
                 for ax_ in (r, r2):
-                    ax_.errorbar(0.5 * (e[:-1] + e[1:]), np.where(m, rr_, np.nan),
-                                 yerr=np.where(m, rs_, np.nan), fmt="none",
+                    ax_.errorbar(0.5 * (e[:-1] + e[1:]), np.where(mp_, rr_, np.nan),
+                                 yerr=np.where(mp_, rs_, np.nan), fmt="none",
                                  ecolor=C["fo"], elinewidth=1.0, capsize=1.6, alpha=0.8)
-                    ax_.stairs(np.where(m, rr_, np.nan), e,
+                    ax_.stairs(np.where(mp_, rr_, np.nan), e,
                                color=C["fo"], ls=":", lw=2.0)
-                    ax_.fill_between(ctr, np.where(m, rr_ - rb_, np.nan),
-                                     np.where(m, rr_ + rb_, np.nan),
-                                     step="mid", color=C["fo"], alpha=0.15, lw=0)
+                    band(ax_, np.where(mp_, rr_ - rb_, np.nan), np.where(mp_, rr_ + rb_, np.nan),
+                         color=C["fo"], alpha=0.15)
         if key == "pT_ll" and res2 is not None:
             # NNLO Z+jet fixed order (Stripper): the direct pT_Z histogram on the
             # data edges, normalised to OUR NNLO fiducial cross section at the
@@ -301,14 +302,18 @@ def main():
                 raise ValueError("Stripper pT_Z edges differ from the ATLAS edges")
             hn = np.where(e[:-1] >= XM - 1e-9, H["dens"], np.nan)
             hn_lo = np.minimum(hn, np.nanmin(H["members"], 0)); hn_hi = np.maximum(hn, np.nanmax(H["members"], 0))
-            a.stairs(np.where(hn > 0, hn, np.nan), e, color=C["fo"], ls="-.", lw=LW["fo"], label=FO2_LABEL)
-            for ax_ in (r,):      # the input panel only; r2 is the generator comparison
+            # drawn as points, in the input panel only (r2 is the generator
+            # comparison): its 10-21% per-bin errors stay fully visible without
+            # a connecting line pulling the eye.  Legend entry via a proxy.
+            a.errorbar([], [], yerr=[], fmt="o", ms=4, mfc="white", mec="k", color="k",
+                       elinewidth=1.0, capsize=0, label=FO2_LABEL)
+            for ax_ in (r,):
+                band(ax_, np.where(m, hn_lo / vref, np.nan), np.where(m, hn_hi / vref, np.nan),
+                     color=C["fo"], alpha=0.12)
                 ax_.errorbar(stagger(e, 5, NSER), np.where(m, hn / vref, np.nan),
-                             yerr=np.where(m, H["stat"] / vref, np.nan), fmt="none",
-                             ecolor=C["fo"], elinewidth=1.0, capsize=1.6, alpha=0.8)
-                ax_.stairs(np.where(m, hn / vref, np.nan), e, color=C["fo"], ls="-.", lw=2.0)
-                ax_.fill_between(ctr, np.where(m, hn_lo / vref, np.nan), np.where(m, hn_hi / vref, np.nan),
-                                 step="mid", color=C["fo"], alpha=0.15, lw=0)
+                             yerr=np.where(m, H["stat"] / vref, np.nan), fmt="o", ms=3.6,
+                             mfc="white", mec="k", mew=0.9, ecolor="0.25", elinewidth=1.0,
+                             capsize=0, zorder=2.6)
             relerr = H["stat"] / np.abs(H["dens"])
             print(f"  FO NNLO(Zj) pT_ll (Stripper): integral above the seam "
                   f"{np.nansum(np.where(e[:-1] >= XM, hn, 0) * np.diff(e)):.4f} of sigma_fid; "
@@ -317,7 +322,8 @@ def main():
                   f"above 200 GeV {100*np.max(relerr[(lo>=200)&(hi<=400)]):.0f}% at most")
         rel = err / np.maximum(val, 1e-30)
         for rr_ in (r, r2):
-            rr_.fill_between(ctr[m], (1 - rel)[m], (1 + rel)[m], color=C["band"], alpha=0.55, step="mid")
+            band(rr_, np.where(m, 1 - rel, np.nan), np.where(m, 1 + rel, np.nan),
+                 color=C["band"], alpha=0.55)
             rr_.axhline(1, color="k", lw=0.8)
         if key == "pT_ll":
             # the matching scale itself (exact on this axis); no window shading
@@ -332,18 +338,24 @@ def main():
         a.tick_params(labelbottom=False); r.tick_params(labelbottom=False)
         r.set_ylim(0.72, 1.28); r2.set_ylim(0.72, 1.28)
         # one clear title, no subtitles -- same convention as every other figure
-        a.set_title(rf"$p_T^{{\ell\ell}}$, {role} above the seam")
+        a.set_title(rf"$p_\mathrm{{T}}^{{\ell\ell}}$, {role} above the matching scale")
         r2.set_xlabel(lab)
-        r.text(0.02, 0.92, "upgrade vs prior and fixed order", transform=r.transAxes, fontsize=11, va="top")
-        r2.text(0.02, 0.92, "upgrade vs matched generators", transform=r2.transAxes, fontsize=11, va="top")
+        r.text(0.02, 0.93, "vs prior and fixed-order input", transform=r.transAxes, fontsize=14, va="top")
+        r2.text(0.02, 0.93, "vs matched generators", transform=r2.transAxes, fontsize=14, va="top")
+        for p_ in (a, r, r2):
+            p_.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v:g}"))
         if j == 0:
-            a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}X$")
+            a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}p_\mathrm{T}^{\ell\ell}$ [GeV$^{-1}$]")
             r.set_ylabel(r"ratio to data"); r2.set_ylabel(r"ratio to data")
-        a.legend(loc="lower left", fontsize=11.5, labelspacing=0.28)
+        hl, ll = a.get_legend_handles_labels()
+        keep = ["ATLAS data", FO_LABEL, FO2_LABEL, "LO+PS prior"]
+        pick = [(hl[ll.index(t)], t) for t in keep if t in ll]
+        a.legend([h for h, _ in pick], [t for _, t in pick], loc="lower left", fontsize=14,
+                 labelspacing=0.3, handlelength=1.2, handletextpad=0.5, borderaxespad=0.25)
     out = os.path.join(HERE, "fig_dy_eventlevel.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)
-    # James's suggestion (tail-only top panel) as a side-by-side variant, NOT the paper figure
+    # an alternative layout (tail-only top panel) as a side-by-side variant, NOT the paper figure
     ax[0, 0].set_ylim(top=1e-3); fig.savefig(out.replace(".pdf", "_crop.png"))
     for k, v in summary.items():
         print(f"  {k}: " + "  ".join(f"{a_}={b_:.2f}%" for a_, b_ in v.items()))

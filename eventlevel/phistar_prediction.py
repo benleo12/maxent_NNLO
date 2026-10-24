@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from pubstyle import use_pub_style, C, LW, gen_scale_weights
-use_pub_style()
+use_pub_style(base=17)     # the same type size and canvas as fig_dy_eventlevel (one PRL float)
 from maxent_upgrade import upgrade, check_seam
 from nnlojet_moments import (fo_moments_smooth_from_nnlojet, common_seeds,
                              fo_curve_band, fo_curve)
@@ -30,12 +30,12 @@ CH6 = ["LO", "R", "V", "RR", "RV", "VV"]
 # phi* > 0 REQUIRES a real emission, so from the inclusive Z calculation at
 # NNLO it is only NLO(Z+jet) accurate -- the Born observables m_ll and |y_ll|
 # are the NNLO ones.  Label the curve by the accuracy of THIS observable.
-FO_LABEL = r"fixed order (NLO $Z$+jet)"
+FO_LABEL = r"fixed order, NLO $Z$+jet"
 SEEDS = None     # resolved at run time to every channel-complete seed
 # Second upgrade: the same Born towers, the recoil from the NNLO Z+jet Stripper
 # calculation (DY_RECOIL_XML hook); phi* stays a pure follower in both.
 NNLO_XML = os.path.join(HERE, "ppzj-moments_NNLO.xml")
-FO2_LABEL = r"fixed order (NNLO $Z$+jet)"
+FO2_LABEL = r"fixed order, NNLO $Z$+jet"
 # NOT DRAWN (2026-09-23): his phietastar histogram carries only 3.5% of sigma_fid
 # above phi* = 0.391 against 10.6% in the data, 8.7% in the prior and 8.5% in our
 # NLO(Zj) fixed order, although 99.6% of those events have pT_ll > 30 GeV and his
@@ -73,7 +73,9 @@ def main():
         finally:
             os.environ.pop("DY_RECOIL_XML", None)
         res2 = upgrade(ev, M2, cfg())
-        print(f"  NNLO(Zj) recoil ({M2['recoil']['pT_ll']['_source']['n_orders']} orders, R {M2['recoil']['pT_ll']['rate']:.4f}): "
+        _src = M2["recoil"]["pT_ll"]["_source"]
+        _what = "rate only" if _src.get("mode") == "rate_only" else f"{_src.get('n_orders')} moments"
+        print(f"  NNLO(Zj) input ({_what}, R {M2['recoil']['pT_ll']['rate']:.4f}): "
               f"effN={100*res2.effN:.1f}%  closure={res2.closure:.1e}  neg-wt={100*np.mean(res2.weights<=0):.0f}%", flush=True)
 
     D = dict(np.load(os.path.join(HERE, "atlas_phistar_born.npz")))
@@ -152,7 +154,7 @@ def main():
             print("  WARNING: dy_band_weights_nnloZj.npz stale; no bands on the NNLO(Zj) curve")
 
     # (label, x, w, w_scale|None, boot|None, color, ls, neg%)
-    series = [(r"PS+LO prior", ev["phistar"], ev["weight"], None, None,
+    series = [(r"LO+PS prior", ev["phistar"], ev["weight"], None, None,
                "0.55", "--", None),
               (LAB_NLO, ev["phistar"], res.weights, mx_ws, mx_boot,
                C["maxent"], "-", 0)]
@@ -172,27 +174,29 @@ def main():
 
     # Two ratio panels to the data: (r) the upgrade against its prior and the
     # fixed order; (r2) the upgrade against the matched generators.
-    fig, ax = plt.subplots(3, 1, figsize=(8.6, 11.2),
-                           gridspec_kw={"height_ratios": [2.3, 1.0, 1.0], "hspace": 0.06})
+    fig, ax = plt.subplots(3, 1, figsize=(6.9, 8.8),
+                           gridspec_kw={"height_ratios": [1.3, 1.0, 1.0], "hspace": 0.07})
     a, r, r2 = ax
     rel = err / np.maximum(val, 1e-30)
     a.errorbar(ctr[msk], val[msk], yerr=err[msk], fmt="o", color="k", ms=5, lw=1.2,
-               label=r"ATLAS 1912.02844", zorder=10)
+               label=r"ATLAS data", zorder=10)
     if fo_h is not None:
         # Drawn everywhere at full strength: where fixed order fails (small
         # phi*, unresummed logarithms) the curve simply leaves the data, and
         # the reader sees it, without any boundary being drawn.
-        above = np.ones(len(ctr), bool)
+        # drawn at full strength wherever it is positive; masked where it is
+        # negative (phi* < 0.012, unresummed), which a log axis cannot show
+        above = np.isfinite(fo_h) & (fo_h > 0)
         for p_, h_ in ((a, fo_h), (r, fo_h / np.maximum(val, 1e-30)), (r2, fo_h / np.maximum(val, 1e-30))):
-            p_.stairs(np.where(msk, h_, np.nan), e, color="k", ls=":",
+            p_.stairs(np.where(msk & above, h_, np.nan), e, color="k", ls=":",
                       lw=LW["fo"], label=(FO_LABEL if p_ is a else None))
         # its own scale (+) stat band, same convention as every other curve
         rrat = fo_h / np.maximum(val, 1e-30)
         rband = fo_scale / np.maximum(val, 1e-30)
+        from bandviz import step_band
         for rr_ in (r, r2):
-            rr_.fill_between(ctr, np.where(msk & above, rrat - rband, np.nan),
-                             np.where(msk & above, rrat + rband, np.nan),
-                             step="mid", color="k", alpha=0.15, lw=0)
+            step_band(rr_, e, np.where(msk & above, rrat - rband, np.nan),
+                      np.where(msk & above, rrat + rband, np.nan), color="k", alpha=0.15)
             # CANDLE = the fixed order's own seed scatter, the same split every
             # other curve on this panel uses (band = scale, bars = statistics)
             rr_.errorbar(ctr, np.where(msk & above, rrat, np.nan),
@@ -212,19 +216,27 @@ def main():
     nser = len(series)
     for k, (lbl, x, w, ws, boot, col, ls, neg) in enumerate(series):
         h = norm_dens(x, w, e)
-        lw = 3.2 if "MaxEnt" in lbl else 1.9
-        leg = (rf"{lbl} ({med(h):.1f}\%)" if neg is None
-               else rf"{lbl} ({med(h):.1f}\%, {neg}\% $w<0$)")
-        a.stairs(np.where(msk, h, np.nan), e, color=col, ls=ls, lw=lw, label=leg)
+        nnlo_zj = lbl == LAB_NNLO
+        # thick red underneath, thin orange on top, so both stay visible
+        lw = (1.5 if nnlo_zj else 3.2) if "MaxEnt" in lbl else 1.9
+        leg = lbl      # names only: Table I carries the medians and f
+        a.stairs(np.where(msk, h, np.nan), e, color=col, ls=ls, lw=lw, label=leg,
+                 zorder=(4 if nnlo_zj else 2))
         # prior -> upper ratio; generators -> lower ratio; the upgrade on both
         targets = (r, r2) if "MaxEnt" in lbl else ((r,) if "prior" in lbl else (r2,))
         for rr_ in targets:
-            rr_.stairs(np.where(msk, h / np.maximum(val, 1e-30), np.nan), e, color=col, ls=ls, lw=lw)
-            # scale band (translucent, this sample's 7-point) + staggered stat bars
+            rlw = (1.3 if nnlo_zj else 2.6) if "MaxEnt" in lbl else lw
+            rr_.stairs(np.where(msk, h / np.maximum(val, 1e-30), np.nan), e, color=col, ls=ls, lw=rlw,
+                       zorder=(4 if nnlo_zj else 2))
+            # scale band (translucent, this sample's 7-point) + staggered stat bars;
+            # the NNLO(Z+jet)-recoil curve keeps its scale band but has no stat
+            # bars (its input's shape-moment statistics are not propagated)
             draw_series_unc(rr_, x, w, ws, e, np.where(msk, val, np.nan), col, k, nser,
-                            boot=boot, alpha=0.13)
+                            boot=boot, alpha=0.13, bars=not nnlo_zj, edge_to_edge=True)
     for rr_ in (r, r2):
-        rr_.fill_between(ctr[msk], (1 - rel)[msk], (1 + rel)[msk], color=C["band"], alpha=0.5, step="mid")
+        from bandviz import step_band
+        step_band(rr_, e, np.where(msk, 1 - rel, np.nan), np.where(msk, 1 + rel, np.nan),
+                  color=C["band"], alpha=0.5)
         rr_.axhline(1, color="k", lw=0.8)
     # NO seam marker on phi*: phi* ~ a_T/m with a_T <= pT_ll, so the matching
     # scale has no sharp image here (dropped 2026-09-06).
@@ -239,16 +251,19 @@ def main():
     r.set_ylim(0.80, 1.20); r2.set_ylim(0.80, 1.20)
     a.set_ylabel(r"$(1/\sigma)\,\mathrm{d}\sigma/\mathrm{d}\phi^*_\eta$")
     r.set_ylabel(r"ratio to data"); r2.set_ylabel(r"ratio to data"); r2.set_xlabel(r"$\phi^*_\eta$")
-    r.text(0.02, 0.92, "upgrade vs prior and fixed order", transform=r.transAxes, fontsize=11, va="top")
-    r2.text(0.02, 0.92, "upgrade vs matched generators", transform=r2.transAxes, fontsize=11, va="top")
+    r.text(0.02, 0.93, "vs prior and fixed-order input", transform=r.transAxes, fontsize=14, va="top")
+    r2.text(0.02, 0.93, "vs matched generators", transform=r2.transAxes, fontsize=14, va="top")
     x0 = e[e > 0].min(); a.set_xlim(x0, e[-1]); r.set_xlim(x0, e[-1]); r2.set_xlim(x0, e[-1])
-    a.legend(loc="lower left", bbox_to_anchor=(0.015, 0.015), handlelength=1.4,
-             labelspacing=0.28, borderaxespad=0.0)
+    hl, ll = a.get_legend_handles_labels()
+    keep = [LAB_NLO, LAB_NNLO, r"MiNNLO$_{\mathrm{PS}}$", r"MC@NLO", r"POWHEG"]
+    pick = [(hl[ll.index(t)], t) for t in keep if t in ll]
+    a.legend([h for h, _ in pick], [t for _, t in pick], loc="lower left", fontsize=14,
+             handlelength=1.6, labelspacing=0.3, borderaxespad=0.4)
     a.set_title(r"$\phi^*_\eta$, never constrained")
     out = os.path.join(HERE, "fig_phistar_prediction.pdf")
     fig.savefig(out); fig.savefig(out.replace(".pdf", ".png"))
     print("wrote", out)
-    # James's suggestion (tail-only top panel) as a side-by-side variant, NOT the paper figure
+    # an alternative layout (tail-only top panel) as a side-by-side variant, NOT the paper figure
     a.set_ylim(top=1e-2); fig.savefig(out.replace(".pdf", "_crop.png"))
     for lbl, x, w, *_ in series:
         print(f"  {lbl:14s} med|ratio-1| = {med(norm_dens(x, w, e)):5.2f}%")

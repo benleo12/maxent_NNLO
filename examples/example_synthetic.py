@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Zero-dependency demo of maxent_upgrade: synthetic PS+LO prior + synthetic FO histograms.
-Runs in seconds, needs no external data. Shows the full API and the moment-SNR selection.
+"""LEGACY histogram interface (upgrade_from_histograms): a synthetic LO+PS prior and
+synthetic fixed-order histograms at two orders.  Runs in seconds, needs no data.
+
+This is the earlier, histogram-based variant of the construction, kept for users who only
+have binned fixed-order output; the papers use the event-level interface instead
+(examples/example_moments.py, examples/upgrade_with_released_moments.py).
 """
 import numpy as np
 import sys, os

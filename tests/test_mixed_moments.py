@@ -18,9 +18,9 @@ import sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))          # the repository root, if not pip-installed
 from maxent_upgrade import upgrade, profile_w
-from maxent_upgrade.dy_method import cheb as _cheb, umap as _umap
+from maxent_upgrade.basis import cheb as _cheb, umap as _umap
 
 LO, HI = 10.0, 1000.0
 PA, PB, PC = 30.0, 60.0, 1000.0
@@ -95,6 +95,11 @@ def main():
     ok = worst < 1e-3
     print(f"\nworst relative miss {worst:.2e} -> {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
+
+
+def test_closure():
+    """pytest entry point: the solver recovers a known tilt to better than 1e-3."""
+    assert main() == 0
 
 
 if __name__ == "__main__":
