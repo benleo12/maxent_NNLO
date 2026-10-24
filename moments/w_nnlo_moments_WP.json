@@ -80,7 +80,12 @@
    "RR",
    "RV",
    "VV"
-  ]
+  ],
+  "conventions": {
+   "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "sigma_fid": "the mean over the runs of the per-run cross section"
+  }
  },
  "towers": {
   "m_w": {
@@ -378,9 +383,9 @@
     "b": 50.0,
     "c": 500.0
    },
-   "window_rate": 0.08459925262848948,
+   "window_rate": 0.08459973262160078,
    "window_rate_stat": 8.581167229112408e-05,
-   "window_rate_scale": 0.006110125039742273,
+   "window_rate_scale": 0.006110394157098957,
    "matching_scale_rule": true
   },
   "ctw_window": {
@@ -441,9 +446,9 @@
     "c": 1.6,
     "d": 1.7
    },
-   "window_rate": 0.8017704882715058,
+   "window_rate": 0.8017744910314212,
    "window_rate_stat": 0.0003060584797079863,
-   "window_rate_scale": 0.0018130669160540958,
+   "window_rate_scale": 0.0018149236051890338,
    "matching_scale_rule": false
   },
   "ctw_full": {
@@ -604,9 +609,9 @@
     "4,4": "prof_ptwctw_44"
    },
    "denominator_tag": "prof_wptwctw_0",
-   "window_rate": 0.07014287809672501,
+   "window_rate": 0.07014317674688561,
    "window_rate_stat": 8.220154238609321e-05,
-   "window_rate_scale": 0.005056187797928789
+   "window_rate_scale": 0.005056365125145984
   }
  },
  "default_constraints": {

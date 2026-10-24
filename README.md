@@ -94,9 +94,8 @@ Details are in [`moments/README.md`](moments/README.md).
 The statistical price is the Kish effective sample size, reported as `result.effN` and
 `result.effN_retained`. On the paper's priors, with the released tables, it is 99.9% for
 Drell-Yan, 99.8% for W+ and W- (99.7% with the optional decay-angle window) and 88.2% for
-gluon-fusion Higgs production. The merged diphoton prior keeps 94.85% of its own effective
-count; the paper quotes 94.9%, from a solve that averaged the window rate over the runs where
-the tables pool it ([`moments/README.md`](moments/README.md), "Window rates").
+gluon-fusion Higgs production. The merged diphoton prior keeps 94.9% of its own effective
+count. The tables reproduce the paper's weights ([`REPRODUCE.md`](REPRODUCE.md)).
 
 ## How it works (the six steps of the figure)
 
@@ -152,7 +151,9 @@ How the tables are stored:
 - `moments/<name>_runs.json.gz` holds the channel-summed fixed-order accumulators of every
   independent run at all seven scales, so that any scale choice or any resample of the runs can
   be pooled again (`load_moments(p, scale=k)`, `load_moments(p, runs=...)`).
-- Pooling all runs reproduces every released number.
+- Pooling all runs reproduces every released number: the moments as the ratio of summed
+  accumulators, the window rates as the mean of the per-run rates (the convention of the paper's
+  solves; `provenance.conventions` in each table says so).
 - For `ggh` and `aa`, `moments/<name>_winvar.json` (with its CSV and per-run file) holds the
   recoil tower booked with three other matching windows, rising over about [⅔ v_m, ⁴⁄₃ v_m]
   (A), [⁴⁄₃ v_m, ⁸⁄₃ v_m] (B) and [v_m, 4 v_m] (C). `load_moments(p, window="A")` returns the
@@ -290,9 +291,10 @@ The error bar combines 2 and 4 in quadrature. Every variant uses:
   imposes the same constraint set;
 - `lam0` = the central `report["lam"]`.
 
-For Drell-Yan, the six scale re-solves from the released tables reproduce the weights behind
-the paper's bands to 2.4 × 10⁻⁵, and the window variants of the Higgs and diphoton tables
-reproduce the paper's variant weights to 3 × 10⁻¹¹ ([`REPRODUCE.md`](REPRODUCE.md)).
+The released tables reproduce the paper's weights: the central solves to 2 × 10⁻¹¹ or better,
+the window variants of the Higgs and diphoton tables bit for bit, and the scale and bootstrap
+re-solves, whose targets are identical to the paper's, to between 10⁻¹³ and 1.5 × 10⁻⁶: the
+larger differences are the solver's own stopping tolerance ([`REPRODUCE.md`](REPRODUCE.md)).
 
 ## Moments from your own fixed-order code
 

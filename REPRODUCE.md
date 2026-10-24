@@ -30,67 +30,56 @@ large, nor the scripts that draw the paper's figures.
 
 Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
 paper's own prior, and compared with the numbers of the paper and, where the paper's solve
-stored them, its weights. "Tables" are the released tables as they are; "paper's rates" replaces
-each window rate by the convention of the paper's solves (see the note below the table). Effective
-statistics are N_eff/N, or for the sliced diphoton priors the retained fraction N_eff/N_eff^p.
+stored them, its weights. Effective statistics are N_eff/N, or for the sliced diphoton priors
+the retained fraction N_eff/N_eff^p.
 
-| solve | `load_moments` call | paper | this release (tables) | max \|q/q_paper − 1\|: tables / paper's rates |
+| solve | `load_moments` call | paper | this release | max \|q/q_paper − 1\| |
 |---|---|---|---|---|
-| Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.5 × 10⁻⁵ / 2.9 × 10⁻¹³ |
-| Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | 2.4 × 10⁻⁵ / 8.8 × 10⁻¹¹ |
-| Drell-Yan, 20 bootstrap re-solves | `"dy", runs=...` | | | 2.3 × 10⁻⁵ / – |
+| Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.7 × 10⁻¹⁴ |
+| Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | ≤ 2.3 × 10⁻¹³; scale 4: 6.9 × 10⁻⁸ |
+| Drell-Yan, 20 bootstrap re-solves | `"dy", runs=...` | | | ≤ 2.0 × 10⁻¹³ |
 | Drell-Yan, linear mass map | `"dy"`, `mll` map `"lin"` | 10.8% | 10.80% | |
-| W+ | `"wp"` | 99.8% | 99.762%; closure 5.2 × 10⁻⁴; max pull 0.026 | 6.2 × 10⁻⁶ / 1.5 × 10⁻¹² |
-| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 3.1 × 10⁻⁵ / 3.2 × 10⁻¹² |
-| W- | `"wm"` | 99.8% | 99.750%; closure 5.2 × 10⁻⁴; max pull 0.024 | 6.2 × 10⁻⁶ / 8.2 × 10⁻¹³ |
-| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 2.8 × 10⁻⁵ / 1.8 × 10⁻¹² |
-| W±, six scale re-solves each | `"wp"`, `"wm"`, `scale=k` | | | 4.9 × 10⁻⁵ / – |
-| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 8.0 × 10⁻⁸ / 3.6 × 10⁻¹² |
-| gg → H, six scale re-solves | `"ggh", scale=k` | | | 2.6 × 10⁻⁷ / – |
-| gg → H, windows A, B, C | `"ggh", window=V` | matching band | 84.43%, 91.13%, 92.30% | 2.8 × 10⁻¹¹ (the same in both) |
-| diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | **94.85%**; [0.540, 2.617] | 6.3 × 10⁻³ / 7.6 × 10⁻¹³ |
-| diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 1.3 × 10⁻¹² (the same in both) |
-| diphoton, 2 → 2 prior | `"aa"`, `moment_selection=False` | 4.0%; tilts up to 3 × 10⁴ | 3.97%; up to 3.1 × 10⁴ | 1.3 × 10⁻² / 2.6 × 10⁻¹² |
-| Z+jet, jet towers | `"zj", mixed=[]` | 61.7% | 61.666% | no stored weights |
-| Z+jet, + 16 joint moments | `"zj"` | 35.9%; closure 6 × 10⁻² | 35.877%; 6.12 × 10⁻² | no stored weights |
-| Z+jet, + acoplanarity tower | `"zj", recoil=["ptj1", "ptj2", "pimdphi"]` | 35.3% | 35.337%; 6.20 × 10⁻² | no stored weights |
+| W+ | `"wp"` | 99.8% | 99.762%; closure 5.2 × 10⁻⁴; max pull 0.026 | 5.2 × 10⁻¹⁴; scale re-solves ≤ 2.4 × 10⁻¹²; bootstrap ≤ 1.3 × 10⁻⁶ |
+| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 1.5 × 10⁻¹³; scale ≤ 4.2 × 10⁻¹³; bootstrap ≤ 2.1 × 10⁻⁷ |
+| W- | `"wm"` | 99.8% | 99.750%; closure 5.2 × 10⁻⁴; max pull 0.024 | 1.2 × 10⁻¹³; scale ≤ 1.2 × 10⁻⁷; bootstrap ≤ 1.5 × 10⁻⁶ |
+| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 2.5 × 10⁻¹²; scale ≤ 7.5 × 10⁻¹³; bootstrap ≤ 1.3 × 10⁻⁶ |
+| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 2.6 × 10⁻¹²; scale ≤ 1.1 × 10⁻¹¹ (scale 6: 1.9 × 10⁻⁷); bootstrap ≤ 9.8 × 10⁻¹² |
+| gg → H, windows A, B, C | `"ggh", window=V` | matching band | 84.43%, 91.13%, 92.30% | 0 (bit for bit) |
+| diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | 94.868%; [0.541, 2.615]; max pull 0.013 | 0 (bit for bit) |
+| diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 0 (bit for bit) |
+| diphoton, 2 → 2 prior | `"aa"`, `moment_selection=False` | 4.0%; tilts up to 3 × 10⁴ | 3.951%; up to 3.1 × 10⁴ | 1.5 × 10⁻¹¹ |
+| Z+jet, jet towers | `"zj", mixed=[]` | 61.7% | 61.664% (the paper's stored value to 4 × 10⁻¹⁴) | no stored weights |
+| Z+jet, + 16 joint moments | `"zj"` | 35.9%; closure 6 × 10⁻² | 35.876% (to 1.4 × 10⁻¹³); 6.12 × 10⁻² | no stored weights |
+| Z+jet, + acoplanarity tower | `"zj", recoil=["ptj1", "ptj2", "pimdphi"]` | 35.3% | 35.335%; 6.20 × 10⁻² | no stored weights |
 
-For Z+jet, the sixteen joint moments reached by the two solves agree with the paper's to
-4 × 10⁻⁴ of their uncertainty: up to 3.74σ from fixed order with the jet towers alone (3.7σ in
-the paper) and within 0.41σ with the joint moments imposed (0.4σ). For Drell-Yan the standard
-deviation of ln(q/p) is 0.025, as in the paper. The closures of all these solves are below 10⁻³
-except for Z+jet. Closure and max pull are taken over the moments; `describe()` prints the
-window shares separately (the share above the Drell-Yan recoil cut, for instance, is met to
-0.78 of its Monte Carlo error).
+For Z+jet, the sixteen joint moments reached by the two solves agree with the paper's stored
+values to 10⁻¹² of their uncertainty: up to 3.74σ from fixed order with the jet towers alone
+(3.7σ in the paper) and within 0.41σ with the joint moments imposed (0.4σ). For Drell-Yan the
+standard deviation of ln(q/p) is 0.025, as in the paper. The closures of all these solves are
+below 10⁻³ except for Z+jet. Closure and max pull are taken over the moments; `describe()`
+prints the window shares separately (the share above the Drell-Yan recoil cut, for instance, is
+met to 0.78 of its Monte Carlo error).
 
-**Window rates.** The paper's solves took each window rate as the mean over the runs of the
-per-run rate; the tables pool the rate as the ratio of summed accumulators, like every other
-number. Under the blend the rate enters every recoil target. Only the merged diphoton prior
-moves a quoted number at its printed precision: 94.85% with the tables, 94.87% (94.9%) in the
-paper. To use the paper's convention, replace the rate before the solve:
+**Re-solves.** The targets of the scale and bootstrap re-solves, pooled from the per-run files,
+are bit-identical to those of the paper's own solves (checked for the worst cases above). The
+re-solves start from the central multipliers (`lam0`) and hold its orders (`fixed_orders`), as
+in `examples/bands_with_released_moments.py`; the bootstrap replicas of the paper drew
+`np.random.default_rng(1).choice(n_runs, n_runs)` positions per replica. Where a re-solve
+differs from the paper's stored band weights by more than 10⁻¹¹, the difference is the solver's
+own stopping tolerance (a dual gradient below 10⁻⁶ in standardized units): the same targets
+solved from another starting point differ by as much (1.9 × 10⁻⁷ for the Higgs scale 6,
+6.6 × 10⁻⁸ for the Drell-Yan scale 4), and both solutions meet the constraints equally well.
 
-```python
-import gzip, json, numpy as np
-from maxent_upgrade import upgrade, load_moments
-
-moments, config = load_moments("aa")
-r = json.load(gzip.open("moments/aa_nnlo_moments_runs.json.gz", "rt"))
-A, tag = np.array(r["acc"]), r["tags"].index
-rate = float(np.mean(A[:, tag("prof_wpt_0"), 0] / A[:, tag("norm_born"), 0]))   # central scale
-moments["recoil"]["pt_aa"]["rate"] = moments["recoil"]["pt_aa"]["wprofile_rate"] = rate
-```
-
-The denominator tag of each window tower is its `denominator_tag` in the table.
+**Window rates.** Each table takes a window rate as the mean over the runs of the per-run rate,
+the convention of the paper's solves, and pools the moments as the ratio of summed
+accumulators (`provenance.conventions` in each table). Pooling the rate too would change no
+other number at its printed precision, but would move the merged diphoton prior from 94.87% to
+94.85%. A window variant's rate is the ratio of two run means (variant runs, main runs).
 
 **Orders imposed.** The paper's diphoton, Higgs and Z+jet solves imposed every booked order
 (`moment_selection=False`). On the paper's priors the default resolution criterion selects
 every booked order anyway, except on the 2 → 2 diphoton prior, where it drops the sixth
 \|cos θ*\| order (the default solve then retains 4.4%).
-
-**Re-solves.** The scale, bootstrap and window re-solves hold the central solve's orders
-(`fixed_orders`) and start from its multipliers (`lam0`), as in
-`examples/bands_with_released_moments.py`. The bootstrap replicas of the paper drew
-`np.random.default_rng(1).choice(n_runs, n_runs)` positions per replica.
 
 ## The priors
 

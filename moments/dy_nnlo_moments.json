@@ -338,7 +338,12 @@
    "RR",
    "RV",
    "VV"
-  ]
+  ],
+  "conventions": {
+   "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "sigma_fid": "the mean over the runs of the per-run cross section"
+  }
  },
  "towers": {
   "mll": {
@@ -636,9 +641,9 @@
     "b": 60.0,
     "c": 500.0
    },
-   "window_rate": 0.10300518242096668,
+   "window_rate": 0.10300664589632957,
    "window_rate_stat": 3.273778789392894e-05,
-   "window_rate_scale": 0.00691122003202263,
+   "window_rate_scale": 0.006911983673468632,
    "matching_scale_rule": true
   },
   "abs_costh": {

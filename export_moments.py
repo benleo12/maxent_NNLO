@@ -13,7 +13,8 @@ with maxent_upgrade.load_moments):
 
   process, order, sqrt_s_TeV, pdf, ew_scheme, scale, fiducial, n_independent_runs, channels
   provenance          {nnlojet, run_directory, run_name, runcard, n_runs, seeds, channels
-                       [, decay_type]}: where the numbers come from
+                       [, decay_type], conventions}: where the numbers come from and how the
+                       runs are combined
   hard_scale_GeV      Q of the matching-scale rule alpha_s(pT) ln^2(Q/pT) < 0.2
   sigma_fid_pb        {value, stat, scale_lo, scale_hi[, note]}: the fixed-order cross section
                       of the production inside its selection (inclusive for the Higgs boson)
@@ -53,7 +54,10 @@ Definitions (all on the fixed-order phase-space points, weight = dsigma):
           (or a C^2 fall between c and d when d is given).
   values = pooled over the independent runs (ratio of summed numerators to summed denominators),
   stat = run-to-run scatter / sqrt(n_runs), scale = half-range over the seven-point variation.
-  Window rates are pooled the same way (ratio of sums).
+  Window rates = the mean over the runs of the per-run rate <w>/sigma_fid, the convention of the
+  paper's solves (stat = run-to-run scatter / sqrt(n_runs), scale = half-range of that mean over
+  the seven scales).  A window-variant rate is (mean of W0_V over the variant runs) / (mean of
+  sigma_fid over the main runs): the two come from different runs.
 """
 import glob
 import gzip
@@ -69,6 +73,17 @@ ROOT = os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2"))
 WINVAR_ROOT = os.environ.get("NNLOJET_WINVAR_ROOT", os.path.join(os.path.dirname(ROOT), "nnlojet-winvar", "runs"))
 OUT = os.environ.get("MOMENTS_OUT") or os.path.join(HERE, "moments")
 NNLOJET = "NNLOJET v1.0.2 with the patch in nnlojet_patch/ (event-level moment accumulators)"
+CONVENTIONS = dict(
+    moments="pooled over the runs: the ratio of the summed numerator and denominator accumulators; "
+            "stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+    window_rate="the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; "
+                "stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+    sigma_fid="the mean over the runs of the per-run cross section")
+CONVENTIONS_WINVAR = dict(
+    moments=CONVENTIONS["moments"],
+    window_rate="(the mean over the variant runs of W0_V) / (the mean over the main runs of sigma_fid), at each scale: "
+                "the two come from different runs; stat from the two independent means; scale = half-range over "
+                "the seven scales")
 MZ, GZ = 91.1876, 2.4952
 MW, GW = 80.385, 2.085
 NNLO = ["LO", "R", "V", "RR", "RV", "VV"]
@@ -297,16 +312,19 @@ def booked_orders(base, run, ch0, prefix, tag):
 
 
 def rate(base, run, ch, seeds, prefix, wtag):
-    """Window rate <w>/sigma_fid pooled over the runs (ratio of sums), its run-to-run error and
-    its seven-point half-range."""
-    ps, W, N = [], None, None
+    """Window rate <w>/sigma_fid as the paper's solves took it: the mean over the runs of the
+    per-run rate (central scale), its run-to-run error, and the half-range over the seven scales
+    of the per-run mean."""
+    per = []
     for s in seeds:
         w = _sum_channels(base, run, ch, wtag, s, prefix); n = _sum_channels(base, run, ch, "norm_born", s, prefix)
         if w is None or n is None:
             continue
-        ps.append(w[0] / n[0]); W = w.copy() if W is None else W + w; N = n.copy() if N is None else N + n
-    pooled = W / N
-    return float(pooled[0]), float(np.std(ps, ddof=1) / np.sqrt(len(ps))), float(0.5 * (pooled[:7].max() - pooled[:7].min()))
+        per.append(w[:7] / n[:7])
+    per = np.asarray(per, float)                                  # (run, scale)
+    mean = per.mean(0)
+    return (float(np.mean(per[:, 0])), float(np.std(per[:, 0], ddof=1) / np.sqrt(len(per))),
+            float(0.5 * (mean.max() - mean.min())))
 
 
 def _bin_width(base, run, ch0, prefix):
@@ -327,8 +345,9 @@ def _write(name, out, rows, runs):
 
 
 def _acc(base, run, ch, seeds, tags, prefix, nsc):
-    """acc[run][tag][scale]: every accumulator, summed over the channels of each run (12 digits)."""
-    return [[[float(f"{x:.12g}") for x in _sum_channels(base, run, ch, g, s, prefix)[:nsc]] for g in tags] for s in seeds]
+    """acc[run][tag][scale]: every accumulator, summed over the channels of each run, at full double
+    precision (the channels can cancel, so rounding the sum would lose digits the pooled moments use)."""
+    return [[[float(x) for x in _sum_channels(base, run, ch, g, s, prefix)[:nsc]] for g in tags] for s in seeds]
 
 
 def export(name):
@@ -337,7 +356,8 @@ def export(name):
     out = dict(S["meta"]); out.update(n_independent_runs=len(seeds), channels=ch, scales=S["scales"])
     out["provenance"] = dict(nnlojet=NNLOJET, run_directory=S["base"], run_name=run, runcard=S["runcard"],
                              n_runs=len(seeds), seeds=[int(x) for x in seeds], channels=ch,
-                             **({"decay_type": S["decay_type"]} if "decay_type" in S else {}))
+                             **({"decay_type": S["decay_type"]} if "decay_type" in S else {}),
+                             conventions=CONVENTIONS)
     out.update(towers={}, joint={}, default_constraints=S["default"])
     acc_tags = ["norm_born"]                     # every accumulator a table entry is pooled from
     # cross section: norm_born is a one-bin histogram, sigma = value x width (fb -> pb), seed mean
@@ -420,7 +440,8 @@ def export_winvar(name):
                              **({"decay_type": W["decay_type"]} if "decay_type" in W else {}),
                              vegas_grids=f"warm-up grids copied from the main run {M['base']} (runcards/README.md)",
                              rate_denominator=dict(run_directory=M["base"], run_name=M["run"], runcard=M["runcard"],
-                                                   seeds=[int(x) for x in ref_seeds], channels=M["ch"], tag="norm_born"))
+                                                   seeds=[int(x) for x in ref_seeds], channels=M["ch"], tag="norm_born"),
+                             conventions=CONVENTIONS_WINVAR)
     nom = main["towers"][W["tower"]]
     out["windows"] = {}
     rows = ["window,tower,observable,map,lo,hi,a,b,c,order,value,stat,scale"]
@@ -446,7 +467,8 @@ def export_winvar(name):
         for i in range(12):
             rows.append(f"{V},{W['tower']},{nom['observable']},{nom['map']},{nom['range'][0]:g},{nom['range'][1]:g},{a:g},{b:g},{prof['c']:g},"
                         f"{i + 1},{v[i]:.8g},{st[i]:.3g},{sc[i]:.3g}")
-    # the nominal window booked in the same runs must reproduce the main table
+    # the nominal window booked in the same runs must reproduce the main table (rates compared
+    # in one convention: ratio of run means, as for the variants)
     nt = [f"{W['tag']}_{n}" for n in range(13)]
     if common_seeds(base, run, REAL, nt, prefix) == seeds:
         pulls = []
@@ -454,13 +476,15 @@ def export_winvar(name):
             c, s_, _, _ = _reduce(_moment_over_seeds(base, run, REAL, seeds, nt[n], nt[0], prefix))
             pulls.append((c - nom["values"][n - 1]) / np.hypot(s_, nom["stat_errors"][n - 1]))
         Wn = np.array([_sum_channels(base, run, REAL, nt[0], s, prefix)[:nsc] for s in seeds]).mean(0)
+        Wm_main = np.array([_sum_channels(ref_base, M["run"], M["ch"], nom["denominator_tag"], s, prefix)[:nsc]
+                            for s in ref_seeds]).mean(0)
         out["validation"] = (f"the nominal window booked in the same runs reproduces the main table: worst pull "
-                             f"{max(abs(x) for x in pulls):.2f} over the 12 orders, window rate {Wn[0] / Sm[0]:.5f} "
-                             f"against {nom['window_rate']:.5f}")
+                             f"{max(abs(x) for x in pulls):.2f} over the 12 orders; window rate (ratio of run means) "
+                             f"{Wn[0] / Sm[0]:.5f} against {Wm_main[0] / Sm[0]:.5f} in the main run")
     runs = dict(process=out["process"], runs=[int(x) for x in seeds], scales=M["scales"], channels=REAL, tags=tags,
                 acc=_acc(base, run, REAL, seeds, tags, prefix, nsc),
                 reference=dict(run_directory=M["base"], runs=[int(x) for x in ref_seeds], channels=M["ch"], tag="norm_born",
-                               acc=[[float(f"{x:.12g}") for x in row] for row in S]))
+                               acc=[[float(x) for x in row] for row in S]))
     _write(W["file"], out, rows, runs)
     print(f"{name}: {W['file']}: {len(seeds)} runs; " + "; ".join(
         f"{V} ({a:g},{b:g}) R = {out['windows'][V]['window_rate']:.5f}" for V, (a, b) in W["windows"].items())

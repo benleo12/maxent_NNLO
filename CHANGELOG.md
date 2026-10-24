@@ -49,11 +49,16 @@ processes*. Two things in 1.0.0 did not:
   recoil tower booked with that window; `released.windows(process)` lists them.
 - Every table records its provenance: NNLOJET run directory, run name, run card, seeds and
   channels (and `decay_type` for the Higgs boson).
-- Per-run, per-scale accumulators of every table (`<name>_runs.json.gz`), from which
-  `load_moments(process, scale=k)` and `load_moments(process, runs=positions)` pool the scale
-  variants and bootstrap replicas of the paper's bands.
+- Per-run, per-scale accumulators of every table (`<name>_runs.json.gz`, channel sums at full
+  double precision), from which `load_moments(process, scale=k)` and
+  `load_moments(process, runs=positions)` pool the scale variants and bootstrap replicas of the
+  paper's bands.
+- Window rates are the mean over the runs of the per-run rate, the convention of the paper's
+  solves, so that the tables reproduce the paper's weights; 1.0.0 pooled them as the ratio of
+  summed accumulators. The two differ by at most 0.05 statistical standard deviations, except
+  for diphoton (0.34). Each table records its conventions in `provenance.conventions`.
 - Joint blocks carry their `scale_errors`; window-rate scale errors are the half-range over all
-  seven scales (unchanged numbers).
+  seven scales.
 
 ### The package
 

@@ -98,9 +98,9 @@ Two definitions matter most:
     unshifted (`ctw`).
 
 A prior that lacks the channels the corrections populate pays in effective statistics. Under
-the same diphoton input, the paper's merged γγ + γγj prior retains 94.85% of its own effective
-count with these tables (the paper quotes 94.9%, see "Window rates" below), and its Pythia
-2 → 2 prior retains 3.97% (`result.effN_retained`; 4.0% in the paper). That 2 → 2 solve, like
+the same diphoton input, the paper's merged γγ + γγj prior retains 94.87% of its own effective
+count (94.9% in the paper), and its Pythia 2 → 2 prior retains 3.95% (`result.effN_retained`;
+4.0% in the paper). That 2 → 2 solve, like
 every diphoton, Higgs and Z+jet solve of the paper, imposes every booked order
 (`moment_selection=False`). On the paper's other priors the resolution criterion selects every
 booked order anyway; on the 2 → 2 prior it drops the sixth \|cos θ*\| order, and the default
@@ -124,7 +124,8 @@ Window towers add:
 - the `profile` `{a, b, c[, d]}` of the C² window: w = 6t⁵ − 15t⁴ + 10t³ with
   t = clip((ln x − ln a)/(ln b − ln a), 0, 1), a hard cut at `c`, or a C² fall between `c`
   and `d`;
-- the window rate `window_rate` = ⟨w⟩/σ_fid, with its two errors;
+- the window rate `window_rate` = ⟨w⟩/σ_fid (the mean over the runs of the per-run rate), with
+  its two errors;
 - `matching_scale_rule`, true where `a` is a recoil matching scale.
 
 **`joint[key]`** carries the joint moments ⟨w_x w_y T_m(u(x)) T_n(u(y))⟩/⟨w_x w_y⟩, keyed
@@ -151,7 +152,7 @@ shaped like a window tower.
 
 **`<table>_runs.json.gz`** holds `{runs, scales, channels, tags, acc[run][tag][scale]}`: every
 accumulator above, summed over the perturbative channels of each independent run, at all seven
-scales (12 significant digits). A window-variant file adds `reference`, the main run's
+scales, at full double precision. A window-variant file adds `reference`, the main run's
 `norm_born` per run.
 - Pooling all runs reproduces every released value, error and rate, to 10⁻⁸
   (`tests/test_released.py`).
@@ -173,8 +174,11 @@ The moments are:
 - Born: μ_n = ⟨T_n(u(v))⟩ over the fiducial region;
 - window: μ_n = ⟨w T_n(u(x))⟩/⟨w⟩, on the logarithmic map [`soft_lo`, `range[1]`].
 
-Both, and the window rates, are pooled over the independent runs as the ratio of summed
-numerators to summed denominators.
+Both are pooled over the independent runs as the ratio of summed numerators to summed
+denominators. Each window rate is the mean over the runs of the per-run rate ⟨w⟩/σ_fid, the
+convention of the paper's solves; a variant's rate is the ratio of its two run means
+(W0_V over the variant runs, σ_fid over the main runs). Every table states its conventions in
+`provenance.conventions`.
 
 ## Caveats
 
@@ -195,19 +199,12 @@ numerators to summed denominators.
 * **The map and the window are part of the target.** The loader reproduces the maps and windows
   compiled into the fixed-order runs; do not change them. A different map converges with clean
   closure onto wrong constraints.
-* **Window rates.** The paper's own solves averaged the per-run window rates; these tables pool
-  them, as they pool everything else. The two differ by at most 0.05 statistical standard
-  deviations (3 × 10⁻⁵ relative), except for diphoton (0.34 standard deviations, 3.5 × 10⁻³).
-  Under the blend the rate enters every recoil target, so the weights move with it: by at most
-  2.4 × 10⁻⁵ for Drell-Yan (central, scale and bootstrap solves), 5 × 10⁻⁵ for W (central and
-  scale solves),
-  10⁻⁷ for the Higgs boson, 7 × 10⁻⁴ for Z+jet and 6 × 10⁻³ (merged prior) to 1.3 × 10⁻²
-  (2 → 2 prior) for diphoton. One number quoted in the
-  paper moves at its printed precision: the merged diphoton prior retains 94.85% of its
-  effective count with these tables against 94.87% (94.9%) in the paper. With the per-run
-  average of the rates the package reproduces every weight the paper stored to 10⁻¹⁰
-  ([`../REPRODUCE.md`](../REPRODUCE.md)). The window variants use a ratio of run averages in
-  both, and agree to 3 × 10⁻¹¹.
+* **Window rates.** Each window rate is the mean over the runs of the per-run rate, the
+  convention of the paper's solves, so that the tables reproduce the paper's weights
+  ([`../REPRODUCE.md`](../REPRODUCE.md)). Pooling the rate as a ratio of sums, like the
+  moments, would differ by at most 0.05 statistical standard deviations, except for diphoton
+  (0.34), and would move the merged diphoton prior's retained fraction from 94.87% to 94.85%.
+  A window variant's rate is the ratio of two run means (variant runs, main runs) either way.
 
 All tables were produced by `export_moments.py` from the NNLOJET productions whose run cards
 are in `../runcards/`. What they reproduce on the paper's priors is listed in

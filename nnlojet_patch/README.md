@@ -74,8 +74,10 @@ giving `<T_2(m_ll)> = prof_mll_2 / norm_born`. For a windowed recoil the profile
   that a non-memoised eval must not receive.
 * **Runcards need a `warmup`** (or an existing grid copied to the run name, as for the
   window-variant runs), otherwise production aborts with a missing VEGAS grid file.
-* **Pool seeds, don't average ratios**, and only pool seeds for which *every*
-  channel is present — a missing Born channel silently wrecks the denominator.
+* **Pool seeds, don't average ratios** for the moments, and only pool seeds for which
+  *every* channel is present — a missing Born channel silently wrecks the denominator.
+  (The released window rates are the mean of the per-run rates, as in the paper's solves;
+  a rate is well behaved in every run.)
 
 ## Errata in the source comments
 

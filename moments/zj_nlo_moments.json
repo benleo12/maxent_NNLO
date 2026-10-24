@@ -74,7 +74,12 @@
    "LO",
    "R",
    "V"
-  ]
+  ],
+  "conventions": {
+   "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "sigma_fid": "the mean over the runs of the per-run cross section"
+  }
  },
  "towers": {
   "mll": {
@@ -272,9 +277,9 @@
     "b": 60.0,
     "c": 1000.0
    },
-   "window_rate": 0.3728949051229507,
+   "window_rate": 0.3729044268089641,
    "window_rate_stat": 0.0003576628724319327,
-   "window_rate_scale": 0.008142004897857713,
+   "window_rate_scale": 0.008144082463199337,
    "matching_scale_rule": true
   },
   "ptj2": {
@@ -344,9 +349,9 @@
     "b": 60.0,
     "c": 1000.0
    },
-   "window_rate": 0.08439706035424516,
+   "window_rate": 0.0843997436394732,
    "window_rate_stat": 0.00010498920840865041,
-   "window_rate_scale": 0.014576436180524663,
+   "window_rate_scale": 0.01457748421925291,
    "matching_scale_rule": true
   },
   "pimdphi": {
@@ -436,9 +441,9 @@
     "b": 0.2,
     "c": 4.0
    },
-   "window_rate": 0.9251205695965489,
+   "window_rate": 0.9251232714616174,
    "window_rate_stat": 0.0002516741500806513,
-   "window_rate_scale": 0.004564602153425079,
+   "window_rate_scale": 0.004563798520884066,
    "matching_scale_rule": false
   }
  },
@@ -537,9 +542,9 @@
     "4,4": "prof_wj12_44"
    },
    "denominator_tag": "prof_wj12_0",
-   "window_rate": 0.08229020859185833,
+   "window_rate": 0.08229282352401764,
    "window_rate_stat": 0.00010271813988308225,
-   "window_rate_scale": 0.014259535561626513
+   "window_rate_scale": 0.014260555511408687
   }
  },
  "default_constraints": {

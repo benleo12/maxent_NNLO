@@ -8,7 +8,9 @@ Processes: "dy" (Z/gamma* -> l+l-, NNLO), "wp", "wm" (W+, W-, NNLO), "aa" (dipho
 "ggh" (gluon-fusion Higgs, NNLO, inclusive), "zj" (Z+jet, NLO).  Each table is a JSON file
 in moments/ (installed as maxent_upgrade/moments/); <name>_runs.json.gz next to it holds the
 channel-summed accumulators of every independent run at all seven scales, from which
-`scale=` and `runs=` pool the moments again (the uncertainty bands of the paper).  For "ggh"
+`scale=` and `runs=` pool the moments again (the uncertainty bands of the paper).  Moments are
+pooled as the ratio of summed accumulators; window rates are the mean over the runs of the
+per-run rate, the convention of the paper's solves.  For "ggh"
 and "aa", <name>_winvar.json holds the recoil tower booked with three other matching windows
 (`window="A"`, "B", "C"; the matching uncertainty of the paper).
 """
@@ -119,18 +121,19 @@ def _repool(name, num_tags, den_tag, scale, runs):
 
 
 def _rate(name, w_tag, scale, runs):
-    """Window rate <w>/sigma_fid pooled over `runs` at `scale`, its run-to-run error and its
-    seven-point half-range.  For a window-variant table sigma_fid comes from the main run
-    (its `reference` accumulators, at the same run positions), and the two independent means
-    give the error."""
+    """Window rate <w>/sigma_fid over `runs` at `scale`, as export_moments.py and the paper's
+    solves take it: the mean over the runs of the per-run rate, its run-to-run error, and the
+    half-range over the seven scales of that mean.  For a window-variant table sigma_fid comes
+    from the main run (its `reference` accumulators, at the same run positions): the rate is a
+    ratio of the two run means, whose independent errors give its error."""
     col, A, ref = _runs(name)
     A = _sel(A, runs)
     w = A[:, col[w_tag], :]
     if ref is None:
-        n = A[:, col["norm_born"], :]
-        pooled = w.sum(0) / n.sum(0); per = w[:, scale] / n[:, scale]
-        stat = float(per.std(ddof=1) / np.sqrt(len(per))) if len(per) > 1 else 0.0
-        return float(pooled[scale]), stat, float(0.5 * (pooled.max() - pooled.min()))
+        per = w / A[:, col["norm_born"], :]                       # (run, scale): per-run rates
+        stat = float(per[:, scale].std(ddof=1) / np.sqrt(len(per))) if len(per) > 1 else 0.0
+        mean = per.mean(0)
+        return float(np.mean(per[:, scale])), stat, float(0.5 * (mean.max() - mean.min()))
     S = _sel(ref, runs)
     Wm, Sm = w.mean(0), S.mean(0); R = Wm / Sm
     rel = [x[:, scale].std(ddof=1) / np.sqrt(len(x)) / m[scale] if len(x) > 1 else 0.0 for x, m in ((w, Wm), (S, Sm))]

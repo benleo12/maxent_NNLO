@@ -134,6 +134,10 @@
     "VV"
    ],
    "tag": "norm_born"
+  },
+  "conventions": {
+   "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+   "window_rate": "(the mean over the variant runs of W0_V) / (the mean over the main runs of sigma_fid), at each scale: the two come from different runs; stat from the two independent means; scale = half-range over the seven scales"
   }
  },
  "windows": {
@@ -411,5 +415,5 @@
    "denominator_tag": "prof_wptC_0"
   }
  },
- "validation": "the nominal window booked in the same runs reproduces the main table: worst pull 2.07 over the 12 orders, window rate 0.21659 against 0.21661"
+ "validation": "the nominal window booked in the same runs reproduces the main table: worst pull 2.07 over the 12 orders; window rate (ratio of run means) 0.21659 against 0.21661 in the main run"
 }

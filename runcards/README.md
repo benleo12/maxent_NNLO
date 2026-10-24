@@ -40,8 +40,9 @@ accumulators the windowed moments need: 53 single-bin histograms, `norm_born` an
 profiles of the four windows.
 
 The window rate needs the cross section of all six channels. It is therefore W0_V / σ_fid,
-with W0_V the pooled `prof_wpt{V}_0` of the variant run and σ_fid the pooled `norm_born` of the
-main run (`ggh_moments3`, `gg_moments2`). The variant table's `_runs.json.gz` carries both.
+with W0_V the mean over the variant runs of `prof_wpt{V}_0` and σ_fid the mean over the main
+runs (`ggh_moments3`, `gg_moments2`) of `norm_born`. The variant table's `_runs.json.gz`
+carries both.
 
 **Vegas grids.** The variant runs did not make their own warm-up. Their grids are copies of the
 main runs' grids, renamed to the new run name:

@@ -85,9 +85,12 @@ Return two errors per moment:
 - the **Monte Carlo** error: the scatter of independent runs divided by √(number of runs);
 - the **scale** error: the half-range of μ_n over the seven-point variation.
 
-Pool the runs as the ratio of summed numerators to summed denominators, not as the mean of
-per-run ratios. `upgrade()` uses the two errors combined in quadrature (`errors`) to decide
-which orders the input resolves. Keep the per-run, per-scale accumulators: they are what the
+Pool the moments over the runs as the ratio of summed numerators to summed denominators, not
+as the mean of per-run ratios: one run with a small denominator would otherwise throw a wild
+value into the average. The released tables take each window rate, whose per-run values are
+all well behaved, as the mean of the per-run rates, the convention of the paper's solves; the
+ratio of sums agrees with it within the run-to-run error. `upgrade()` uses the two errors
+combined in quadrature (`errors`) to decide which orders the input resolves. Keep the per-run, per-scale accumulators: they are what the
 uncertainty bands re-pool (see the `_runs.json.gz` files in `moments/`).
 
 ## 4. How many moments

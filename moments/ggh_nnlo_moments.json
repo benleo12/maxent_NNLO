@@ -81,7 +81,12 @@
    "RV",
    "VV"
   ],
-  "decay_type": 3
+  "decay_type": 3,
+  "conventions": {
+   "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "sigma_fid": "the mean over the runs of the per-run cross section"
+  }
  },
  "towers": {
   "y_abs": {
@@ -223,9 +228,9 @@
     "b": 74.0,
     "c": 1000.0
    },
-   "window_rate": 0.21661497100816782,
+   "window_rate": 0.21661498190099887,
    "window_rate_stat": 5.6684806335742176e-05,
-   "window_rate_scale": 0.02547253668005313,
+   "window_rate_scale": 0.025472529522510876,
    "matching_scale_rule": true
   }
  },
