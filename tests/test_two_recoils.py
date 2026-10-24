@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-r"""Closure test for TWO profiled recoil observables in one solve.
+r"""Closure test for TWO windowed recoil towers in one solve (transition='windowed').
 
-The diphoton upgrade needs to constrain pT_gg AND pi-dphi_gg simultaneously,
-because constraining pT alone leaves the shower's pT<->dphi correlation wrong.
-This checks the multi-recoil path on a case where the answer is known exactly:
-tilt the prior by a known exponential in both observables, read the resulting
-w-weighted moments off the tilted sample, and confirm the solver recovers them.
+Several windows can be imposed at once (two jet spectra, a recoil and a decay-angle
+window).  This checks the multi-window path in the windowed form, on a case where the
+answer is known exactly: tilt the prior by a known exponential in both observables, times
+their windows, read the resulting w-weighted moments off the tilted sample, and confirm the
+solver recovers them, leaving the prior untouched where both windows vanish.
 
 If this passes, a failure on real data is physics, not plumbing.
 """
@@ -61,10 +61,12 @@ def main():
     cfg = dict(born={},
                recoil={"pt_aa": {"range": (SOFT_PT, XHI_PT), "map": "log",
                                  "soft_lo": SOFT_PT,
-                                 "profile": {"a": XM_PT, "b": XB_PT, "c": XHI_PT}},
+                                 "profile": {"a": XM_PT, "b": XB_PT, "c": XHI_PT},
+                                 "transition": "windowed"},
                        "dphi_log": {"range": (SOFT_DP, XHI_DP), "map": "log",
                                     "soft_lo": SOFT_DP,
-                                    "profile": {"a": XM_DP, "b": XB_DP}}},
+                                    "profile": {"a": XM_DP, "b": XB_DP},
+                                    "transition": "windowed"}},
                moment_selection=False)
 
     res = upgrade(ev, M, cfg)

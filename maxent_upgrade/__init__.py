@@ -28,10 +28,9 @@ Legacy (an earlier, histogram-based variant; not used for the papers' results):
     upgrade_from_histograms(events, fo_low, fo_high, config), moment_snr, resolved_order,
     FOHist, fo_from_dat
 """
-import os
 import warnings
 from dataclasses import dataclass, field
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, Any
 
 import numpy as np
 
@@ -339,8 +338,10 @@ class UpgradeResult:
         resolved order) and per joint block.
     report : dict
         Multipliers `lam`, targets `mu`, `feature_names`, `towers` (per-tower table used by
-        describe()), `moment_selection`, `windows`, the soft-constraint block, and with
-        `keep_features=True` the feature matrix `Phi` and prior `p`.
+        describe(); `kind` is 'born', 'blend', 'windowed' or 'joint'), `moment_selection`,
+        `windows` ({recoil observable: x_match, x_hi, rate, transition, profile}),
+        `q_over_p_range`, the soft-constraint block, and with `keep_features=True` the
+        feature matrix `Phi` and prior `p`.
     band : None
         Reserved; bands are re-solves of upgrade() (see README, "Uncertainty bands").
     soft_pulls : np.ndarray or None
@@ -372,11 +373,11 @@ class UpgradeResult:
     def describe(self) -> str:
         """A table of what was imposed and how well it closed, one row per tower."""
         towers = self.report.get("towers") or []
-        out = [f"{'tower':16s} {'kind':6s} {'map':4s} {'imposed':>9s}  {'orders below SNR 1 (SNR)':28s} {'max pull':>8s}"]
+        out = [f"{'tower':16s} {'kind':8s} {'map':4s} {'imposed':>9s}  {'orders below SNR 1 (SNR)':28s} {'max pull':>8s}"]
         for t in towers:
             below = ", ".join(f"{n}({s:.2f})" for n, s in t.get("below", [])) or "-"
             mp = t.get("max_pull", float("nan"))
-            out.append(f"{t['name']:16s} {t['kind']:6s} {str(t.get('map', '-'))[:4]:4s} "
+            out.append(f"{t['name']:16s} {t['kind']:8s} {str(t.get('map', '-'))[:4]:4s} "
                        f"{t['imposed']:>4d} / {t['supplied']:<3d} {below[:28]:28s} "
                        f"{(f'{mp:8.3f}' if np.isfinite(mp) else '       -')}")
         qp = self.report.get("q_over_p_range", (float("nan"), float("nan")))
@@ -667,6 +668,15 @@ def profile_w(x, a, b, c=None, d=None):
     return up * down
 
 
+def _window_fn(x, spec):
+    """The window of one observable of a joint block: 1 without a profile, else profile_w."""
+    if not spec:
+        return np.ones(len(x))
+    return profile_w(x, float(spec["a"]), float(spec["b"]),
+                     None if spec.get("c") is None else float(spec["c"]),
+                     None if spec.get("d") is None else float(spec["d"]))
+
+
 def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
                        weight_key="weight", scale_key="weight_scales"):
     r"""Build the `moments` argument of `upgrade` from fixed-order EVENTS held in Python.
@@ -677,14 +687,20 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
     observable, the weights under `weight_key`, and optionally a (n_scale, n_event) array
     under `scale_key` with the weight of each scale choice (row 0 = central).
 
-    Born towers are taken over the full declared range.  Each recoil tower uses the window
-    of its `config['recoil'][obs]['profile']` (a, b, c[, d]) when one is given -- the
-    windowed moments <w T_n>/<w> and the window rate <w>/<1>, as the solver imposes them --
-    and otherwise the hard window [x_match, x_hi).  Errors: `stat_errors` is the weighted
-    Monte Carlo error, `scale_errors` the half-range over the scale rows, `errors` (and
-    `window_errors`) their quadrature sum.
+    * Born towers: <T_n(u(v))> over the full declared range.
+    * Recoil towers: the window of `config['recoil'][obs]['profile']` (a, b, c[, d]) when one
+      is given, otherwise the hard window [x_match, x_hi).  They get the windowed moments
+      <w T_n>/<w> and the window rate <w>/<1>; upgrade() forms the blended (or windowed)
+      targets from them, so the same numbers serve either transition.
+    * Joint blocks of `config['mixed']`: <w_x w_y T_m(u(x)) T_n(u(y))>/<w_x w_y> for
+      m, n = 1..config['mixed'][key]['n'], keyed (m, n), and the joint rate <w_x w_y>/<1>
+      (w = 1 for an observable the block gives no profile, as for two Born observables).
+
+    Errors: `stat_errors` is the weighted Monte Carlo error, `scale_errors` the half-range
+    over the scale rows, `errors` (and `window_errors`) their quadrature sum.
     """
-    born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
+    born_cfg = config.get("born", {}) or {}; recoil_cfg = config.get("recoil", {}) or {}
+    mixed_cfg = config.get("mixed", {}) or {}
     w = np.asarray(fo_events[weight_key], float)
     wsc = fo_events.get(scale_key)
     wsc = None if wsc is None else np.atleast_2d(np.asarray(wsc, float))
@@ -710,6 +726,13 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
         if sc is not None:
             d["scale_errors"] = sc.tolist()
         return d
+
+    def rate_of(wf):
+        R = float((w * wf).sum() / w.sum())
+        R_stat = float(np.sqrt(((w * (wf - R)) ** 2).sum()) / w.sum())
+        R_scale = (0.0 if wsc is None else
+                   float(0.5 * np.ptp([(wsc[r] * wf).sum() / wsc[r].sum() for r in range(wsc.shape[0])])))
+        return R, R_stat, R_scale
 
     moments = {"born": {}, "recoil": {}}
     for o in born_cfg:
@@ -743,16 +766,43 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
               0.5 * np.ptp([chebyshev_moment(xr[sel], wsc[r][sel] * wf[sel], Nr, soft_lo, xhi, mp)
                             for r in range(wsc.shape[0])], axis=0))
         dd = pack(muw, stat_err(xr[sel], ww[sel], Nr, soft_lo, xhi, mp), sc)
-        R = float(ww.sum() / w.sum())
-        R_stat = float(np.sqrt(((w * (wf - R)) ** 2).sum()) / w.sum())
-        R_scale = (0.0 if wsc is None else
-                   float(0.5 * np.ptp([(wsc[r] * wf).sum() / wsc[r].sum() for r in range(wsc.shape[0])])))
+        R, R_stat, R_scale = rate_of(wf)
         moments["recoil"][obs] = dict(
             window_values=muw.tolist(), window_errors=dd["errors"],
             stat_errors=dd["stat_errors"], **({"scale_errors": dd["scale_errors"]} if "scale_errors" in dd else {}),
             wprofile_values=muw.tolist(), wprofile_rate=R,
             rate=R, rate_stat=R_stat, rate_scale=R_scale,
             x_match=xm, x_hi=xhi, soft_lo=soft_lo)
+
+    if mixed_cfg:
+        moments["mixed"] = {}
+    for key, mc in mixed_cfg.items():
+        ox, oy = mc["observables"]; nmx = int(mc["n"])
+        (ax, bx), (ay, by) = mc["range"][ox], mc["range"][oy]
+        mpx = mc.get("map", {}).get(ox, "log"); mpy = mc.get("map", {}).get(oy, "log")
+        X = np.asarray(fo_events[ox], float); Y = np.asarray(fo_events[oy], float)
+        prof = mc.get("profile") or {}
+        wxy = _window_fn(X, prof.get(ox)) * _window_fn(Y, prof.get(oy))
+        Cx = _cheb(_umap(np.clip(X, ax, bx), ax, bx, mpx), nmx)
+        Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), nmx)
+        ww = w * wxy; S = ww.sum()
+        vals, st, sc = {}, {}, {}
+        for m in range(1, nmx + 1):
+            for n in range(1, nmx + 1):
+                f = Cx[:, m] * Cy[:, n]
+                v = float((ww * f).sum() / S)
+                vals[(m, n)] = v
+                st[(m, n)] = float(np.sqrt((ww ** 2 * (f - v) ** 2).sum()) / S)
+                if wsc is not None:
+                    sc[(m, n)] = float(0.5 * np.ptp([(wsc[r] * wxy * f).sum() / (wsc[r] * wxy).sum()
+                                                     for r in range(wsc.shape[0])]))
+        R, R_stat, R_scale = rate_of(wxy)
+        blk = dict(values=vals, stat_errors=st,
+                   errors={k: float(np.hypot(st[k], sc.get(k, 0.0))) for k in vals},
+                   rate=R, rate_stat=R_stat, rate_scale=R_scale)
+        if wsc is not None:
+            blk["scale_errors"] = sc
+        moments["mixed"][key] = blk
     return moments
 
 
@@ -762,6 +812,25 @@ _UPGRADE_KEYS = {"born", "recoil", "mixed", "followers", "weight_key", "moment_s
                  "soft_constraints", "soft_errors"}
 _HIST_ONLY_KEYS = {"band", "RELMAX", "DELTA", "WSIG", "CLIP", "MINSUP", "RSUP", "born_N",
                    "recoil_N", "snr_max_order", "snr_n_stat", "snr_seed"}
+# how a recoil tower meets the prior across its window (config['recoil'][obs]['transition'])
+_TRANSITIONS = ("blend", "windowed")
+_DEFAULT_TRANSITION = "blend"
+
+
+def _transition(rcfg, obs):
+    tr = rcfg.get("transition", _DEFAULT_TRANSITION)
+    if tr not in _TRANSITIONS:
+        raise ValueError(f"config['recoil']['{obs}']['transition'] must be 'blend' or 'windowed', got {tr!r}")
+    return tr
+
+
+def _window_edges(prof, x_match, x_hi):
+    """(a, b, c, d) of a recoil window; without a profile, the hard window [x_match, x_hi)."""
+    if not prof:
+        return float(x_match), float(x_match), float(x_hi), None
+    a = float(prof.get("a", x_match)); b = float(prof.get("b", a))
+    c = prof.get("c", x_hi); d = prof.get("d", None)
+    return a, b, (None if c is None else float(c)), (None if d is None else float(d))
 
 
 def _check_inputs(events, moments, config, wkey):
@@ -777,6 +846,20 @@ def _check_inputs(events, moments, config, wkey):
     mixed_cfg = config.get("mixed", {}) or {}
     if not recoil_cfg and not mixed_cfg and not born_cfg:
         raise ValueError("config declares no constraint: give at least one of 'born', 'recoil', 'mixed'")
+    for o, rc in recoil_cfg.items():
+        _transition(rc, o)
+    # Joint moments are imposed in the windowed form only: blended targets of two windowed
+    # observables are mixtures for different windows, not marginals of one density, so
+    # blended joint constraints have no solution.  Every tower a joint block couples
+    # must therefore be windowed too.
+    for key, mc in mixed_cfg.items():
+        for o in mc["observables"]:
+            if o in recoil_cfg and _transition(recoil_cfg[o], o) == "blend":
+                raise ValueError(
+                    f"config['mixed']['{key}'] couples the recoil tower '{o}', whose transition is 'blend'. "
+                    f"Joint moments are imposed in the windowed form, and blended joint constraints have no "
+                    f"solution: set config['recoil']['{o}']['transition'] = 'windowed' for every tower the "
+                    f"block couples (load_moments does this for a table's joint blocks)")
     need = list(born_cfg) + list(recoil_cfg) + [o for m in mixed_cfg.values() for o in m["observables"]]
     need = list(dict.fromkeys(need))
     missing = [k for k in need + [wkey] if k not in events]
@@ -806,12 +889,13 @@ def _check_inputs(events, moments, config, wkey):
     for o, rc in recoil_cfg.items():
         mrc = moments["recoil"][o]; x = np.asarray(events[o], float)
         prof = rc.get("profile")
-        if prof:
-            win = profile_w(x, float(prof.get("a", mrc["x_match"])), float(prof.get("b", mrc["x_match"])),
-                            None if prof.get("c") is None else float(prof["c"]),
-                            None if prof.get("d") is None else float(prof["d"])) > 0
-        else:
-            win = (x >= float(mrc["x_match"])) & (x < float(mrc.get("x_hi", np.inf)))
+        if prof and prof.get("a") is not None and not np.isclose(float(prof["a"]), float(mrc["x_match"]),
+                                                                 rtol=1e-9, atol=0.0):
+            warnings.warn(f"config['recoil']['{o}']['profile']['a'] = {float(prof['a']):g}, but the moments were "
+                          f"booked with a window starting at x_match = {float(mrc['x_match']):g}.  The window is "
+                          f"part of the target: use the profile the moments were computed with", stacklevel=3)
+        a, b, c, d = _window_edges(prof, mrc["x_match"], mrc.get("x_hi", np.inf))
+        win = profile_w(x, a, b, c, d) > 0
         nin = int(win.sum())
         if nin == 0:
             raise ValueError(f"no prior event lies inside the '{o}' window (from {float(mrc['x_match']):g}); "
@@ -839,7 +923,8 @@ def upgrade(events, moments, config):
                                'stat_errors': [..], 'scale_errors': [..]}},     # last two optional
               'recoil': {obs: {'window_values': [..], 'window_errors': [..],
                                'rate': r, 'x_match': a, 'x_hi': xh, 'soft_lo': s0,
-                               'stat_errors': [..], 'rate_stat': .., 'rate_scale': ..}},
+                               'stat_errors': [..], 'scale_errors': [..],
+                               'rate_stat': .., 'rate_scale': ..}},
               'mixed':  {key: {'values': {(m, n): mu_mn}, 'errors': {..}, 'rate': r}},  # optional
             }
 
@@ -860,6 +945,20 @@ def upgrade(events, moments, config):
                                    'profile': {'a': 30., 'b': 60., 'c': 500.}}},
             }
 
+        A recoil tower takes `transition` = 'blend' (the default) or 'windowed':
+          * 'blend': the target of order n is the mixture
+                mu_n = c <(1 - w) T_n>_p + r <T_n>_{FO, w},   c = (1 - r)/(1 - <w>_p),
+            the prior's own moment weighted by 1 - w and the fixed-order one by w, and the
+            measurement functions are the bare T_n(u(v)), clipped at the window's lower edge
+            a (and at d for a smooth upper edge c -> d), so the ratio q/p is flat below a and
+            the tilt crosses the window smoothly.  A hard upper cut c instead zeroes the
+            features above c and fixes the prior's share there, c <1(v >= c)>_p.
+          * 'windowed': the measurement functions are w(v) T_n(u(v)) and w(v), with targets
+            r <T_n>_{FO, w} and r; the prior is untouched where w = 0.
+        Joint blocks are always imposed in the windowed form, and every recoil tower a block
+        couples must be 'windowed' (a ValueError says so otherwise): blended joint
+        constraints have no solution.
+
         Knobs (defaults in DEFAULTS): moment_selection=True (impose each tower up to its
         highest order with SNR > snr_threshold=1.0), L2=1e-4 (ridge of the dual), fixed_orders
         ({obs: N}: impose exactly N orders, e.g. for band variants), lam0 (warm start from a
@@ -874,7 +973,7 @@ def upgrade(events, moments, config):
     """
     cfg = {**DEFAULTS, **config}
     wkey = cfg["weight_key"]
-    born_cfg = config.get("born", {}); recoil_cfg = config.get("recoil", {})
+    born_cfg = config.get("born", {}) or {}; recoil_cfg = config.get("recoil", {}) or {}
     if wkey not in events:
         raise KeyError(f"events lacks the prior weights '{wkey}' (events has {sorted(events)})")
     w = np.asarray(events[wkey], float)
@@ -904,35 +1003,27 @@ def upgrade(events, moments, config):
             st = float(np.hypot(st, float(d.get("rate_scale", 0.0) or 0.0)))
         return st
 
-    # ---- ONE rule for every observable ------------------------------------
-    # Impose the FO moments inside the observable's validity window [XM, XHI];
-    # preserve the prior below XM and above XHI. Each constrained observable is
-    # a single call to _impose below. The ONLY per-observable difference is the
-    # validity window: for a Born variable the fixed order is valid over the
-    # whole fiducial range (XM=-inf, XHI=+inf, rate=1, nothing preserved, so the
-    # composite reduces to imposing the FO moment); for the recoil it is the
-    # window [x_match, x_hi] and the shower is preserved outside. There is no
-    # separate "recoil procedure".
-    def _impose(obs, lo_map, hi_map, mp, XM, XHI, vals, errs, rate, floor, wprof=None,
-                sig=None, rate_sig=0.0):
+    # ---- ONE rule for every tower -----------------------------------------
+    # A Born tower imposes the fixed-order moments over the full fiducial range.  A recoil
+    # tower imposes them through its window w: blended with the prior across the window's
+    # rise (transition 'blend', the default) or with the features masked by w ('windowed').
+    def _impose(obs, lo_map, hi_map, mp, vals, errs, floor, sig=None, wprof=None, rate=1.0,
+                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None):
         XL = np.asarray(events[obs], float)
         Nmax = len(vals)
         sigv = np.zeros(Nmax) if sig is None or not len(sig) else np.asarray(sig, float)[:Nmax]
         if len(sigv) < Nmax:
             sigv = np.concatenate([sigv, np.zeros(Nmax - len(sigv))])
-        # The prior's moment in the resolution criterion must be the same quantity as the
-        # target: for a windowed tower the window-weighted <w T_n>/<w> (the target is
-        # booked that way in the fixed-order code), for a Born tower or a hard window the
-        # plain average over [XM, XHI).
+        # The prior's moment in the resolution criterion is the same quantity as the booked
+        # target: for a window tower the window-weighted <w T_n>/<w>, for a Born tower the
+        # plain average over the full range.
         if wprof is not None:
             wpr = np.asarray(wprof, float); win = wpr > 0
-            mu_prior_win = (chebyshev_moment(XL[win], (w * wpr)[win], Nmax, lo_map, hi_map, mp)
-                            if win.any() else np.zeros(Nmax))
+            mu_prior = (chebyshev_moment(XL[win], (w * wpr)[win], Nmax, lo_map, hi_map, mp)
+                        if win.any() else np.zeros(Nmax))
         else:
-            win = (XL >= XM) & (XL < XHI)
-            mu_prior_win = (chebyshev_moment(XL[win], w[win], Nmax, lo_map, hi_map, mp)
-                            if win.any() else np.zeros(Nmax))
-        snr = (np.abs(vals - mu_prior_win) / np.maximum(errs, 1e-30)
+            mu_prior = chebyshev_moment(XL, w, Nmax, lo_map, hi_map, mp)
+        snr = (np.abs(vals - mu_prior) / np.maximum(errs, 1e-30)
                if np.asarray(errs).any() else np.full(Nmax, np.inf))
         snr_spectra[obs] = snr
         N = max(resolved_order(snr, thr) if do_sel else Nmax, floor)
@@ -944,28 +1035,64 @@ def upgrade(events, moments, config):
         if fixed is not None:
             N = min(max(int(fixed), floor), Nmax)
         chosen[obs] = N
-        towers.append(dict(name=obs, kind="born" if floor == 0 else "window", map=mp if isinstance(mp, str) else mp[0],
+        towers.append(dict(name=obs, kind="born" if wprof is None else transition,
+                           map=mp if isinstance(mp, str) else mp[0],
                            supplied=int(Nmax), imposed=int(N),
                            below=[(n, float(snr[n - 1])) for n in range(1, N + 1) if snr[n - 1] <= thr]))
-        u = _umap(np.clip(XL, lo_map, hi_map), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
+        # Under the blend the features are clipped at the window's lower edge (and at d for a
+        # smooth upper edge): every event below it carries the same T_n, so the tilt is flat
+        # there and the shower's shape is kept exactly.  The booked moments are unaffected,
+        # because w vanishes below the edge, where the clipping acts.
+        lo_c = lo_map if lo_feat is None else lo_feat
+        hi_c = hi_map if hi_feat is None else hi_feat
+        u = _umap(np.clip(XL, lo_c, hi_c), lo_map, hi_map, mp); C = _cheb(u, max(Nmax, 1))
         if wprof is None:
-            # -------- composite (unmasked) target: legacy path --------
-            I_S = XL < XM; I_T = XL >= XHI
-            P_tail = float(p[I_T].sum()); P_soft = 1.0 - rate - P_tail
-            wS = float(p[I_S].sum())
+            # -------- Born tower: the fixed-order moment over the full range --------
             for n in range(1, N + 1):
-                soft_mom = float((p[I_S] * C[I_S, n]).sum()) / wS if wS > 0 else 0.0
-                tail_mom = float((p[I_T] * C[I_T, n]).sum()) / P_tail if P_tail > 0 else 0.0
-                fo_mom = float(vals[n - 1])
-                F.append(C[:, n]); mu.append(P_soft * soft_mom + rate * fo_mom + P_tail * tail_mom)
-                names.append(f"{obs}_T{n}"); SIG.append(rate * float(sigv[n - 1]))
+                F.append(C[:, n]); mu.append(float(vals[n - 1]))
+                names.append(f"{obs}_T{n}"); SIG.append(float(sigv[n - 1]))
+        elif transition == "blend":
+            # -------- blend: the target density on this axis is the smooth mixture --------
+            #     b(x) = (1 - w(x)) * cs * p(x) + w(x) * f(x),   cs = (1 - R) / (1 - R_p),
+            # with p the prior, f the fixed-order density (normalised to the fiducial cross
+            # section, so its window share is R) and R_p = <w>_p the prior's window share.
+            # The prior part is rescaled by cs so that b integrates to one: the prior keeps its
+            # shape and carries 1 - R, the fixed order keeps its shape and its rate where
+            # w = 1, and the two are mixed through w across the rise of the window instead of
+            # being joined at the seam.  Its Chebyshev moments are
+            #     mu_n = cs <(1 - w) T_n>_p + R mu_n^{FO,w},
+            # with mu_n^{FO,w} the w-weighted fixed-order moments already booked (`vals`), so
+            # no new fixed-order input is needed.  The features are T_n(u) themselves below a
+            # hard upper cut x_c (zero above it, where one extra constraint fixes the share to
+            # its blend value cs <1(x >= x_c)>_p); a smooth fall-off [c, d] needs no extra
+            # constraint, since the features are clipped at d.  The window share itself is not
+            # imposed separately: the moments carry it.
+            R = float(rate); wprof = np.asarray(wprof, float)
+            inside = np.ones(len(XL)) if hi_cut is None else (XL < float(hi_cut)).astype(float)
+            R_p = float((p * wprof).sum())
+            if R_p >= 1.0:
+                raise ValueError(f"the '{obs}' window holds every prior event (<w>_p = 1), so the blend has no "
+                                 f"prior part to keep: use transition='windowed' for this tower")
+            cs = (1.0 - R) / (1.0 - R_p)
+            for n in range(1, N + 1):
+                prior_part = float((p * (1.0 - wprof) * inside * C[:, n]).sum())   # <(1-w) T_n>_p below x_c
+                F.append(C[:, n] * inside); mu.append(cs * prior_part + R * float(vals[n - 1]))
+                names.append(f"{obs}_T{n}")
+                # d mu_n / dR = mu_n^{FO,w} - <(1-w) T_n>_p / (1 - R_p)
+                dR = float(vals[n - 1]) - prior_part / (1.0 - R_p)
+                SIG.append(float(np.hypot(float(sigv[n - 1]) * R, dR * float(rate_sig))))
+            above = 1.0 - inside
+            if above.any():
+                P_above = float((p * above).sum())
+                F.append(above); mu.append(cs * P_above); names.append(f"{obs}_above")
+                SIG.append(float(P_above / (1.0 - R_p) * float(rate_sig)))
         else:
-            # -------- profiled features: exact shower preservation --------
-            # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an
-            # explicit rate constraint  sum q*w = R.  Where w=0 (below the seam,
-            # above x_hi) the feature vanishes -> those events are untilted by the
-            # recoil -> the prior shape is preserved to machine precision.  `vals`
-            # here are the w-weighted FO moments; `rate` is the FO w-rate R.
+            # -------- windowed: features masked by the window --------
+            # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an explicit rate
+            # constraint sum q*w = R.  Where w = 0 (below the window, above its cut) every
+            # feature vanishes, so those events are not tilted by this tower and the prior's
+            # shape there is kept exactly; the tilt steps at the lower window edge wherever
+            # prior and fixed order disagree there.
             R = float(rate)
             wprof = np.asarray(wprof, float)
             for n in range(1, N + 1):
@@ -977,79 +1104,55 @@ def upgrade(events, moments, config):
     # Born observables: validity is the full fiducial range.
     for o in born_cfg:
         a, b = born_cfg[o]["range"]; mp = born_cfg[o].get("map", "lin")
-        _impose(o, a, b, mp, -np.inf, np.inf,
+        _impose(o, a, b, mp,
                 np.asarray(moments["born"][o]["values"], float),
                 np.asarray(moments["born"][o].get("errors", []), float),
-                rate=1.0, floor=0, sig=_soft_err(moments["born"][o], "errors"))
-    # Recoil observables: validity is the window [x_match, x_hi]; shower kept
-    # outside.  There may be MORE THAN ONE -- e.g. the diphoton upgrade
-    # constrains both pT_gg and pi-dphi_gg, because constraining pT alone leaves
-    # the shower's pT<->dphi correlation wrong and dphi overshoots by ~60% near
-    # 2.2 rad.  Each carries its own compiled profile and its own rate
-    # constraint; their masked features simply add to the same feature matrix.
+                floor=0, sig=_soft_err(moments["born"][o], "errors"))
+    # Recoil observables, each through its own window (there may be more than one, e.g. the
+    # two jet spectra of Z+jet, or a recoil and a decay-angle window).  Each carries its own
+    # profile, rate and transition; their features add to the same feature matrix.
     windows = {}
-    for recoil_obs in recoil_cfg:
-      rc = moments["recoil"][recoil_obs]
-      windows[recoil_obs] = dict(x_match=float(rc["x_match"]),
-                                 x_hi=float(rc.get("x_hi", np.inf)),
-                                 rate=float(rc["rate"]))
-      soft_lo = float(rc.get("soft_lo", recoil_cfg[recoil_obs].get("soft_lo",
-                      max(recoil_cfg[recoil_obs]["range"][0], 1e-6))))
-      XHI = float(rc.get("x_hi", np.asarray(events[recoil_obs], float).max()))
-      prof = recoil_cfg[recoil_obs].get("profile")
-      if prof:
-        # smooth (or hard, if a==b) profile: exact shower preservation below the
-        # seam via masked features + explicit rate constraint.  `vals`/`rate` must
-        # be the w-weighted FO moments + w-rate; fall back to the window values
-        # (exact when the profile is the hard window a=b=x_match, c=d=x_hi).
+    for recoil_obs, rcfg in recoil_cfg.items():
+        rc = moments["recoil"][recoil_obs]
+        XL = np.asarray(events[recoil_obs], float)
         xm = float(rc["x_match"])
-        a = float(prof.get("a", xm)); b = float(prof.get("b", xm))
-        c = prof.get("c", XHI); d = prof.get("d", None)
-        wprof = profile_w(np.asarray(events[recoil_obs], float), a, b,
-                          None if c is None else float(c), None if d is None else float(d))
+        XHI = float(rc.get("x_hi", XL.max()))
+        soft_lo = float(rc.get("soft_lo", rcfg.get("soft_lo", max(rcfg["range"][0], 1e-6))))
+        a, b, c, d = _window_edges(rcfg.get("profile"), xm, XHI)
+        trans = _transition(rcfg, recoil_obs)
+        windows[recoil_obs] = dict(x_match=xm, x_hi=float(rc.get("x_hi", np.inf)), rate=float(rc["rate"]),
+                                   transition=trans, profile=dict(a=a, b=b, c=c, d=d))
+        wprof = profile_w(XL, a, b, c, d)
+        # `vals`/`rate` are the w-weighted FO moments and the w-rate (wprofile_* where a
+        # producer distinguishes them from a hard window's values)
         vals = np.asarray(rc.get("wprofile_values", rc["window_values"]), float)
         R = float(rc.get("wprofile_rate", rc["rate"]))
-        _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
-                xm, XHI, vals,
-                np.asarray(rc.get("window_errors", []), float),
-                rate=R, floor=1, wprof=wprof,
-                sig=_soft_err(rc, "window_errors"), rate_sig=_rate_err(rc))
-      else:
-        _impose(recoil_obs, soft_lo, XHI, recoil_cfg[recoil_obs].get("map", "log"),
-                float(rc["x_match"]), XHI,
-                np.asarray(rc["window_values"], float),
-                np.asarray(rc.get("window_errors", []), float),
-                rate=float(rc["rate"]), floor=1,
-                sig=_soft_err(rc, "window_errors"), rate_sig=_rate_err(rc))
+        smooth_top = c is not None and d is not None and d > c
+        blend = trans == "blend"
+        _impose(recoil_obs, soft_lo, XHI, rcfg.get("map", "log"), vals,
+                np.asarray(rc.get("window_errors", []), float), floor=1,
+                sig=_soft_err(rc, "window_errors"), wprof=wprof, rate=R, rate_sig=_rate_err(rc),
+                transition=trans,
+                lo_feat=(max(soft_lo, a) if blend else None),
+                hi_feat=(min(XHI, d) if (blend and smooth_top) else None),
+                hi_cut=(None if (not blend or c is None or smooth_top) else c))
 
-    # ---- MIXED (two-observable) constraints -------------------------------
-    # Separate moments of x and y constrain the two MARGINALS and say nothing
-    # about their JOINT distribution.  When a follower is determined by the
-    # correlation rather than by either spectrum alone, only a mixed moment can
-    # reach it -- constraining the diphoton recoil alone, for instance, left the
-    # shower's pT<->dphi correlation wrong.  The feature is
+    # ---- JOINT (two-observable) constraints, always in the windowed form ---------------
+    # Separate moments of x and y constrain the two MARGINALS and say nothing about their
+    # JOINT distribution.  When a follower is determined by the correlation rather than by
+    # either spectrum alone, only a joint moment can reach it.  The feature is
     #     T_m(u(x)) T_n(v(y)) w(x) w(y)
-    # with target <T_m T_n>_w * R_xy, plus the joint rate constraint sum q w w.
-    # Both profiles multiply, so the feature vanishes unless BOTH observables
-    # are inside their windows.
+    # with target <T_m T_n>_w * R_xy, plus the joint rate constraint sum q w w.  Both
+    # profiles multiply, so the feature vanishes unless BOTH observables are inside their
+    # windows.  A missing or None profile means no window (w = 1): the feature is the bare
+    # product, which is what NNLOJET books for two Born observables, and there is no rate.
     for key, mc in (config.get("mixed") or {}).items():
         ox, oy = mc["observables"]
         ax, bx = mc["range"][ox]; ay, by = mc["range"][oy]
         mpx = mc.get("map", {}).get(ox, "log"); mpy = mc.get("map", {}).get(oy, "log")
         X = np.asarray(events[ox], float); Y = np.asarray(events[oy], float)
-        # A missing or None profile means NO window: the feature is the bare
-        # product of Chebyshev polynomials, which is what NNLOJET books for a
-        # cross moment of two BORN observables (eval_chebTT_mllct applies no
-        # profile at all).  Expressing that as a degenerate profile would work
-        # by accident and read as a window that is not there.
         prof = mc.get("profile") or {}
-
-        def _w(vals, spec):
-            if not spec:
-                return np.ones(len(vals))
-            return profile_w(vals, spec["a"], spec["b"], spec.get("c"), spec.get("d"))
-
-        wxy = _w(X, prof.get(ox)) * _w(Y, prof.get(oy))
+        wxy = _window_fn(X, prof.get(ox)) * _window_fn(Y, prof.get(oy))
         rc = moments["mixed"][key]
         Cx = _cheb(_umap(np.clip(X, ax, bx), ax, bx, mpx), mc["n"])
         Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), mc["n"])
@@ -1058,7 +1161,8 @@ def upgrade(events, moments, config):
         for (mm, nn), v in rc["values"].items():
             F.append(Cx[:, mm] * Cy[:, nn] * wxy); mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}"); SIG.append(float(merr.get((mm, nn), 0.0)) * R)
-        F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate"); SIG.append(_rate_err(rc))
+        if prof.get(ox) or prof.get(oy):
+            F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate"); SIG.append(_rate_err(rc))
         towers.append(dict(name=key, kind="joint", map="-", supplied=len(rc["values"]),
                            imposed=len(rc["values"]), below=[]))
 
@@ -1084,7 +1188,8 @@ def upgrade(events, moments, config):
     fin = np.isfinite(pulls)
     max_pull = float(np.max(np.abs(pulls[fin]))) if fin.any() else float("nan")
     for t in towers:
-        idx = [i for i, nm in enumerate(names) if nm.startswith(t["name"] + "_T") or nm == t["name"] + "_rate"]
+        idx = [i for i, nm in enumerate(names) if nm.startswith(t["name"] + "_T")
+               or nm in (t["name"] + "_rate", t["name"] + "_above")]
         pt = np.abs(pulls[idx]); pt = pt[np.isfinite(pt)]
         t["max_pull"] = float(pt.max()) if len(pt) else float("nan")
     qp = q / p

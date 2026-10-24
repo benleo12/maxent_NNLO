@@ -19,7 +19,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))          # the repository root, if not pip-installed
-from maxent_upgrade import upgrade, profile_w
+from maxent_upgrade import upgrade, profile_w, compute_fo_moments
 from maxent_upgrade.basis import cheb as _cheb, umap as _umap
 
 LO, HI = 10.0, 1000.0
@@ -102,5 +102,38 @@ def test_closure():
     assert main() == 0
 
 
+def test_compute_fo_moments_joint():
+    """compute_fo_moments builds the joint block (the structure load_moments returns), and the
+    joint moments it books on a correlated 'fixed order' are recovered next to the two windowed
+    marginal towers."""
+    rng = np.random.default_rng(12)
+    n = 300_000
+    pt1 = np.exp(rng.normal(np.log(60.0), 0.8, n)).clip(LO, HI)
+    pt2 = (pt1 * np.exp(rng.normal(-0.9, 0.6, n))).clip(LO, HI)
+    ev = dict(ptj1=pt1, ptj2=pt2, weight=np.ones(n))
+    prof = dict(a=PA, b=PB, c=PC)
+    wxy = profile_w(pt1, PA, PB, PC) * profile_w(pt2, PA, PB, PC)
+    lift = np.exp(0.3 * wxy * np.log(pt1 / 80.0) * np.log(pt2 / 40.0))
+    fo = dict(ev, weight=lift, weight_scales=np.array([lift * f for f in (1.0, 1.1, 0.9)]))
+    cfg = dict(recoil={o: {"range": (LO, HI), "map": "log", "soft_lo": LO, "profile": prof, "transition": "windowed"}
+                       for o in ("ptj1", "ptj2")},
+               mixed={"ptj12": dict(observables=("ptj1", "ptj2"), range={"ptj1": (LO, HI), "ptj2": (LO, HI)},
+                                    map={"ptj1": "log", "ptj2": "log"},
+                                    profile={"ptj1": dict(prof, d=PC), "ptj2": dict(prof, d=PC)}, n=NMAX)},
+               moment_selection=False)
+    mom = compute_fo_moments(fo, cfg, n_max=4)
+    blk = mom["mixed"]["ptj12"]
+    assert set(blk) >= {"values", "errors", "stat_errors", "scale_errors", "rate", "rate_stat", "rate_scale"}
+    assert sorted(blk["values"]) == [(m, k) for m in range(1, NMAX + 1) for k in range(1, NMAX + 1)]
+    vals, R = mixed_moments(pt1, pt2, lift, wxy, NMAX)      # the definition, independently
+    assert max(abs(blk["values"][k] - vals[k]) for k in vals) < 1e-12 and abs(blk["rate"] - R) < 1e-12
+    res = upgrade(ev, mom, cfg)
+    got, gR = mixed_moments(pt1, pt2, res.weights, wxy, NMAX)
+    worst = max(max(abs(got[k] - vals[k]) / max(abs(vals[k]), 1e-12) for k in vals), abs(gR - R) / R)
+    assert worst < 1e-3, worst
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    rc = main()
+    test_compute_fo_moments_joint(); print("test_compute_fo_moments_joint: PASS")
+    sys.exit(rc)
