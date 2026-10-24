@@ -323,12 +323,15 @@ class UpgradeResult:
         Kish(q)/Kish(p).  Equals effN for an unweighted prior; for a weighted (e.g.
         sliced) prior it is the meaningful cost of the upgrade.
     closure : float
-        Worst relative deviation of an achieved moment from its target, max|ach/mu - 1|.
-        Near-zero targets inflate it; see max_pull.
+        Worst relative deviation of an achieved moment from its target, max|ach/mu - 1|,
+        over the imposed moments (Born, window and joint).  Near-zero targets inflate it;
+        see max_pull.
     max_pull : float
-        Worst |achieved - target| / sigma over the constraints, with sigma the target's
+        Worst |achieved - target| / sigma over the imposed moments, with sigma the target's
         Monte Carlo (stat) error where the moments carry `stat_errors`, otherwise its total
-        error.
+        error.  The window shares (the rate of a windowed tower or joint block, the share
+        above a blended tower's hard cut) are constraints too, but not moments: their
+        closure and pull are in report['shares'] and printed by describe().
     x_match : float
         Matching scale of the first recoil window (nan without one).
     moment_snr : dict {observable: array}
@@ -340,8 +343,9 @@ class UpgradeResult:
         Multipliers `lam`, targets `mu`, `feature_names`, `towers` (per-tower table used by
         describe(); `kind` is 'born', 'blend', 'windowed' or 'joint'), `moment_selection`,
         `windows` ({recoil observable: x_match, x_hi, rate, transition, profile}),
-        `q_over_p_range`, the soft-constraint block, and with `keep_features=True` the
-        feature matrix `Phi` and prior `p`.
+        `shares` ({constraint: {closure, pull}} for the window shares), `q_over_p_range`,
+        the soft-constraint block, and with `keep_features=True` the feature matrix `Phi`
+        and prior `p`.
     band : None
         Reserved; bands are re-solves of upgrade() (see README, "Uncertainty bands").
     soft_pulls : np.ndarray or None
@@ -373,14 +377,20 @@ class UpgradeResult:
     def describe(self) -> str:
         """A table of what was imposed and how well it closed, one row per tower."""
         towers = self.report.get("towers") or []
-        out = [f"{'tower':16s} {'kind':8s} {'map':4s} {'imposed':>9s}  {'orders below SNR 1 (SNR)':28s} {'max pull':>8s}"]
+        out = [f"{'tower':16s} {'kind':8s} {'map':4s} {'imposed':>9s}  {'imposed orders below SNR 1':28s} {'max pull':>8s}"]
         for t in towers:
-            below = ", ".join(f"{n}({s:.2f})" for n, s in t.get("below", [])) or "-"
+            below = ", ".join(str(n) for n, _ in t.get("below", [])) or "-"
+            if len(below) > 28:
+                below = f"{len(t['below'])} orders"
             mp = t.get("max_pull", float("nan"))
             out.append(f"{t['name']:16s} {t['kind']:8s} {str(t.get('map', '-'))[:4]:4s} "
                        f"{t['imposed']:>4d} / {t['supplied']:<3d} {below[:28]:28s} "
                        f"{(f'{mp:8.3f}' if np.isfinite(mp) else '       -')}")
         qp = self.report.get("q_over_p_range", (float("nan"), float("nan")))
+        sh = self.report.get("shares") or {}
+        if sh:
+            out.append("window shares (rel. deviation, pull): "
+                       + ", ".join(f"{k} {v['closure']:.1e}, {v['pull']:.2f}" for k, v in sh.items()))
         out.append(f"N = {len(self.weights):,}   effN = {100*self.effN:.2f}%   "
                    f"retained of the prior's effective count = {100*self.effN_retained:.2f}%")
         out.append(f"closure (max rel.) = {self.closure:.2e}   max pull = {self.max_pull:.3f}   "
@@ -986,6 +996,7 @@ def upgrade(events, moments, config):
 
     F = [np.ones(len(w))]; mu = [1.0]; names = ["norm"]
     SIG = [0.0]      # per-constraint target error (feature units); used only in soft mode
+    SHARES = []      # indices of the window-share constraints (a window rate, the share above a cut)
     snr_spectra = {}; chosen = {}; towers = []     # towers: one row per tower for describe()
     soft = bool(cfg["soft_constraints"])
 
@@ -1084,6 +1095,7 @@ def upgrade(events, moments, config):
             above = 1.0 - inside
             if above.any():
                 P_above = float((p * above).sum())
+                SHARES.append(len(names))
                 F.append(above); mu.append(cs * P_above); names.append(f"{obs}_above")
                 SIG.append(float(P_above / (1.0 - R_p) * float(rate_sig)))
         else:
@@ -1099,6 +1111,7 @@ def upgrade(events, moments, config):
                 F.append(C[:, n] * wprof); mu.append(float(vals[n - 1]) * R)
                 names.append(f"{obs}_T{n}")
                 SIG.append(float(np.hypot(float(sigv[n - 1]) * R, float(vals[n - 1]) * float(rate_sig))))
+            SHARES.append(len(names))
             F.append(wprof.copy()); mu.append(R); names.append(f"{obs}_rate"); SIG.append(float(rate_sig))
 
     # Born observables: validity is the full fiducial range.
@@ -1162,11 +1175,13 @@ def upgrade(events, moments, config):
             F.append(Cx[:, mm] * Cy[:, nn] * wxy); mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}"); SIG.append(float(merr.get((mm, nn), 0.0)) * R)
         if prof.get(ox) or prof.get(oy):
+            SHARES.append(len(names))
             F.append(wxy.copy()); mu.append(R); names.append(f"{key}_rate"); SIG.append(_rate_err(rc))
         towers.append(dict(name=key, kind="joint", map="-", supplied=len(rc["values"]),
                            imposed=len(rc["values"]), below=[]))
 
     Phi = np.column_stack(F); mu = np.asarray(mu, float)
+    F.clear()                    # the columns live on in Phi; free the copies (large priors)
     # warm start for band variants: re-solving from the central multipliers
     # reaches the (unique) optimum of a nearby target in a fraction of a second
     sig = np.asarray(SIG, float)
@@ -1179,17 +1194,21 @@ def upgrade(events, moments, config):
                            "inconsistent units.  Inspect result.report after a solve with fewer orders "
                            "(config['fixed_orders']).")
     ach = (q[:, None] * Phi).sum(0)
-    worst = float(np.max(np.abs(ach[1:] / np.where(np.abs(mu[1:]) > 1e-12, mu[1:], 1e-12) - 1)))
+    rel = np.abs(ach / np.where(np.abs(mu) > 1e-12, mu, 1e-12) - 1)
+    # closure and pulls are quoted for the moments; the window shares (the rate of a windowed
+    # tower or joint block, the share above a blended tower's hard cut) are reported apart
+    is_mom = np.ones(len(mu), bool); is_mom[0] = False; is_mom[SHARES] = False
+    worst = float(rel[is_mom].max()) if is_mom.any() else 0.0
     # soft mode: the residual is by construction -sd r lam, i.e. a moment is met to within
     # its own error; report (achieved - target)/sigma per constraint (nan where sigma = 0)
     pulls = np.where(sig > 0, (ach - mu) / np.where(sig > 0, sig, 1.0), np.nan)
     effN = 1.0 / (len(q) * float((q ** 2).sum()))
     effN_retained = float((p ** 2).sum() / (q ** 2).sum())        # Kish(q) / Kish(p)
-    fin = np.isfinite(pulls)
+    fin = np.isfinite(pulls) & is_mom
     max_pull = float(np.max(np.abs(pulls[fin]))) if fin.any() else float("nan")
+    shares = {names[i]: dict(closure=float(rel[i]), pull=float(pulls[i])) for i in SHARES}
     for t in towers:
-        idx = [i for i, nm in enumerate(names) if nm.startswith(t["name"] + "_T")
-               or nm in (t["name"] + "_rate", t["name"] + "_above")]
+        idx = [i for i, nm in enumerate(names) if is_mom[i] and nm.startswith(t["name"] + "_T")]
         pt = np.abs(pulls[idx]); pt = pt[np.isfinite(pt)]
         t["max_pull"] = float(pt.max()) if len(pt) else float("nan")
     qp = q / p
@@ -1208,7 +1227,7 @@ def upgrade(events, moments, config):
         lam=np.asarray(lam, float), mu=mu.copy(),
         feature_names=list(names),
         soft=dict(enabled=soft, errors=cfg["soft_errors"], sigma=sig.copy(), pulls=pulls),
-        towers=towers, q_over_p_range=(float(qp.min()), float(qp.max())),
+        towers=towers, shares=shares, q_over_p_range=(float(qp.min()), float(qp.max())),
     )
     if config.get("keep_features"):
         report["Phi"] = Phi
