@@ -102,7 +102,7 @@
 \node[cell=3.85cm] at ($(b3.east)+(0.13,0.2)$) {\textbf{select} resolved orders\\
   \sft{up to the last $n$ with\\ $|\mu_n^{\mathrm{target}}-\mu_n^{\mathrm{prior}}|>\sigma_n^{\mathrm{FO}}$}};
 \node[cell] at ($(b4.east)+(0.13,0.2)$) {\textbf{solve} the convex dual\\
-  \sft{for $\lambda$: z-scored features,\\ damped Newton, ridge $\ell_2$}};
+  \sft{for $\lambda$: z-scored features,\\ damped Newton, ridge $\epsilon$}};
 \node[cell] at ($(b5.east)+(0.13,0.2)$) {\textbf{tilt} the prior\\
   $q_i=p_i\,e^{\lambda\cdot m(\Phi_i)}/Z$\\ \sft{positive by construction}};
 \node[cell=3.85cm] at ($(b6.east)+(0.13,0.2)$) {\textbf{check} the solve\\

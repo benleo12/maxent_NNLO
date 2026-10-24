@@ -123,8 +123,8 @@ count. The tables reproduce the paper's weights ([`REPRODUCE.md`](REPRODUCE.md))
    Their targets agree with the prior within the error, so imposing them holds those moments
    where both put them.
 4. **Solve** the convex dual for the multipliers λ.
-   - The features are z-scored, the dual is minimized by damped Newton steps, and a ridge
-     `L2 = 1e-4` stabilizes the numerics (it is not a statistical weight).
+   - The features are z-scored, the dual is minimized by damped Newton steps, and the ridge
+     (`L2 = 1e-4`, the paper's ε) stabilizes the numerics (it is not a statistical weight).
    - The minimum is unique.
    - It takes seconds to a minute for 10⁶ events.
 5. **Tilt** the prior: q_i = p_i exp(λ·m(Φ_i)) / Z.
@@ -322,6 +322,7 @@ larger differences are the solver's own stopping tolerance ([`REPRODUCE.md`](REP
 | upgraded sample (MaxEnt in figures) | `result.weights` |
 | resolution criterion SNR_n > 1 | `moment_selection`, `snr_threshold`, `result.moment_snr` |
 | closure; worst pull | `result.closure`; `result.max_pull` |
+| ridge ε of the dual | the config key `L2` |
 
 ## Legacy: histogram input
 
