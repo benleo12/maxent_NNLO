@@ -15,8 +15,9 @@
 %   upgrade()           maxent_upgrade/__init__.py: umap/cheb, profile_w, resolved_order,
 %                       _newton_maxent (z-scored, damped Newton on the dual, ridge L2)
 %   bands               re-solves with config['lam0'] = result.report['lam'] and
-%                       fixed_orders = the central chosen orders (eventlevel/make_dy_band_weights.py),
+%                       fixed_orders = the central chosen orders (examples/bands_with_released_moments.py),
 %                       from the released per-run accumulators (scale variants, bootstrap of the runs)
+%                       and, for the Higgs boson and diphoton, the window variants (load_moments(p, window=V))
 \documentclass[11pt,tikz,border=0pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -97,9 +98,9 @@
 \node[cell] at ($(b1.east)+(0.13,0.2)$) {\textbf{map} each observable\\
   \sft{onto $u\in[-1,1]$: linear,\\ log or Breit--Wigner}};
 \node[cell=4.3cm] at ($(b2.east)+(0.13,0.2)$) {\textbf{features} $m_n=T_n(u)$\\
-  \sft{the recoil as $w(v)\,T_n(u)$,\\ above the matching scale $v_\mathrm{m}$}};
+  \sft{recoil: blended targets\\ across the window $w(v)$}};
 \node[cell=3.85cm] at ($(b3.east)+(0.13,0.2)$) {\textbf{select} resolved orders\\
-  \sft{up to the last $n$ with\\ $|\mu_n^{\mathrm{FO}}-\mu_n^{\mathrm{prior}}|>\sigma_n$}};
+  \sft{up to the last $n$ with\\ $|\mu_n^{\mathrm{target}}-\mu_n^{\mathrm{prior}}|>\sigma_n^{\mathrm{FO}}$}};
 \node[cell] at ($(b4.east)+(0.13,0.2)$) {\textbf{solve} the convex dual\\
   \sft{for $\lambda$: z-scored features,\\ damped Newton, ridge $\ell_2$}};
 \node[cell] at ($(b5.east)+(0.13,0.2)$) {\textbf{tilt} the prior\\
@@ -114,15 +115,15 @@
 \draw[flow] (ld) -- (\cc,\yC);
 
 % ---------------- outputs ----------------
-\node[outbx] (fol) at (\ca,\yD) {{\normalsize any observable}\\
+\node[outbx, minimum height=2.04cm] (fol) at (\ca,\yD) {{\normalsize any observable}\\
   \sft{histogram with \ttt{weights}:\\ it inherits the upgrade}};
-\node[outbx] (res) at (\cb,\yD) {{\normalsize\ttt{UpgradeResult}}\\
-  \sft{\ttt{weights}, \ttt{effN}, \ttt{closure},\\ \ttt{chosen\_moments}}};
+\node[outbx, minimum height=2.04cm] (res) at (\cb,\yD) {{\normalsize\ttt{UpgradeResult}}\\
+  \sft{\ttt{weights}, \ttt{effN}, \ttt{closure},\\ \ttt{effN\_retained},\\ \ttt{max\_pull}, \ttt{describe()}}};
 \node[outbx, minimum height=2.04cm] (band) at (\cc,\yD) {{\normalsize uncertainty bands}\\
-  \sft{re-solve per scale variant\\ and per bootstrap replica\\ of the released runs}};
+  \sft{re-solve per scale variant,\\ bootstrap replica of the\\ runs and window variant}};
 \draw[flow] (\cb,\yC-\hC) -- (res);
-\draw[flow] (\lb,\yD-\ym) -- (\la+\bw,\yD-\ym);
-\draw[flow] (\lb+\bw,\yD-\ym) -- (\lc,\yD-\ym);
+\draw[flow] (\lb,\yD-1.02) -- (\la+\bw,\yD-1.02);
+\draw[flow] (\lb+\bw,\yD-1.02) -- (\lc,\yD-1.02);
 \draw[-{Stealth[length=2.3mm,width=1.7mm]}, line width=0.6pt, draw=mx, densely dashed]
    (\rc-0.75,\yD) -- (\rc-0.75,\yC-\hC) node[midway, left, text=mx, inner sep=4pt] {warm start \ttt{lam0}};
 
