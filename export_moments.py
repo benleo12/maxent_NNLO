@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-r"""Export the fixed-order moments of the paper in one self-describing JSON per process.
+r"""Turn the NNLOJET productions behind the paper into the released moment tables.
 
-    python export_moments.py            # all processes -> moments/<name>.json (+ _runs.json.gz, .csv)
-    python export_moments.py dy wp aa   # a subset
+    python export_moments.py                 # every table -> moments/<name>.json (+ .csv, _runs.json.gz)
+    python export_moments.py dy wp aa        # a subset
+    python export_moments.py ggh_winvar      # the matching-window variants of one process
 
-Needs the NNLOJET productions under $NNLOJET_ROOT (default ~/nnlojet-v1.0.2) and
-eventlevel/nnlojet_moments.py.  One schema for every process (read it back with
-maxent_upgrade.load_moments):
+Needs the NNLOJET productions (run cards in runcards/, accumulators from nnlojet_patch/):
+the main runs under $NNLOJET_ROOT (default ~/nnlojet-v1.0.2) and the window-variant runs
+under $NNLOJET_WINVAR_ROOT (default: nnlojet-winvar/runs next to $NNLOJET_ROOT).  Output goes
+to moments/ next to this script (or $MOMENTS_OUT).  One schema for every table (read it back
+with maxent_upgrade.load_moments):
 
-  process, order, sqrt_s_TeV, pdf, ew_scheme, scale, fiducial, n_independent_runs
+  process, order, sqrt_s_TeV, pdf, ew_scheme, scale, fiducial, n_independent_runs, channels
+  provenance          {nnlojet, run_directory, run_name, runcard, n_runs, seeds, channels
+                       [, decay_type]}: where the numbers come from
   hard_scale_GeV      Q of the matching-scale rule alpha_s(pT) ln^2(Q/pT) < 0.2
-  sigma_fid_pb        {value, stat, scale_lo, scale_hi}  (null when not validated)
+  sigma_fid_pb        {value, stat, scale_lo, scale_hi[, note]}: the fixed-order cross section
+                      of the production inside its selection (inclusive for the Higgs boson)
   towers[key]         kind = "born" | "window" | "reference"
                       observable (the events-dict key the solver expects), map, range,
                       [bw = [M, Gamma] for the Breit-Wigner map],
@@ -22,13 +28,20 @@ maxent_upgrade.load_moments):
                       stat_errors, scale_errors, window_rate (+ _stat, _scale),
                       numerator_tags {"m,n": tag}, denominator_tag
   default_constraints the towers the paper imposed: {born: [...], recoil: [...], mixed: [...],
-                      max_orders: {tower: depth the paper used, where shallower than the table}}
+                      max_orders: {tower: depth the paper used, where shallower than the table},
+                      transition: {tower: "windowed", where the paper kept the windowed form}}
   scales              the seven (muR, muF) choices, central first
 
 <name>_runs.json.gz holds the channel-summed accumulators of every run:
-  {runs: [seed], scales: [7 labels], tags: [tag], acc: [run][tag][scale]}
+  {runs: [seed], scales: [7 labels], channels, tags: [tag], acc: [run][tag][scale]}
 so that any scale choice or any resample of the runs can be pooled again
 (maxent_upgrade.load_moments(process, scale=k) or runs=[...]).
+
+The window-variant tables (<main>_winvar.json) carry, instead of towers, windows[V] for
+V = A, B, C: the recoil tower of the main table booked with another matching window, in
+dedicated runs (channels R, RV, RR: LO, V and VV have no recoil).  Their window rate is
+W0_V / sigma_fid with sigma_fid from the six channels of the MAIN run, so their
+_runs.json.gz adds a `reference` block with the main run's norm_born per run.
 
 Definitions (all on the fixed-order phase-space points, weight = dsigma):
   Born tower       mu_n = <T_n(u(v))>                       over the fiducial region
@@ -40,7 +53,7 @@ Definitions (all on the fixed-order phase-space points, weight = dsigma):
           (or a C^2 fall between c and d when d is given).
   values = pooled over the independent runs (ratio of summed numerators to summed denominators),
   stat = run-to-run scatter / sqrt(n_runs), scale = half-range over the seven-point variation.
-  window rates are pooled the same way (ratio of sums).
+  Window rates are pooled the same way (ratio of sums).
 """
 import glob
 import gzip
@@ -52,35 +65,106 @@ import sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path[:0] = [HERE, os.path.join(HERE, "eventlevel")]      # repo layout: eventlevel/nnlojet_moments.py
-from nnlojet_moments import common_seeds, _moment_over_seeds, _reduce, _sum_channels  # noqa: E402
-
 ROOT = os.environ.get("NNLOJET_ROOT", os.path.expanduser("~/nnlojet-v1.0.2"))
-OUT = os.environ.get("MOMENTS_OUT") or (os.path.join(HERE, "moments") if os.path.isdir(os.path.join(HERE, "moments"))
-                                         else os.path.join(HERE, "moments_release"))
+WINVAR_ROOT = os.environ.get("NNLOJET_WINVAR_ROOT", os.path.join(os.path.dirname(ROOT), "nnlojet-winvar", "runs"))
+OUT = os.environ.get("MOMENTS_OUT") or os.path.join(HERE, "moments")
+NNLOJET = "NNLOJET v1.0.2 with the patch in nnlojet_patch/ (event-level moment accumulators)"
 MZ, GZ = 91.1876, 2.4952
 MW, GW = 80.385, 2.085
 NNLO = ["LO", "R", "V", "RR", "RV", "VV"]
+REAL = ["R", "RV", "RR"]            # the channels with a nonzero recoil
 # The seven-point variation as (muR, muF) in units of the central scale, in the column order of
 # each production's run card (SCALES block).  The order differs between run cards; the envelope
 # (half-range over all seven) does not depend on it, but a reader pooling one scale does.
 SC_DY = [(1, 1), (2, 2), (.5, .5), (2, 1), (1, 2), (.5, 1), (1, .5)]          # dy, wp, wm
-SC_AA = [(1, 1), (2, 2), (.5, .5), (2, 1), (1, 2), (1, .5), (.5, 1)]          # gg_moments2.run lists muF first
-SC_H = [(1, 1), (2, 2), (.5, .5), (.5, 1), (1, .5), (2, 1), (1, 2)]           # ggh_moments2.run
+SC_AA = [(1, 1), (2, 2), (.5, .5), (2, 1), (1, 2), (1, .5), (.5, 1)]          # gg_moments2.run, gg_winvar.run (muF listed first)
+SC_H = [(1, 1), (2, 2), (.5, .5), (.5, 1), (1, .5), (2, 1), (1, 2)]           # ggh_moments3.run, ggh_winvar.run
 SC_ZJ = [(1, 1), (2, 2), (.5, .5), (.5, 1), (1, .5), (2, 1), (1, 2)]          # zj_moments.run, central = H_T/2
+
+
+# ------------------------------------------------------------------ reading NNLOJET output
+def _load(path):
+    """NNLOJET .dat -> (lower, center, upper, vals[nbin, nscale], errs[nbin, nscale]), or None."""
+    if not os.path.exists(path):
+        return None
+    rows = [[float(x) for x in line.split()] for line in open(path) if line.strip() and not line.startswith("#")]
+    a = np.array(rows, float)
+    rest = a[:, 3:]
+    return a[:, 0], a[:, 1], a[:, 2], rest[:, 0::2], rest[:, 1::2]
+
+
+def _sum_channels(base, run, channels, tag, seed, prefix):
+    """A single-bin accumulator summed over the channels of one run: vals[nscale], or None."""
+    tot = None
+    for ch in channels:
+        r = _load(os.path.join(base, f"ch_{ch}", f"{prefix}.{run}.{ch}.{tag}.s{seed}.dat"))
+        if r is None:
+            continue
+        v = r[3][0]
+        tot = v.copy() if tot is None else tot + v
+    return tot
+
+
+def common_seeds(base, run, channels, tags, prefix):
+    """The runs for which every channel wrote every requested accumulator.  Pooling needs the
+    same channel content in every run: a missing channel would bias the pooled sums."""
+    sets = []
+    for tg in ([tags] if isinstance(tags, str) else tags):
+        for ch in channels:
+            pat = os.path.join(base, f"ch_{ch}", f"{prefix}.{run}.{ch}.{tg}.s*.dat")
+            sets.append({int(f.split(".s")[-1].split(".dat")[0]) for f in glob.glob(pat)})
+    return sorted(set.intersection(*sets)) if sets else []
+
+
+def _moment_over_seeds(base, run, channels, seeds, num_tag, den_tag, prefix):
+    """Pool the runs as the ratio of SUMS, sum(num)/sum(den) (a ratio of means, not the mean of
+    per-run ratios); the per-run ratios are kept only for the statistical spread.
+    Returns (pooled[nscale], per_run[nrun, nscale])."""
+    P = N = None
+    rows = []
+    for s in seeds:
+        num = _sum_channels(base, run, channels, num_tag, s, prefix)
+        den = _sum_channels(base, run, channels, den_tag, s, prefix)
+        if num is None or den is None:
+            continue
+        P = num.copy() if P is None else P + num
+        N = den.copy() if N is None else N + den
+        with np.errstate(divide="ignore", invalid="ignore"):
+            rows.append(num / den)
+    if P is None:
+        return None, np.zeros((0, 0))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return P / N, np.array(rows)
+
+
+def _reduce(m, scale_idx=0):
+    """(pooled[nscale], per_run[nrun, nscale]) -> (central, stat, scale half-range, total)."""
+    pooled, per = m
+    if pooled is None:
+        return float("nan"), float("nan"), float("nan"), float("nan")
+    central = float(pooled[scale_idx])
+    if len(per) > 1:
+        v = per[:, scale_idx]; v = v[np.isfinite(v)]
+        stat = float(v.std(ddof=1) / np.sqrt(len(v))) if len(v) > 1 else 0.0
+    else:
+        stat = 0.0
+    scale = float(0.5 * (np.nanmax(pooled) - np.nanmin(pooled)))
+    return central, stat, scale, float(np.hypot(stat, scale))
 
 
 def scale_labels(pairs, q):
     f = lambda x: {1: "", 2: "2 ", .5: "0.5 "}[x]
     return [f"muR = {f(r)}{q}, muF = {f(m)}{q}" for r, m in pairs]
 
+
 def T(key, kind, tag, den, mp, rng, obs, note, **kw):
     d = dict(key=key, kind=kind, tag=tag, den=den, map=mp, range=list(rng), observable=obs, note=note); d.update(kw); return d
+
 
 # ------------------------------------------------------------------ the productions
 SPEC = {
  "dy": dict(file="dy_nnlo_moments", base="dy_profile_log30_hi", run="DY_MOMENTS", prefix="Z", ch=NNLO,
-    scales=scale_labels(SC_DY, "m_ll"),
+    runcard="runcards/dy_moments_log30_hi.run", scales=scale_labels(SC_DY, "m_ll"),
     meta=dict(process="pp -> Z/gamma* -> l+ l-", order="NNLO QCD (NNLOJET)", sqrt_s_TeV=13, pdf="CT18NNLO",
               ew_scheme="G_mu", scale="muR = muF = m_ll",
               fiducial="66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5, Born-level leptons (ATLAS 13 TeV)",
@@ -91,53 +175,59 @@ SPEC = {
               "recoil, C^2 window 30-60 GeV, hard cut 500 GeV", soft_lo=30.0, profile=dict(a=30.0, b=60.0, c=500.0),
               matching_scale_rule=True),
             T("abs_costh", "reference", "prof_ctl", "norm_born", "lin", (0.0, 1.0), "abs_costh",
-              "|cos theta*| of the lepton pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_ll), linear map on [0,1]; booked, not imposed in the paper"),
+              "|cos theta*| of the lepton pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_ll), "
+              "linear map on [0,1]; booked, not imposed in the paper"),
             T("pT_l1", "reference", "prof_ptl1", "norm_born", "log", (27.0, 200.0), "pT_lead",
               "leading-lepton pT on the log map [27,200] compiled into NNLOJET (eval_chebT_ptl1); "
-              "a prediction of the paper, released for validation, never imposed"),
+              "a follower of the paper, released for validation, never imposed"),
             T("pT_l2", "reference", "prof_ptl2", "norm_born", "log", (27.0, 150.0), "pT_sub",
               "subleading-lepton pT on the log map [27,150] compiled into NNLOJET (eval_chebT_ptl2); "
-              "a prediction of the paper, released for validation, never imposed")],
+              "a follower of the paper, released for validation, never imposed")],
     joint=[dict(key="mll_x_abs_costh", tag="prof_mct", den="norm_born", observables=["mll", "abs_costh"], profile=None,
-                note="<T_m(u_BW(m_ll)) T_n(u_lin(|cos theta*|))> over the fiducial region, no window (eval_chebTT_mllct); closes the decay correlation, redundant for the lepton spectra (paper)")],
-    default=dict(born=["mll", "y_abs"], recoil=["pT_ll"], mixed=[], max_orders={})),
+                note="<T_m(u_BW(m_ll)) T_n(u_lin(|cos theta*|))> over the fiducial region, no window (eval_chebTT_mllct); "
+                     "the decay correlation, redundant for the lepton spectra (paper)")],
+    default=dict(born=["mll", "y_abs"], recoil=["pT_ll"], mixed=[], max_orders={}, transition={})),
  "wp": dict(file="w_nnlo_moments_WP", base="w_moments/WP", run="W_MOMENTS", prefix="WP", ch=NNLO,
-    scales=scale_labels(SC_DY, "m_lnu"),
+    runcard="runcards/w_moments_WP.run", scales=scale_labels(SC_DY, "m_lnu"),
     meta=dict(process="pp -> W+ -> l+ nu", order="NNLO QCD (NNLOJET)", sqrt_s_TeV=7, pdf="CT18NNLO",
               ew_scheme="G_mu (complex masses), CKM full", scale="muR = muF = m_lnu",
               fiducial="pT_l > 20 GeV, |eta_l| < 2.5, pT_nu > 25 GeV, m_T > 40 GeV, Born-level leptons (ATLAS 7 TeV)",
               hard_scale_GeV=MW)),
  "wm": dict(file="w_nnlo_moments_WM", base="w_moments/WM", run="W_MOMENTS", prefix="WM", ch=NNLO,
-    scales=scale_labels(SC_DY, "m_lnu"),
+    runcard="runcards/w_moments_WM.run", scales=scale_labels(SC_DY, "m_lnu"),
     meta=dict(process="pp -> W- -> l- nubar", order="NNLO QCD (NNLOJET)", sqrt_s_TeV=7, pdf="CT18NNLO",
               ew_scheme="G_mu (complex masses), CKM full", scale="muR = muF = m_lnu",
               fiducial="pT_l > 20 GeV, |eta_l| < 2.5, pT_nu > 25 GeV, m_T > 40 GeV, Born-level leptons (ATLAS 7 TeV)",
               hard_scale_GeV=MW)),
  "aa": dict(file="aa_nnlo_moments", base="gg_moments2", run="GG_MOMENTS", prefix="GG", ch=NNLO,
-    scales=scale_labels(SC_AA, "m_gg"),
+    runcard="runcards/gg_moments2.run", scales=scale_labels(SC_AA, "m_gg"),
     meta=dict(process="pp -> gamma gamma (continuum, q qbar + q g + g g channels)", order="NNLO QCD (NNLOJET)", sqrt_s_TeV=8,
               pdf="CT18NNLO", ew_scheme="alpha(0)", scale="muR = muF = m_gg",
               fiducial="pT_g1 > 40, pT_g2 > 30 GeV, |eta_g| < 2.37 excl. 1.37-1.56, dR_gg > 0.4, Frixione isolation r=0.4 ET_max=11 GeV (ATLAS 8 TeV)",
               hard_scale_GeV=90.0),
     towers=[T("m_aa", "born", "prof_maa", "norm_born", "log", (80.0, 700.0), "m_aa", "diphoton mass"),
             T("abs_costh_aa", "born", "prof_cts", "norm_born", "lin", (0.0, 1.0), "abs_costh_aa",
-              "|cos theta*| of the photon pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_gam12)"),
+              "|cos theta*| of the photon pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_gam12), linear map on [0,1]"),
             T("pt_aa", "window", "prof_wpt", "prof_wpt_0", "log", (1.0, 500.0), "pt_aa",
               "recoil, C^2 window 28-56 GeV, hard cut 500 GeV", soft_lo=1.0, profile=dict(a=28.0, b=56.0, c=500.0),
               matching_scale_rule=True)],
-    joint=[], default=dict(born=["m_aa", "abs_costh_aa"], recoil=["pt_aa"], mixed=[], max_orders={})),
- "ggh": dict(file="ggh_nnlo_moments", base="ggh_moments2", run="GGH_MOMENTS", prefix="H", ch=NNLO,
-    scales=scale_labels(SC_H, "m_H"),
-    meta=dict(process="pp -> H (gluon fusion, heavy-top effective theory)", order="NNLO QCD (NNLOJET)", sqrt_s_TeV=13,
-              pdf="CT18NNLO", ew_scheme="-", scale="muR = muF = m_H", fiducial="none (fully inclusive)", hard_scale_GeV=125.0,
-              sigma_fid_note="NOT VALIDATED: the norm_born accumulator of this production carries an overall normalization that does not reproduce the known inclusive gg -> H cross section (it comes out about 600 times too large); the paper uses only the shape moments, which are ratios and unaffected. sigma_fid_pb is therefore set to null; take the inclusive cross section from elsewhere to normalize an upgraded sample."),
+    joint=[], default=dict(born=["m_aa", "abs_costh_aa"], recoil=["pt_aa"], mixed=[], max_orders={}, transition={})),
+ "ggh": dict(file="ggh_nnlo_moments", base="ggh_moments3", run="GGH_MOMENTS", prefix="H", ch=NNLO,
+    runcard="runcards/ggh_moments3.run", decay_type=3, scales=scale_labels(SC_H, "m_H"),
+    meta=dict(process="pp -> H (gluon fusion, heavy-top effective theory, on-shell Higgs boson)", order="NNLO QCD (NNLOJET)",
+              sqrt_s_TeV=13, pdf="CT18NNLO", ew_scheme="-", scale="muR = muF = m_H", fiducial="none (fully inclusive)",
+              hard_scale_GeV=125.0),
+    sigma_note=("the inclusive NNLO cross section of this production (heavy-top effective theory, on-shell Higgs "
+                "boson, muR = muF = m_H, CT18NNLO). The paper normalizes every gluon-fusion sample to the inclusive "
+                "N3LO cross section of the LHC Higgs Cross Section Working Group (YR4), 48.58 pb, as the ATLAS "
+                "analysis it compares with does."),
     towers=[T("y_abs", "born", "prof_yh", "norm_born", "lin", (0.0, 4.0), "y_abs", "|y_H|"),
             T("pT_H", "window", "prof_wpt", "prof_wpt_0", "log", (1.0, 1000.0), "pT_H",
               "recoil, C^2 window 37-74 GeV, hard cut 1000 GeV", soft_lo=1.0, profile=dict(a=37.0, b=74.0, c=1000.0),
               matching_scale_rule=True)],
-    joint=[], default=dict(born=["y_abs"], recoil=["pT_H"], mixed=[], max_orders={})),
+    joint=[], default=dict(born=["y_abs"], recoil=["pT_H"], mixed=[], max_orders={}, transition={})),
  "zj": dict(file="zj_nlo_moments", base="zj_moments2", run="ZJ_MOMENTS", prefix="ZJ", ch=["LO", "R", "V"],
-    scales=scale_labels(SC_ZJ, "H_T/2"),
+    runcard="runcards/zj_moments.run", scales=scale_labels(SC_ZJ, "H_T/2"),
     meta=dict(process="pp -> Z(-> l+ l-) + jet", order="NLO QCD (NNLOJET)", sqrt_s_TeV=13, pdf="CT18NNLO",
               ew_scheme="G_mu", scale="muR = muF = H_T/2 (NNLOJET ht_full; see runcards/zj_moments.run)",
               fiducial="66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5 (Born-level leptons); anti-kT R=0.4 jets pT > 20 GeV, |y| < 4.4, dR(jet, lepton) > 0.4 (ATLAS 13 TeV); "
@@ -157,8 +247,10 @@ SPEC = {
     joint=[dict(key="ptj1_x_ptj2", tag="prof_wj12", den="prof_wj12_0", observables=["ptj1", "ptj2"],
                 profile=dict(ptj1=dict(a=30.0, b=60.0, c=1000.0, d=1000.0), ptj2=dict(a=30.0, b=60.0, c=1000.0, d=1000.0)),
                 note="<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation (paper)")],
+    # the paper keeps the windowed form for every Z+jet tower: blended joint constraints have no solution
     default=dict(born=["mll", "y_abs"], recoil=["ptj1", "ptj2"], mixed=["ptj1_x_ptj2"],
-                 max_orders={"ptj2": 6, "pimdphi": 4})),
+                 max_orders={"ptj2": 6, "pimdphi": 4},
+                 transition={"ptj1": "windowed", "ptj2": "windowed", "pimdphi": "windowed"})),
 }
 for k in ("wp", "wm"):
     SPEC[k].update(towers=[
@@ -174,11 +266,24 @@ for k in ("wp", "wm"):
           "the paper's optional decay-angle constraint",
           soft_lo=0.0, profile=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
         T("ctw_full", "reference", "prof_ctw", "norm_born", "lin", (-1.0, 1.0), "ctw",
-          "the same signed angle over its full range (events key ctw = cos theta*); booked, shown in the paper to distort m_T, not recommended")],
+          "the same signed angle over its full range (events key ctw = cos theta*); booked, not imposed: the "
+          "full range includes the recoil-driven edge at |cos theta*| = 0.78 that a tower should not impose")],
         joint=[dict(key="pt_w_x_ctw", tag="prof_ptwctw", den="prof_wptwctw_0", observables=["pt_w", "ctw1"],
                     profile=dict(pt_w=dict(a=25.0, b=50.0, c=500.0, d=500.0), ctw1=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
-                    note="<w T_m(u_log(pT_W)) T_n(cos theta*)> / <w>; does not remove the m_T residual (paper)")],
-        default=dict(born=["m_w", "y_abs"], recoil=["pt_w"], mixed=[], max_orders={}))
+                    note="<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed in the paper")],
+        default=dict(born=["m_w", "y_abs"], recoil=["pt_w"], mixed=[], max_orders={}, transition={}))
+
+# The matching-window variants: the recoil tower of the main table booked with three other windows
+# in dedicated runs (channels R, RV, RR, seeds 101-140) whose Vegas grids were copied from the main
+# run (runcards/README.md).  Their rate is normalized to the main run's sigma_fid.
+WINVAR = {
+ "ggh_winvar": dict(file="ggh_nnlo_moments_winvar", main="ggh", base="ggh_winvar", run="GGH_WINVAR", prefix="H",
+    runcard="runcards/ggh_winvar.run", decay_type=3, tower="pT_H", tag="prof_wpt",
+    windows={"A": (25.0, 50.0), "B": (50.0, 100.0), "C": (37.0, 148.0)}),
+ "aa_winvar": dict(file="aa_nnlo_moments_winvar", main="aa", base="gg_winvar", run="GG_WINVAR", prefix="GG",
+    runcard="runcards/gg_winvar.run", tower="pt_aa", tag="prof_wpt",
+    windows={"A": (19.0, 38.0), "B": (37.0, 74.0), "C": (28.0, 112.0)}),
+}
 
 
 def booked_orders(base, run, ch0, prefix, tag):
@@ -192,6 +297,8 @@ def booked_orders(base, run, ch0, prefix, tag):
 
 
 def rate(base, run, ch, seeds, prefix, wtag):
+    """Window rate <w>/sigma_fid pooled over the runs (ratio of sums), its run-to-run error and
+    its seven-point half-range."""
     ps, W, N = [], None, None
     for s in seeds:
         w = _sum_channels(base, run, ch, wtag, s, prefix); n = _sum_channels(base, run, ch, "norm_born", s, prefix)
@@ -199,28 +306,48 @@ def rate(base, run, ch, seeds, prefix, wtag):
             continue
         ps.append(w[0] / n[0]); W = w.copy() if W is None else W + w; N = n.copy() if N is None else N + n
     pooled = W / N
-    return float(pooled[0]), float(np.std(ps, ddof=1) / np.sqrt(len(ps))), float(0.5 * (pooled[1:7].max() - pooled[1:7].min()))
+    return float(pooled[0]), float(np.std(ps, ddof=1) / np.sqrt(len(ps))), float(0.5 * (pooled[:7].max() - pooled[:7].min()))
+
+
+def _bin_width(base, run, ch0, prefix):
+    f0 = sorted(glob.glob(os.path.join(base, f"ch_{ch0}", f"{prefix}.{run}.{ch0}.norm_born.s*.dat")))[0]
+    r0 = [l.split() for l in open(f0) if l.strip() and not l.startswith("#")][0]
+    return float(r0[2]) - float(r0[0])
+
+
+def _write(name, out, rows, runs):
+    os.makedirs(OUT, exist_ok=True)
+    with open(os.path.join(OUT, name + ".json"), "w") as f:
+        json.dump(out, f, indent=1)
+    with open(os.path.join(OUT, name + ".csv"), "w") as f:
+        f.write("\n".join(rows) + "\n")
+    with open(os.path.join(OUT, name + "_runs.json.gz"), "wb") as fb:
+        with gzip.GzipFile(fileobj=fb, mode="wb", mtime=0) as gz:          # mtime=0: reproducible bytes
+            gz.write(json.dumps(runs, separators=(",", ":")).encode())
+
+
+def _acc(base, run, ch, seeds, tags, prefix, nsc):
+    """acc[run][tag][scale]: every accumulator, summed over the channels of each run (12 digits)."""
+    return [[[float(f"{x:.12g}") for x in _sum_channels(base, run, ch, g, s, prefix)[:nsc]] for g in tags] for s in seeds]
 
 
 def export(name):
     S = SPEC[name]; base = os.path.join(ROOT, S["base"]); run, prefix, ch = S["run"], S["prefix"], S["ch"]
-    seeds = common_seeds(base, run, ch, prefix=prefix)
-    out = dict(S["meta"]); out.update(n_independent_runs=len(seeds), channels=ch, scales=S["scales"], towers={}, joint={},
-                                      default_constraints=S["default"])
+    seeds = common_seeds(base, run, ch, "norm_born", prefix)
+    out = dict(S["meta"]); out.update(n_independent_runs=len(seeds), channels=ch, scales=S["scales"])
+    out["provenance"] = dict(nnlojet=NNLOJET, run_directory=S["base"], run_name=run, runcard=S["runcard"],
+                             n_runs=len(seeds), seeds=[int(x) for x in seeds], channels=ch,
+                             **({"decay_type": S["decay_type"]} if "decay_type" in S else {}))
+    out.update(towers={}, joint={}, default_constraints=S["default"])
     acc_tags = ["norm_born"]                     # every accumulator a table entry is pooled from
-    # fiducial cross section: norm_born is a one-bin histogram, sigma = value x width (fb -> pb)
-    f0 = glob.glob(os.path.join(base, f"ch_{ch[0]}", f"{prefix}.{run}.{ch[0]}.norm_born.s*.dat"))[0]
-    r0 = [l.split() for l in open(f0) if l.strip() and not l.startswith("#")][0]; width = float(r0[2]) - float(r0[0])
-    ps, Ssum = [], None
-    for s in seeds:
-        n = _sum_channels(base, run, ch, "norm_born", s, prefix)
-        if n is not None:
-            ps.append(n[0] * width); Ssum = n.copy() * width if Ssum is None else Ssum + n * width
-    Ssum = Ssum / len(ps)
-    out["sigma_fid_pb"] = dict(value=float(Ssum[0] / 1e3), stat=float(np.std(ps, ddof=1) / np.sqrt(len(ps)) / 1e3),
-                               scale_lo=float(Ssum[1:7].min() / 1e3), scale_hi=float(Ssum[1:7].max() / 1e3))
-    if "sigma_fid_note" in out:
-        out["sigma_fid_pb"] = None
+    # cross section: norm_born is a one-bin histogram, sigma = value x width (fb -> pb), seed mean
+    width = _bin_width(base, run, ch[0], prefix)
+    ps = np.array([_sum_channels(base, run, ch, "norm_born", s, prefix) * width for s in seeds])
+    Smean = ps.mean(0)
+    out["sigma_fid_pb"] = dict(value=float(Smean[0] / 1e3), stat=float(ps[:, 0].std(ddof=1) / np.sqrt(len(ps)) / 1e3),
+                               scale_lo=float(Smean[:7].min() / 1e3), scale_hi=float(Smean[:7].max() / 1e3))
+    if "sigma_note" in S:
+        out["sigma_fid_pb"]["note"] = S["sigma_note"]
     for t in S["towers"]:
         ns = booked_orders(base, run, ch[0], prefix, t["tag"]); ns.discard(0)
         if not ns:
@@ -259,9 +386,6 @@ def export(name):
         else:
             d.update(window_rate=1.0, window_rate_stat=0.0, window_rate_scale=0.0)
         out["joint"][j["key"]] = d
-    os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, S["file"] + ".json"), "w") as f:
-        json.dump(out, f, indent=1)
     rows = ["tower,kind,observable,map,lo,hi,order,value,stat,scale"]
     for k, d in out["towers"].items():
         for i, n in enumerate(d["orders"]):
@@ -269,27 +393,82 @@ def export(name):
     for k, d in out["joint"].items():
         for key_, v in d["values"].items():
             rows.append(f"{k},joint,{'+'.join(d['observables'])},-,-,-,{key_.replace(',', '')},{v:.8g},{d['stat_errors'][key_]:.3g},{d['scale_errors'][key_]:.3g}")
-    with open(os.path.join(OUT, S["file"] + ".csv"), "w") as f:
-        f.write("\n".join(rows) + "\n")
-    # per-run accumulators: every numerator and denominator above, summed over the channels of each
-    # run, at all seven scales, so that a reader can pool any scale or any resample of the runs again
-    acc = []
-    for s_ in seeds:
-        row = []
-        for g in acc_tags:
-            v = _sum_channels(base, run, ch, g, s_, prefix)
-            row.append([float(f"{x:.12g}") for x in v[:len(S["scales"])]])
-        acc.append(row)
-    with open(os.path.join(OUT, S["file"] + "_runs.json.gz"), "wb") as fb:
-        with gzip.GzipFile(fileobj=fb, mode="wb", mtime=0) as gz:          # mtime=0: reproducible bytes
-            gz.write(json.dumps(dict(process=out["process"], runs=[int(x) for x in seeds], scales=S["scales"], channels=ch,
-                                     tags=acc_tags, acc=acc), separators=(",", ":")).encode())
-    sig = out["sigma_fid_pb"] or dict(value=float("nan"), stat=float("nan"), scale_lo=float("nan"), scale_hi=float("nan"))
-    print(f"{name:4s} {S['file']}: {len(seeds)} runs; sigma_fid {sig['value']:.2f} pb (stat {sig['stat']:.2f}, scale {sig['scale_lo']:.2f}-{sig['scale_hi']:.2f}); "
+    runs = dict(process=out["process"], runs=[int(x) for x in seeds], scales=S["scales"], channels=ch, tags=acc_tags,
+                acc=_acc(base, run, ch, seeds, acc_tags, prefix, len(S["scales"])))
+    _write(S["file"], out, rows, runs)
+    sig = out["sigma_fid_pb"]
+    print(f"{name:4s} {S['file']}: {len(seeds)} runs; sigma_fid {sig['value']:.4g} pb (stat {sig['stat']:.2g}, scale {sig['scale_lo']:.4g}-{sig['scale_hi']:.4g}); "
           f"towers {[(k, d['n_orders']) for k, d in out['towers'].items()]}; joint {[(k, len(d['values'])) for k, d in out['joint'].items()]}")
 
 
+def export_winvar(name):
+    W = WINVAR[name]; M = SPEC[W["main"]]
+    base = os.path.join(WINVAR_ROOT, W["base"]); run, prefix = W["run"], W["prefix"]
+    ref_base = os.path.join(ROOT, M["base"])
+    main = json.load(open(os.path.join(OUT, M["file"] + ".json")))
+    nsc = len(M["scales"])
+    tags = [f"{W['tag']}{V}_{n}" for V in W["windows"] for n in range(13)]
+    seeds = common_seeds(base, run, REAL, tags, prefix)
+    ref_seeds = main["provenance"]["seeds"]
+    # sigma_fid of the MAIN run (all six channels), per run and scale: the variant rate's denominator
+    S = np.array([_sum_channels(ref_base, M["run"], M["ch"], "norm_born", s, prefix)[:nsc] for s in ref_seeds])
+    Sm, Se = S.mean(0), S.std(0, ddof=1) / np.sqrt(len(S))
+    out = {k: main[k] for k in ("process", "order", "sqrt_s_TeV", "pdf", "ew_scheme", "scale", "fiducial", "hard_scale_GeV")}
+    out.update(variant_of=M["file"], replaces_tower=W["tower"], n_independent_runs=len(seeds), channels=REAL, scales=M["scales"])
+    out["provenance"] = dict(nnlojet=NNLOJET + " and nnlojet_patch/winvar/ (the variant windows)", run_directory=W["base"],
+                             run_name=run, runcard=W["runcard"], n_runs=len(seeds), seeds=[int(x) for x in seeds], channels=REAL,
+                             **({"decay_type": W["decay_type"]} if "decay_type" in W else {}),
+                             vegas_grids=f"warm-up grids copied from the main run {M['base']} (runcards/README.md)",
+                             rate_denominator=dict(run_directory=M["base"], run_name=M["run"], runcard=M["runcard"],
+                                                   seeds=[int(x) for x in ref_seeds], channels=M["ch"], tag="norm_born"))
+    nom = main["towers"][W["tower"]]
+    out["windows"] = {}
+    rows = ["window,tower,observable,map,lo,hi,a,b,c,order,value,stat,scale"]
+    for V, (a, b) in W["windows"].items():
+        t = f"{W['tag']}{V}"
+        v, st, sc = [], [], []
+        for n in range(1, 13):
+            c, s_, sc_, _ = _reduce(_moment_over_seeds(base, run, REAL, seeds, f"{t}_{n}", f"{t}_0", prefix))
+            v.append(c); st.append(s_); sc.append(sc_)
+        Wr = np.array([_sum_channels(base, run, REAL, f"{t}_0", s, prefix)[:nsc] for s in seeds])
+        Wm, We = Wr.mean(0), Wr.std(0, ddof=1) / np.sqrt(len(Wr))
+        R = Wm / Sm
+        prof = dict(a=a, b=b, c=nom["profile"]["c"])
+        out["windows"][V] = dict(kind="window", observable=nom["observable"], map=nom["map"], range=nom["range"],
+                                 soft_lo=nom["soft_lo"], profile=prof, n_orders=12, orders=list(range(1, 13)),
+                                 values=v, stat_errors=st, scale_errors=sc,
+                                 window_rate=float(R[0]), window_rate_stat=float(abs(R[0]) * np.hypot(We[0] / Wm[0], Se[0] / Sm[0])),
+                                 window_rate_scale=float(0.5 * (R.max() - R.min())),
+                                 note=f"{W['tower']} with the matching window rising {a:g}-{b:g} GeV instead of "
+                                      f"{nom['profile']['a']:g}-{nom['profile']['b']:g} GeV, hard cut {prof['c']:g} GeV; "
+                                      f"window rate = W0 / sigma_fid of the main run",
+                                 numerator_tags=[f"{t}_{n}" for n in range(1, 13)], denominator_tag=f"{t}_0")
+        for i in range(12):
+            rows.append(f"{V},{W['tower']},{nom['observable']},{nom['map']},{nom['range'][0]:g},{nom['range'][1]:g},{a:g},{b:g},{prof['c']:g},"
+                        f"{i + 1},{v[i]:.8g},{st[i]:.3g},{sc[i]:.3g}")
+    # the nominal window booked in the same runs must reproduce the main table
+    nt = [f"{W['tag']}_{n}" for n in range(13)]
+    if common_seeds(base, run, REAL, nt, prefix) == seeds:
+        pulls = []
+        for n in range(1, 13):
+            c, s_, _, _ = _reduce(_moment_over_seeds(base, run, REAL, seeds, nt[n], nt[0], prefix))
+            pulls.append((c - nom["values"][n - 1]) / np.hypot(s_, nom["stat_errors"][n - 1]))
+        Wn = np.array([_sum_channels(base, run, REAL, nt[0], s, prefix)[:nsc] for s in seeds]).mean(0)
+        out["validation"] = (f"the nominal window booked in the same runs reproduces the main table: worst pull "
+                             f"{max(abs(x) for x in pulls):.2f} over the 12 orders, window rate {Wn[0] / Sm[0]:.5f} "
+                             f"against {nom['window_rate']:.5f}")
+    runs = dict(process=out["process"], runs=[int(x) for x in seeds], scales=M["scales"], channels=REAL, tags=tags,
+                acc=_acc(base, run, REAL, seeds, tags, prefix, nsc),
+                reference=dict(run_directory=M["base"], runs=[int(x) for x in ref_seeds], channels=M["ch"], tag="norm_born",
+                               acc=[[float(f"{x:.12g}") for x in row] for row in S]))
+    _write(W["file"], out, rows, runs)
+    print(f"{name}: {W['file']}: {len(seeds)} runs; " + "; ".join(
+        f"{V} ({a:g},{b:g}) R = {out['windows'][V]['window_rate']:.5f}" for V, (a, b) in W["windows"].items())
+          + (f"; {out['validation']}" if "validation" in out else ""))
+
+
 if __name__ == "__main__":
-    names = sys.argv[1:] or list(SPEC)
+    names = sys.argv[1:] or list(SPEC) + list(WINVAR)
     for nm in names:
-        export("wp" if nm == "w+" else "wm" if nm == "w-" else nm)
+        nm = {"w+": "wp", "w-": "wm"}.get(nm, nm)
+        (export_winvar if nm in WINVAR else export)(nm)

@@ -22,6 +22,60 @@
   "muR = 2 H_T/2, muF = H_T/2",
   "muR = H_T/2, muF = 2 H_T/2"
  ],
+ "provenance": {
+  "nnlojet": "NNLOJET v1.0.2 with the patch in nnlojet_patch/ (event-level moment accumulators)",
+  "run_directory": "zj_moments2",
+  "run_name": "ZJ_MOMENTS",
+  "runcard": "runcards/zj_moments.run",
+  "n_runs": 40,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40
+  ],
+  "channels": [
+   "LO",
+   "R",
+   "V"
+  ]
+ },
  "towers": {
   "mll": {
    "kind": "born",
@@ -503,6 +557,11 @@
   "max_orders": {
    "ptj2": 6,
    "pimdphi": 4
+  },
+  "transition": {
+   "ptj1": "windowed",
+   "ptj2": "windowed",
+   "pimdphi": "windowed"
   }
  },
  "sigma_fid_pb": {

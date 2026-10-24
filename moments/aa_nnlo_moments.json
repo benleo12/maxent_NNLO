@@ -25,6 +25,63 @@
   "muR = m_gg, muF = 0.5 m_gg",
   "muR = 0.5 m_gg, muF = m_gg"
  ],
+ "provenance": {
+  "nnlojet": "NNLOJET v1.0.2 with the patch in nnlojet_patch/ (event-level moment accumulators)",
+  "run_directory": "gg_moments2",
+  "run_name": "GG_MOMENTS",
+  "runcard": "runcards/gg_moments2.run",
+  "n_runs": 40,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40
+  ],
+  "channels": [
+   "LO",
+   "R",
+   "V",
+   "RR",
+   "RV",
+   "VV"
+  ]
+ },
  "towers": {
   "m_aa": {
    "kind": "born",
@@ -119,7 +176,7 @@
     0.0018453375987085678,
     0.0013093012791015012
    ],
-   "note": "|cos theta*| of the photon pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_gam12)",
+   "note": "|cos theta*| of the photon pair in the Collins-Soper frame (absolute value, eval_abscosthstCS_gam12), linear map on [0,1]",
    "numerator_tags": [
     "prof_cts_1",
     "prof_cts_2",
@@ -233,7 +290,8 @@
    "pt_aa"
   ],
   "mixed": [],
-  "max_orders": {}
+  "max_orders": {},
+  "transition": {}
  },
  "sigma_fid_pb": {
   "value": 13.497529475024644,

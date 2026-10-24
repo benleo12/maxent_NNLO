@@ -1,0 +1,146 @@
+--- driver/core/EvalFuncs.f90.orig
++++ driver/core/EvalFuncs.f90
+@@ -2987,7 +2987,71 @@
+     u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
+     eval_chebTw_pth = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
+   end function eval_chebTw_pth
++
++  !===========================================================================
++  !  gg -> H MATCHING-WINDOW VARIANTS (matching-uncertainty band, nnlojet-winvar).
++  !  Identical to eval_w_pth / eval_chebTw_pth above (same pT_H, same log map
++  !  [1,1000], same closing edge pc = pd = 1000) except for the turn-on (pa, pb):
++  !     nominal (37, 74)   [eval_w_pth / eval_chebTw_pth, unchanged]
++  !     A       (25, 50)   lower window
++  !     B       (50,100)   higher window
++  !     C       (37,148)   wider turn-on
++  !  Bind as w_pth_<V> and chebTw_pth_<V>_n (imem = -n), V = A, B, C.
++  !===========================================================================
++  real(kind=wp) function wwin_pth(npar, pa, pb)
++    integer, intent(in) :: npar
++    real(kind=wp), intent(in) :: pa, pb
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; wwin_pth = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    wwin_pth = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function wwin_pth
++
++  real(kind=wp) function chebTwwin_pth(npar, n, pa, pb)
++    integer, intent(in) :: npar, n
++    real(kind=wp), intent(in) :: pa, pb
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 1.0_wp, hi = 1000.0_wp
++    real(kind=wp), parameter :: pc = 1000.0_wp, pd = 1000.0_wp
++    if (npar < 1) then; chebTwwin_pth = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    chebTwwin_pth = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function chebTwwin_pth
+ 
++  real(kind=wp) function eval_w_pth_A(npar)          ! (25,50)
++    integer, intent(in) :: npar
++    eval_w_pth_A = wwin_pth(npar, 25.0_wp, 50.0_wp)
++  end function eval_w_pth_A
++
++  real(kind=wp) function eval_chebTw_pth_A(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_pth_A = chebTwwin_pth(npar, n, 25.0_wp, 50.0_wp)
++  end function eval_chebTw_pth_A
++
++  real(kind=wp) function eval_w_pth_B(npar)          ! (50,100)
++    integer, intent(in) :: npar
++    eval_w_pth_B = wwin_pth(npar, 50.0_wp, 100.0_wp)
++  end function eval_w_pth_B
++
++  real(kind=wp) function eval_chebTw_pth_B(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_pth_B = chebTwwin_pth(npar, n, 50.0_wp, 100.0_wp)
++  end function eval_chebTw_pth_B
++
++  real(kind=wp) function eval_w_pth_C(npar)          ! (37,148)
++    integer, intent(in) :: npar
++    eval_w_pth_C = wwin_pth(npar, 37.0_wp, 148.0_wp)
++  end function eval_w_pth_C
++
++  real(kind=wp) function eval_chebTw_pth_C(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_pth_C = chebTwwin_pth(npar, n, 37.0_wp, 148.0_wp)
++  end function eval_chebTw_pth_C
++
+   !===========================================================================
+   !  DY+jet (ZJ) Chebyshev moments, all with SMOOTH profiles:
+   !    pT_j1 : constrain only ABOVE a resolution cut   w = prof_w(pTj1, 30,60,..)
+@@ -3190,6 +3254,71 @@
+     eval_chebTw_ptaa = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
+   end function eval_chebTw_ptaa
+ 
++  !===========================================================================
++  !  Diphoton MATCHING-WINDOW VARIANTS (matching-uncertainty band, nnlojet-winvar).
++  !  Identical to eval_w_ptaa / eval_chebTw_ptaa above (same pt_aa of the two
++  !  photons, same log map [1,500], same closing edge pc = pd = 500) except for
++  !  the turn-on (pa, pb):
++  !     nominal (28, 56)   [eval_w_ptaa / eval_chebTw_ptaa, unchanged]
++  !     A       (19, 38)   lower window
++  !     B       (37, 74)   higher window
++  !     C       (28,112)   wider turn-on
++  !  Bind as w_ptaa_<V> and chebTw_ptaa_<V>_n (imem = -n, min_nphotons = 2).
++  !===========================================================================
++  real(kind=wp) function wwin_ptaa(npar, pa, pb)
++    integer, intent(in) :: npar
++    real(kind=wp), intent(in) :: pa, pb
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp), parameter :: pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; wwin_ptaa = 0.0_wp; return; end if
++    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
++    wwin_ptaa = prof_w(v1_pt(pV), pa, pb, pc, pd)
++  end function wwin_ptaa
++
++  real(kind=wp) function chebTwwin_ptaa(npar, n, pa, pb)
++    integer, intent(in) :: npar, n
++    real(kind=wp), intent(in) :: pa, pb
++    real(kind=wp), dimension(4) :: pV
++    real(kind=wp) :: x, u
++    real(kind=wp), parameter :: lo = 1.0_wp, hi = 500.0_wp
++    real(kind=wp), parameter :: pc = 500.0_wp, pd = 500.0_wp
++    if (npar < 1) then; chebTwwin_ptaa = 0.0_wp; return; end if
++    pV(:) = kin(npar)%pphotons(:, 1) + kin(npar)%pphotons(:, 2)
++    x = max(v1_pt(pV), 1.0e-6_wp)
++    u = 2.0_wp*(log(x) - log(lo))/(log(hi) - log(lo)) - 1.0_wp
++    chebTwwin_ptaa = prof_w(x, pa, pb, pc, pd) * cheb_T(u, n)
++  end function chebTwwin_ptaa
++
++  real(kind=wp) function eval_w_ptaa_A(npar)         ! (19,38)
++    integer, intent(in) :: npar
++    eval_w_ptaa_A = wwin_ptaa(npar, 19.0_wp, 38.0_wp)
++  end function eval_w_ptaa_A
++
++  real(kind=wp) function eval_chebTw_ptaa_A(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_ptaa_A = chebTwwin_ptaa(npar, n, 19.0_wp, 38.0_wp)
++  end function eval_chebTw_ptaa_A
++
++  real(kind=wp) function eval_w_ptaa_B(npar)         ! (37,74)
++    integer, intent(in) :: npar
++    eval_w_ptaa_B = wwin_ptaa(npar, 37.0_wp, 74.0_wp)
++  end function eval_w_ptaa_B
++
++  real(kind=wp) function eval_chebTw_ptaa_B(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_ptaa_B = chebTwwin_ptaa(npar, n, 37.0_wp, 74.0_wp)
++  end function eval_chebTw_ptaa_B
++
++  real(kind=wp) function eval_w_ptaa_C(npar)         ! (28,112)
++    integer, intent(in) :: npar
++    eval_w_ptaa_C = wwin_ptaa(npar, 28.0_wp, 112.0_wp)
++  end function eval_w_ptaa_C
++
++  real(kind=wp) function eval_chebTw_ptaa_C(npar, n)
++    integer, intent(in) :: npar, n
++    eval_chebTw_ptaa_C = chebTwwin_ptaa(npar, n, 28.0_wp, 112.0_wp)
++  end function eval_chebTw_ptaa_C
++
+   real(kind=wp) function eval_r_V(npar)
+     integer, intent(in) :: npar
+     real(kind=wp), dimension(4) :: pV

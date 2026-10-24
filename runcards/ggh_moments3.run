@@ -4,7 +4,7 @@ PROCESS  H
   jet = antikt[0.4]
   jet_exclusive = .false.
   jet_recomb = V4
-  decay_type = 0
+  decay_type = 3
 END_PROCESS
 
 RUN  GGH_MOMENTS
