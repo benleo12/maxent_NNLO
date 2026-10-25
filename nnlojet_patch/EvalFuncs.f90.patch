@@ -285,7 +285,7 @@
 +  !    Born   : m_W   Breit-Wigner map on [40,1000] GeV around (M_W, Gamma_W)
 +  !             |y_W| linear map on [0,4]
 +  !    recoil : pT_W  log map [25,2500], smooth profile [25,50] -> 500 (hard)
-+  !  matching_scale(80.385) = 24.9 GeV -> seam 25 (DY: 27.9 -> 30, H: 37.1 -> 37)
++  !  matching_scale(80.385) = 25.0 GeV -> seam 25 (DY: 28.0 -> 30, H: 37.3 -> 37)
 +  !===========================================================================
 +  real(kind=wp) function eval_chebT_mw(npar, n)
 +    integer, intent(in) :: npar, n

@@ -603,11 +603,9 @@ def alpha_s(mu, mz=91.1876, az=0.118, nf=5):
     """Two-loop running coupling, normalised at m_Z."""
     mu = np.asarray(mu, float)
     b0 = (33 - 2 * nf) / (12 * np.pi); b1 = (153 - 19 * nf) / (24 * np.pi ** 2)
-    L = np.log(np.maximum(mu, 1.0) ** 2 / mz ** 2); al = az
-    for _ in range(60):
-        al = az / (1 + az * b0 * L + az ** 2 * (b1 / b0)
-                   * np.log(np.maximum(1 + az * b0 * L, 1e-9)))
-    return al
+    L = np.log(np.maximum(mu, 1.0) ** 2 / mz ** 2)
+    x = np.maximum(1 + az * b0 * L, 1e-9)
+    return az / (x + az * (b1 / b0) * np.log(x))
 
 
 def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
@@ -617,8 +615,8 @@ def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
 
     Below it unresummed Sudakov logarithms spoil the fixed-order series and the shower
     is kept; above it the fixed order is imposed.  The process enters only through Q:
-    27.9 GeV for Q = m_Z, 24.9 GeV for Q = m_W, 27.6 GeV for Q = 90 GeV (diphoton),
-    37.1 GeV for Q = m_H.  Returns the scale in GeV.
+    28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W, 27.7 GeV for Q = 90 GeV (diphoton),
+    37.3 GeV for Q = m_H.  Returns the scale in GeV.
     """
     Q = float(Q)
     hi = 0.9 * Q if hi is None else float(hi)

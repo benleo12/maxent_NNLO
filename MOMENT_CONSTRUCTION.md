@@ -59,8 +59,8 @@ diverges in the soft limit. Examples are the singlet transverse momentum, the ac
   μ_n = (1 − r) ⟨T_n⟩_{p, 1−w} + r ⟨T_n⟩_{FO, w}, from these numbers and the prior itself
   (or, with `transition="windowed"`, imposes w T_n and w directly).
 - The matching scale follows from power counting, α_s(p_T) ln²(Q/p_T) < 0.2 with Q the hard
-  scale (`maxent_upgrade.matching_scale(Q)`): 27.9 GeV for Q = m_Z, 24.9 GeV for Q = m_W,
-  27.6 GeV for diphoton production (Q = 90 GeV) and 37.1 GeV for Q = m_H. The released tables
+  scale (`maxent_upgrade.matching_scale(Q)`): 28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W,
+  27.7 GeV for diphoton production (Q = 90 GeV) and 37.3 GeV for Q = m_H. The released tables
   use 30 (rounded up), 25, 28 and 37 GeV.
 
 **Joint moments.** To constrain a correlation that the marginal towers cannot reach, book the
