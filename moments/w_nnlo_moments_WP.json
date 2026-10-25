@@ -500,7 +500,7 @@
     0.0012345203388410622,
     0.0022721625723360825
    ],
-   "note": "the same signed angle over its full range (events key ctw = cos theta*); booked, not imposed: the full range includes the recoil-driven edge at |cos theta*| = 0.78 that a tower should not impose",
+   "note": "the same signed angle over its full range (events key ctw = cos theta*); booked, not imposed: the full range includes the Born edge set by the neutrino cut at |cos theta*| = 0.78, beyond which only the recoil and the W width populate, and which a tower should not impose",
    "numerator_tags": [
     "prof_ctw_1",
     "prof_ctw_2",

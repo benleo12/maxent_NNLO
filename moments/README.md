@@ -101,8 +101,9 @@ A prior that lacks the channels the corrections populate pays in effective stati
 the same diphoton input, the paper's merged γγ + γγj prior retains 94.87% of its own effective
 count (94.9% in the paper), and its Pythia 2 → 2 prior retains 3.95% (`result.effN_retained`;
 4.0% in the paper). That 2 → 2 solve, like
-every diphoton, Higgs and Z+jet solve of the paper, imposes every booked order
-(`moment_selection=False`). On the paper's other priors the resolution criterion selects every
+every diphoton, Higgs and Z+jet solve of the paper, imposes every order `load_moments` returns
+(`moment_selection=False`): every booked order, except the Z+jet second-jet and acoplanarity
+towers, booked to 8 and 12 orders and imposed to 6 and 4. On the paper's other priors the resolution criterion selects every
 booked order anyway; on the 2 → 2 prior it drops the sixth \|cos θ*\| order, and the default
 solve retains 4.4%.
 
@@ -194,8 +195,9 @@ convention of the paper's solves; a variant's rate is the ratio of its two run m
   so that a user can check predictions against fixed order. They are not constraints.
   - The two lepton-p_T towers use the maps compiled into NNLOJET, log [27, 200] and
     log [27, 150].
-  - The full-range decay angle has a recoil-driven edge at \|cos θ*\| ≃ 0.78, set by the
-    neutrino cut, which a tower should not impose; the paper imposes the bulk window instead.
+  - The full-range decay angle has an edge at \|cos θ*\| ≃ 0.78, where the neutrino cut closes
+    the Born phase space. Only the recoil and the W width populate the region beyond it, which a
+    tower should not impose; the paper imposes the bulk window instead.
 * **The map and the window are part of the target.** The loader reproduces the maps and windows
   compiled into the fixed-order runs; do not change them. A different map converges with clean
   closure onto wrong constraints.

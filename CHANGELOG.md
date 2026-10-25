@@ -2,8 +2,8 @@
 
 ## 1.1.0 (2026-10-24)
 
-This release matches the paper, B. Assi, *Maximum-entropy moment matching for color-singlet
-processes*. Two things in 1.0.0 did not:
+This release matches the paper, B. Assi, *Maximum-entropy matching: accuracy, transport and
+cost*. Two things in 1.0.0 did not:
 
 - **1.0.0 had only the windowed transition.** Its recoil towers imposed w(v) T_n(u) and the
   window rate w(v), with targets r ⟨T_n⟩_{FO, w} and r. The paper's results use the blended

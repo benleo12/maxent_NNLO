@@ -859,21 +859,22 @@ def _check_inputs(events, moments, config, wkey):
         raise ValueError("config declares no constraint: give at least one of 'born', 'recoil', 'mixed'")
     for o, rc in recoil_cfg.items():
         _transition(rc, o)
-    # Joint moments are imposed in the windowed form only: blended targets of two windowed
-    # observables are mixtures for different windows, not marginals of one density, so
-    # blended joint constraints have no solution.  Every tower a joint block couples
-    # must therefore be windowed too.
+    # Joint moments are imposed in the windowed form only: a blended tower mixes prior and
+    # fixed order through its own window, while a joint moment is pure fixed order, so
+    # blended towers are in general inconsistent with fixed-order joint moments.  Every tower
+    # a joint block couples must therefore be windowed too.
     for key, mc in mixed_cfg.items():
         if mc.get("transition", "windowed") != "windowed":
             raise ValueError(f"config['mixed']['{key}']['transition'] = {mc['transition']!r}: joint blocks are "
-                             f"imposed in the windowed form only (blended joint constraints have no solution)")
+                             f"imposed in the windowed form only (blended towers are in general inconsistent with fixed-order joint moments)")
         for o in mc["observables"]:
             if o in recoil_cfg and _transition(recoil_cfg[o], o) == "blend":
                 raise ValueError(
                     f"config['mixed']['{key}'] couples the recoil tower '{o}', whose transition is 'blend'. "
-                    f"Joint moments are imposed in the windowed form, and blended joint constraints have no "
-                    f"solution: set config['recoil']['{o}']['transition'] = 'windowed' for every tower the "
-                    f"block couples (load_moments does this for a table's joint blocks)")
+                    f"Joint moments are imposed in the windowed form, and blended towers are in general "
+                    f"inconsistent with fixed-order joint moments: set config['recoil']['{o}']['transition'] = "
+                    f"'windowed' for every tower the block couples (load_moments does this for a table's joint "
+                    f"blocks)")
     need = list(born_cfg) + list(recoil_cfg) + [o for m in mixed_cfg.values() for o in m["observables"]]
     need = list(dict.fromkeys(need))
     missing = [k for k in need + [wkey] if k not in events]
@@ -970,8 +971,8 @@ def upgrade(events, moments, config):
           * 'windowed': the measurement functions are w(v) T_n(u(v)) and w(v), with targets
             r <T_n>_{FO, w} and r; the prior is untouched where w = 0.
         Joint blocks are always imposed in the windowed form, and every recoil tower a block
-        couples must be 'windowed' (a ValueError says so otherwise): blended joint
-        constraints have no solution.
+        couples must be 'windowed' (a ValueError says so otherwise): blended towers are in
+        general inconsistent with fixed-order joint moments.
 
         Knobs (defaults in DEFAULTS): moment_selection=True (impose each tower up to its
         highest order with SNR > snr_threshold=1.0), L2=1e-4 (ridge of the dual), fixed_orders
@@ -1107,8 +1108,8 @@ def upgrade(events, moments, config):
             # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an explicit rate
             # constraint sum q*w = R.  Where w = 0 (below the window, above its cut) every
             # feature vanishes, so those events are not tilted by this tower and the prior's
-            # shape there is kept exactly; the tilt steps at the lower window edge wherever
-            # prior and fixed order disagree there.
+            # shape there is kept exactly; across the rise the tilt grows smoothly with w (C^2)
+            # wherever prior and fixed order disagree there.
             R = float(rate)
             wprof = np.asarray(wprof, float)
             for n in range(1, N + 1):

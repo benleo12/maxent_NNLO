@@ -262,7 +262,8 @@ SPEC = {
     joint=[dict(key="ptj1_x_ptj2", tag="prof_wj12", den="prof_wj12_0", observables=["ptj1", "ptj2"],
                 profile=dict(ptj1=dict(a=30.0, b=60.0, c=1000.0, d=1000.0), ptj2=dict(a=30.0, b=60.0, c=1000.0, d=1000.0)),
                 note="<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation (paper)")],
-    # the paper keeps the windowed form for every Z+jet tower: blended joint constraints have no solution
+    # the paper keeps the windowed form for every Z+jet tower: blended towers are in general
+    # inconsistent with fixed-order joint moments
     default=dict(born=["mll", "y_abs"], recoil=["ptj1", "ptj2"], mixed=["ptj1_x_ptj2"],
                  max_orders={"ptj2": 6, "pimdphi": 4},
                  transition={"ptj1": "windowed", "ptj2": "windowed", "pimdphi": "windowed"})),
@@ -282,7 +283,8 @@ for k in ("wp", "wm"):
           soft_lo=0.0, profile=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
         T("ctw_full", "reference", "prof_ctw", "norm_born", "lin", (-1.0, 1.0), "ctw",
           "the same signed angle over its full range (events key ctw = cos theta*); booked, not imposed: the "
-          "full range includes the recoil-driven edge at |cos theta*| = 0.78 that a tower should not impose")],
+          "full range includes the Born edge set by the neutrino cut at |cos theta*| = 0.78, beyond which only "
+          "the recoil and the W width populate, and which a tower should not impose")],
         joint=[dict(key="pt_w_x_ctw", tag="prof_ptwctw", den="prof_wptwctw_0", observables=["pt_w", "ctw1"],
                     profile=dict(pt_w=dict(a=25.0, b=50.0, c=500.0, d=500.0), ctw1=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
                     note="<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed in the paper")],

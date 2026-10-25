@@ -87,7 +87,7 @@
 \node[prbx] (gen) at (\ca,\yB) {{\normalsize any LO+PS generator}\\
   \sft{positive weights $p_i>0$,\\ same phase space as FO}};
 \node[prbx] (ev) at (\cb,\yB) {{\normalsize\ttt{events}}\\
-  \sft{one array per observable,\\ plus \ttt{'weight'}}};
+  \sft{one array per observable,\\ plus \ttt{"weight"}}};
 \draw[flow] (\la+\bw,\yB-\ym) -- (\lb,\yB-\ym);
 
 % ---------------- the solve ----------------
@@ -106,7 +106,7 @@
 \node[cell] at ($(b5.east)+(0.13,0.2)$) {\textbf{tilt} the prior\\
   $q_i=p_i\,e^{\lambda\cdot m(\Phi_i)}/Z$\\ \sft{positive by construction}};
 \node[cell=3.85cm] at ($(b6.east)+(0.13,0.2)$) {\textbf{check} the solve\\
-  \sft{converged, every $q_i>0$;\\ closure and $N_\mathrm{eff}$}};
+  \sft{converged, every $q_i>0$,\\ closure and $N_\mathrm{eff}$}};
 \begin{scope}[on background layer]
   \draw[draw=mx, line width=0.9pt, fill=mxbg, rounded corners=6pt] (0.05,\yC) rectangle (14.95,\yC-\hC);
   \draw[mx!28, line width=0.5pt] (\la+0.08,\yC-0.62) -- (\rc-0.08,\yC-0.62);

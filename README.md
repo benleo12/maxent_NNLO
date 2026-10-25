@@ -114,8 +114,8 @@ count. The tables reproduce the paper's weights ([`REPRODUCE.md`](REPRODUCE.md))
      fixed order rules above 2 v_m with its share r of the cross section, and the two are
      mixed across the rise. `transition="windowed"` imposes w(v) T_n(u) and w(v) instead.
    - Joint moments (optional) contribute products of two towers, always in the windowed
-     form; every recoil tower they couple must be windowed too (blended joint constraints
-     have no solution), as in the paper's Z+jet configuration.
+     form; every recoil tower they couple must be windowed too (blended towers are in general
+     inconsistent with fixed-order joint moments), as in the paper's Z+jet configuration.
 3. **Select.** Each tower is imposed up to its highest order n whose shift the input resolves,
    SNR_n = |μ_n^target − μ_n^prior| / σ_n^FO > 1, where σ_n^FO is the Monte Carlo error
    combined with the scale envelope. For a window tower the comparison is between the windowed
@@ -352,8 +352,7 @@ results. `examples/example_synthetic.py` shows it. Its helpers are `moment_snr`,
 ## Citation and licence
 
 If you use the package or the released moments, please cite:
-- B. Assi, *Maximum-entropy moment matching for color-singlet processes*;
-- B. Assi, R. Poncelet, J. Whitehead, *Purely positive-weight moment matching at NNLO and
-  beyond*.
+- B. Assi, *Maximum-entropy matching: accuracy, transport and cost*;
+- B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment matching at NNLO and beyond*.
 
 MIT licence (see `LICENSE`).

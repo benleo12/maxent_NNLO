@@ -1,7 +1,7 @@
 # Reproducing the paper
 
-The repository reproduces two steps of the paper (B. Assi, *Maximum-entropy moment matching for
-color-singlet processes*):
+The repository reproduces two steps of the paper (B. Assi, *Maximum-entropy matching: accuracy,
+transport and cost*):
 
 1. the released moment tables, from the NNLOJET productions;
 2. the paper's solves, from the released tables, given the paper's priors.
@@ -76,8 +76,9 @@ accumulators (`provenance.conventions` in each table). Pooling the rate too woul
 other number at its printed precision, but would move the merged diphoton prior from 94.87% to
 94.85%. A window variant's rate is the ratio of two run means (variant runs, main runs).
 
-**Orders imposed.** The paper's diphoton, Higgs and Z+jet solves imposed every booked order
-(`moment_selection=False`). On the paper's priors the default resolution criterion selects
+**Orders imposed.** The paper's diphoton, Higgs and Z+jet solves imposed every order
+`load_moments` returns (`moment_selection=False`). That is every booked order, except the Z+jet
+second-jet and acoplanarity towers, booked to 8 and 12 orders and imposed to 6 and 4. On the paper's priors the default resolution criterion selects
 every booked order anyway, except on the 2 → 2 diphoton prior, where it drops the sixth
 \|cos θ*\| order (the default solve then retains 4.4%).
 

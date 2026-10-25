@@ -1,0 +1,59 @@
+PROCESS  HTO2P
+  collider = LHC
+  sqrts = 13000.0
+  jet = antikt[0.4]
+  jet_exclusive = .false.
+  jet_recomb = V4
+  decay_type = 3
+END_PROCESS
+
+RUN  GGH_FID
+  PDF = CT18NNLO[0]
+  tcut = 1d-8
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .true.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  warmup = 20000[5]
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  MASS[H]  = 125
+  WIDTH[H] = 0.004029643852
+  MASS[Z]  = 91.1876
+  MASS[W]  = 80.398
+  MASS[t]  = 173.2
+END_PARAMETERS
+
+SELECTORS
+  select ptg1 min = 43.75
+  select ptg2 min = 31.25
+  select photons_abs_y max = 2.37
+  reject photons_abs_y min = 1.37 max = 1.52
+  select jets_pt min = 30
+  select jets_abs_y max = 4.4
+END_SELECTORS
+
+HISTOGRAMS
+  pt_g1g2 > ptyy_atlas [0.0,5.0,10.0,15.0,20.0,25.0,30.0,35.0,45.0,60.0,80.0,100.0,120.0,140.0,170.0,200.0,250.0,300.0,450.0,650.0]
+  abs_yh > yyy_atlas [0.0,0.15,0.3,0.45,0.6,0.75,0.9,1.2,1.6,2.0,2.5]
+  njets > nj30_atlas [-0.5,0.5,1.5,2.5,3.5]
+  ptj1 > ptj1_atlas [30.0,60.0,90.0,120.0,350.0]
+  pth > fid_tot [0.0,1.0e5]
+END_HISTOGRAMS
+
+SCALES
+  muf = 1.0 * 125  mur = 1.0 * 125
+  muf = 2.0 * 125  mur = 2.0 * 125
+  muf = 0.5 * 125  mur = 0.5 * 125
+  muf = 1.0 * 125  mur = 0.5 * 125
+  muf = 0.5 * 125  mur = 1.0 * 125
+  muf = 1.0 * 125  mur = 2.0 * 125
+  muf = 2.0 * 125  mur = 1.0 * 125
+END_SCALES
+
+CHANNELS
+  RR
+END_CHANNELS
