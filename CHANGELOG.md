@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 (2026-10-24)
+## 1.1.0 (2026-10-25)
 
 This release matches the paper, B. Assi, *Maximum-entropy matching: accuracy, transport and
 cost*. Two things in 1.0.0 did not:
@@ -26,8 +26,8 @@ cost*. Two things in 1.0.0 did not:
 - **`transition` per recoil tower**: `"blend"` (default) or `"windowed"` (the 1.0.0
   construction), reported in `result.report["windows"]` and by `describe()`.
 - **Joint moments are imposed in the windowed form only.** A joint block that couples a recoil
-  tower with `transition="blend"` raises a `ValueError`: blended joint constraints have no
-  solution. `load_moments` returns `transition="windowed"` for the Z+jet towers (the paper's
+  tower with `transition="blend"` raises a `ValueError`: blended towers are in general
+  inconsistent with fixed-order joint moments. `load_moments` returns `transition="windowed"` for the Z+jet towers (the paper's
   configuration, also for the solve without joint moments) and for every recoil tower next to a
   windowed joint block.
 - A recoil tower without a `profile` uses the step window [x_match, x_hi) under either
@@ -75,6 +75,11 @@ cost*. Two things in 1.0.0 did not:
 - The maps and Chebyshev polynomials live in `maxent_upgrade.basis` (`dy_method` remains as an
   alias).
 - `export_moments.py` is self-contained and also exports the window variants.
+- `alpha_s` is now the two-loop coupling its docstring describes. In 1.0.0 its two-loop term
+  carried an extra factor of alpha_s(m_Z), which left it almost one-loop. `matching_scale` now
+  gives 28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W, 27.7 GeV for Q = 90 GeV and 37.3 GeV for
+  Q = m_H (1.0.0 gave 27.9, 24.9, 27.6 and 37.1 GeV). The matching scales of the released
+  tables (30, 25, 28 and 37 GeV) and the outcome of every `check_seam` call are unchanged.
 - Tests (`tests/`), the flowchart (`docs/`), `REPRODUCE.md` and this changelog are new.
 
 ### Removed

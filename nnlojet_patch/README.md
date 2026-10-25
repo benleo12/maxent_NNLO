@@ -92,6 +92,13 @@ were run:
   `runcards/w_moments_W{P,M}.run` say "|c| < 0.5, ramp to 0.7".  The compiled parameters
   (pa, pb, pc, pd) = (0.3, 0.4, 1.6, 1.7) act on cos θ* + 1, so the window is 1 for
   |cos θ*| ≤ 0.6 and 0 for |cos θ*| ≥ 0.7.
+* The same comment calls the edge at |cos θ*| ≃ 0.78 recoil driven. It is the Born edge set
+  by the neutrino transverse-momentum cut, beyond which only the recoil and the W width
+  populate.
+* The comment above `eval_chebT_mw` gives matching_scale(80.385) = 24.9 GeV (Drell-Yan 27.9,
+  Higgs 37.1 GeV). Those values came from an alpha_s that was almost one-loop. The two-loop
+  `alpha_s` of 1.1.0 gives 25.0, 28.0 and 37.3 GeV. The compiled windows (25, 30 and 37 GeV)
+  are unchanged.
 
 * The comment block above `eval_chebT_yh` gives the Higgs window as "[30,60]->1000"; the
   compiled `eval_chebTw_pth` and `eval_w_pth` use (37, 74, 1000), as the released table states.

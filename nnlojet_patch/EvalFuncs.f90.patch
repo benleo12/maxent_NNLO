@@ -285,7 +285,7 @@
 +  !    Born   : m_W   Breit-Wigner map on [40,1000] GeV around (M_W, Gamma_W)
 +  !             |y_W| linear map on [0,4]
 +  !    recoil : pT_W  log map [25,2500], smooth profile [25,50] -> 500 (hard)
-+  !  matching_scale(80.385) = 25.0 GeV -> seam 25 (DY: 28.0 -> 30, H: 37.3 -> 37)
++  !  matching_scale(80.385) = 24.9 GeV -> seam 25 (DY: 27.9 -> 30, H: 37.1 -> 37)
 +  !===========================================================================
 +  real(kind=wp) function eval_chebT_mw(npar, n)
 +    integer, intent(in) :: npar, n
@@ -377,8 +377,8 @@
 +  !> WINDOWED decay-angle tower.  The fiducial cos th* distribution has a
 +  !> kinematic edge at |cos th*| ~ sqrt(1-(2 pT_nu,min/m_W)^2) = 0.78 where only
 +  !> boosted W's survive the cuts; imposing moments over the full range writes
-+  !> that edge into the tilt.  Constrain the polarization where
-+  !> it lives, in the bulk: profile w(c) = 1 for |c| < 0.6, C2 ramp to 0 by 0.7,
++  !> that (recoil-driven) edge into the tilt.  Constrain the polarization where
++  !> it lives, in the bulk: profile w(c) = 1 for |c| < 0.5, C2 ramp to 0 by 0.7,
 +  !> written on x = c + 1 in (0,2) so the standard ln-space prof_w applies
 +  !> (a=0.3, b=0.4 rising; c=1.6, d=1.7 falling).  Moments T_n(c) on the linear
 +  !> map [-1,1].  Book prof_wctw_0 (= w) and prof_wctw_n (= w T_n) as profiles.
