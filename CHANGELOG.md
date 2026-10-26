@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 (2026-10-25)
+## 1.1.0 (2026-10-26)
 
 This release matches the paper, B. Assi, *Maximum-entropy matching: accuracy, transport and
 cost*. Two things in 1.0.0 did not:

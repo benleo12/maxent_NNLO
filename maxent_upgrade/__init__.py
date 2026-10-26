@@ -191,7 +191,7 @@ def fo_from_dat(paths, nscales: int = 7) -> FOHist:
 
 
 # ---------------------------------------------------------------------------
-# Per-moment signal-to-noise spectrum (folds in scratchpad/moment_snr.py)
+# Per-moment signal-to-noise spectrum
 # ---------------------------------------------------------------------------
 def moment_snr(fo_low, fo_high, events, obs, a, b, mp, Nmax,
                weight_key="weight", window=None, n_stat=200, seed=0, n_events_max=300000):
