@@ -83,7 +83,7 @@
   ],
   "conventions": {
    "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
-   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the authors' solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
    "sigma_fid": "the mean over the runs of the per-run cross section"
   }
  },

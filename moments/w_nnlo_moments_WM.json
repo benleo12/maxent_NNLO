@@ -83,7 +83,7 @@
   ],
   "conventions": {
    "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
-   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the authors' solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
    "sigma_fid": "the mean over the runs of the per-run cross section"
   }
  },
@@ -429,7 +429,7 @@
     0.00020730150741108538,
     0.0017119675878691232
    ],
-   "note": "signed Collins-Soper cos theta* of the charged lepton (z axis along the W longitudinal momentum, eval_costhCS_w), shifted by +1 (events key ctw1 = cos theta* + 1); window flat for |cos theta*| < 0.6 with a C^2 ramp to zero at 0.7 (profile in cos theta* + 1); the paper's optional decay-angle constraint",
+   "note": "signed Collins-Soper cos theta* of the charged lepton (z axis along the W longitudinal momentum, eval_costhCS_w), shifted by +1 (events key ctw1 = cos theta* + 1); window flat for |cos theta*| < 0.6 with a C^2 ramp to zero at 0.7 (profile in cos theta* + 1); an optional decay-angle constraint",
    "numerator_tags": [
     "prof_wctw_1",
     "prof_wctw_2",
@@ -589,7 +589,7 @@
     "4,3": 0.00032583511876679025,
     "4,4": 0.000751652639373282
    },
-   "note": "<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed in the paper",
+   "note": "<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed by default",
    "numerator_tags": {
     "1,1": "prof_ptwctw_11",
     "1,2": "prof_ptwctw_12",

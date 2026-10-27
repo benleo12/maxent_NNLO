@@ -77,7 +77,7 @@
   ],
   "conventions": {
    "moments": "pooled over the runs: the ratio of the summed numerator and denominator accumulators; stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
-   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
+   "window_rate": "the mean over the runs of the per-run window rate <w>/sigma_fid, as in the authors' solves; stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
    "sigma_fid": "the mean over the runs of the per-run cross section"
   }
  },
@@ -331,7 +331,7 @@
     0.005365986086340202,
     0.00854302581700131
    ],
-   "note": "second-jet pT, same window; the paper imposed 6 orders",
+   "note": "second-jet pT, same window; the default constraint set imposes 6 orders",
    "numerator_tags": [
     "prof_wj2_1",
     "prof_wj2_2",
@@ -419,7 +419,7 @@
     0.015207566023903883,
     0.00141456479378416
    ],
-   "note": "lepton-pair acoplanarity pi - dphi_ll, C^2 window 0.05-0.20; the paper imposed 4 orders",
+   "note": "lepton-pair acoplanarity pi - dphi_ll, C^2 window 0.05-0.20; the optional tower imposes 4 orders",
    "numerator_tags": [
     "prof_wdphi_1",
     "prof_wdphi_2",
@@ -522,7 +522,7 @@
     "4,3": 0.0035554528816979514,
     "4,4": 0.0006390707791310568
    },
-   "note": "<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation (paper)",
+   "note": "<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation",
    "numerator_tags": {
     "1,1": "prof_wj12_11",
     "1,2": "prof_wj12_12",

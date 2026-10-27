@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Turn the NNLOJET productions behind the paper into the released moment tables.
+r"""Turn the NNLOJET productions into the released moment tables.
 
     python export_moments.py                 # every table -> moments/<name>.json (+ .csv, _runs.json.gz)
     python export_moments.py dy wp aa        # a subset
@@ -28,9 +28,9 @@ with maxent_upgrade.load_moments):
   joint[key]          observables [x, y], n, profile (or null), values {"m,n": ...},
                       stat_errors, scale_errors, window_rate (+ _stat, _scale),
                       numerator_tags {"m,n": tag}, denominator_tag
-  default_constraints the towers the paper imposed: {born: [...], recoil: [...], mixed: [...],
-                      max_orders: {tower: depth the paper used, where shallower than the table},
-                      transition: {tower: "windowed", where the paper kept the windowed form}}
+  default_constraints the default constraint set: {born: [...], recoil: [...], mixed: [...],
+                      max_orders: {tower: imposed depth, where shallower than the table},
+                      transition: {tower: "windowed", where the windowed form is kept}}
   scales              the seven (muR, muF) choices, central first
 
 <name>_runs.json.gz holds the channel-summed accumulators of every run:
@@ -55,7 +55,7 @@ Definitions (all on the fixed-order phase-space points, weight = dsigma):
   values = pooled over the independent runs (ratio of summed numerators to summed denominators),
   stat = run-to-run scatter / sqrt(n_runs), scale = half-range over the seven-point variation.
   Window rates = the mean over the runs of the per-run rate <w>/sigma_fid, the convention of the
-  paper's solves (stat = run-to-run scatter / sqrt(n_runs), scale = half-range of that mean over
+  authors' solves (stat = run-to-run scatter / sqrt(n_runs), scale = half-range of that mean over
   the seven scales).  A window-variant rate is (mean of W0_V over the variant runs) / (mean of
   sigma_fid over the main runs): the two come from different runs.
 """
@@ -76,7 +76,7 @@ NNLOJET = "NNLOJET v1.0.2 with the patch in nnlojet_patch/ (event-level moment a
 CONVENTIONS = dict(
     moments="pooled over the runs: the ratio of the summed numerator and denominator accumulators; "
             "stat = run-to-run scatter of the per-run ratio / sqrt(n_runs); scale = half-range over the seven scales",
-    window_rate="the mean over the runs of the per-run window rate <w>/sigma_fid, as in the paper's solves; "
+    window_rate="the mean over the runs of the per-run window rate <w>/sigma_fid, as in the authors' solves; "
                 "stat = run-to-run scatter / sqrt(n_runs); scale = half-range over the seven scales of that mean",
     sigma_fid="the mean over the runs of the per-run cross section")
 CONVENTIONS_WINVAR = dict(
@@ -254,15 +254,15 @@ SPEC = {
               "leading-jet pT, C^2 window 30-60 GeV, hard cut 1000 GeV", soft_lo=10.0, profile=dict(a=30.0, b=60.0, c=1000.0),
               matching_scale_rule=True),
             T("ptj2", "window", "prof_wj2", "prof_wj2_0", "log", (10.0, 1000.0), "ptj2",
-              "second-jet pT, same window; the paper imposed 6 orders", soft_lo=10.0, profile=dict(a=30.0, b=60.0, c=1000.0),
+              "second-jet pT, same window; the default constraint set imposes 6 orders", soft_lo=10.0, profile=dict(a=30.0, b=60.0, c=1000.0),
               matching_scale_rule=True),
             T("pimdphi", "window", "prof_wdphi", "prof_wdphi_0", "log", (0.01, float(np.pi)), "pimdphi",
-              "lepton-pair acoplanarity pi - dphi_ll, C^2 window 0.05-0.20; the paper imposed 4 orders", soft_lo=0.01,
+              "lepton-pair acoplanarity pi - dphi_ll, C^2 window 0.05-0.20; the optional tower imposes 4 orders", soft_lo=0.01,
               profile=dict(a=0.05, b=0.20, c=4.0))],
     joint=[dict(key="ptj1_x_ptj2", tag="prof_wj12", den="prof_wj12_0", observables=["ptj1", "ptj2"],
                 profile=dict(ptj1=dict(a=30.0, b=60.0, c=1000.0, d=1000.0), ptj2=dict(a=30.0, b=60.0, c=1000.0, d=1000.0)),
-                note="<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation (paper)")],
-    # the paper keeps the windowed form for every Z+jet tower: blended towers are in general
+                note="<w1 w2 T_m(u_log(pT_j1)) T_n(u_log(pT_j2))> / <w1 w2>; closes the non-factorizing jet-pair correlation")],
+    # every Z+jet tower keeps the windowed form by default: blended towers are in general
     # inconsistent with fixed-order joint moments
     default=dict(born=["mll", "y_abs"], recoil=["ptj1", "ptj2"], mixed=["ptj1_x_ptj2"],
                  max_orders={"ptj2": 6, "pimdphi": 4},
@@ -279,7 +279,7 @@ for k in ("wp", "wm"):
           "signed Collins-Soper cos theta* of the charged lepton (z axis along the W longitudinal momentum, eval_costhCS_w), "
           "shifted by +1 (events key ctw1 = cos theta* + 1); "
           "window flat for |cos theta*| < 0.6 with a C^2 ramp to zero at 0.7 (profile in cos theta* + 1); "
-          "the paper's optional decay-angle constraint",
+          "an optional decay-angle constraint",
           soft_lo=0.0, profile=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
         T("ctw_full", "reference", "prof_ctw", "norm_born", "lin", (-1.0, 1.0), "ctw",
           "the same signed angle over its full range (events key ctw = cos theta*); booked, not imposed: the "
@@ -287,7 +287,7 @@ for k in ("wp", "wm"):
           "the recoil and the W width populate, and which a tower should not impose")],
         joint=[dict(key="pt_w_x_ctw", tag="prof_ptwctw", den="prof_wptwctw_0", observables=["pt_w", "ctw1"],
                     profile=dict(pt_w=dict(a=25.0, b=50.0, c=500.0, d=500.0), ctw1=dict(a=0.3, b=0.4, c=1.6, d=1.7)),
-                    note="<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed in the paper")],
+                    note="<w T_m(u_log(pT_W)) T_n(cos theta* + 1)> / <w>; booked, not imposed by default")],
         default=dict(born=["m_w", "y_abs"], recoil=["pt_w"], mixed=[], max_orders={}, transition={}))
 
 # The matching-window variants: the recoil tower of the main table booked with three other windows
@@ -314,7 +314,7 @@ def booked_orders(base, run, ch0, prefix, tag):
 
 
 def rate(base, run, ch, seeds, prefix, wtag):
-    """Window rate <w>/sigma_fid as the paper's solves took it: the mean over the runs of the
+    """Window rate <w>/sigma_fid as the authors' solves took it: the mean over the runs of the
     per-run rate (central scale), its run-to-run error, and the half-range over the seven scales
     of the per-run mean."""
     per = []
