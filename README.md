@@ -368,7 +368,7 @@ results. `examples/example_synthetic.py` shows it. Its helpers are `moment_snr`,
 | `maxent_upgrade/` | the package: `__init__.py` (`upgrade` and helpers), `released.py` (`load_moments`), `basis.py` (maps and Chebyshev polynomials), `maxent_match.py` (the solver and the legacy engine) |
 | `moments/` | the released tables, their per-run files, and their README |
 | `examples/` | `upgrade_with_released_moments.py`, `bands_with_released_moments.py`, `example_moments.py`, `example_diphoton.py` (toy prior), `example_synthetic.py` (legacy) |
-| `tests/` | `test_released.py`, `test_blend.py`, `test_two_recoils.py`, `test_mixed_moments.py` (`python tests/<file>` or `pytest tests/`) |
+| `tests/` | `test_released.py`, `test_blend.py`, `test_two_recoils.py`, `test_mixed_moments.py` (`python tests/<file>`, or `pip install -e ".[test]"` then `pytest tests/`) |
 | `docs/` | the flowchart |
 | `nnlojet_patch/`, `runcards/`, `export_moments.py` | the fixed-order side |
 | [`REPRODUCE.md`](REPRODUCE.md) | what the repository reproduces, and how |
