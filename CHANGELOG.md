@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-27
+
+- The docs cite only the paper, B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment
+  matching at NNLO and beyond*. "The paper" now means its Drell-Yan and gg → H solves only.
+- The docs say that the paper's NNLO Z+jet moments are not in the repository.
+- Table notes that named the paper are reworded. No number changes.
+- The Quick start has a pointer for users without a sample.
+- Small corrections: lepton definition, loader output, `compute_fo_moments` depth,
+  `chebyshev_moment` signature, package metadata and a `test` extra.
+
 ## 1.1.0 (2026-10-26)
 
 This release matches the paper, B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment
