@@ -46,7 +46,7 @@ w = result.weights                        # positive, sum to one; histogram any 
 Command-line versions of the same steps:
 
 ```bash
-python moments/load_moments.py dy                                # which arrays your events must carry
+python moments/load_moments.py dy                                # towers, their arrays, default constraint set
 python examples/upgrade_with_released_moments.py dy my_prior.npz # writes my_prior_dy_upgraded.npz
 python examples/bands_with_released_moments.py dy my_prior.npz   # scale, bootstrap (and window) variants
 ```
@@ -68,7 +68,7 @@ Details are in [`moments/README.md`](moments/README.md).
 **You need**
 - A positive-weight LO+PS sample of the process. It must store, per event, the observables the
   constraint set names, inside the same fiducial selection as the fixed-order input. For the
-  released tables, the lepton observables are Born-level (lepton plus its own QED radiation)
+  released tables, the lepton observables are Born-level (before QED final-state radiation)
   and the decay angles are Collins-Soper angles (the absolute value \|cos θ*\| for the Z and
   the photon pair, the signed angle of the charged lepton for the W; see `moments/README.md`).
 - Event-level moments from a fixed-order code at the target order, with their Monte Carlo and
@@ -115,7 +115,9 @@ W+ and W- (99.7% with the optional decay-angle window), and the merged diphoton 
      1 − w and the fixed-order moment weighted by w, and the measurement functions are the
      bare T_n(u(v)), held constant below the window: the prior's spectrum is kept below v_m,
      fixed order rules above 2 v_m with its share r of the cross section, and the two are
-     mixed across the rise. `transition="windowed"` imposes w(v) T_n(u) and w(v) instead.
+     mixed across the rise. Above a hard cut c the features vanish, and one extra constraint
+     (`<obs>_above`) keeps the prior's shape there. `transition="windowed"` imposes
+     w(v) T_n(u) and w(v) instead.
    - Joint moments (optional) contribute products of two towers, always in the windowed
      form; every recoil tower they couple must be windowed too (blended towers are in general
      inconsistent with fixed-order joint moments), as in the Z+jet (`zj`) configuration.
@@ -149,14 +151,15 @@ The construction, its accuracy, and the rule that places the matching scale
 
 How the tables are stored:
 - Each table is a self-describing JSON file in `moments/` (installed as
-  `maxent_upgrade/moments/`) with a CSV copy. Its `provenance` names the NNLOJET run, its run
-  card and its seeds.
+  `maxent_upgrade/moments/`) with a CSV of its moments and their errors. Its `provenance`
+  names the NNLOJET run, its run card and its seeds.
 - `moments/<name>_runs.json.gz` holds the channel-summed fixed-order accumulators of every
   independent run at all seven scales, so that any scale choice or any resample of the runs can
   be pooled again (`load_moments(p, scale=k)`, `load_moments(p, runs=...)`).
-- Pooling all runs reproduces every released number: the moments as the ratio of summed
-  accumulators, the window rates as the mean of the per-run rates (the convention of the authors'
-  solves; `provenance.conventions` in each table says so).
+- Pooling all runs reproduces every released number (the cross section after a fixed
+  factor): the moments as the ratio of summed accumulators, the window rates as the mean of
+  the per-run rates (the convention of the authors' solves; `provenance.conventions` in each
+  table says so).
 - For `ggh` and `aa`, `moments/<name>_winvar.json` (with its CSV and per-run file) holds the
   recoil tower booked with three other matching windows, rising over about [⅔ v_m, ⁴⁄₃ v_m]
   (A), [⁴⁄₃ v_m, ⁸⁄₃ v_m] (B) and [v_m, 4 v_m] (C). `load_moments(p, window="A")` returns the
@@ -227,8 +230,9 @@ moments = {
   are resolved. The two parts are also given separately as `stat_errors` and `scale_errors`.
 - **Building the dict yourself:**
   - `compute_fo_moments(fo_events, config)` builds it, joint blocks included, from fixed-order
-    events held in Python.
-  - `chebyshev_moment(x, w, n_max, lo, hi, map)` is the moment definition itself.
+    events held in Python. Without `n_max` it books 12 orders per Born tower and 20 per recoil
+    tower.
+  - `chebyshev_moment(x, w, n_max, a, b, mp)` is the moment definition itself.
 
 ### `config`
 

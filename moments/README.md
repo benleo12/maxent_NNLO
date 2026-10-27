@@ -15,7 +15,7 @@ print(result.describe())
 ```
 
 `python moments/load_moments.py [dy wp wm aa ggh zj]` prints, for each table:
-- the arrays your `events` dict must carry;
+- each tower and the `events` array it reads (reference towers are never imposed);
 - the maps and windows;
 - where the numbers come from (NNLOJET run and run card);
 - the default constraint set.
@@ -67,6 +67,7 @@ Every other tower is the main table's, and the seam check is skipped for the var
 also book the nominal window: it reproduces the main table, with a worst pull of 2.1 (Higgs)
 and 0.7 (diphoton) over the twelve orders and window rates of 0.21659 against 0.21661 (Higgs)
 and 0.28041 against 0.28070 (diphoton), well within their errors (field `validation`).
+All four rates are ratios of run means, not the main tables' mean of per-run rates.
 Their window rate is W0_V / σ_fid, with σ_fid from the six channels of the main run.
 
 ## What your prior must provide
@@ -80,13 +81,14 @@ Both sides must integrate the same phase space. Restrict your events to the tabl
 selection, with the observables defined as there. For the Higgs boson, use the inclusive table
 with an inclusive prior. For Z+jet, keep only events with at least one jet; an event without a
 second jet can carry `ptj2 = 0` (any value below the window gives the same result).
+`pimdphi` (Z+jet) is π − Δφ of the two Born leptons, in radians. `m_w` (W) is the invariant
+mass of the Born charged lepton and the neutrino.
 
 Two definitions matter most:
 
-* **Born-level leptons.** Every lepton observable is defined with the QED final-state
-  radiation added back to the lepton (the "Born" lepton, dressed with all its own photons),
-  as in a QCD-only fixed-order calculation. Bare leptons make a mass tower spend its
-  resolution undoing radiation.
+* **Born-level leptons.** Every lepton observable is taken before QED final-state radiation
+  (not a ΔR-dressed lepton), as in a QCD-only fixed-order calculation. Bare leptons make a
+  mass tower spend its resolution undoing radiation.
 * **Decay angles** are Collins-Soper angles in the boson rest frame.
   - For the Z and for the photon pair, the towers use the absolute value, \|cos θ*\| on
     [0, 1] (`abs_costh`, `abs_costh_aa`), with the Collins-Soper z axis along the pair's
@@ -158,7 +160,8 @@ accumulator above, summed over the perturbative channels of each independent run
 scales, at full double precision. A window-variant file adds `reference`, the main run's
 `norm_born` per run.
 - Pooling all runs reproduces every released value, error and rate, to 10⁻⁸
-  (`tests/test_released.py`).
+  (`tests/test_released.py`). `sigma_fid_pb` is 2.002 × 10⁻³ times the run mean of
+  `norm_born`, which NNLOJET stores in fb per unit bin width.
 - `load_moments(process, scale=k)` pools at another scale choice.
 - `load_moments(process, runs=positions)` pools over a resample of the runs, which is a
   bootstrap replica.
@@ -193,8 +196,9 @@ convention of the authors' solves; a variant's rate is the ratio of its two run 
   The acceptance of any later cut then carries shower accuracy.
 * **Z+jet** is computed at μ_R = μ_F = H_T/2 and needs at least one jet. Every tower is
   windowed (above).
-* **Reference towers** (lepton p_T for Drell-Yan, the full-range W decay angle) are released
-  so that a user can check predictions against fixed order. They are not constraints.
+* **Reference towers** (\|cos θ*\| and lepton p_T for Drell-Yan, the full-range W decay
+  angle) are released so that a user can check predictions against fixed order. They are not
+  constraints.
   - The two lepton-p_T towers use the maps compiled into NNLOJET, log [27, 200] and
     log [27, 150].
   - The full-range decay angle has an edge at \|cos θ*\| ≃ 0.78, where the neutrino cut closes
