@@ -3,7 +3,7 @@
 synthetic fixed-order histograms at two orders.  Runs in seconds, needs no data.
 
 This is the earlier, histogram-based variant of the construction, kept for users who only
-have binned fixed-order output; the papers use the event-level interface instead
+have binned fixed-order output; the paper uses the event-level interface instead
 (examples/example_moments.py, examples/upgrade_with_released_moments.py).
 """
 import numpy as np

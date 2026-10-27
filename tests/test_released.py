@@ -3,7 +3,7 @@ r"""Checks of the released moment tables and the loader (no event samples needed
 
     python tests/test_released.py        (or: pytest tests/)
 
-1. every table loads into (moments, config) with consistent keys, the paper's depths and
+1. every table loads into (moments, config) with consistent keys, the default depths and
    transitions (Z+jet windowed, everything else blended), and carries its provenance;
 2. pooling the per-run accumulators (<name>_runs.json.gz) over all runs at the central
    scale reproduces every released value, Monte Carlo error, scale error and window rate,
@@ -44,13 +44,13 @@ def test_tables_load():
         assert os.path.isfile(os.path.join(ROOT, pv["runcard"])), (p, pv["runcard"])
         assert released.summary(p)
     m, c = load_moments("zj", check_seam=False)
-    assert len(m["recoil"]["ptj2"]["window_values"]) == 6          # the paper's depth
-    # Z+jet: every tower windowed (the paper's configuration); elsewhere the blend (the default)
+    assert len(m["recoil"]["ptj2"]["window_values"]) == 6          # the default depth
+    # Z+jet: every tower windowed; elsewhere the blend (the default)
     assert {o: r.get("transition") for o, r in c["recoil"].items()} == {"ptj1": "windowed", "ptj2": "windowed"}
     m, c = load_moments("zj", recoil=["ptj1", "ptj2", "pimdphi"], check_seam=False)
     assert all(r["transition"] == "windowed" for r in c["recoil"].values())
     assert len(m["recoil"]["pimdphi"]["window_values"]) == 4
-    _, c = load_moments("zj", mixed=[], check_seam=False)          # the marginal solve of the paper
+    _, c = load_moments("zj", mixed=[], check_seam=False)          # the marginal solve
     assert all(r["transition"] == "windowed" for r in c["recoil"].values())
     for p in ("dy", "wp", "wm", "aa", "ggh"):
         _, c = load_moments(p, check_seam=False)

@@ -1,6 +1,8 @@
 # Fixed-order moments, released for use with your own prior
 
-These tables are the fixed-order input behind every application of the paper. Each JSON
+These tables hold the paper's NNLO Drell-Yan input and the inputs for further processes.
+The paper's NNLO Z+jet moments are not included and are available from the authors on
+request. The `zj` table is a separate NLO calculation with jet towers. Each JSON
 file describes itself, and `maxent_upgrade.load_moments` turns it into the two inputs of
 `upgrade()`:
 
@@ -16,23 +18,23 @@ print(result.describe())
 - the arrays your `events` dict must carry;
 - the maps and windows;
 - where the numbers come from (NNLOJET run and run card);
-- the constraint set the paper imposed.
+- the default constraint set.
 
 Complete scripts:
 - `examples/upgrade_with_released_moments.py` (the upgrade);
 - `examples/bands_with_released_moments.py` (the scale, bootstrap and window variants).
 
-| table | process | order | runs | towers imposed in the paper | also in the table |
+| table | process | order | runs | default towers | also in the table |
 | --- | --- | --- | --- | --- | --- |
-| `dy_nnlo_moments` | pp → Z/γ* → ℓ⁺ℓ⁻, 13 TeV, ATLAS fiducial | NNLO | 298 | `mll` (BW, 12), `y_abs` (lin, 12), `pT_ll` window 30→60 GeV, cut 500 (log, 20) | `abs_costh` (\|cos θ*\|, lin [0, 1], 6), joint `mll_x_abs_costh` (16), lepton-pT reference towers `pT_l1` (log [27, 200], 6) and `pT_l2` (log [27, 150], 6) |
-| `w_nnlo_moments_WP`, `_WM` | pp → W± → ℓν, 7 TeV, ATLAS fiducial | NNLO | 40 per charge | `m_w` (BW, 12), `y_abs` (lin, 12), `pt_w` window 25→50 GeV, cut 500 (log, 20) | decay-angle window `ctw_window` (flat for \|cos θ*\| < 0.6, zero beyond 0.7; lin, 6), the paper's optional tower; full-range `ctw_full` (8); joint `pt_w_x_ctw` (16) |
+| `dy_nnlo_moments` | pp → Z/γ* → ℓ⁺ℓ⁻, 13 TeV, ATLAS fiducial | NNLO | 298 | `mll` (BW, 12), `y_abs` (lin, 12, of which the SNR rule imposes 11 on the paper's prior), `pT_ll` window 30→60 GeV, cut 500 (log, 20) | `abs_costh` (\|cos θ*\|, lin [0, 1], 6), joint `mll_x_abs_costh` (16), lepton-pT reference towers `pT_l1` (log [27, 200], 6) and `pT_l2` (log [27, 150], 6) |
+| `w_nnlo_moments_WP`, `_WM` | pp → W± → ℓν, 7 TeV, ATLAS fiducial | NNLO | 40 per charge | `m_w` (BW, 12), `y_abs` (lin, 12), `pt_w` window 25→50 GeV, cut 500 (log, 20) | decay-angle window `ctw_window` (flat for \|cos θ*\| < 0.6, zero beyond 0.7; lin, 6), optional; full-range `ctw_full` (8); joint `pt_w_x_ctw` (16) |
 | `aa_nnlo_moments` | pp → γγ, 8 TeV, ATLAS fiducial | NNLO | 40 | `m_aa` (log, 6), `abs_costh_aa` (\|cos θ*\|, lin [0, 1], 6), `pt_aa` window 28→56 GeV, cut 500 (log, 12) | window variants of `pt_aa` (`aa_nnlo_moments_winvar`) |
 | `ggh_nnlo_moments` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO | 40 | `y_abs` (lin, 6), `pT_H` window 37→74 GeV, cut 1000 (log, 12) | window variants of `pT_H` (`ggh_nnlo_moments_winvar`) |
-| `zj_nlo_moments` | pp → Z(→ℓ⁺ℓ⁻) + jet, 13 TeV, ATLAS fiducial, ≥ 1 jet | NLO | 40 | `mll` (BW, 6), `y_abs` (lin, 6), `ptj1` (12) and `ptj2` (6) windows 30→60 GeV, cut 1000, joint `ptj1_x_ptj2` (16), all windowed | `ptj2` to 8 orders; `pimdphi` window 0.05→0.2 (log, 12; the paper's optional tower imposes 4) |
+| `zj_nlo_moments` | pp → Z(→ℓ⁺ℓ⁻) + jet, 13 TeV, ATLAS fiducial, ≥ 1 jet | NLO | 40 | `mll` (BW, 6), `y_abs` (lin, 6), `ptj1` (12) and `ptj2` (6) windows 30→60 GeV, cut 1000, joint `ptj1_x_ptj2` (16), all windowed | `ptj2` to 8 orders; `pimdphi` window 0.05→0.2 (log, 12; the optional tower imposes 4) |
 
-The depths and transitions the paper used are part of each table
-(`default_constraints.max_orders` and `.transition`), so `load_moments(process)` reproduces
-the paper's constraint set without further arguments. The optional towers are one argument
+The default depths and transitions are part of each table
+(`default_constraints.max_orders` and `.transition`), so `load_moments(process)` returns
+the default constraint set without further arguments. The optional towers are one argument
 away: `load_moments("wp", recoil=["pt_w", "ctw_window"])`,
 `load_moments("zj", recoil=["ptj1", "ptj2", "pimdphi"])`.
 
@@ -44,13 +46,13 @@ of the table, so the prior's spectrum is kept below the window and fixed order r
 Joint moments are imposed in the windowed form only, and every tower a joint block couples
 must be windowed too: `load_moments` returns `transition="windowed"` for every recoil tower
 when a joint block with a window is requested, and for the Z+jet towers always, which is the
-configuration behind the paper's Z+jet numbers (61.7% with the jet towers, 35.9% with the
+configuration behind the authors' Z+jet solves (61.7% with the jet towers, 35.9% with the
 joint moments, 35.3% with the acoplanarity tower added).
 
 ## Matching-window variants
 
 For the Higgs boson and diphoton production the recoil tower is also released with three
-other matching windows, the inputs of the paper's matching uncertainty:
+other matching windows, the inputs of a matching uncertainty:
 
 | table | nominal (a, b) | `window="A"` | `"B"` | `"C"` | upper edge |
 |---|---|---|---|---|---|
@@ -98,12 +100,12 @@ Two definitions matter most:
     unshifted (`ctw`).
 
 A prior that lacks the channels the corrections populate pays in effective statistics. Under
-the same diphoton input, the paper's merged γγ + γγj prior retains 94.87% of its own effective
-count (94.9% in the paper), and its Pythia 2 → 2 prior retains 3.95% (`result.effN_retained`;
-4.0% in the paper). That 2 → 2 solve, like
-every diphoton, Higgs and Z+jet solve of the paper, imposes every order `load_moments` returns
+the same diphoton input, the authors' merged γγ + γγj prior retains 94.87% of its own effective
+count (94.9% in the stored solve), and their Pythia 2 → 2 prior retains 3.95% (`result.effN_retained`;
+4.0% in the stored solve). That 2 → 2 solve, like
+every diphoton, Higgs and Z+jet solve of the authors, imposes every order `load_moments` returns
 (`moment_selection=False`): every booked order, except the Z+jet second-jet and acoplanarity
-towers, booked to 8 and 12 orders and imposed to 6 and 4. On the paper's other priors the resolution criterion selects every
+towers, booked to 8 and 12 orders and imposed to 6 and 4. On the authors' other priors the resolution criterion selects every
 booked order anyway; on the 2 → 2 prior it drops the sixth \|cos θ*\| order, and the default
 solve retains 4.4%.
 
@@ -135,8 +137,8 @@ Window towers add:
 **At the top level:**
 - `provenance`: the NNLOJET run directory, run name and run card (`../runcards/`), the seeds
   and channels pooled, and `decay_type` for the Higgs boson.
-- `default_constraints` lists what the paper imposed, with its depths in `max_orders` and the
-  towers it kept windowed in `transition`.
+- `default_constraints` lists the default constraint set, with its depths in `max_orders` and
+  the towers kept windowed in `transition`.
 - `hard_scale_GeV` is the Q of the matching-scale rule α_s(p_T) ln²(Q/p_T) < 0.2.
   `load_moments` uses it to check every recoil window, and prints a warning if one disagrees.
 - `scales` gives the seven (μ_R, μ_F) choices in the column order of that production's run
@@ -177,7 +179,7 @@ The moments are:
 
 Both are pooled over the independent runs as the ratio of summed numerators to summed
 denominators. Each window rate is the mean over the runs of the per-run rate ⟨w⟩/σ_fid, the
-convention of the paper's solves; a variant's rate is the ratio of its two run means
+convention of the authors' solves; a variant's rate is the ratio of its two run means
 (W0_V over the variant runs, σ_fid over the main runs). Every table states its conventions in
 `provenance.conventions`.
 
@@ -197,17 +199,17 @@ convention of the paper's solves; a variant's rate is the ratio of its two run m
     log [27, 150].
   - The full-range decay angle has an edge at \|cos θ*\| ≃ 0.78, where the neutrino cut closes
     the Born phase space. Only the recoil and the W width populate the region beyond it, which a
-    tower should not impose; the paper imposes the bulk window instead.
+    tower should not impose; the optional `ctw_window` imposes the bulk window instead.
 * **The map and the window are part of the target.** The loader reproduces the maps and windows
   compiled into the fixed-order runs; do not change them. A different map converges with clean
   closure onto wrong constraints.
 * **Window rates.** Each window rate is the mean over the runs of the per-run rate, the
-  convention of the paper's solves, so that the tables reproduce the paper's weights
+  convention of the authors' solves, so that the tables reproduce the authors' stored weights
   ([`../REPRODUCE.md`](../REPRODUCE.md)). Pooling the rate as a ratio of sums, like the
   moments, would differ by at most 0.05 statistical standard deviations, except for diphoton
   (0.34), and would move the merged diphoton prior's retained fraction from 94.87% to 94.85%.
   A window variant's rate is the ratio of two run means (variant runs, main runs) either way.
 
 All tables were produced by `export_moments.py` from the NNLOJET productions whose run cards
-are in `../runcards/`. What they reproduce on the paper's priors is listed in
+are in `../runcards/`. What they reproduce on the authors' priors is listed in
 [`../REPRODUCE.md`](../REPRODUCE.md).

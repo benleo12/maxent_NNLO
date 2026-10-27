@@ -2,8 +2,8 @@
 
 ## 1.1.0 (2026-10-26)
 
-This release matches the paper, B. Assi, *Maximum-entropy matching: accuracy, transport and
-cost*. Two things in 1.0.0 did not:
+This release matches the paper, B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment
+matching at NNLO and beyond*. Two things in 1.0.0 did not:
 
 - **1.0.0 had only the windowed transition.** Its recoil towers imposed w(v) T_n(u) and the
   window rate w(v), with targets r ⟨T_n⟩_{FO, w} and r. The paper's results use the blended
@@ -27,12 +27,12 @@ cost*. Two things in 1.0.0 did not:
   construction), reported in `result.report["windows"]` and by `describe()`.
 - **Joint moments are imposed in the windowed form only.** A joint block that couples a recoil
   tower with `transition="blend"` raises a `ValueError`: blended towers are in general
-  inconsistent with fixed-order joint moments. `load_moments` returns `transition="windowed"` for the Z+jet towers (the paper's
+  inconsistent with fixed-order joint moments. `load_moments` returns `transition="windowed"` for the Z+jet towers (the default
   configuration, also for the solve without joint moments) and for every recoil tower next to a
   windowed joint block.
 - A recoil tower without a `profile` uses the step window [x_match, x_hi) under either
   transition (1.0.0 used a separate composite target for it).
-- `closure` and `max_pull` are taken over the imposed moments, as the paper defines them; the
+- `closure` and `max_pull` are taken over the imposed moments; the
   window shares (a window rate, the share above a cut) are reported in `report["shares"]` and
   by `describe()`.
 
@@ -52,9 +52,9 @@ cost*. Two things in 1.0.0 did not:
 - Per-run, per-scale accumulators of every table (`<name>_runs.json.gz`, channel sums at full
   double precision), from which `load_moments(process, scale=k)` and
   `load_moments(process, runs=positions)` pool the scale variants and bootstrap replicas of the
-  paper's bands.
-- Window rates are the mean over the runs of the per-run rate, the convention of the paper's
-  solves, so that the tables reproduce the paper's weights; 1.0.0 pooled them as the ratio of
+  uncertainty bands.
+- Window rates are the mean over the runs of the per-run rate, the convention of the authors'
+  solves, so that the tables reproduce the authors' weights; 1.0.0 pooled them as the ratio of
   summed accumulators. The two differ by at most 0.05 statistical standard deviations, except
   for diphoton (0.34). Each table records its conventions in `provenance.conventions`.
 - Joint blocks carry their `scale_errors`; window-rate scale errors are the half-range over all

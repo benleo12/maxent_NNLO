@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""The uncertainty bands of the paper, from the released per-run tables.
+r"""The uncertainty bands, from the released per-run tables.
 
     python examples/bands_with_released_moments.py dy my_prior.npz [n_boot] [out.npz]
 
@@ -10,7 +10,7 @@ Loops over the same call (README, "Uncertainty bands"):
                runs (load_moments(process, runs=resample));
   * matching ("ggh" and "aa" only): one re-solve per window variant A, B, C of the recoil
                tower (load_moments(process, window=V)); the envelope of the nominal solve and
-               the three variants is the matching uncertainty, drawn hatched in the paper;
+               the three variants is the matching uncertainty;
   * sample statistics: the usual per-bin error of the weighted events, sum of q_i^2.
 Every variant imposes the central solve's constraint set (fixed_orders) and starts from its
 multipliers (lam0).  The output holds the central weights, the six scale variants, the

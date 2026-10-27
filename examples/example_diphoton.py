@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 r"""The released diphoton moments imposed on a TOY prior (runs in seconds, no data needed).
 
-The constraint set is the paper's: the Born towers of the diphoton mass (log map) and of
+The constraint set is the default one: the Born towers of the diphoton mass (log map) and of
 |cos theta*| (Collins-Soper, linear map), and the recoil pT_gg inside the window that rises
 from 28 to 56 GeV and is cut at 500 GeV.  The toy prior only has to cover the same phase
 space; replace it with your own LO+PS diphoton events (ATLAS 8 TeV fiducial selection, see

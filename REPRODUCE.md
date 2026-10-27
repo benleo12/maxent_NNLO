@@ -1,13 +1,15 @@
-# Reproducing the paper
+# Reproducing the published results
 
-The repository reproduces two steps of the paper (B. Assi, *Maximum-entropy matching: accuracy,
-transport and cost*):
+The repository reproduces two steps of the paper (B. Assi, R. Poncelet, J. Whitehead,
+*Positive-weight moment matching at NNLO and beyond*) and of the authors' further solves:
 
 1. the released moment tables, from the NNLOJET productions;
-2. the paper's solves, from the released tables, given the paper's priors.
+2. the authors' solves, from the released tables, given the authors' priors.
 
 It does not distribute the event samples (the priors) or the NNLOJET output files, which are too
-large, nor the scripts that draw the paper's figures.
+large, nor the scripts that draw the paper's figures. Nor does it include the paper's NNLO
+Z+jet p_T^ℓℓ moments, so the paper's MaxEnt NNLO(Zj) solve cannot be rerun from this release.
+Those moments and the event samples are available from the authors on request.
 
 ## 1. The tables, from NNLOJET
 
@@ -26,14 +28,15 @@ large, nor the scripts that draw the paper's figures.
 4. `python tests/test_released.py` checks that pooling the per-run accumulators shipped with
    every table reproduces every released number.
 
-## 2. The paper's solves, from the tables
+## 2. The authors' solves, from the tables
 
 Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
-paper's own prior, and compared with the numbers of the paper and, where the paper's solve
-stored them, its weights. Effective statistics are N_eff/N, or for the sliced diphoton priors
+authors' own prior, and compared with the authors' stored numbers and, where the solve stored
+them, its weights q_ref. The paper quotes the central Drell-Yan and gg → H values. Effective
+statistics are N_eff/N, or for the sliced diphoton priors
 the retained fraction N_eff/N_eff^p.
 
-| solve | `load_moments` call | paper | this release | max \|q/q_paper − 1\| |
+| solve | `load_moments` call | authors' solve | this release | max \|q/q_ref − 1\| |
 |---|---|---|---|---|
 | Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.7 × 10⁻¹⁴ |
 | Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | ≤ 2.3 × 10⁻¹³; scale 4: 6.9 × 10⁻⁸ |
@@ -48,37 +51,41 @@ the retained fraction N_eff/N_eff^p.
 | diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | 94.868%; [0.541, 2.615]; max pull 0.013 | 0 (bit for bit) |
 | diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 0 (bit for bit) |
 | diphoton, 2 → 2 prior | `"aa"`, `moment_selection=False` | 4.0%; tilts up to 3 × 10⁴ | 3.951%; up to 3.1 × 10⁴ | 1.5 × 10⁻¹¹ |
-| Z+jet, jet towers | `"zj", mixed=[]` | 61.7% | 61.664% (the paper's stored value to 4 × 10⁻¹⁴) | no stored weights |
+| Z+jet, jet towers | `"zj", mixed=[]` | 61.7% | 61.664% (the stored value to 4 × 10⁻¹⁴) | no stored weights |
 | Z+jet, + 16 joint moments | `"zj"` | 35.9%; closure 6 × 10⁻² | 35.876% (to 1.4 × 10⁻¹³); 6.12 × 10⁻² | no stored weights |
 | Z+jet, + acoplanarity tower | `"zj", recoil=["ptj1", "ptj2", "pimdphi"]` | 35.3% | 35.335%; 6.20 × 10⁻² | no stored weights |
 
-For Z+jet, the sixteen joint moments reached by the two solves agree with the paper's stored
+For Z+jet, the sixteen joint moments reached by the two solves agree with the stored
 values to 10⁻¹² of their uncertainty: up to 3.74σ from fixed order with the jet towers alone
-(3.7σ in the paper) and within 0.41σ with the joint moments imposed (0.4σ). For Drell-Yan the
-standard deviation of ln(q/p) is 0.025, as in the paper. The closures of all these solves are
+(3.7σ in the stored solve) and within 0.41σ with the joint moments imposed (0.4σ). For Drell-Yan the
+standard deviation of ln(q/p) is 0.025, as in the stored solve. The closures of all these solves are
 below 10⁻³ except for Z+jet. Closure and max pull are taken over the moments; `describe()`
 prints the window shares separately (the share above the Drell-Yan recoil cut, for instance, is
 met to 0.78 of its Monte Carlo error).
 
+**Drell-Yan cross-moments.** `load_moments("dy", mixed=["mll_x_abs_costh"])` adds the 16 joint
+moments of m_ll and \|cos θ*\| of the paper's End Matter. The prior must then also carry
+`abs_costh`.
+
 **Re-solves.** The targets of the scale and bootstrap re-solves, pooled from the per-run files,
-are bit-identical to those of the paper's own solves (checked for the worst cases above). The
+are bit-identical to those of the authors' own solves (checked for the worst cases above). The
 re-solves start from the central multipliers (`lam0`) and hold its orders (`fixed_orders`), as
-in `examples/bands_with_released_moments.py`; the bootstrap replicas of the paper drew
+in `examples/bands_with_released_moments.py`; the authors' bootstrap replicas drew
 `np.random.default_rng(1).choice(n_runs, n_runs)` positions per replica. Where a re-solve
-differs from the paper's stored band weights by more than 10⁻¹¹, the difference is the solver's
+differs from the stored band weights by more than 10⁻¹¹, the difference is the solver's
 own stopping tolerance (a dual gradient below 10⁻⁶ in standardized units): the same targets
 solved from another starting point differ by as much (1.9 × 10⁻⁷ for the Higgs scale 6,
 6.6 × 10⁻⁸ for the Drell-Yan scale 4), and both solutions meet the constraints equally well.
 
 **Window rates.** Each table takes a window rate as the mean over the runs of the per-run rate,
-the convention of the paper's solves, and pools the moments as the ratio of summed
+the convention of the authors' solves, and pools the moments as the ratio of summed
 accumulators (`provenance.conventions` in each table). Pooling the rate too would change no
 other number at its printed precision, but would move the merged diphoton prior from 94.87% to
 94.85%. A window variant's rate is the ratio of two run means (variant runs, main runs).
 
-**Orders imposed.** The paper's diphoton, Higgs and Z+jet solves imposed every order
+**Orders imposed.** The authors' diphoton, Higgs and Z+jet solves imposed every order
 `load_moments` returns (`moment_selection=False`). That is every booked order, except the Z+jet
-second-jet and acoplanarity towers, booked to 8 and 12 orders and imposed to 6 and 4. On the paper's priors the default resolution criterion selects
+second-jet and acoplanarity towers, booked to 8 and 12 orders and imposed to 6 and 4. On the authors' priors the default resolution criterion selects
 every booked order anyway, except on the 2 → 2 diphoton prior, where it drops the sixth
 \|cos θ*\| order (the default solve then retains 4.4%).
 
@@ -93,4 +100,4 @@ every booked order anyway, except on the 2 → 2 diphoton prior, where it drops 
 | Pythia q q̄ → γγ and gg box, five slices, 8 TeV, ATLAS selection | 6,938,827 | diphoton (2 → 2) |
 | MG5_aMC LO pp → ℓ⁺ℓ⁻ + Pythia 8.312, 13 TeV, parton-level jets, ≥ 1 jet | 934,906 | Z+jet |
 
-The paper describes them; they are not distributed with the repository.
+The paper describes the Drell-Yan prior. None of the priors is distributed with the repository.

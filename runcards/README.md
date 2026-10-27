@@ -17,8 +17,8 @@ variants).
 | `zj_moments.run` | Z+jet at NLO, μ = H_T/2, 40 runs (`zj_moments2`) | `moments/zj_nlo_moments` |
 | `ggh_winvar.run` | the H recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`ggh_winvar`) | `moments/ggh_nnlo_moments_winvar` |
 | `gg_winvar.run` | the γγ recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`gg_winvar`) | `moments/aa_nnlo_moments_winvar` |
-| `dy_ptz_full.run` | the real channels (R, RR, RV) of the Z run with a full-range p_T^ℓℓ histogram, 6 runs (`dy_profile_poc_ptzfull`) | the fixed-order recoil curve below the matching scale in figure 1 of the paper (no table) |
-| `ggh_fid.run` | H → γγ at NNLO (`decay_type = 3`) in the ATLAS fiducial region, μ = m_H, 20 runs (`ggh_fid`) | the fixed-order jet multiplicity in the paper's Higgs figure (no table); with at most two partons, it has no events with three or more jets |
+| `dy_ptz_full.run` | the real channels (R, RR, RV) of the Z run with a full-range p_T^ℓℓ histogram, 6 runs (`dy_profile_poc_ptzfull`) | the fixed-order recoil curve below the matching scale (no table) |
+| `ggh_fid.run` | H → γγ at NNLO (`decay_type = 3`) in the ATLAS fiducial region, μ = m_H, 20 runs (`ggh_fid`) | the fixed-order jet multiplicity (no table); with at most two partons, it has no events with three or more jets |
 
 The run directory and card of every table are also recorded in its `provenance` field.
 

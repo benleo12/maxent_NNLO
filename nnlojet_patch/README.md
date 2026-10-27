@@ -48,7 +48,7 @@ codesign -f -s - install/lib/libnnlojet_core.dylib
 
 ## Usage
 
-A moment is a single bin, so book it with `nbins=1` and a companion normal
+A moment is a single bin, so book it with `nbins=1` and a second, normal
 histogram for the denominator; the bin width cancels in the ratio.
 
 ```
@@ -76,7 +76,7 @@ giving `<T_2(m_ll)> = prof_mll_2 / norm_born`. For a windowed recoil the profile
   window-variant runs), otherwise production aborts with a missing VEGAS grid file.
 * **Pool seeds, don't average ratios** for the moments, and only pool seeds for which
   *every* channel is present — a missing Born channel silently wrecks the denominator.
-  (The released window rates are the mean of the per-run rates, as in the paper's solves;
+  (The released window rates are the mean of the per-run rates, as in the authors' solves;
   a rate is well behaved in every run.)
 
 ## Errata in the source comments
