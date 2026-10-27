@@ -51,6 +51,24 @@ python examples/upgrade_with_released_moments.py dy my_prior.npz # writes my_pri
 python examples/bands_with_released_moments.py dy my_prior.npz   # scale, bootstrap (and window) variants
 ```
 
+No sample yet? `python examples/example_moments.py` runs the whole chain on toy events.
+From Drell-Yan shower output, build `events` from the two Born-level leptons:
+
+```python
+def dy_events(l1, l2, w):   # l1, l2: (N, 4) arrays (E, px, py, pz) in GeV, w: weights
+    P = l1 + l2
+    pt = lambda p: np.hypot(p[:, 1], p[:, 2])
+    eta = lambda p: np.arcsinh(p[:, 3] / pt(p))
+    mll = np.sqrt(np.maximum(P[:, 0]**2 - (P[:, 1:]**2).sum(1), 0.0))
+    fid = ((pt(l1) > 27) & (pt(l2) > 27) & (abs(eta(l1)) < 2.5) & (abs(eta(l2)) < 2.5)
+           & (mll > 66) & (mll < 116))                # the table's fiducial selection
+    y_abs = np.abs(np.arctanh(P[:, 3] / P[:, 0]))
+    return fid, dict(mll=mll[fid], y_abs=y_abs[fid], pT_ll=pt(P)[fid], weight=w[fid])
+
+fid, events = dy_events(l1, l2, w)      # a follower x joins as events["x"] = x[fid]
+result = upgrade(events, *load_moments("dy"))
+```
+
 The released processes are:
 
 | key | process |
