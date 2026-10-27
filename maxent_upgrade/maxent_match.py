@@ -2,20 +2,20 @@
 """maxent_match: the LEGACY histogram engine behind `upgrade_from_histograms`, plus the
 convex-dual Newton solver `_newton_maxent` that `upgrade()` uses.
 
-The event-level method of the papers (`upgrade()`) uses only `_newton_maxent` from this
+The event-level method of the paper (`upgrade()`) uses only `_newton_maxent` from this
 module.  Everything else here (differential K-factor targets, the data-driven x_match rules,
 the composite window, the rate-scheme band) is an earlier, histogram-based variant of the
 construction, kept for users who only have binned fixed-order output; it was not used for
-the papers' results.  Its description follows.
+the paper's results.  Its description follows.
 
-Algorithm (paper box):
+Algorithm (legacy histogram engine, not the method of the paper):
  A1. DOF rule: constrain a minimal spanning set = Born invariants of the hard system
      + ONE recoil magnitude per hard system. Everything else FOLLOWS (never constrained).
  A2. Born DOFs -> differential K-factor targets:
-     K(x) = dens_{N+k}(x)/dens_N(x) on the FO binning, with a TWO-SIDED validity mask:
-       mask (K:=1, preserve) any bin with rel_err > RELMAX
-       or |K/plateau - 1| > DELTA where plateau = median K over the contiguous valid top region
-     (catches both statistical noise and FO breakdown e.g. jacobian shoulders).
+     K(x) = dens_{N+k}(x)/dens_N(x) on the FO binning, with a statistical validity mask:
+       mask (K:=1, preserve) any bin with rel_err > RELMAX in either order
+       (statistical validity only. No plateau or FO-breakdown test is applied to Born K,
+       which is only clipped to CLIP).
      Targets = Chebyshev moments (N_FO) of the K-reweighted prior. Masked sigma-fraction is REPORTED.
  A3. Recoil DOF -> windowed bin-probability targets:
      x_match rule (coded, data-blind):
@@ -34,15 +34,13 @@ Algorithm (paper box):
  All dials live in DIALS below.
 
 ===========================================================================
-PACKAGE COPY (maxent_upgrade): VERBATIM copy of the frozen physics engine with
-ONE additive, physics-neutral change so the moment-SNR selector can set the
-number of constrained Chebyshev moments PER observable instead of the single
-global N_FO / N_W dial:
+PER-OBSERVABLE ORDERS: so the moment-SNR selector can set the number of
+constrained Chebyshev moments PER observable instead of the single global
+N_FO / N_W dial:
   * build_and_solve reads optional cfg['born_N'] = {obs: n} and cfg['recoil_N'] = n.
-    When those keys are ABSENT it falls back to dials['N_FO'] / dials['N_W'] and
-    reproduces the original engine bit-for-bit.
-No physics is altered: diff-K, the two-sided validity masks, the composite
-window, the convex-dual Newton solver, and the scale/rate band are untouched.
+    When those keys are ABSENT it falls back to dials['N_FO'] / dials['N_W'].
+These keys change only the number of moments: diff-K, the validity masks, the composite
+window and the scale/rate band are unchanged.
 ===========================================================================
 """
 import numpy as np
@@ -188,14 +186,14 @@ def ps_agreement_xmatch(fo_hi, prior_x, prior_w, obs, edges, report, relmax=0.15
     return min(xm_idx,len(edges)-1)
 
 def masked_diffK(fo_hi, obs, edges, dens_lo, rel_lo, dials, report):
-    """Born diff-K with two-sided validity mask; returns callable and mask report."""
+    """Born diff-K with a statistical validity mask (rel_err > RELMAX -> K=1), clipped to CLIP; returns callable and mask report."""
     dH,relH,probH=_fo_hist(fo_hi,obs,edges)
     ok=(dens_lo>1e-12)&(dH>0)
     K=np.where(ok, dH/np.maximum(dens_lo,1e-30), 1.0)
     stat_bad=(relH>dials['RELMAX'])|(rel_lo>dials['RELMAX'])
     valid=ok&~stat_bad
     plateau=np.median(K[valid]) if valid.sum()>=3 else 1.0
-    conv_bad=np.abs(K/max(plateau,1e-30)-1)>3*dials['DELTA']   # loose: Born K may legitimately vary
+    conv_bad=np.abs(K/max(plateau,1e-30)-1)>3*dials['DELTA']   # computed but NOT applied (legacy behaviour)
     mask=stat_bad|(~ok)
     K=np.where(mask,1.0,K)
     K=np.clip(K,*dials['CLIP'])
@@ -217,10 +215,16 @@ def _newton_maxent(Phi, p, mu, l2=1e-4, lam0=None, n_iter=200, tol=1e-10, sigma=
     spread of the feature is imposed almost exactly, one known worse than that is
     imposed only in part.  sigma_k = 0 (or None) reproduces the hard solve.
     """
+    p=np.asarray(p,float); sp=p.sum()
+    if abs(sp-1.0)>1e-9: p=p/sp          # the standardization below needs sum(p)=1
     K=Phi.shape[1]
     m_L=(p[:,None]*Phi).sum(0)
     sd=np.maximum(np.sqrt((p[:,None]*(Phi-m_L)**2).sum(0)+1e-30),1e-12)
     Phz=(Phi-m_L)/sd; muz=(mu-m_L)/sd
+    # a constant column (e.g. 'norm') whose target equals its value up to rounding: take the
+    # z-target from the column itself, so 1/sd (up to 1e12) cannot amplify that rounding
+    c0=Phi[0]; fit=(Phi.min(0)==Phi.max(0))&(np.abs(mu-c0)<=1e-9*np.maximum(1.0,np.abs(c0)))
+    muz[fit]=Phz[0,fit]
     l2v=np.full(K,float(l2))
     if sigma is not None:
         sg=np.nan_to_num(np.asarray(sigma,float),nan=0.0)
@@ -228,12 +232,19 @@ def _newton_maxent(Phi, p, mu, l2=1e-4, lam0=None, n_iter=200, tol=1e-10, sigma=
         if (sg<0).any(): raise ValueError("sigma must be non-negative")
         l2v=l2v+(sg/sd)**2
     lam=np.zeros(K) if lam0 is None else np.asarray(lam0,float).copy()
+    if lam.shape!=(K,):
+        raise ValueError(f"lam0 has {lam.size} multipliers but the problem has {K} constraints: "
+                         "re-solve with the central solve's fixed_orders")
+    g_prev=np.inf
     for it in range(n_iter):
         sarr=Phz@lam; smax=sarr.max()
         Z=(p*np.exp(sarr-smax)).sum(); q=p*np.exp(sarr-smax)/Z
         grad=q@Phz-muz+l2v*lam; g=float(np.linalg.norm(grad))
         if not np.isfinite(g): return None,lam,False
         if g<tol: break
+        if g<1e-6 and g>0.5*g_prev: break           # converged, stalled at round-off
+        if g<1e-6 and not (q>0).all(): break        # converged with underflowed weights (fails below)
+        g_prev=g
         Phc=Phz-(q@Phz); H=(q[:,None]*Phc).T@Phc+np.diag(l2v)
         try: step=np.linalg.solve(H+1e-12*np.eye(K),grad)
         except np.linalg.LinAlgError: step=np.linalg.lstsq(H,grad,rcond=None)[0]
@@ -248,7 +259,8 @@ def _newton_maxent(Phi, p, mu, l2=1e-4, lam0=None, n_iter=200, tol=1e-10, sigma=
         if not okls: break
         lam=ln
     sarr=Phz@lam; smax=sarr.max(); q=p*np.exp(sarr-smax); q/=q.sum()
-    ok=bool(np.isfinite(q).all() and (q>0).all() and g<1e-6)
+    g=float(np.linalg.norm(q@Phz-muz+l2v*lam))     # at the returned multipliers
+    ok=bool(np.isfinite(q).all() and (q>0).all() and np.isfinite(g) and g<1e-6)
     return q,lam,ok
 
 # ---------------- pipeline ----------------
@@ -320,7 +332,7 @@ def build_and_solve(prior, cfg, fo_lo, fo_hi, k_scale=0, rate_scheme='max', dial
         else:
             report['xm_rate_consistency']=None
     else:
-        # report-only diagnostic: where the two class rate estimates cross (companion band study)
+        # report-only diagnostic: where the two class rate estimates cross
         _dH2,_r2,_p2=_fo_hist(fo_hi,obs,edges,k_scale); _pos2=_p2>0; _sp2=max(_p2[_pos2].sum(),1e-300)
         _best=None
         for _e in range(xm_idx,len(edges)-3):

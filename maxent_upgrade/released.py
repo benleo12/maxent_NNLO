@@ -1,4 +1,4 @@
-r"""The fixed-order moments released with the paper, as the two inputs of upgrade().
+r"""The released fixed-order moments, as the two inputs of upgrade().
 
     from maxent_upgrade import upgrade, load_moments
     moments, config = load_moments("dy")          # the paper's constraint set for Drell-Yan
@@ -8,11 +8,11 @@ Processes: "dy" (Z/gamma* -> l+l-, NNLO), "wp", "wm" (W+, W-, NNLO), "aa" (dipho
 "ggh" (gluon-fusion Higgs, NNLO, inclusive), "zj" (Z+jet, NLO).  Each table is a JSON file
 in moments/ (installed as maxent_upgrade/moments/); <name>_runs.json.gz next to it holds the
 channel-summed accumulators of every independent run at all seven scales, from which
-`scale=` and `runs=` pool the moments again (the uncertainty bands of the paper).  Moments are
+`scale=` and `runs=` pool the moments again (the scale and statistical bands).  Moments are
 pooled as the ratio of summed accumulators; window rates are the mean over the runs of the
-per-run rate, the convention of the paper's solves.  For "ggh"
+per-run rate, the convention of the authors' solves.  For "ggh"
 and "aa", <name>_winvar.json holds the recoil tower booked with three other matching windows
-(`window="A"`, "B", "C"; the matching uncertainty of the paper).
+(`window="A"`, "B", "C", the matching-window variants).
 """
 import gzip
 import json
@@ -39,10 +39,15 @@ def _data_dir():
 
 
 def _path(name, suffix=".json"):
+    key = name
     name = PROCESSES.get(name, name)
     if name.endswith(".json"):
         return name if suffix == ".json" else name[:-len(".json")] + suffix
-    return os.path.join(_data_dir(), name + suffix)
+    p = os.path.join(_data_dir(), name + suffix)
+    if key not in PROCESSES and not os.path.isfile(p):
+        raise ValueError(f"unknown process {key!r}: the released processes are {list(PROCESSES)} "
+                         "(or pass the path of a .json table)")
+    return p
 
 
 def processes():
@@ -66,7 +71,7 @@ def window_table(process):
 
 def windows(process):
     """{window: profile} of the matching windows released for a process's recoil tower:
-    'nominal' (the paper's central choice) and the variants 'A', 'B', 'C' for "ggh" and "aa";
+    'nominal' (the central choice) and the variants 'A', 'B', 'C' for "ggh" and "aa";
     an empty dict for a process without variants."""
     wt = window_table(process)
     if wt is None:
@@ -121,7 +126,7 @@ def _repool(name, num_tags, den_tag, scale, runs):
 
 
 def _rate(name, w_tag, scale, runs):
-    """Window rate <w>/sigma_fid over `runs` at `scale`, as export_moments.py and the paper's
+    """Window rate <w>/sigma_fid over `runs` at `scale`, as export_moments.py and the authors'
     solves take it: the mean over the runs of the per-run rate, its run-to-run error, and the
     half-range over the seven scales of that mean.  For a window-variant table sigma_fid comes
     from the main run (its `reference` accumulators, at the same run positions): the rate is a
@@ -153,13 +158,13 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     process : str
         "dy", "wp", "wm", "aa", "ggh" or "zj" (or a path to a table in the same schema).
     born, recoil, mixed : list of tower keys, optional
-        Override the table's default constraint set, which is the one the paper imposed
+        Override the table's default constraint set, the one the authors imposed
         (`table(process)["default_constraints"]`).  E.g. `recoil=["pt_w", "ctw_window"]`
         adds the W decay-angle window, `recoil=["ptj1", "ptj2", "pimdphi"]` the Z+jet
         acoplanarity window.
     max_orders : {tower key: N}, optional
         Cap a tower's depth.  Merged over the table's own `default_constraints.max_orders`
-        (the depths the paper used where they are shallower than the table, e.g. the Z+jet
+        (the depths the authors used where they are shallower than the table, e.g. the Z+jet
         second-jet tower at 6 of its 8 orders).
     scale : int 0..6, optional
         Pool the moments at one of the seven scale choices (`table(p)["scales"]`, 0 =
@@ -185,11 +190,18 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         array per observable named in `config` (keys = the towers' `observable` fields)
         plus the positive prior weights under 'weight', restricted to the table's
         `fiducial` selection.  Recoil towers use the blended transition, except where the
-        paper kept the windowed form (`default_constraints.transition`, the Z+jet towers);
+        authors kept the windowed form (`default_constraints.transition`, the Z+jet towers);
         a joint block with a window switches every recoil tower to 'windowed', since joint
         moments are imposed in the windowed form only.
     """
     t = table(process)
+    if scale is not None and not 0 <= int(scale) < len(t["scales"]):
+        raise ValueError(f"{process}: scale must be 0..{len(t['scales']) - 1} (0 = central), got {scale}")
+    if runs is not None:
+        runs = np.asarray(runs, int)
+        n_runs = int(t["n_independent_runs"])
+        if runs.ndim != 1 or runs.size == 0 or runs.min() < 0 or runs.max() >= n_runs:
+            raise ValueError(f"{process}: runs must be a non-empty list of positions in 0..{n_runs - 1}")
     dflt = t["default_constraints"]
     born = dflt["born"] if born is None else list(born)
     recoil = dflt["recoil"] if recoil is None else list(recoil)
@@ -229,7 +241,7 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         return ("bw", d["bw"][0], d["bw"][1]) if d["map"] == "bw" else d["map"]
 
     # joint moments are imposed in the windowed form, so a joint block with a window keeps
-    # every recoil tower windowed (the paper's Z+jet configuration); otherwise the table says
+    # every recoil tower windowed (the default Z+jet configuration); otherwise the table says
     for key in mixed:
         if key not in t["joint"]:
             raise KeyError(f"{process}: no joint block '{key}'; the table has {sorted(t['joint'])}")
@@ -295,7 +307,7 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
 
 
 def summary(process):
-    """A few lines describing a table: process, provenance, towers, and the paper's constraint set."""
+    """A few lines describing a table: process, provenance, towers, and the default constraint set."""
     t = table(process); sf = t["sigma_fid_pb"]; pv = t.get("provenance", {})
     lines = [f"{process}: {t['process']} at {t['order']}, {t['n_independent_runs']} runs, "
              f"sigma {sf['value']:.4g} pb (stat {sf['stat']:.2g}, scale {sf['scale_lo']:.4g}-{sf['scale_hi']:.4g})",
@@ -319,7 +331,7 @@ def summary(process):
         lines.append(f"   window variants of {wt['replaces_tower']} (load_moments(..., window=V)): " + ", ".join(
             f"{V} rises {d['profile']['a']:g}-{d['profile']['b']:g}" for V, d in wt["windows"].items()))
     dc = t["default_constraints"]
-    lines.append(f"   the paper's constraint set: born {dc['born']}, recoil {dc['recoil']}, mixed {dc.get('mixed', [])}"
+    lines.append(f"   default constraint set: born {dc['born']}, recoil {dc['recoil']}, mixed {dc.get('mixed', [])}"
                  + (f", depths {dc['max_orders']}" if dc.get("max_orders") else "")
                  + (f", transition {dc['transition']}" if dc.get("transition") else ", blended recoil towers"))
     return "\n".join(lines)

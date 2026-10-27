@@ -31,7 +31,8 @@ def cheb(u, N):
 def umap(x, lo, hi, kind):
     """Map an observable onto u in [-1, 1] ('lin', 'log', 'bw' or ('bw', M, G)); see module doc."""
     if isinstance(kind, (tuple, list)) and kind and kind[0] == 'bw':
-        _, M, G = (list(kind) + [BW_M, BW_G])[:3]
+        M = float(kind[1]) if len(kind) > 1 else BW_M
+        G = float(kind[2]) if len(kind) > 2 else BW_G
         kind = 'bw'
     else:
         M, G = BW_M, BW_G

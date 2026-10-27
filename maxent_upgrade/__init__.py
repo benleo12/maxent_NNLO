@@ -16,7 +16,7 @@ observable that is not constrained (a follower) inherits them.  See README.md fo
 Public API
 ----------
     upgrade(events, moments, config) -> UpgradeResult    # event-level moments (the method)
-    load_moments(process, ..., window=None)              # the paper's released tables -> (moments, config)
+    load_moments(process, ..., window=None)              # the released tables -> (moments, config)
     sigma_fid(process) -> dict                           # their fixed-order cross sections
     released                                             # table(), summary(), processes(), windows()
     compute_fo_moments(fo_events, config, x_match, ...)  # moments from FO events in Python
@@ -25,7 +25,7 @@ Public API
     matching_scale(Q), check_seam(x_match, Q)            # the matching-scale rule
     combine_moments(anchor, target, n=None)              # for soft_constraints=True
     UpgradeResult, DEFAULTS
-Legacy (an earlier, histogram-based variant; not used for the papers' results):
+Legacy (an earlier, histogram-based variant; not used for the paper's results):
     upgrade_from_histograms(events, fo_low, fo_high, config), moment_snr, resolved_order,
     FOHist, fo_from_dat
 """
@@ -35,7 +35,7 @@ from typing import Optional, Dict, Any
 
 import numpy as np
 
-# ---- the frozen physics engine (verbatim copy shipped inside this package) ----
+# ---- the legacy histogram engine and the Newton solver (maxent_match.py) ----
 from . import maxent_match as _mm
 from .maxent_match import (
     build_and_solve as _build_and_solve,
@@ -47,7 +47,7 @@ from .maxent_match import (
     _newton_maxent as _newton,
 )
 from .basis import cheb as _cheb, umap as _umap
-from .released import load_moments, sigma_fid          # the paper's fixed-order moments
+from .released import load_moments, sigma_fid          # the released fixed-order moments
 from . import released                                 # released.table(), .summary(), .processes()
 
 __version__ = "1.1.0"
@@ -81,7 +81,7 @@ DEFAULTS: Dict[str, Any] = dict(
     RSUP=_DIALS["RSUP"],     # max target/prior probability ratio per recoil bin
     # --- band variants: impose the CENTRAL solve's constraint set ---------------
     fixed_orders=None,       # {obs: N}: impose exactly N orders of that tower (overrides the SNR rule)
-    # --- Gaussian soft constraints (see README, "Soft constraints") -----------
+    # --- Gaussian soft constraints (see combine_moments) ---------------------
     soft_constraints=False,  # impose each moment with a Gaussian penalty of width = its error
     soft_errors="stat",      # width: "stat" = Monte Carlo error of the target; "total" = stat (+) scale
     # --- band -----------------------------------------------------------------
@@ -279,8 +279,8 @@ def resolved_order(snr, threshold=1.0) -> int:
 # ---------------------------------------------------------------------------
 # Multi-part FO dispatch: let the engine read a per-observable histogram bank.
 # (The engine's _fo_hist/_nscales take ONE fo container; we hand them a
-#  {'kind':'multi','parts':{obs:dat}} bank and dispatch on obs. Same mechanism
-#  the frozen diphoton driver uses; installed once, idempotently.)
+#  {'kind':'multi','parts':{obs:dat}} bank and dispatch on obs; installed once,
+#  idempotently.)
 # ---------------------------------------------------------------------------
 def _install_multi_dispatch():
     if getattr(_mm, "_maxent_upgrade_patched", False):
@@ -579,7 +579,7 @@ def upgrade_from_histograms(events: Dict[str, np.ndarray],
 
 
 # ===========================================================================
-# EVENT-LEVEL MOMENT INTERFACE (the method of the papers).  The fixed-order
+# EVENT-LEVEL MOMENT INTERFACE (the method of the paper).  The fixed-order
 # input is the moments themselves, weighted sums over the fixed-order phase-space
 # points, never a re-binned histogram.
 # ===========================================================================
@@ -705,6 +705,8 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
       m, n = 1..config['mixed'][key]['n'], keyed (m, n), and the joint rate <w_x w_y>/<1>
       (w = 1 for an observable the block gives no profile, as for two Born observables).
 
+    n_max: depth of every tower (default 12 orders for Born towers, 20 for recoil towers).
+
     Errors: `stat_errors` is the weighted Monte Carlo error, `scale_errors` the half-range
     over the scale rows, `errors` (and `window_errors`) their quadrature sum.
     """
@@ -713,8 +715,8 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
     w = np.asarray(fo_events[weight_key], float)
     wsc = fo_events.get(scale_key)
     wsc = None if wsc is None else np.atleast_2d(np.asarray(wsc, float))
-    Nb = n_max if n_max is not None else DEFAULTS["snr_max_order"]["born"]
-    Nr = n_max if n_max is not None else DEFAULTS["snr_max_order"]["recoil"]
+    Nb = n_max if n_max is not None else 12      # MOMENT_CONSTRUCTION.md, section 4
+    Nr = n_max if n_max is not None else 20
 
     def stat_err(x, ww, nmax, a, b, mp):
         # weighted-MC error on each moment: sqrt(sum w^2 (T_n - mu_n)^2)/sum w
@@ -907,7 +909,7 @@ def _check_inputs(events, moments, config, wkey):
             warnings.warn(f"config['recoil']['{o}']['profile']['a'] = {float(prof['a']):g}, but the moments were "
                           f"booked with a window starting at x_match = {float(mrc['x_match']):g}.  The window is "
                           f"part of the target: use the profile the moments were computed with", stacklevel=3)
-        a, b, c, d = _window_edges(prof, mrc["x_match"], mrc.get("x_hi", np.inf))
+        a, b, c, d = _window_edges(prof, mrc["x_match"], mrc.get("x_hi", rc.get("range", (None, np.inf))[1]))
         win = profile_w(x, a, b, c, d) > 0
         nin = int(win.sum())
         if nin == 0:
@@ -916,6 +918,10 @@ def _check_inputs(events, moments, config, wkey):
         if nin < 100:
             warnings.warn(f"only {nin} prior events lie inside the '{o}' window; the upgrade there is "
                           f"Monte Carlo noise times a tilt", stacklevel=3)
+        hi = float(mrc.get("x_hi", rc.get("range", (None, np.inf))[1])); above = float(np.mean(x > hi))
+        if above > 0.05:
+            warnings.warn(f"{100 * above:.1f}% of the prior's '{o}' lies above the tower range ({hi:g}); "
+                          f"check the units (GeV)", stacklevel=3)
 
 
 def upgrade(events, moments, config):
@@ -947,7 +953,7 @@ def upgrade(events, moments, config):
         [x_match, x_hi) without a profile), and the window rate r = <w>/<1>.  `errors` are
         the total fixed-order uncertainties (Monte Carlo scatter combined with the scale
         envelope); they decide which orders are resolved.  `load_moments(process)` returns
-        this dict for the paper's processes; `compute_fo_moments` builds it from FO events.
+        this dict for the released processes; `compute_fo_moments` builds it from FO events.
     config : dict
         Roles, maps and windows, plus optional knobs::
 
@@ -1132,11 +1138,11 @@ def upgrade(events, moments, config):
         rc = moments["recoil"][recoil_obs]
         XL = np.asarray(events[recoil_obs], float)
         xm = float(rc["x_match"])
-        XHI = float(rc.get("x_hi", XL.max()))
+        XHI = float(rc["x_hi"]) if "x_hi" in rc else float(rcfg["range"][1])   # the booked interval
         soft_lo = float(rc.get("soft_lo", rcfg.get("soft_lo", max(rcfg["range"][0], 1e-6))))
         a, b, c, d = _window_edges(rcfg.get("profile"), xm, XHI)
         trans = _transition(rcfg, recoil_obs)
-        windows[recoil_obs] = dict(x_match=xm, x_hi=float(rc.get("x_hi", np.inf)), rate=float(rc["rate"]),
+        windows[recoil_obs] = dict(x_match=xm, x_hi=XHI, rate=float(rc["rate"]),
                                    transition=trans, profile=dict(a=a, b=b, c=c, d=d))
         wprof = profile_w(XL, a, b, c, d)
         # `vals`/`rate` are the w-weighted FO moments and the w-rate (wprofile_* where a
@@ -1247,8 +1253,8 @@ def upgrade(events, moments, config):
 def combine_moments(anchor, target, n=None):
     r"""Precision-weighted combination of two moment dicts for the SAME observable and map.
 
-    `anchor` is the precise lower-order input (e.g. our NLO Z+jet recoil from a 40-seed
-    NNLOJET run); its scale half-range per moment, `scale_errors` (and `rate_scale` for
+    `anchor` is the precise lower-order input (e.g. the released NLO Z+jet recoil tower,
+    pooled over 40 NNLOJET runs); its scale half-range per moment, `scale_errors` (and `rate_scale` for
     the window rate), is taken as the prior width on the true higher-order value.
     `target` is the higher-order Monte Carlo (e.g. an NNLO Z+jet run with large errors);
     its `stat_errors` (and `rate_stat`) are the measurement widths.  Per moment
