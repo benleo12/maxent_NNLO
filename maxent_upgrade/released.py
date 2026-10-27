@@ -17,6 +17,7 @@ and "aa", <name>_winvar.json holds the recoil tower booked with three other matc
 import gzip
 import json
 import os
+import re
 
 import numpy as np
 
@@ -25,6 +26,12 @@ PROCESSES = {"dy": "dy_nnlo_moments", "wp": "w_nnlo_moments_WP", "wm": "w_nnlo_m
 # the matching-window variants of the recoil tower: the windows rise over about
 # [2/3, 4/3] v_m (A), [4/3, 8/3] v_m (B) and [1, 4] v_m (C) instead of [1, 2] v_m
 WINDOW_VARIANTS = {"ggh": "ggh_nnlo_moments_winvar", "aa": "aa_nnlo_moments_winvar"}
+# The NNLO Z+jet calculation of the paper (STRIPPER, R. Poncelet), as produced: its profiled
+# pT_ll moments (block pT_Z_cm_rm1_w1, the 30-60 GeV window cut at 500 GeV, log map on
+# [30, 2500] GeV) replace the Drell-Yan recoil tower with load_moments("dy", nnlo_zj=True).
+NNLO_ZJ_FILE = "ppzj-moments_NNLO_m0.xml"
+# NNLOJET scale choice -> STRIPPER's, which orders (1,1),(2,2),(.5,.5),(1,.5),(1,2),(.5,1),(2,1)
+_TO_STRIPPER = [0, 1, 2, 6, 4, 5, 3]
 
 _RUNS_CACHE = {}
 
@@ -145,12 +152,43 @@ def _rate(name, w_tag, scale, runs):
     return float(R[scale]), float(abs(R[scale]) * np.hypot(*rel)), float(0.5 * (R.max() - R.min()))
 
 
+def _stripper_block(path, block):
+    """One block of a STRIPPER XML file: values (bin, 7 scales) and central errors (bin),
+    under- and overflow slots removed."""
+    s = open(path).read()
+    for o in re.findall(r"<observable>(.*?)</observable>", s, re.S):
+        if re.search(r"<description>(.*?)</description>", o, re.S).group(1).strip() == block:
+            bins = re.findall(r"<bin>(.*?)</bin>", o, re.S)
+            V = np.array([[float(x) for x in re.search(r"<values>(.*?)</values>", b, re.S).group(1).split(",")] for b in bins])
+            E = np.array([[float(x) for x in re.search(r"<errors>(.*?)</errors>", b, re.S).group(1).split(",")] for b in bins])
+            return V[1:-1, :7], E[1:-1, 0]
+    raise KeyError(f"{path}: no block {block!r}")
+
+
+def _nnlo_zj_recoil(scale, runs):
+    """The paper's NNLO Z+jet pT_ll tower at an NNLOJET scale choice, its window rate taken
+    against the Drell-Yan fiducial cross section of the same scale choice and runs."""
+    W, e = _stripper_block(os.path.join(_data_dir(), NNLO_ZJ_FILE), "pT_Z_cm_rm1_w1")
+    col, A, _ = _runs(PROCESSES["dy"])
+    sig = 2.002e-3 * float(_sel(A, runs)[:, col["norm_born"], scale].mean())   # pb
+    j = _TO_STRIPPER[scale]; W0 = W[0, j]
+    v = W[1:, j] / W0
+    st = np.sqrt((e[1:] / W0) ** 2 + (W[1:, 0] * e[0] / W0 ** 2) ** 2)
+    r = W[1:, :] / W[0, :]; sc = 0.5 * (r.max(1) - r.min(1))
+    R = float(W0 / sig)
+    v, st, sc = [float(x) for x in v], [float(x) for x in st], [float(x) for x in sc]
+    return dict(window_values=v, window_errors=[_hyp(a, b) for a, b in zip(st, sc)],
+                stat_errors=st, scale_errors=sc, wprofile_values=v, wprofile_rate=R,
+                rate=R, rate_stat=float(e[0] / sig), rate_scale=float(0.5 * (W[0].max() - W[0].min()) / sig),
+                x_match=30.0, x_hi=2500.0, soft_lo=30.0)
+
+
 def _hyp(a, b):
     return float(np.hypot(a, b))
 
 
 def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
-                 scale=None, runs=None, check_seam=True, window=None):
+                 scale=None, runs=None, check_seam=True, window=None, nnlo_zj=False):
     r"""Turn a released table into the `(moments, config)` inputs of `upgrade()`.
 
     Parameters
@@ -182,6 +220,11 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         matching window (`windows(process)` lists them), the inputs of the matching-
         uncertainty band.  The returned moments and config carry that window's profile and
         rate; every other tower is the main table's.
+    nnlo_zj : bool
+        For "dy": replace the p_T^ll tower by the paper's NNLO Z+jet moments (STRIPPER,
+        R. Poncelet; moments/ppzj-moments_NNLO_m0.xml), as in its MaxEnt NNLO(Zj) solve.
+        They carry Monte Carlo errors but no per-run values, so `runs` resamples only the
+        Drell-Yan towers and the cross section their rate is taken against.
 
     Returns
     -------
@@ -303,6 +346,10 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
             config["mixed"][key] = dict(observables=(ox, oy), range=rng,
                                         map={o: mapspec(towers_by_obs[o]) for o in (ox, oy)},
                                         profile=j["profile"], n=j["n"])
+    if nnlo_zj:
+        if name != PROCESSES["dy"] or "pT_ll" not in moments["recoil"]:
+            raise ValueError("nnlo_zj=True replaces the Drell-Yan p_T^ll tower: use it with load_moments(\"dy\")")
+        moments["recoil"]["pT_ll"] = _nnlo_zj_recoil(s, runs)
     return moments, config
 
 

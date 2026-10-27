@@ -7,9 +7,8 @@ The repository reproduces two steps of the paper (B. Assi, R. Poncelet, J. White
 2. the authors' solves, from the released tables, given the authors' priors.
 
 It does not distribute the event samples (the priors) or the NNLOJET output files, which are too
-large, nor the scripts that draw the paper's figures. Nor does it include the paper's NNLO
-Z+jet p_T^ℓℓ moments, so the paper's MaxEnt NNLO(Zj) solve cannot be rerun from this release.
-Those moments and the event samples are available from the authors on request.
+large, nor the scripts that draw the paper's figures. The event samples are available from the
+authors on request.
 
 ## 1. The tables, from NNLOJET
 
@@ -39,6 +38,7 @@ the retained fraction N_eff/N_eff^p.
 | solve | `load_moments` call | authors' solve | this release | max \|q/q_ref − 1\| |
 |---|---|---|---|---|
 | Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.7 × 10⁻¹⁴ |
+| Drell-Yan, NNLO Z+jet recoil | `"dy", nnlo_zj=True` | 99.9%; tilts in [0.96, 3.95] | 99.875%; [0.964, 3.955]; closure 9.4 × 10⁻⁵ | 2.6 × 10⁻¹³ |
 | Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | ≤ 2.3 × 10⁻¹³; scale 4: 6.9 × 10⁻⁸ |
 | Drell-Yan, 20 bootstrap re-solves | `"dy", runs=...` | | | ≤ 2.0 × 10⁻¹³ |
 | Drell-Yan, linear mass map | `"dy"`, `mll` map `"lin"` | 10.8% | 10.80% | |

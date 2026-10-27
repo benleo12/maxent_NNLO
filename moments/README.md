@@ -1,8 +1,10 @@
 # Fixed-order moments, released for use with your own prior
 
 These tables hold the paper's NNLO Drell-Yan input and the inputs for further processes.
-The paper's NNLO Z+jet moments are not included and are available from the authors on
-request. The `zj` table is a separate NLO calculation with jet towers. Each JSON
+The paper's NNLO Z+jet calculation (STRIPPER, R. Poncelet) is in the two
+`ppzj-moments_NNLO_*.xml` files, as produced (m0 with p_T^ℓℓ > 30 GeV, m1 with p_T^ℓℓ > 5 GeV).
+`load_moments("dy", nnlo_zj=True)` takes the p_T^ℓℓ moments of m0 in place of the Drell-Yan
+recoil tower. The `zj` table is a separate NLO calculation with jet towers. Each JSON
 file describes itself, and `maxent_upgrade.load_moments` turns it into the two inputs of
 `upgrade()`:
 

@@ -27,4 +27,4 @@ packages = ["maxent_upgrade", "maxent_upgrade.moments"]
 "maxent_upgrade.moments" = "moments"
 
 [tool.setuptools.package-data]
-"maxent_upgrade.moments" = ["*.json", "*.json.gz", "*.csv", "*.md"]
+"maxent_upgrade.moments" = ["*.json", "*.json.gz", "*.csv", "*.md", "*.xml"]

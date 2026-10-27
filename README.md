@@ -11,8 +11,8 @@ It returns new per-event weights that reproduce those moments. The weights come 
 maximum-entropy exponential tilt of the prior, so every weight is positive by construction.
 No event is generated and no weight changes sign. The paper's NNLO Drell-Yan moments are
 released here, with tables for further processes, so you can upgrade your own prior today.
-The paper's NNLO Z+jet moments are available from the authors on request. The `zj` table here
-is a separate NLO calculation with jet towers.
+So are its NNLO Z+jet p_T^ℓℓ moments: `load_moments("dy", nnlo_zj=True)` imposes them in place
+of the Drell-Yan recoil tower. The `zj` table here is a separate NLO calculation with jet towers.
 
 ![maxent_upgrade: fixed-order moments and a positive-weight prior in, positive weights out](docs/flowchart.png)
 
