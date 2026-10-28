@@ -231,24 +231,28 @@ def _newton_maxent(Phi, p, mu, l2=1e-4, lam0=None, n_iter=200, tol=1e-10, sigma=
         if sg.shape!=(K,): raise ValueError(f"sigma must have shape ({K},), got {sg.shape}")
         if (sg<0).any(): raise ValueError("sigma must be non-negative")
         l2v=l2v+(sg/sd)**2
-    lam=np.zeros(K) if lam0 is None else np.asarray(lam0,float).copy()
-    if lam.shape!=(K,):
+    lam=np.zeros(K) if lam0 is None else np.asarray(lam0,float).reshape(-1).copy()
+    if lam.size!=K:
         raise ValueError(f"lam0 has {lam.size} multipliers but the problem has {K} constraints: "
                          "re-solve with the central solve's fixed_orders")
-    g_prev=np.inf
     for it in range(n_iter):
         sarr=Phz@lam; smax=sarr.max()
         Z=(p*np.exp(sarr-smax)).sum(); q=p*np.exp(sarr-smax)/Z
         grad=q@Phz-muz+l2v*lam; g=float(np.linalg.norm(grad))
         if not np.isfinite(g): return None,lam,False
         if g<tol: break
-        if g<1e-6 and g>0.5*g_prev: break           # converged, stalled at round-off
         if g<1e-6 and not (q>0).all(): break        # converged with underflowed weights (fails below)
-        g_prev=g
         Phc=Phz-(q@Phz); H=(q[:,None]*Phc).T@Phc+np.diag(l2v)
         try: step=np.linalg.solve(H+1e-12*np.eye(K),grad)
         except np.linalg.LinAlgError: step=np.linalg.lstsq(H,grad,rcond=None)[0]
         f0=smax+np.log(Z)-muz@lam+0.5*lam@(l2v*lam)
+        if g<1e-6 and float(grad@step)<=1e-13*max(1.0,abs(f0)):
+            # the dual cannot resolve this step's decrease: take the full Newton step if it
+            # lowers the gradient, otherwise the solve has reached round-off
+            ln=lam-step; sn=Phz@ln; qn=p*np.exp(sn-sn.max()); qn/=qn.sum()
+            gn=float(np.linalg.norm(qn@Phz-muz+l2v*ln))
+            if np.isfinite(gn) and gn<g: lam=ln; continue
+            break
         t=1.0; okls=False
         for _ in range(50):
             ln=lam-t*step; sn=Phz@ln; smn=sn.max()

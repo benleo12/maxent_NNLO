@@ -6,7 +6,9 @@
   matching at NNLO and beyond*. "The paper" now means its Drell-Yan and gg → H solves only.
 - The paper's NNLO Z+jet p_T^ℓℓ moments are released (`moments/ppzj-moments_NNLO_m0.xml`,
   `_m1.xml`). `load_moments("dy", nnlo_zj=True)` imposes them.
-- The solver stops once converged instead of running out its iterations at round-off.
+- Near round-off, where the dual can no longer resolve a step, the solver takes the full
+  Newton step if it lowers the gradient and stops otherwise. It no longer runs out its
+  iterations there.
 - A recoil tower without `x_hi` is mapped on its booked range. `('bw', M)` takes the default
   width. `compute_fo_moments` books 12 Born and 20 recoil orders by default.
 - `load_moments` rejects unknown processes, scales and run lists with a clear message.
