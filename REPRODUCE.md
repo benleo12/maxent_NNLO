@@ -39,14 +39,14 @@ the retained fraction N_eff/N_eff^p.
 |---|---|---|---|---|
 | Drell-Yan | `"dy"` | 99.9%; tilts in [0.97, 1.79] | 99.925%; [0.968, 1.789]; closure 9.9 × 10⁻⁵; max pull 0.041 | 1.7 × 10⁻¹⁴ |
 | Drell-Yan, NNLO Z+jet recoil | `"dy", nnlo_zj=True` | 99.9%; tilts in [0.96, 3.95] | 99.875%; [0.964, 3.955]; closure 9.4 × 10⁻⁵ | 2.6 × 10⁻¹³ |
-| Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | ≤ 2.3 × 10⁻¹³; scale 4: 6.9 × 10⁻⁸ |
+| Drell-Yan, six scale re-solves | `"dy", scale=k` | weights reproduced to 3 × 10⁻⁵ | 99.79–99.96% | ≤ 2.3 × 10⁻¹³ |
 | Drell-Yan, 20 bootstrap re-solves | `"dy", runs=...` | | | ≤ 2.0 × 10⁻¹³ |
 | Drell-Yan, linear mass map | `"dy"`, `mll` map `"lin"` | 10.8% | 10.80% | |
-| W+ | `"wp"` | 99.8% | 99.762%; closure 5.2 × 10⁻⁴; max pull 0.026 | 5.2 × 10⁻¹⁴; scale re-solves ≤ 2.4 × 10⁻¹²; bootstrap ≤ 1.3 × 10⁻⁶ |
-| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 1.5 × 10⁻¹³; scale ≤ 4.2 × 10⁻¹³; bootstrap ≤ 2.1 × 10⁻⁷ |
+| W+ | `"wp"` | 99.8% | 99.762%; closure 5.2 × 10⁻⁴; max pull 0.026 | 5.2 × 10⁻¹⁴; scale re-solves ≤ 2.4 × 10⁻¹²; bootstrap ≤ 1.9 × 10⁻⁷ |
+| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 1.5 × 10⁻¹³; scale ≤ 4.2 × 10⁻¹³; bootstrap ≤ 1.1 × 10⁻⁷ |
 | W- | `"wm"` | 99.8% | 99.750%; closure 5.2 × 10⁻⁴; max pull 0.024 | 1.2 × 10⁻¹³; scale ≤ 1.2 × 10⁻⁷; bootstrap ≤ 1.5 × 10⁻⁶ |
-| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 2.5 × 10⁻¹²; scale ≤ 7.5 × 10⁻¹³; bootstrap ≤ 1.3 × 10⁻⁶ |
-| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 2.6 × 10⁻¹²; scale ≤ 1.1 × 10⁻¹¹ (scale 6: 1.9 × 10⁻⁷); bootstrap ≤ 9.8 × 10⁻¹² |
+| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 1.5 × 10⁻¹³; scale ≤ 3.0 × 10⁻¹³; bootstrap ≤ 1.3 × 10⁻⁶ |
+| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 2.6 × 10⁻¹²; scale ≤ 3.1 × 10⁻¹¹; bootstrap ≤ 9.8 × 10⁻¹² |
 | gg → H, windows A, B, C | `"ggh", window=V` | matching band | 84.43%, 91.13%, 92.30% | 0 (bit for bit) |
 | diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | 94.868%; [0.541, 2.615]; max pull 0.013 | 0 (bit for bit) |
 | diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 0 (bit for bit) |
@@ -72,10 +72,10 @@ are bit-identical to those of the authors' own solves (checked for the worst cas
 re-solves start from the central multipliers (`lam0`) and hold its orders (`fixed_orders`), as
 in `examples/bands_with_released_moments.py`; the authors' bootstrap replicas drew
 `np.random.default_rng(1).choice(n_runs, n_runs)` positions per replica. Where a re-solve
-differs from the stored band weights by more than 10⁻¹¹, the difference is the solver's
-own stopping tolerance (a dual gradient below 10⁻⁶ in standardized units): the same targets
-solved from another starting point differ by as much (1.9 × 10⁻⁷ for the Higgs scale 6,
-6.6 × 10⁻⁸ for the Drell-Yan scale 4), and both solutions meet the constraints equally well.
+differs from the stored band weights by more than 10⁻¹⁰ (some W± bootstrap replicas and the
+W- scale 4), the stored solve stopped at the solver's round-off floor: the same targets solved
+from a cold start agree with this release to 4 × 10⁻⁸, and both meet the constraints equally
+well.
 
 **Window rates.** Each table takes a window rate as the mean over the runs of the per-run rate,
 the convention of the authors' solves, and pools the moments as the ratio of summed
