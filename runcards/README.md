@@ -22,6 +22,13 @@ variants).
 
 The run directory and card of every table are also recorded in its `provenance` field.
 
+The tables added for the paper (the window variants of Drell-Yan, W± and Z+jet, the Higgs
+variant D and the CT18NNLO members) come from further runs. Their cards keep the PROCESS,
+PARAMETERS, SELECTORS and central SCALES blocks of the cards above. Only the run name, the
+statistics, the channel, the HISTOGRAMS block and, for the members, the PDF member and a
+central-only SCALES block differ. Those cards are not shipped. Each table's `provenance` names
+its runs (`../REPRODUCE.md`).
+
 ## The window-variant productions
 
 `ggh_winvar.run` and `gg_winvar.run` need the two additional patches

@@ -8,14 +8,18 @@ Loops over the same call (README, "Uncertainty bands"):
                (load_moments(process, scale=k));
   * target statistics: one re-solve per bootstrap replica of the independent fixed-order
                runs (load_moments(process, runs=resample));
-  * matching ("ggh" and "aa" only): one re-solve per window variant A, B, C of the recoil
+  * matching: one re-solve per window variant A, B, C (and D for "ggh") of the recoil
                tower (load_moments(process, window=V)); the envelope of the nominal solve and
-               the three variants is the matching uncertainty;
+               the variants is the matching uncertainty;
+  * PDF ("wp", "wm" and "ggh" only): one re-solve per CT18NNLO member k = 1..58
+               (load_moments(process, pdf_member=k)); released.hessian_band of any histogram
+               of the 59 weight sets (member 0 = central) is the 68% CL band;
   * sample statistics: the usual per-bin error of the weighted events, sum of q_i^2.
 Every variant imposes the central solve's constraint set (fixed_orders) and starts from its
 multipliers (lam0).  The output holds the central weights, the six scale variants, the
-bootstrap replicas and, where released, the window variants; the per-bin envelope of the
-scale variants is the band, the bootstrap spread (+) the sample's own error the error bar.
+bootstrap replicas and, where released, the window variants and the PDF members; the
+per-bin envelope of the scale variants is the band, the bootstrap spread (+) the sample's own
+error the error bar.
 """
 import os
 import sys
@@ -63,7 +67,17 @@ def main():
         window_w[f"window_{V}"] = r.weights
         print(f"  window {V} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
 
-    np.savez_compressed(out, central=central.weights, scale_w=np.array(scale_w), boot_w=np.array(boot_w), **window_w)
+    pdf = {}
+    if released.pdf_table(process) is not None:
+        pdf_w = [central.weights]
+        for k in range(1, released.pdf_table(process)["n_members"]):
+            m_k, c_k = load_moments(process, pdf_member=k)
+            pdf_w.append(upgrade(events, m_k, {**c_k, "fixed_orders": frozen["fixed_orders"],
+                                               "lam0": frozen["lam0"]}).weights)
+        pdf["pdf_w"] = np.array(pdf_w)
+        print(f"  {len(pdf_w)} CT18NNLO members: released.hessian_band(<histograms of pdf_w>) is the band")
+
+    np.savez_compressed(out, central=central.weights, scale_w=np.array(scale_w), boot_w=np.array(boot_w), **window_w, **pdf)
     print(f"wrote {out}")
 
 

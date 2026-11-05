@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-11-05
+
+- The docs cite the paper, B. Assi, *Maximum-entropy reweighting of color-singlet samples*
+  (2026), as the main reference. It covers every released table. The letter, B. Assi,
+  R. Poncelet, J. Whitehead, *Positive-weight moment matching at NNLO and beyond*, stays the
+  reference for the NNLO Z+jet p_T^ℓℓ moments. "The paper" now means the former.
+- Matching-window variants A, B, C for Drell-Yan, W± and Z+jet (`moments/*_winvar.json`), and
+  the Higgs variant D over (54, 108) GeV, through `load_moments(p, window=V)`. For Z+jet both jet
+  towers and their joint block move. These variants are central-scale only.
+- CT18NNLO member moments for W± and the Higgs boson (`moments/*_pdf.json`), through
+  `load_moments(p, pdf_member=k)`. `released.hessian_band` forms the PDF band.
+- The paper's Z+jet acoplanarity tower `aco` (window 0.687 → 1.374, log map on [0.687, π],
+  4 of 8 orders by default), integrated from the binned NLO distribution:
+  `load_moments("zj", recoil=["ptj1", "ptj2", "aco"])`. Optional, as before.
+- `load_moments` refuses two recoil towers of one observable.
+- `REPRODUCE.md` lists the paper's solves on its priors. Each agrees with the authors' stored
+  weights to round-off.
+- The examples loop over the new variants and members. No change to the solver.
+
 ## 2026-10-27
 
 - The docs cite only the paper, B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment

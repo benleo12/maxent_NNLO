@@ -70,9 +70,13 @@ windowed form, and every recoil tower they couple must be windowed too.
 
 **Matching uncertainty.** To estimate it, book the same windowed moments and rate with a few
 other windows, for instance rising over [⅔ v_m, ⁴⁄₃ v_m], [⁴⁄₃ v_m, ⁸⁄₃ v_m] and [v_m, 4 v_m],
-and re-solve with each (`load_moments(process, window=V)` for the released Higgs and diphoton
-variants). Dedicated runs need only the channels with a nonzero recoil and can reuse the main
-run's Vegas grids; their rate then needs σ_fid from all channels of the main run.
+and re-solve with each (`load_moments(process, window=V)` for the released variants).
+Dedicated runs need only the channels with a nonzero recoil and can reuse the main run's Vegas
+grids; their rate then needs σ_fid from all channels of the main run. If they also book the
+nominal window, a variant can enter as its difference to the nominal one, added to the main
+run's moments; the difference needs far fewer points than the moments themselves. A window may
+start below the lower end of the map: u is clipped to [−1, 1] there, in the fixed-order code
+and in the package alike.
 
 Putting a recoil observable in the Born slot is not merely inaccurate. Imposing the
 full-range moments of π − Δφ contradicts the window, which keeps the shower below the

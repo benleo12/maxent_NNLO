@@ -1,7 +1,8 @@
 # Reproducing the published results
 
-The repository reproduces two steps of the paper (B. Assi, R. Poncelet, J. Whitehead,
-*Positive-weight moment matching at NNLO and beyond*) and of the authors' further solves:
+The repository reproduces two steps of the paper (B. Assi, *Maximum-entropy reweighting of
+color-singlet samples*), of the letter (B. Assi, R. Poncelet, J. Whitehead, *Positive-weight
+moment matching at NNLO and beyond*) and of the authors' further solves:
 
 1. the released moment tables, from the NNLOJET productions;
 2. the authors' solves, from the released tables, given the authors' priors.
@@ -27,11 +28,24 @@ authors on request.
 4. `python tests/test_released.py` checks that pooling the per-run accumulators shipped with
    every table reproduces every released number.
 
-## 2. The authors' solves, from the tables
+The tables added for the paper come from further NNLOJET runs, which `export_moments.py` does
+not pool:
+- the window variants of Drell-Yan, W± and Z+jet and the Higgs variant D, booked with the
+  nominal window at the central scale (channels R, RV, RR; LO, V, R for Z+jet; seeds from 101);
+- the CT18NNLO members of W± and the Higgs boson, one full NNLO run per member at the central
+  scale (seeds 101 and 102).
+
+They were built from the per-seed channel sums of these runs. Each table's `provenance` names the
+runs, its `conventions` say how they enter, and its `validation` gives the closure of the
+nominal window, or of member 0, on the main table. The Z+jet acoplanarity tower `aco` is
+integrated from the binned NLO distribution `dphil_a` of the `zj_moments2` runs. Its field
+`binned` holds the bin edges and the in-bin averages (`moments/README.md`).
+
+## 2. The letter's solves and the authors' earlier solves, from the tables
 
 Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
 authors' own prior, and compared with the authors' stored numbers and, where the solve stored
-them, its weights q_ref. The paper quotes the central Drell-Yan and gg → H values. Effective
+them, its weights q_ref. The letter quotes the central Drell-Yan and gg → H values. Effective
 statistics are N_eff/N, or for the sliced diphoton priors
 the retained fraction N_eff/N_eff^p.
 
@@ -64,7 +78,7 @@ prints the window shares separately (the share above the Drell-Yan recoil cut, f
 met to 0.78 of its Monte Carlo error).
 
 **Drell-Yan cross-moments.** `load_moments("dy", mixed=["mll_x_abs_costh"])` adds the 16 joint
-moments of m_ll and \|cos θ*\| of the paper's End Matter. The prior must then also carry
+moments of m_ll and \|cos θ*\| of the letter's End Matter. The prior must then also carry
 `abs_costh`.
 
 **Re-solves.** The targets of the scale and bootstrap re-solves, pooled from the per-run files,
@@ -89,6 +103,54 @@ second-jet and acoplanarity towers, booked to 8 and 12 orders and imposed to 6 a
 every booked order anyway, except on the 2 → 2 diphoton prior, where it drops the sixth
 \|cos θ*\| order (the default solve then retains 4.4%).
 
+## 3. The paper's solves, from the tables
+
+The paper's Drell-Yan, W± and Z+jet solves use new priors (below), with matrix-element
+corrections off. Its gg → H and diphoton solves use the priors of section 2. Each row below was
+re-solved with this release on the paper's prior, with the configuration of the authors' solve.
+- The central solves use the defaults of `load_moments` and `upgrade`. They are compared with
+  the authors' stored weights q_ref.
+- Each window and member re-solve holds the central solve's orders and starts from its
+  multipliers (`fixed_orders`, `lam0`), as in `examples/bands_with_released_moments.py`. The
+  Z+jet window re-solves hold the orders of the central solve with the joint moments (plus the
+  four acoplanarity orders), from a cold start.
+- The authors stored the weights of these re-solves as per-bin sums only. They are compared bin
+  by bin: Drell-Yan p_T^ℓℓ (a fine grid of 600 bins and three coarser ones), m_ll and \|y_ll\|;
+  W \|y_W\|, \|η_ℓ\|, m_ℓν, p_T^W and cos θ*; Higgs p_T^H, p_T^j1, \|y_H\| and the jet
+  multiplicity; Z+jet p_T^j1, p_T^j2 and the acoplanarity.
+
+The last column is max \|q/q_ref − 1\| over the events, or over the bins for "bins".
+
+| solve | `load_moments` call | N_eff/N, this release (the authors' solve) | closure; max pull | max \|q/q_ref − 1\| |
+|---|---|---|---|---|
+| Drell-Yan | `"dy"` | 99.913% (99.913%) | 5.1 × 10⁻⁵; 0.029 | 0 |
+| Drell-Yan, windows A, B, C | `"dy", window=V` | 99.910, 99.919, 99.922% (the same) | ≤ 5.2 × 10⁻⁵ | 0 (bins) |
+| W+ | `"wp"` | 99.751% (99.751%) | 5.5 × 10⁻⁴; 0.014 | 0 |
+| W+, windows A, B, C | `"wp", window=V` | 99.695, 99.763, 99.765% (the same) | ≤ 5.9 × 10⁻⁴ | 0 (bins) |
+| W+, CT18NNLO members 1, 29, 58 | `"wp", pdf_member=k` | 99.737, 99.738, 99.758% (the same) | ≤ 6.7 × 10⁻⁴ | 0 (bins) |
+| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.707% (99.707%) | 7.0 × 10⁻⁴; 0.014 | 0 |
+| the same, windows A, B, C | `..., window=V` | 99.648, 99.721, 99.722% (the same) | ≤ 7.5 × 10⁻⁴ | 0 (bins) |
+| the same, members 1, 29, 58 | `..., pdf_member=k` | 99.698, 99.697, 99.715% (the same) | ≤ 8.3 × 10⁻⁴ | 0 (bins) |
+| W- | `"wm"` | 99.730% (99.730%) | 5.1 × 10⁻³; 0.039 | 0 |
+| W-, windows A, B, C | `"wm", window=V` | 99.700, 99.732, 99.734% (the same) | ≤ 5.1 × 10⁻³ | 0 (bins) |
+| W-, CT18NNLO members 1, 29, 58 | `"wm", pdf_member=k` | 99.720, 99.724, 99.746% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
+| W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.694% (99.694%) | 5.1 × 10⁻³; 0.040 | 0 |
+| the same, windows A, B, C | `..., window=V` | 99.662, 99.697, 99.698% (the same) | ≤ 5.1 × 10⁻³ | 0 (bins) |
+| the same, members 1, 29, 58 | `..., pdf_member=k` | 99.682, 99.689, 99.709% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
+| gg → H | `"ggh"` | 88.207% (88.207%) | 1.0 × 10⁻⁴; 0.75 | 0 |
+| gg → H, windows A, B, C, D | `"ggh", window=V` | 84.426, 91.127, 92.298, 91.841% (the same) | ≤ 1.6 × 10⁻⁴ | 0 (bins) |
+| gg → H, CT18NNLO members 1, 29, 58 | `"ggh", pdf_member=k` | 88.249, 88.107, 88.335% (the same) | 1.0 × 10⁻⁴ | 0 (bins) |
+| Z+jet, + 16 joint moments | `"zj"` | 92.430% (92.430%) | 8.2 × 10⁻³; 0.25 | 0 |
+| Z+jet, + acoplanarity moments | `"zj", recoil=["ptj1", "ptj2", "aco"]` | 86.394% (86.394%) | 7.3 × 10⁻³; 0.18 | 0 |
+| Z+jet, windows A, B, C | `"zj", window=V` | 91.874, 92.862, 92.370% (the same) | ≤ 4.1 × 10⁻⁴ | ≤ 7 × 10⁻¹⁶ (bins) |
+| Z+jet, + acoplanarity, windows A, B, C | `"zj", recoil=[..., "aco"], window=V` | 85.724, 87.562, 86.468% (the same) | ≤ 1.2 × 10⁻³ | 0 (bins) |
+
+The targets of these rows are bit-identical to those of the authors' solves, for every window
+variant and for all 59 members (checked without a prior). The orders imposed are m_ll 12,
+\|y_ll\| 11 and p_T^ℓℓ 20 for Drell-Yan, and m_ℓν 12, \|y_W\| 10 (W+) or 12 (W-) and p_T^W 20
+for W. For Z+jet they are m_ll 4, \|y_ll\| 5, p_T^j1 12, p_T^j2 6 and 4 acoplanarity orders. The
+central gg → H solve also reproduces the letter's stored weights, to 3.1 × 10⁻¹².
+
 ## The priors
 
 | prior | events | used for |
@@ -99,5 +161,9 @@ every booked order anyway, except on the 2 → 2 diphoton prior, where it drops 
 | merged MG5_aMC γγ + γγj (CKKW-L) with the Pythia gg box, nine slices, 8 TeV, ATLAS selection | 10,644,601 | diphoton (merged) |
 | Pythia q q̄ → γγ and gg box, five slices, 8 TeV, ATLAS selection | 6,938,827 | diphoton (2 → 2) |
 | MG5_aMC LO pp → ℓ⁺ℓ⁻ + Pythia 8.312, 13 TeV, parton-level jets, ≥ 1 jet | 934,906 | Z+jet |
+| MG5_aMC LO pp → ℓ⁺ℓ⁻ (10⁷ events, mass window only) + Pythia 8.312, matrix-element corrections off, 13 TeV, ATLAS fiducial selection on Born-level leptons | 3,583,332 | Drell-Yan (the paper) |
+| MG5_aMC LO pp → μν per charge + Pythia 8.312, matrix-element corrections off, 7 TeV, the NNLOJET W selection | 522,365 (W+), 490,046 (W-) | W± (the paper) |
+| the same 10⁷ generated events as the paper's Drell-Yan prior, parton-level jets, ≥ 1 jet | 914,685 | Z+jet (the paper) |
 
-The paper describes the Drell-Yan prior. None of the priors is distributed with the repository.
+The paper describes its priors (its appendix on samples), the letter its Drell-Yan prior. None
+of the priors is distributed with the repository.

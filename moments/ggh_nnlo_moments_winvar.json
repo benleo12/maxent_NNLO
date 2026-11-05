@@ -413,6 +413,130 @@
     "prof_wptC_12"
    ],
    "denominator_tag": "prof_wptC_0"
+  },
+  "D": {
+   "kind": "window",
+   "observable": "pT_H",
+   "map": "log",
+   "range": [
+    1.0,
+    1000.0
+   ],
+   "soft_lo": 1.0,
+   "profile": {
+    "a": 54.0,
+    "b": 108.0,
+    "c": 1000.0
+   },
+   "n_orders": 12,
+   "orders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "values": [
+    0.3958949149145242,
+    -0.6547420324255718,
+    -0.8557017022114963,
+    -0.030499143944844098,
+    0.7226735067509333,
+    0.5038038861322939,
+    -0.2848952068534904,
+    -0.5895654245920751,
+    -0.11104668676164786,
+    0.4195366376495065,
+    0.32011183574585955,
+    -0.1736436844896188
+   ],
+   "stat_errors": [
+    5.2867538157485474e-05,
+    7.30146256315041e-05,
+    8.098656529024959e-05,
+    0.0001896568546706817,
+    8.56612790236567e-05,
+    0.00022714581875469953,
+    0.00019412074624451577,
+    0.00020320149165700934,
+    0.00027345743963014816,
+    0.00019388660478438007,
+    0.000303056688659337,
+    0.0002301396016539507
+   ],
+   "scale_errors": [
+    0.0023326563551149815,
+    0.004134213798434205,
+    0.0018476498983319711,
+    0.007698018147908298,
+    0.005644774193815816,
+    0.005300444731938053,
+    0.008140486209244124,
+    0.003463333808049529,
+    0.006985226398313532,
+    0.004516584447122329,
+    0.004554165450737731,
+    0.004918778213396147
+   ],
+   "window_rate": 0.1289502908176755,
+   "window_rate_stat": 8.272357017619124e-05,
+   "window_rate_scale": 0.025472529522510876,
+   "note": "pT_H with the matching window rising 54-108 GeV instead of 37-74 GeV, hard cut 1000 GeV; the color-corrected matching scale (C_A/C_F); from its own runs (provenance), by the difference method on the main table",
+   "provenance": {
+    "nnlojet": "NNLOJET v1.0.2 with the patch in nnlojet_patch/ and the window functions of nnlojet_patch/winvar_*.f90.patch, plus line-for-line copies of the nominal window functions with the variant turn-on (a, b)",
+    "run_directory": "ggh_winvarD",
+    "run_name": "GGH_WINVARD",
+    "runcard": "runcards/ggh_moments3.run (its physics blocks verbatim; central scale only; the histograms book the nominal and the variant windows)",
+    "n_runs": 20,
+    "seeds": [
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120
+    ],
+    "channels": [
+     "R",
+     "RV",
+     "RR"
+    ],
+    "points_per_run": "10^6 per channel",
+    "vegas_grids": "one warm-up per channel (seed 1)",
+    "main_run": {
+     "run_directory": "ggh_moments3",
+     "run_name": "GGH_MOMENTS",
+     "runcard": "runcards/ggh_moments3.run"
+    },
+    "conventions": {
+     "moments": "difference method: <T_n>_V = <T_n>_nominal of the main table + (<T_n>_V - <T_n>_nominal) of these runs, which book both windows on the same phase-space points (each pooled over the runs as the ratio of the summed accumulators); stat = the run (seed) jackknife of the difference, added in quadrature to the main table's stat; scale = the main table's (these runs are central-scale only)",
+     "window_rate": "R_V = R_nominal of the main table + (sum of W0_V - sum of W0_nominal over these runs) / (n_runs sigma_fid), sigma_fid the run mean of norm_born of the main run; stat = the run jackknife of the difference, added in quadrature to the main table's; scale = the main table's",
+     "scale_and_runs": "central scale only; load_moments(..., window=V) does not combine with scale= or runs="
+    },
+    "decay_type": 3
+   },
+   "validation": "the nominal window booked in the same runs reproduces the main table: pT_H: worst pull 1.82 over 12 orders (chi2 14.6/12), window-rate pull -1.56"
   }
  },
  "validation": "the nominal window booked in the same runs reproduces the main table: worst pull 2.07 over the 12 orders; window rate (ratio of run means) 0.21659 against 0.21661 in the main run"

@@ -10,9 +10,10 @@ in moments/ (installed as maxent_upgrade/moments/); <name>_runs.json.gz next to 
 channel-summed accumulators of every independent run at all seven scales, from which
 `scale=` and `runs=` pool the moments again (the scale and statistical bands).  Moments are
 pooled as the ratio of summed accumulators; window rates are the mean over the runs of the
-per-run rate, the convention of the authors' solves.  For "ggh"
-and "aa", <name>_winvar.json holds the recoil tower booked with three other matching windows
-(`window="A"`, "B", "C", the matching-window variants).
+per-run rate, the convention of the authors' solves.  <name>_winvar.json holds the recoil
+tower (for "zj" both jet towers and their joint block) booked with other matching windows
+(`window="A"`, "B", "C", and "D" for "ggh": the matching-window variants).  For "wp", "wm"
+and "ggh", <name>_pdf.json holds the moments of the CT18NNLO members (`pdf_member=k`).
 """
 import gzip
 import json
@@ -24,9 +25,12 @@ import numpy as np
 PROCESSES = {"dy": "dy_nnlo_moments", "wp": "w_nnlo_moments_WP", "wm": "w_nnlo_moments_WM",
              "aa": "aa_nnlo_moments", "ggh": "ggh_nnlo_moments", "zj": "zj_nlo_moments"}
 # the matching-window variants of the recoil tower: the windows rise over about
-# [2/3, 4/3] v_m (A), [4/3, 8/3] v_m (B) and [1, 4] v_m (C) instead of [1, 2] v_m
-WINDOW_VARIANTS = {"ggh": "ggh_nnlo_moments_winvar", "aa": "aa_nnlo_moments_winvar"}
-# The NNLO Z+jet calculation of the paper (STRIPPER, R. Poncelet), as produced: its profiled
+# [2/3, 4/3] v_m (A), [4/3, 8/3] v_m (B) and [1, 4] v_m (C) instead of [1, 2] v_m;
+# for the Higgs boson D rises over [54, 108] GeV, the color-corrected matching scale
+WINDOW_VARIANTS = {p: PROCESSES[p] + "_winvar" for p in PROCESSES}
+# the moments of the CT18NNLO members 0..58 (the PDF band)
+PDF_MEMBERS = {p: PROCESSES[p] + "_pdf" for p in ("wp", "wm", "ggh")}
+# The NNLO Z+jet calculation of the letter (STRIPPER, R. Poncelet), as produced: its profiled
 # pT_ll moments (block pT_Z_cm_rm1_w1, the 30-60 GeV window cut at 500 GeV, log map on
 # [30, 2500] GeV) replace the Drell-Yan recoil tower with load_moments("dy", nnlo_zj=True).
 NNLO_ZJ_FILE = "ppzj-moments_NNLO_m0.xml"
@@ -76,16 +80,47 @@ def window_table(process):
         return json.load(f)
 
 
+def _variant(wt, V):
+    """({tower key: tower}, {joint key: block}) that window V of a window-variant table replaces."""
+    W = wt["windows"][V]
+    return (W["towers"] if "towers" in W else {wt["replaces_tower"]: W}), W.get("joint", {})
+
+
 def windows(process):
     """{window: profile} of the matching windows released for a process's recoil tower:
-    'nominal' (the central choice) and the variants 'A', 'B', 'C' for "ggh" and "aa";
-    an empty dict for a process without variants."""
+    'nominal' (the central choice) and the variants 'A', 'B', 'C' (and 'D' for "ggh");
+    an empty dict for a process without variants.  For "zj" the profile is that of both jets."""
     wt = window_table(process)
     if wt is None:
         return {}
-    out = {"nominal": dict(table(process)["towers"][wt["replaces_tower"]]["profile"])}
+    key = (wt.get("replaces_towers") or [wt["replaces_tower"]])[0]
+    out = {"nominal": dict(table(process)["towers"][key]["profile"])}
     out.update({V: dict(d["profile"]) for V, d in wt["windows"].items()})
     return out
+
+
+def pdf_table(process):
+    """The raw JSON table of a process's CT18NNLO member moments, or None if it has none."""
+    if process not in PDF_MEMBERS:
+        return None
+    with open(_path(PDF_MEMBERS[process])) as f:
+        return json.load(f)
+
+
+def hessian_band(x, cl68=True):
+    """The CT18 Hessian band of a quantity x[k] computed with each member k = 0..58 (e.g. a
+    histogram per member, x of shape (59, n_bins)): the asymmetric (plus, minus) deviations from
+    member 0, from the eigenvector pairs (2i-1, 2i).  CT18 is a 90% CL set: cl68=True divides
+    by 1.645 for a 68% CL band."""
+    x = np.asarray(x, float)
+    x0 = x[0]
+    up, dn = np.zeros_like(x0), np.zeros_like(x0)
+    for i in range(1, len(x) - 1, 2):
+        a, b = x[i] - x0, x[i + 1] - x0
+        up += np.maximum(np.maximum(a, b), 0.0) ** 2
+        dn += np.maximum(np.maximum(-a, -b), 0.0) ** 2
+    f = 1.0 / 1.645 if cl68 else 1.0
+    return f * np.sqrt(up), f * np.sqrt(dn)
 
 
 def observables(process):
@@ -132,17 +167,18 @@ def _repool(name, num_tags, den_tag, scale, runs):
     return vals, stat, scl
 
 
-def _rate(name, w_tag, scale, runs):
+def _rate(name, w_tag, scale, runs, norm_tag="norm_born"):
     """Window rate <w>/sigma_fid over `runs` at `scale`, as export_moments.py and the authors'
     solves take it: the mean over the runs of the per-run rate, its run-to-run error, and the
     half-range over the seven scales of that mean.  For a window-variant table sigma_fid comes
     from the main run (its `reference` accumulators, at the same run positions): the rate is a
-    ratio of the two run means, whose independent errors give its error."""
+    ratio of the two run means, whose independent errors give its error.  A tower integrated
+    from a histogram books its per-run rate directly (`norm_tag` = 1)."""
     col, A, ref = _runs(name)
     A = _sel(A, runs)
     w = A[:, col[w_tag], :]
     if ref is None:
-        per = w / A[:, col["norm_born"], :]                       # (run, scale): per-run rates
+        per = w / A[:, col[norm_tag], :]                          # (run, scale): per-run rates
         stat = float(per[:, scale].std(ddof=1) / np.sqrt(len(per))) if len(per) > 1 else 0.0
         mean = per.mean(0)
         return float(np.mean(per[:, scale])), stat, float(0.5 * (mean.max() - mean.min()))
@@ -188,7 +224,7 @@ def _hyp(a, b):
 
 
 def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
-                 scale=None, runs=None, check_seam=True, window=None, nnlo_zj=False):
+                 scale=None, runs=None, check_seam=True, window=None, nnlo_zj=False, pdf_member=None):
     r"""Turn a released table into the `(moments, config)` inputs of `upgrade()`.
 
     Parameters
@@ -198,8 +234,9 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     born, recoil, mixed : list of tower keys, optional
         Override the table's default constraint set, the one the authors imposed
         (`table(process)["default_constraints"]`).  E.g. `recoil=["pt_w", "ctw_window"]`
-        adds the W decay-angle window, `recoil=["ptj1", "ptj2", "pimdphi"]` the Z+jet
-        acoplanarity window.
+        adds the W decay-angle window, `recoil=["ptj1", "ptj2", "aco"]` the Z+jet
+        acoplanarity moments of the paper (window 0.687 -> 1.374), and
+        `recoil=["ptj1", "ptj2", "pimdphi"]` the earlier acoplanarity window (0.05 -> 0.2).
     max_orders : {tower key: N}, optional
         Cap a tower's depth.  Merged over the table's own `default_constraints.max_orders`
         (the depths the authors used where they are shallower than the table, e.g. the Z+jet
@@ -215,16 +252,21 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         they disagree by more than 15%.  The window is compiled into the fixed-order run,
         so the check can only warn.  Window variants are deliberate moves of the window and
         are not checked.
-    window : None, "nominal", "A", "B" or "C"
-        For "ggh" and "aa": replace the recoil tower by the same tower booked with another
-        matching window (`windows(process)` lists them), the inputs of the matching-
-        uncertainty band.  The returned moments and config carry that window's profile and
-        rate; every other tower is the main table's.
+    window : None, "nominal", "A", "B", "C" or (for "ggh") "D"
+        Replace the recoil tower (for "zj" both jet towers and their joint block) by the same
+        tower booked with another matching window (`windows(process)` lists them), the
+        inputs of the matching-uncertainty band.  The returned moments and config carry that
+        window's profile and rate; every other tower is the main table's.  The variants of
+        "dy", "wp", "wm", "zj" and the Higgs D are central-scale only (no `scale`, `runs`).
     nnlo_zj : bool
-        For "dy": replace the p_T^ll tower by the paper's NNLO Z+jet moments (STRIPPER,
+        For "dy": replace the p_T^ll tower by the letter's NNLO Z+jet moments (STRIPPER,
         R. Poncelet; moments/ppzj-moments_NNLO_m0.xml), as in its MaxEnt NNLO(Zj) solve.
         They carry Monte Carlo errors but no per-run values, so `runs` resamples only the
         Drell-Yan towers and the cross section their rate is taken against.
+    pdf_member : int 0..58, optional
+        For "wp", "wm" and "ggh": add to the central moments the difference between CT18NNLO
+        member k and member 0 (`pdf_table(process)`), the inputs of the PDF band.
+        `hessian_band` forms the band from the 59 re-solves.
 
     Returns
     -------
@@ -254,21 +296,34 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     s = 0 if scale is None else int(scale)
     name = PROCESSES.get(process, process)
 
-    variant = None
+    variant, vjoint = {}, {}
     if window not in (None, "nominal"):
         wt = window_table(process)
         if wt is None:
             raise ValueError(f"{process}: no matching-window variants are released (only for {sorted(WINDOW_VARIANTS)})")
         if window not in wt["windows"]:
             raise KeyError(f"{process}: no window {window!r}; the variants are {sorted(wt['windows'])} (or 'nominal')")
-        if wt["replaces_tower"] not in recoil:
-            raise ValueError(f"{process}: window={window!r} replaces the recoil tower '{wt['replaces_tower']}', "
+        vt, vjoint = _variant(wt, window)
+        if not any(k in recoil for k in vt):
+            raise ValueError(f"{process}: window={window!r} replaces the recoil tower(s) {list(vt)}, "
                              f"which this call does not impose (recoil={recoil})")
-        variant = (wt["replaces_tower"], wt["windows"][window], WINDOW_VARIANTS[process])
+        if repool and any("numerator_tags" not in d for d in vt.values()):
+            raise ValueError(f"{process}: window {window!r} is released at the central scale only; "
+                             f"it does not combine with scale= or runs=")
+        variant = {k: (d, WINDOW_VARIANTS[process]) for k, d in vt.items()}
+    if pdf_member is not None:
+        pt = pdf_table(process)
+        if pt is None:
+            raise ValueError(f"{process}: no CT18NNLO member moments are released (only for {sorted(PDF_MEMBERS)})")
+        if not 0 <= int(pdf_member) < int(pt["n_members"]):
+            raise ValueError(f"{process}: pdf_member must be 0..{pt['n_members'] - 1}, got {pdf_member}")
+        if repool or variant or nnlo_zj:
+            raise ValueError(f"{process}: pdf_member shifts the central moments; it does not combine with "
+                             f"scale=, runs=, window= or nnlo_zj=")
 
     def tower(key):
-        if variant is not None and key == variant[0]:
-            d, src = variant[1], variant[2]
+        if key in variant:
+            d, src = variant[key]
         elif key not in t["towers"]:
             raise KeyError(f"{process}: no tower '{key}'; the table has {sorted(t['towers'])}")
         else:
@@ -302,9 +357,12 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         d, src, v, st, sc = tower(key)
         if d["kind"] != "window":
             raise ValueError(f"{process}: '{key}' is a {d['kind']} tower, not a window")
+        if d["observable"] in moments["recoil"]:
+            raise ValueError(f"{process}: two recoil towers in {recoil} constrain events['{d['observable']}']; "
+                             f"impose one of them")
         prof = d["profile"]
         if repool:
-            R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs)
+            R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs, d.get("rate_norm_tag", "norm_born"))
         else:
             R, Rs, Rc = d["window_rate"], d["window_rate_stat"], d["window_rate_scale"]
         moments["recoil"][d["observable"]] = dict(
@@ -324,7 +382,7 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         moments["mixed"] = {}; config["mixed"] = {}
         towers_by_obs = {d["observable"]: d for d in t["towers"].values()}
         for key in mixed:
-            j = t["joint"][key]; keys = list(j["values"])
+            j = dict(t["joint"][key], **vjoint.get(key, {})); keys = list(j["values"])
             if repool:
                 v, st, sc = _repool(name, [j["numerator_tags"][k] for k in keys], j["denominator_tag"], s, runs)
                 if j["denominator_tag"] == "norm_born":
@@ -350,6 +408,18 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         if name != PROCESSES["dy"] or "pT_ll" not in moments["recoil"]:
             raise ValueError("nnlo_zj=True replaces the Drell-Yan p_T^ll tower: use it with load_moments(\"dy\")")
         moments["recoil"]["pT_ll"] = _nnlo_zj_recoil(s, runs)
+    if pdf_member is not None:
+        k = int(pdf_member)
+        for key, d in pt["towers"].items():
+            dv = np.asarray(d["values"][k], float) - np.asarray(d["values"][0], float)
+            if key in born:
+                b = moments["born"][d["observable"]]
+                b["values"] = list(np.asarray(b["values"]) + dv[:len(b["values"])])
+            elif key in recoil:
+                rc = moments["recoil"][d["observable"]]
+                rc["window_values"] = list(np.asarray(rc["window_values"]) + dv[:len(rc["window_values"])])
+                rc["wprofile_values"] = rc["window_values"]
+                rc["rate"] = rc["wprofile_rate"] = float(rc["rate"] + (d["window_rate"][k] - d["window_rate"][0]))
     return moments, config
 
 
@@ -375,8 +445,13 @@ def summary(process):
         lines.append(f"   joint     {k:12s} {d['observables']}  {len(d['values'])} moments")
     wt = window_table(process)
     if wt is not None:
-        lines.append(f"   window variants of {wt['replaces_tower']} (load_moments(..., window=V)): " + ", ".join(
+        rep = wt.get("replaces_towers") or [wt["replaces_tower"]]
+        lines.append(f"   window variants of {'+'.join(rep)} (load_moments(..., window=V)): " + ", ".join(
             f"{V} rises {d['profile']['a']:g}-{d['profile']['b']:g}" for V, d in wt["windows"].items()))
+    pt = pdf_table(process)
+    if pt is not None:
+        lines.append(f"   CT18NNLO members 0-{pt['n_members'] - 1} of {list(pt['towers'])} "
+                     f"(load_moments(..., pdf_member=k))")
     dc = t["default_constraints"]
     lines.append(f"   default constraint set: born {dc['born']}, recoil {dc['recoil']}, mixed {dc.get('mixed', [])}"
                  + (f", depths {dc['max_orders']}" if dc.get("max_orders") else "")

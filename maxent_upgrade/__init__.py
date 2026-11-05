@@ -16,9 +16,9 @@ observable that is not constrained (a follower) inherits them.  See README.md fo
 Public API
 ----------
     upgrade(events, moments, config) -> UpgradeResult    # event-level moments (the method)
-    load_moments(process, ..., window=None)              # the released tables -> (moments, config)
+    load_moments(process, ..., window=None, pdf_member=None)  # the released tables -> (moments, config)
     sigma_fid(process) -> dict                           # their fixed-order cross sections
-    released                                             # table(), summary(), processes(), windows()
+    released                                             # table(), summary(), processes(), windows(), hessian_band()
     compute_fo_moments(fo_events, config, x_match, ...)  # moments from FO events in Python
     chebyshev_moment(x, w, n_max, a, b, mp)              # the moment definition itself
     profile_w(x, a, b, c=None, d=None)                   # the C^2 window
