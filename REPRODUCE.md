@@ -43,6 +43,9 @@ integrated from the binned NLO distribution `dphil_a` of the `zj_moments2` runs.
 
 ## 2. The letter's solves and the authors' earlier solves, from the tables
 
+These rows are solved with `qt_basis="booked"`, the moments as booked, as the letter and the
+releases before 2026-11-06 imposed them (`load_moments(..., qt_basis="booked")`).
+
 Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
 authors' own prior, and compared with the authors' stored numbers and, where the solve stored
 them, its weights q_ref. The letter quotes the central Drell-Yan and gg → H values. Effective
@@ -110,10 +113,10 @@ corrections off. Its gg → H and diphoton solves use the priors of section 2. E
 re-solved with this release on the paper's prior, with the configuration of the authors' solve.
 - The central solves use the defaults of `load_moments` and `upgrade`. They are compared with
   the authors' stored weights q_ref.
-- Each window and member re-solve holds the central solve's orders and starts from its
-  multipliers (`fixed_orders`, `lam0`), as in `examples/bands_with_released_moments.py`. The
-  Z+jet window re-solves hold the orders of the central solve with the joint moments (plus the
-  four acoplanarity orders), from a cold start.
+- Each member re-solve holds the central solve's orders and starts from its multipliers
+  (`fixed_orders`, `lam0`), as in `examples/bands_with_released_moments.py`. Each window re-solve
+  holds the central solve's orders from a cold start (for Z+jet, the orders of the solve with
+  the joint moments, plus the four acoplanarity orders).
 - The authors stored the weights of these re-solves as per-bin sums only. They are compared bin
   by bin: Drell-Yan p_T^ℓℓ (a fine grid of 600 bins and three coarser ones), m_ll and \|y_ll\|;
   W \|y_W\|, \|η_ℓ\|, m_ℓν, p_T^W and cos θ*; Higgs p_T^H, p_T^j1, \|y_H\| and the jet
@@ -123,33 +126,35 @@ The last column is max \|q/q_ref − 1\| over the events, or over the bins for "
 
 | solve | `load_moments` call | N_eff/N, this release (the authors' solve) | closure; max pull | max \|q/q_ref − 1\| |
 |---|---|---|---|---|
-| Drell-Yan | `"dy"` | 99.913% (99.913%) | 5.1 × 10⁻⁵; 0.029 | 0 |
-| Drell-Yan, windows A, B, C | `"dy", window=V` | 99.910, 99.919, 99.922% (the same) | ≤ 5.2 × 10⁻⁵ | 0 (bins) |
-| W+ | `"wp"` | 99.751% (99.751%) | 5.5 × 10⁻⁴; 0.014 | 0 |
-| W+, windows A, B, C | `"wp", window=V` | 99.695, 99.763, 99.765% (the same) | ≤ 5.9 × 10⁻⁴ | 0 (bins) |
+| Drell-Yan | `"dy"` | 99.913% (99.913%) | 5.1 × 10⁻⁵; 0.039 | 0 |
+| Drell-Yan, windows A, B, C | `"dy", window=V` | 99.907, 99.919, 99.922% (the same) | ≤ 5.2 × 10⁻⁵ | ≤ 2.3 × 10⁻⁹ (bins) |
+| W+ | `"wp"` | 99.751% (99.751%) | 5.5 × 10⁻⁴; 0.043 | 0 |
+| W+, windows A, B, C | `"wp", window=V` | 99.692, 99.761, 99.764% (the same) | ≤ 5.9 × 10⁻⁴ | ≤ 5.8 × 10⁻¹⁰ (bins) |
 | W+, CT18NNLO members 1, 29, 58 | `"wp", pdf_member=k` | 99.737, 99.738, 99.758% (the same) | ≤ 6.7 × 10⁻⁴ | 0 (bins) |
-| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.707% (99.707%) | 7.0 × 10⁻⁴; 0.014 | 0 |
-| the same, windows A, B, C | `..., window=V` | 99.648, 99.721, 99.722% (the same) | ≤ 7.5 × 10⁻⁴ | 0 (bins) |
+| W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.707% (99.707%) | 7.0 × 10⁻⁴; 0.044 | 0 |
+| the same, windows A, B, C | `..., window=V` | 99.645, 99.719, 99.722% (the same) | ≤ 7.5 × 10⁻⁴ | ≤ 5.6 × 10⁻¹⁰ (bins) |
 | the same, members 1, 29, 58 | `..., pdf_member=k` | 99.698, 99.697, 99.715% (the same) | ≤ 8.3 × 10⁻⁴ | 0 (bins) |
 | W- | `"wm"` | 99.730% (99.730%) | 5.1 × 10⁻³; 0.039 | 0 |
-| W-, windows A, B, C | `"wm", window=V` | 99.700, 99.732, 99.734% (the same) | ≤ 5.1 × 10⁻³ | 0 (bins) |
-| W-, CT18NNLO members 1, 29, 58 | `"wm", pdf_member=k` | 99.720, 99.724, 99.746% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
+| W-, windows A, B, C | `"wm", window=V` | 99.682, 99.732, 99.733% (the same) | ≤ 5.1 × 10⁻³ | ≤ 1.8 × 10⁻⁷ (bins) |
+| W-, CT18NNLO members 1, 29, 58 | `"wm", pdf_member=k` | 99.716, 99.609, 99.731% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
 | W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.694% (99.694%) | 5.1 × 10⁻³; 0.040 | 0 |
-| the same, windows A, B, C | `..., window=V` | 99.662, 99.697, 99.698% (the same) | ≤ 5.1 × 10⁻³ | 0 (bins) |
-| the same, members 1, 29, 58 | `..., pdf_member=k` | 99.682, 99.689, 99.709% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
-| gg → H | `"ggh"` | 88.207% (88.207%) | 1.0 × 10⁻⁴; 0.75 | 0 |
-| gg → H, windows A, B, C, D | `"ggh", window=V` | 84.426, 91.127, 92.298, 91.841% (the same) | ≤ 1.6 × 10⁻⁴ | 0 (bins) |
-| gg → H, CT18NNLO members 1, 29, 58 | `"ggh", pdf_member=k` | 88.249, 88.107, 88.335% (the same) | 1.0 × 10⁻⁴ | 0 (bins) |
-| Z+jet, + 16 joint moments | `"zj"` | 92.430% (92.430%) | 8.2 × 10⁻³; 0.25 | 0 |
-| Z+jet, + acoplanarity moments | `"zj", recoil=["ptj1", "ptj2", "aco"]` | 86.394% (86.394%) | 7.3 × 10⁻³; 0.18 | 0 |
-| Z+jet, windows A, B, C | `"zj", window=V` | 91.874, 92.862, 92.370% (the same) | ≤ 4.1 × 10⁻⁴ | ≤ 7 × 10⁻¹⁶ (bins) |
-| Z+jet, + acoplanarity, windows A, B, C | `"zj", recoil=[..., "aco"], window=V` | 85.724, 87.562, 86.468% (the same) | ≤ 1.2 × 10⁻³ | 0 (bins) |
+| the same, windows A, B, C | `..., window=V` | 99.644, 99.697, 99.698% (the same) | ≤ 5.1 × 10⁻³ | ≤ 1.7 × 10⁻⁷ (bins) |
+| the same, members 1, 29, 58 | `..., pdf_member=k` | 99.678, 99.575, 99.695% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
+| gg → H | `"ggh"` | 88.148% (88.148%) | 2.1 × 10⁻⁵; 0.26 | 0 |
+| gg → H, windows A, B, C, D | `"ggh", window=V` | 84.378, 91.086, 92.296, 91.810% (the same) | ≤ 2.4 × 10⁻⁴ | ≤ 2.5 × 10⁻¹⁰ (bins) |
+| gg → H, CT18NNLO members 1, 29, 58 | `"ggh", pdf_member=k` | 88.190, 88.049, 88.277% (the same) | ≤ 4.2 × 10⁻⁵ | 0 (bins) |
+| Z+jet, + 16 joint moments | `"zj"` | 92.588% (92.588%) | 7.2 × 10⁻³; 0.18 | 0 |
+| Z+jet, + acoplanarity moments | `"zj", recoil=["ptj1", "ptj2", "aco"]` | 86.443% (86.443%) | 6.0 × 10⁻³; 0.17 | 0 |
+| Z+jet, windows A, B, C | `"zj", window=V` | 91.966, 93.144, 92.581% (the same) | ≤ 3.8 × 10⁻³ | 0 (bins) |
+| Z+jet, + acoplanarity, windows A, B, C | `"zj", recoil=[..., "aco"], window=V` | 85.799, 87.690, 86.541% (the same) | ≤ 5.3 × 10⁻³ | 0 (bins) |
 
-The targets of these rows are bit-identical to those of the authors' solves, for every window
-variant and for all 59 members (checked without a prior). The orders imposed are m_ll 12,
-\|y_ll\| 11 and p_T^ℓℓ 20 for Drell-Yan, and m_ℓν 12, \|y_W\| 10 (W+) or 12 (W-) and p_T^W 20
-for W. For Z+jet they are m_ll 4, \|y_ll\| 5, p_T^j1 12, p_T^j2 6 and 4 acoplanarity orders. The
-central gg → H solve also reproduces the letter's stored weights, to 3.1 × 10⁻¹².
+These rows use the default `qt_basis="range"`: the p_T and jet towers on their acting range (a
+window variant on the interval covering its own and the main tower's). The orders imposed are
+m_ll 12, \|y_ll\| 11 and p_T^ℓℓ 16 for Drell-Yan, and m_ℓν 12, \|y_W\| 10 (W+) or 12 (W-) and
+p_T^W 16 (W+) or 17 (W-) for W. For Z+jet they are m_ll 4, \|y_ll\| 5, p_T^j1 12, p_T^j2 6 and 4
+acoplanarity orders. On the gg → H and merged diphoton priors the default criterion selects
+every booked order (p_T^H 12, p_T^γγ 12). The window re-solves hold the central solve's orders from a cold start,
+since a variant's polynomials can differ from the central solve's.
 
 ## The priors
 

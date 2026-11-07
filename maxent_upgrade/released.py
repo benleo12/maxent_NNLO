@@ -224,7 +224,8 @@ def _hyp(a, b):
 
 
 def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
-                 scale=None, runs=None, check_seam=True, window=None, nnlo_zj=False, pdf_member=None):
+                 scale=None, runs=None, check_seam=True, window=None, nnlo_zj=False, pdf_member=None,
+                 qt_basis="range"):
     r"""Turn a released table into the `(moments, config)` inputs of `upgrade()`.
 
     Parameters
@@ -267,6 +268,21 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         For "wp", "wm" and "ggh": add to the central moments the difference between CT18NNLO
         member k and member 0 (`pdf_table(process)`), the inputs of the PDF band.
         `hessian_band` forms the band from the 59 re-solves.
+    qt_basis : "range" (default) or "booked"
+        The polynomials of each logarithmically mapped window tower (the q_T and jet
+        towers).  Their measurement functions vary only between the window's lower edge,
+        below which they freeze (blended) or vanish (windowed), and its cut.  NNLOJET booked
+        them as Chebyshev polynomials of the log map on a wider interval, on which they are
+        nearly linearly dependent.  "range" re-expresses them as Chebyshev polynomials of the
+        log map on the interval where they act (`acting_range`).  The two maps are affine in
+        ln v, so the new moments are exact combinations of the booked ones: values, run-to-run
+        errors and scale envelopes are pooled again from the per-run accumulators.  A variant
+        released without per-run accumulators takes the errors of the main table's tower in
+        the same basis.  The posterior is unchanged in exact arithmetic, but the solver's ridge
+        no longer touches directions the input resolves, and the signal-to-noise selection
+        judges each degree of the acting range.  "booked" returns the moments as booked (the
+        letter and the earlier releases).  The letter's NNLO Z+jet tower (`nnlo_zj=True`)
+        carries uncorrelated errors per degree only and stays as booked.
 
     Returns
     -------
@@ -346,8 +362,11 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     windowed_joint = any(t["joint"][k].get("profile") for k in mixed)
     transition = dict(dflt.get("transition") or {})
 
+    if qt_basis not in ("range", "booked"):
+        raise ValueError(f"qt_basis must be 'range' or 'booked', got {qt_basis!r}")
     moments = {"born": {}, "recoil": {}}
     config = {"born": {}, "recoil": {}}
+    booked = {}
     for key in born:
         d, _, v, st, sc = tower(key)
         moments["born"][d["observable"]] = dict(values=v, errors=[_hyp(a, b) for a, b in zip(st, sc)],
@@ -361,6 +380,7 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
             raise ValueError(f"{process}: two recoil towers in {recoil} constrain events['{d['observable']}']; "
                              f"impose one of them")
         prof = d["profile"]
+        booked[d["observable"]] = dict(d=d, src=src, N=len(v), key=key)
         if repool:
             R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs, d.get("rate_norm_tag", "norm_born"))
         else:
@@ -420,7 +440,101 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
                 rc["window_values"] = list(np.asarray(rc["window_values"]) + dv[:len(rc["window_values"])])
                 rc["wprofile_values"] = rc["window_values"]
                 rc["rate"] = rc["wprofile_rate"] = float(rc["rate"] + (d["window_rate"][k] - d["window_rate"][0]))
+    if qt_basis == "range":
+        for obs, info in booked.items():
+            if nnlo_zj and obs == "pT_ll":
+                continue
+            _to_acting_range(moments["recoil"][obs], config["recoil"][obs], info, t, name, s, runs)
     return moments, config
+
+
+def acting_range(tower, profile=None):
+    """The interval where a window tower's measurement functions vary: from the larger of the
+    booked lower end (soft_lo) and the window's lower edge a, below which the blended functions
+    freeze and the windowed ones vanish, up to the window's cut c (or the end d of a smooth top),
+    within the booked interval."""
+    prof = tower["profile"] if profile is None else profile
+    lo, hi = float(tower["soft_lo"]), float(tower["range"][1])
+    a, c, e = float(prof["a"]), prof.get("c"), prof.get("d")
+    top = float(e) if (e is not None and c is not None and float(e) > float(c)) else (float(c) if c is not None else hi)
+    return max(lo, a), min(top, hi)
+
+
+def cheb_affine(N, alpha, beta):
+    """A[n, k] with T_n(alpha x + beta) = sum_k A[n, k] T_k(x), n, k = 0..N (exact for polynomials)."""
+    C = np.polynomial.chebyshev
+    lin = C.Chebyshev([beta, alpha])
+    A = np.zeros((N + 1, N + 1))
+    for n in range(N + 1):
+        cf = C.Chebyshev.basis(n)(lin).coef
+        A[n, :len(cf)] = cf
+    return A
+
+
+def _log_u(v, lo, hi):
+    return 2.0 * (np.log(v) - np.log(lo)) / (np.log(hi) - np.log(lo)) - 1.0
+
+
+def _range_accumulators(src, d, N, A, scale, runs):
+    """Values, run-to-run and scale errors of a window tower's first N moments in the basis
+    T_n(alpha x + beta), pooled from the per-run accumulators like `_repool`."""
+    col, Acc, _ = _runs(src)
+    Acc = _sel(Acc, runs)
+    den = Acc[:, col[d["denominator_tag"]], :]
+    num = np.stack([Acc[:, col[tg], :] for tg in d["numerator_tags"][:N]])
+    new = A[1:N + 1, 0][:, None, None] * den[None] + np.einsum("nk,krs->nrs", A[1:N + 1, 1:N + 1], num)
+    pooled = new.sum(1) / den.sum(0)[None]
+    per = new[:, :, scale] / den[None, :, scale]
+    st = per.std(1, ddof=1) / np.sqrt(per.shape[1]) if per.shape[1] > 1 else np.zeros(N)
+    return pooled[:, scale], st, 0.5 * (pooled.max(1) - pooled.min(1))
+
+
+def _variant_errors(name, main, d, N, A):
+    """Run-to-run and scale errors of a variant tower in the basis A.  A variant released without per-run values
+    carries only its booked errors per degree, so the main tower's errors in the same basis (from its runs) are scaled
+    by the median ratio of the variant's booked errors to the main tower's (the variant runs are fewer).  The estimate
+    serves a selection only: re-solves for the transition-region band hold the central solve's degrees."""
+    _, st, sc = _range_accumulators(name, main, N, A, 0, None)
+
+    def ratio(key):
+        v, m = np.asarray(d[key][:N], float), np.asarray(main[key][:N], float)
+        ok = np.isfinite(v) & np.isfinite(m) & (m > 0) & (v > 0)
+        return float(np.median(v[ok] / m[ok])) if ok.any() else 1.0
+    return st * ratio("stat_errors"), sc * ratio("scale_errors")
+
+
+def _to_acting_range(rc, cfg, info, t, name, scale, runs):
+    """Re-express one log-mapped window tower (moments `rc`, config `cfg`) as Chebyshev
+    polynomials of the log map on its acting range, in place."""
+    d, src, N = info["d"], info["src"], len(rc["window_values"])
+    if d.get("map") != "log" or d.get("kind") != "window":
+        return
+    lo, hi = float(d["soft_lo"]), float(d["range"][1])
+    L, U = acting_range(d)
+    main = t["towers"][info["key"]]                 # the main table's tower that this one is or replaces
+    if src != name:
+        # a window variant: the interval covering its own acting range and the main tower's, so that the variant
+        # imposes the central solve's polynomials wherever its range allows and differs from it only by its window
+        Lm, Um = acting_range(main)
+        L, U = min(L, Lm), max(U, Um)
+    if abs(L - lo) <= 1e-12 * lo and abs(U - hi) <= 1e-12 * hi:
+        return
+    xm, xc = _log_u(L, lo, hi), _log_u(U, lo, hi)
+    al = 2.0 / (xc - xm)
+    A = cheb_affine(N, al, -1.0 - al * xm)
+    v = A[1:, 0] + A[1:, 1:] @ np.asarray(rc["window_values"], float)
+    if "numerator_tags" in d and os.path.exists(_path(src, "_runs.json.gz")):
+        _, st, sc = _range_accumulators(src, d, N, A, scale, runs)
+    else:
+        # a variant released without per-run values: the main tower's errors, scaled (_variant_errors)
+        if (float(main["soft_lo"]), float(main["range"][1])) != (lo, hi):
+            raise ValueError(f"{name}: variant of {d['observable']} booked on another interval than the main tower")
+        st, sc = _variant_errors(name, main, d, N, A)
+    st, sc = [float(x) for x in st], [float(x) for x in sc]
+    rc.update(window_values=[float(x) for x in v], wprofile_values=[float(x) for x in v],
+              stat_errors=st, scale_errors=sc, window_errors=[_hyp(a_, b_) for a_, b_ in zip(st, sc)],
+              soft_lo=L, x_hi=U)
+    cfg.update(range=(L, U), soft_lo=L)
 
 
 def summary(process):

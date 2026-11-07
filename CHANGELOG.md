@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased (2026-11-06)
+
+- `load_moments` returns the logarithmically mapped window towers (the p_T and jet towers) on
+  their acting range, from the window's lower edge to its cut, as Chebyshev polynomials of the
+  log map there (`qt_basis="range"`, the default). The booked maps run beyond this range, where
+  the measurement functions are constant or zero, so their polynomials are nearly collinear on
+  it and the solver's ridge suppressed directions the input resolves. Both maps are affine in
+  ln v, so the new moments are exact combinations of the booked ones; values, run-to-run errors
+  and scale envelopes are pooled from the per-run accumulators. `qt_basis="booked"` returns the
+  moments as booked (the letter and earlier releases). The letter's NNLO Z+jet tower stays as
+  booked.
+- A window variant uses the interval that covers its own acting range and the main tower's, so
+  that it imposes the central solve's polynomials wherever its range allows. A variant released
+  without per-run values takes the main tower's errors in the same basis, scaled by the median
+  ratio of its booked errors.
+- New helpers `released.acting_range` and `released.cheb_affine`; new tests in
+  `tests/test_qt_basis.py`. The table tests compare in the booked basis.
+- `REPRODUCE.md` lists the paper's solves with this default.
+
 ## 2026-11-05
 
 - The docs cite the paper, B. Assi, *Maximum-entropy reweighting of color-singlet samples*

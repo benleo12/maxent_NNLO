@@ -150,7 +150,9 @@ W+ and W- (99.7% with the optional decay-angle window), and the merged diphoton 
    where both put them.
 4. **Solve** the convex dual for the multipliers λ.
    - The features are z-scored, the dual is minimized by damped Newton steps, and the ridge
-     (`L2 = 1e-4`, the paper's ε) stabilizes the numerics (it is not a statistical weight).
+     (`L2 = 1e-4`, the paper's ε) is a safeguard for directions the prior's events barely span
+     (it is not a statistical weight). With the p_T and jet towers on their acting range
+     (below), results do not depend on its value between 10⁻⁴ and 10⁻⁶.
    - The minimum is unique.
    - It takes seconds to a minute for 10⁶ events.
 5. **Tilt** the prior: q_i = p_i exp(λ·m(Φ_i)) / Z.
@@ -192,6 +194,14 @@ How the tables are stored:
   members 0–58. `load_moments(p, pdf_member=k)` adds the difference between member k and
   member 0 to the central moments: the inputs of the PDF band.
 
+`load_moments` returns each logarithmically mapped window tower on its **acting range**, from
+the window's lower edge to its cut, where its measurement functions vary (`qt_basis="range"`,
+the default). The booked maps run beyond it (the Drell-Yan p_T^ll map to 2500 GeV, the Higgs
+p_T^H map from 1 GeV), and their polynomials are nearly collinear on the acting range. Both maps
+are affine in ln v, so the moments on the acting range are exact combinations of the booked ones,
+and the package pools them from the per-run accumulators. `qt_basis="booked"` returns the
+moments as booked.
+
 `load_moments` checks each recoil window against the matching-scale rule at the table's hard
 scale Q and **prints a warning** on a disagreement (not for the window variants, which move the
 window on purpose). The window is compiled into the fixed-order run, so the code cannot change
@@ -200,7 +210,7 @@ it.
 **The map and the window are part of the target.** Declaring a different map from the one
 compiled into the fixed-order run converges with clean closure onto wrong constraints, and only
 a collapsed `effN` betrays it. On the Drell-Yan prior, a linear instead of a Breit-Wigner mass
-map gives effN 10.8% instead of 99.9%. Use the `config` that `load_moments` returns.
+map gives effN 10.7% instead of 99.9%. Use the `config` that `load_moments` returns.
 
 ## The inputs in detail
 
@@ -325,7 +335,12 @@ The uncertainty bands are loops over the same call. They are implemented in
 The error bar combines 2 and 5 in quadrature. Every variant uses:
 - `fixed_orders` = the central solve's `report["moment_selection"]["chosen"]`, so that it
   imposes the same constraint set;
-- `lam0` = the central `report["lam"]`.
+- `lam0` = the central `report["lam"]`, except the window variants, whose polynomials can
+  differ from the central solve's.
+
+The paper evaluates the matching band up to 4 v_m, where the widest window variant's transition
+region ends. Above it every variant's target is fixed order alone, and the variants differ only
+by the Monte Carlo noise of their input runs, which are smaller than the main one.
 
 The released tables reproduce the authors' stored weights: the central solves to 2 × 10⁻¹¹ or better,
 the window variants of the Higgs and diphoton tables bit for bit, and the scale and bootstrap

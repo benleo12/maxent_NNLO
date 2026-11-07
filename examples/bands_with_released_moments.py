@@ -63,7 +63,8 @@ def main():
         if V == "nominal":
             continue
         m_v, c_v = load_moments(process, window=V)
-        r = upgrade(events, m_v, {**c_v, "fixed_orders": frozen["fixed_orders"], "lam0": frozen["lam0"]})
+        # the variant's polynomials can differ from the central solve's: hold its degrees, not its multipliers
+        r = upgrade(events, m_v, {**c_v, "fixed_orders": frozen["fixed_orders"]})
         window_w[f"window_{V}"] = r.weights
         print(f"  window {V} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
 

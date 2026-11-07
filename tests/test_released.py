@@ -100,12 +100,12 @@ def test_runs_reproduce_tables():
         for r in [first] + [[k] for k in rec if k not in first]:
             kw = dict(born=born, recoil=r, mixed=list(t["joint"]), max_orders={k: 99 for k in t["towers"]},
                       check_seam=False)
-            a, _ = load_moments(p, **kw)
-            b, _ = load_moments(p, scale=0, runs=list(range(n)), **kw)
+            a, _ = load_moments(p, **kw, qt_basis="booked")
+            b, _ = load_moments(p, scale=0, runs=list(range(n)), **kw, qt_basis="booked")
             worst = _compare(a, b, worst)
         for V in _pooled_windows(p):
-            a, _ = load_moments(p, window=V, check_seam=False)
-            b, _ = load_moments(p, window=V, scale=0, runs=list(range(n)), check_seam=False)
+            a, _ = load_moments(p, window=V, check_seam=False, qt_basis="booked")
+            b, _ = load_moments(p, window=V, scale=0, runs=list(range(n)), check_seam=False, qt_basis="booked")
             worst = _compare(a, b, worst)
     assert worst < 1e-8, worst
 
@@ -120,7 +120,7 @@ def _pooled_windows(p):
 def test_window_variants():
     for p, towers, Vs in (("ggh", ["pT_H"], "ABCD"), ("aa", ["pt_aa"], "ABC"), ("dy", ["pT_ll"], "ABC"),
                           ("wp", ["pt_w"], "ABC"), ("wm", ["pt_w"], "ABC"), ("zj", ["ptj1", "ptj2"], "ABC")):
-        nominal, cn = load_moments(p, check_seam=False)
+        nominal, cn = load_moments(p, check_seam=False, qt_basis="booked")
         wins = released.windows(p)
         assert sorted(wins) == sorted(Vs) + ["nominal"], (p, sorted(wins))
         assert wins["nominal"] == cn["recoil"][towers[0]]["profile"]
@@ -128,7 +128,7 @@ def test_window_variants():
         for V in Vs:
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
-                m, c = load_moments(p, window=V)                    # the seam check stays quiet
+                m, c = load_moments(p, window=V, qt_basis="booked")                    # the seam check stays quiet
             assert out.getvalue() == "", out.getvalue()
             W = wt["windows"][V]
             for tower in towers:
@@ -147,19 +147,19 @@ def test_window_variants():
             if V not in _pooled_windows(p):
                 for kw in (dict(scale=1), dict(runs=[0, 1])):
                     try:
-                        load_moments(p, window=V, **kw)
+                        load_moments(p, window=V, **kw, qt_basis="booked")
                     except ValueError as e:
                         assert "central scale only" in str(e), str(e)
                     else:
                         raise AssertionError(f"{p} window {V} is central-scale only")
-        m, c = load_moments(p, window="nominal", check_seam=False)
+        m, c = load_moments(p, window="nominal", check_seam=False, qt_basis="booked")
         assert m == nominal and c == cn
     # the Drell-Yan and W variants A start below the lower end of the log map (30 and 25 GeV)
     for p, tower, a in (("dy", "pT_ll", 20.0), ("wp", "pt_w", 17.0), ("wm", "pt_w", 17.0)):
-        _, c = load_moments(p, window="A")
+        _, c = load_moments(p, window="A", qt_basis="booked")
         assert c["recoil"][tower]["profile"]["a"] == a < c["recoil"][tower]["soft_lo"]
-    for bad in (lambda: load_moments("aa", window="D"), lambda: load_moments("dy", window="E"),
-                lambda: load_moments("ggh", recoil=[], window="A")):
+    for bad in (lambda: load_moments("aa", window="D", qt_basis="booked"), lambda: load_moments("dy", window="E", qt_basis="booked"),
+                lambda: load_moments("ggh", recoil=[], window="A", qt_basis="booked")):
         try:
             bad()
         except (ValueError, KeyError):
@@ -209,11 +209,11 @@ def test_pdf_members():
     for p, recoil in (("wp", None), ("wm", ["pt_w", "ctw_window"]), ("ggh", None)):
         pt = released.pdf_table(p)
         assert pt["n_members"] == 59 == len(pt["sigma_fid_ratio"]) and pt["sigma_fid_ratio"][0] == 1.0
-        m0, c0 = load_moments(p, recoil=recoil, check_seam=False)
-        mm, cm = load_moments(p, recoil=recoil, pdf_member=0)
+        m0, c0 = load_moments(p, recoil=recoil, check_seam=False, qt_basis="booked")
+        mm, cm = load_moments(p, recoil=recoil, pdf_member=0, qt_basis="booked")
         assert mm == m0 and cm == c0
         for k in (1, 30, 58):
-            mk, ck = load_moments(p, recoil=recoil, pdf_member=k)
+            mk, ck = load_moments(p, recoil=recoil, pdf_member=k, qt_basis="booked")
             assert ck == c0
             for key, d in pt["towers"].items():
                 o, dv = d["observable"], np.subtract(d["values"][k], d["values"][0])
@@ -225,9 +225,9 @@ def test_pdf_members():
                         if role == "recoil":
                             assert mk[role][o]["rate"] == m0[role][o]["rate"] + (d["window_rate"][k] - d["window_rate"][0])
         if recoil is None and p != "ggh":                         # a tower not imposed is not shifted
-            assert "ctw1" not in load_moments(p, pdf_member=3)[0]["recoil"]
-    for bad in (lambda: load_moments("dy", pdf_member=1), lambda: load_moments("wp", pdf_member=59),
-                lambda: load_moments("wp", pdf_member=1, scale=2), lambda: load_moments("ggh", pdf_member=1, window="D")):
+            assert "ctw1" not in load_moments(p, pdf_member=3, qt_basis="booked")[0]["recoil"]
+    for bad in (lambda: load_moments("dy", pdf_member=1, qt_basis="booked"), lambda: load_moments("wp", pdf_member=59, qt_basis="booked"),
+                lambda: load_moments("wp", pdf_member=1, scale=2, qt_basis="booked"), lambda: load_moments("ggh", pdf_member=1, window="D", qt_basis="booked")):
         try:
             bad()
         except ValueError:
