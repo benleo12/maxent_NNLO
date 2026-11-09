@@ -15,8 +15,8 @@
 %                       _newton_maxent (z-scored, damped Newton on the dual, ridge L2)
 %   bands               re-solves with config['lam0'] = result.report['lam'] and
 %                       fixed_orders = the central chosen orders (examples/bands_with_released_moments.py),
-%                       from the released per-run accumulators (scale variants, bootstrap of the runs)
-%                       and, for the Higgs boson and diphoton, the window variants (load_moments(p, window=V))
+%                       from the released per-run accumulators (scale choices, bootstrap of the runs)
+%                       and the transition region moved down and up (load_moments(p, window="down"/"up"))
 \documentclass[11pt,tikz,border=0pt]{standalone}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -119,7 +119,7 @@
 \node[outbx, minimum height=2.04cm] (res) at (\cb,\yD) {{\normalsize\ttt{UpgradeResult}}\\
   \sft{\ttt{weights}, \ttt{effN}, \ttt{closure},\\ \ttt{effN\_retained},\\ \ttt{max\_pull}, \ttt{describe()}}};
 \node[outbx, minimum height=2.04cm] (band) at (\cc,\yD) {{\normalsize uncertainty bands}\\
-  \sft{re-solve per scale variant,\\ bootstrap replica of the\\ runs and window variant}};
+  \sft{re-solve per scale choice,\\ bootstrap replica of the\\ runs and moved window}};
 \draw[flow] (\cb,\yC-\hC) -- (res);
 \draw[flow] (\lb,\yD-1.02) -- (\la+\bw,\yD-1.02);
 \draw[flow] (\lb+\bw,\yD-1.02) -- (\lc,\yD-1.02);
