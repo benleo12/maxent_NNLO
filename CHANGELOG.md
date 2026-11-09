@@ -1,6 +1,24 @@
 # Changelog
 
-## Unreleased (2026-11-06)
+## Unreleased (2026-11-09)
+
+- The Higgs transition region starts at 54 GeV, the matching scale with the gluon color factor
+  C_A in place of C_F (the paper's criterion α_s (C_i/C_F) ln²(Q/p_T) < 0.2). `load_moments("ggh")`
+  imposes the p_T^H window 54→108 GeV (D) on its acting range [54, 1000] GeV, from new NNLOJET runs
+  at all seven scales with per-run values (`moments/ggh_nnlo_moments_winvar_cc`, run card
+  `runcards/ggh_winvar_cc.run`, patches `nnlojet_patch/winvar_cc_*.f90.patch`). The 37 GeV window
+  booked in the same runs reproduces the main table (worst pull 2.07), and D reproduces its
+  earlier central-scale release (pulls of at most 2.2).
+- Higgs window variants `"N37"` (the main table's 37→74 GeV window, the letter's), `"E"`
+  (72→144 GeV) and `"F"` (54→216 GeV). A, B, C still move the 37 GeV window. The letter's Higgs
+  solve is `load_moments("ggh", window="N37", qt_basis="booked")`.
+- CT18NNLO members of the 54 GeV window (`moments/ggh_nnlo_moments_pdf_cc`), used by
+  `load_moments("ggh", pdf_member=k)`. With `window="N37"` the members of the 37 GeV window apply.
+- `matching_scale(Q, color=...)` takes the color factor C_i/C_F (default 1): 54.3 GeV for
+  Q = m_H with color = 9/4. New test `test_higgs_window_from_color_factor`.
+- `REPRODUCE.md`: the gg → H rows re-solved with the new default.
+
+## 2026-11-06
 
 - `load_moments` returns the logarithmically mapped window towers (the p_T and jet towers) on
   their acting range, from the window's lower edge to its cut, as Chebyshev polynomials of the

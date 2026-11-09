@@ -21,6 +21,10 @@ done
 for f in EvalFuncs Observables; do
   patch -p0 "$f.f90" < <this-dir>/winvar_"$f.f90.patch"
 done
+# only for the color-corrected Higgs windows (runcards/ggh_winvar_cc.run), after the two above:
+for f in EvalFuncs Observables; do
+  patch -p0 "$f.f90" < <this-dir>/winvar_cc_"$f.f90.patch"
+done
 cd <nnlojet>/build && make -j6 NNLOJET
 ```
 
@@ -45,6 +49,8 @@ codesign -f -s - install/lib/libnnlojet_core.dylib
 | `Observables.f90.patch` | `bind_obs` registrations, **each inside its own process `case` block** (`Z`/`ZJ`, `H`, `GG`, `WM`, `WP`; the W blocks differ only in which of the last two particles is the charged lepton). |
 | `winvar_EvalFuncs.f90.patch` (`EvalFuncs.f90`, after the patch above) | the matching-window variants: `eval_w_pth_{A,B,C}`, `eval_chebTw_pth_{A,B,C}` (gg → H, windows (25, 50), (50, 100), (37, 148) GeV) and `eval_w_ptaa_{A,B,C}`, `eval_chebTw_ptaa_{A,B,C}` (diphoton, (19, 38), (37, 74), (28, 112) GeV), line-for-line copies of the nominal `eval_w_pth`/`eval_chebTw_pth` and `eval_w_ptaa`/`eval_chebTw_ptaa` (same observable, log map and closing edge) with the turn-on (a, b) as the only difference. Adds code only. |
 | `winvar_Observables.f90.patch` (`Observables.f90`, after the patch above) | registers `w_pth_V`, `chebTw_pth_V_n` (H block) and `w_ptaa_V`, `chebTw_ptaa_V_n` (GG block, `min_nphotons = 2`) for V = A, B, C, n = 1..12, like the nominal ones. Adds code only. |
+| `winvar_cc_EvalFuncs.f90.patch` (`EvalFuncs.f90`, after the winvar patch) | the color-corrected Higgs windows: `eval_w_pth_{D,E,F}`, `eval_chebTw_pth_{D,E,F}` with windows (54, 108), (72, 144), (54, 216) GeV, copies of the nominal `eval_w_pth`/`eval_chebTw_pth` with the turn-on (a, b) as the only difference. D is the default Higgs window. Adds code only. |
+| `winvar_cc_Observables.f90.patch` (`Observables.f90`, after the winvar patch) | registers `w_pth_V`, `chebTw_pth_V_n` (H block) for V = D, E, F, n = 1..12. Adds code only. |
 
 ## Usage
 

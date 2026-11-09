@@ -608,20 +608,22 @@ def alpha_s(mu, mz=91.1876, az=0.118, nf=5):
     return az / (x + az * (b1 / b0) * np.log(x))
 
 
-def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000):
+def matching_scale(Q, thr=0.2, lo=3.0, hi=None, n=4000, color=1.0):
     r"""The matching scale v_m for a process with hard scale Q, from power counting:
 
-        v_m = min { pT :  alpha_s(pT) ln^2(Q/pT)  <  thr }      (thr = 0.2)
+        v_m = min { pT :  alpha_s(pT) (C_i/C_F) ln^2(Q/pT)  <  thr }      (thr = 0.2)
 
     Below it unresummed Sudakov logarithms spoil the fixed-order series and the shower
-    is kept; above it the fixed order is imposed.  The process enters only through Q:
-    28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W, 27.7 GeV for Q = 90 GeV (diphoton),
-    37.3 GeV for Q = m_H.  Returns the scale in GeV.
+    is kept; above it the fixed order is imposed.  `color` is C_i/C_F, the color factor of
+    the incoming partons relative to quarks: 1 for quark-initiated processes, C_A/C_F = 9/4
+    for gluon fusion.  With color = 1: 28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W, 27.7 GeV
+    for Q = 90 GeV (diphoton), 37.3 GeV for Q = m_H.  With color = 9/4 and Q = m_H: 54.3 GeV,
+    the released Higgs window.  Returns the scale in GeV.
     """
     Q = float(Q)
     hi = 0.9 * Q if hi is None else float(hi)
     pt = np.geomspace(lo, hi, int(n))
-    v = alpha_s(pt) * np.log(Q / np.minimum(pt, 0.99 * Q)) ** 2
+    v = float(color) * alpha_s(pt) * np.log(Q / np.minimum(pt, 0.99 * Q)) ** 2
     ok = np.where(v < thr)[0]
     if not len(ok):
         raise ValueError(f"no pT in [{lo}, {hi}] satisfies alpha_s ln^2 < {thr} for Q={Q}")

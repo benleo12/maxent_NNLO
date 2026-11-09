@@ -21,8 +21,8 @@ authors on request.
 3. Pool the runs into the tables:
 
    ```bash
-   NNLOJET_ROOT=<dir with the run directories> NNLOJET_WINVAR_ROOT=<dir with ggh_winvar, gg_winvar> \
-       python export_moments.py            # or a subset: dy wp wm aa ggh zj ggh_winvar aa_winvar
+   NNLOJET_ROOT=<dir with the run directories> NNLOJET_WINVAR_ROOT=<dir with ggh_winvar, gg_winvar, ggh_cc> \
+       python export_moments.py            # or a subset: dy wp wm aa ggh zj ggh_winvar ggh_winvar_cc aa_winvar
    ```
 
 4. `python tests/test_released.py` checks that pooling the per-run accumulators shipped with
@@ -30,10 +30,11 @@ authors on request.
 
 The tables added for the paper come from further NNLOJET runs, which `export_moments.py` does
 not pool:
-- the window variants of Drell-Yan, W± and Z+jet and the Higgs variant D, booked with the
-  nominal window at the central scale (channels R, RV, RR; LO, V, R for Z+jet; seeds from 101);
+- the window variants of Drell-Yan, W± and Z+jet and the earlier central-scale Higgs window D
+  (which `ggh_nnlo_moments_winvar_cc` replaces), booked with the nominal window at the central scale (channels R, RV, RR; LO, V, R for Z+jet; seeds from 101);
 - the CT18NNLO members of W± and the Higgs boson, one full NNLO run per member at the central
-  scale (seeds 101 and 102).
+  scale (seeds 101 and 102), and the Higgs members of the 54 GeV window (`ggh_nnlo_moments_pdf_cc`,
+  channels R, RV and RR on the same phase-space points).
 
 They were built from the per-seed channel sums of these runs. Each table's `provenance` names the
 runs, its `conventions` say how they enter, and its `validation` gives the closure of the
@@ -44,7 +45,8 @@ integrated from the binned NLO distribution `dphil_a` of the `zj_moments2` runs.
 ## 2. The letter's solves and the authors' earlier solves, from the tables
 
 These rows are solved with `qt_basis="booked"`, the moments as booked, as the letter and the
-releases before 2026-11-06 imposed them (`load_moments(..., qt_basis="booked")`).
+releases before 2026-11-06 imposed them (`load_moments(..., qt_basis="booked")`). The letter's
+Higgs window is `window="N37"`, since the default Higgs window is now the paper's 54 GeV one.
 
 Each row below was re-solved with this release, `upgrade(events, *load_moments(...))`, on the
 authors' own prior, and compared with the authors' stored numbers and, where the solve stored
@@ -63,7 +65,7 @@ the retained fraction N_eff/N_eff^p.
 | W+, decay-angle window | `"wp", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.722% | 1.5 × 10⁻¹³; scale ≤ 4.2 × 10⁻¹³; bootstrap ≤ 1.1 × 10⁻⁷ |
 | W- | `"wm"` | 99.8% | 99.750%; closure 5.2 × 10⁻⁴; max pull 0.024 | 1.2 × 10⁻¹³; scale ≤ 1.2 × 10⁻⁷; bootstrap ≤ 1.5 × 10⁻⁶ |
 | W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.7% | 99.729% | 1.5 × 10⁻¹³; scale ≤ 3.0 × 10⁻¹³; bootstrap ≤ 1.3 × 10⁻⁶ |
-| gg → H | `"ggh"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 2.6 × 10⁻¹²; scale ≤ 3.1 × 10⁻¹¹; bootstrap ≤ 9.8 × 10⁻¹² |
+| gg → H | `"ggh", window="N37"` | 88.2%; tilts 0.27–2.0 | 88.207%; [0.269, 2.013] | 2.6 × 10⁻¹²; scale ≤ 3.1 × 10⁻¹¹; bootstrap ≤ 9.8 × 10⁻¹² |
 | gg → H, windows A, B, C | `"ggh", window=V` | matching band | 84.43%, 91.13%, 92.30% | 0 (bit for bit) |
 | diphoton, merged prior | `"aa"` | 94.9%; tilts 0.54–2.6 | 94.868%; [0.541, 2.615]; max pull 0.013 | 0 (bit for bit) |
 | diphoton, windows A, B, C | `"aa", window=V` | matching band | 94.54%, 94.91%, 94.91% | 0 (bit for bit) |
@@ -140,9 +142,10 @@ The last column is max \|q/q_ref − 1\| over the events, or over the bins for "
 | W-, decay-angle window | `"wm", recoil=["pt_w", "ctw_window"]` | 99.694% (99.694%) | 5.1 × 10⁻³; 0.040 | 0 |
 | the same, windows A, B, C | `..., window=V` | 99.644, 99.697, 99.698% (the same) | ≤ 5.1 × 10⁻³ | ≤ 1.7 × 10⁻⁷ (bins) |
 | the same, members 1, 29, 58 | `..., pdf_member=k` | 99.678, 99.575, 99.695% (the same) | ≤ 5.6 × 10⁻³ | 0 (bins) |
-| gg → H | `"ggh"` | 88.148% (88.148%) | 2.1 × 10⁻⁵; 0.26 | 0 |
-| gg → H, windows A, B, C, D | `"ggh", window=V` | 84.378, 91.086, 92.296, 91.810% (the same) | ≤ 2.4 × 10⁻⁴ | ≤ 2.5 × 10⁻¹⁰ (bins) |
-| gg → H, CT18NNLO members 1, 29, 58 | `"ggh", pdf_member=k` | 88.190, 88.049, 88.277% (the same) | ≤ 4.2 × 10⁻⁵ | 0 (bins) |
+| gg → H (54 GeV window) | `"ggh"` | 91.803% (91.803%) | 1.9 × 10⁻⁵; 0.29 | 0 |
+| gg → H, windows N37, E, F | `"ggh", window=V` | 88.147, 94.235, 95.208% (the same) | ≤ 2.2 × 10⁻⁵ | 0 |
+| gg → H, windows A, B, C | `"ggh", window=V` | 84.381, 91.089, 92.296% | ≤ 6.8 × 10⁻⁵ | |
+| gg → H, CT18NNLO members 1, 29, 58 | `"ggh", pdf_member=k` | 91.837, 91.664, 91.907% | ≤ 4.3 × 10⁻⁵ | |
 | Z+jet, + 16 joint moments | `"zj"` | 92.588% (92.588%) | 7.2 × 10⁻³; 0.18 | 0 |
 | Z+jet, + acoplanarity moments | `"zj", recoil=["ptj1", "ptj2", "aco"]` | 86.443% (86.443%) | 6.0 × 10⁻³; 0.17 | 0 |
 | Z+jet, windows A, B, C | `"zj", window=V` | 91.966, 93.144, 92.581% (the same) | ≤ 3.8 × 10⁻³ | 0 (bins) |
@@ -152,8 +155,9 @@ These rows use the default `qt_basis="range"`: the p_T and jet towers on their a
 window variant on the interval covering its own and the main tower's). The orders imposed are
 m_ll 12, \|y_ll\| 11 and p_T^ℓℓ 16 for Drell-Yan, and m_ℓν 12, \|y_W\| 10 (W+) or 12 (W-) and
 p_T^W 16 (W+) or 17 (W-) for W. For Z+jet they are m_ll 4, \|y_ll\| 5, p_T^j1 12, p_T^j2 6 and 4
-acoplanarity orders. On the gg → H and merged diphoton priors the default criterion selects
-every booked order (p_T^H 12, p_T^γγ 12). The window re-solves hold the central solve's orders from a cold start,
+acoplanarity orders. On the merged diphoton prior the default criterion selects every booked
+order (p_T^γγ 12). On the gg → H prior it selects all six \|y_H\| orders and 11 of the 12 p_T^H
+orders of the 54 GeV window. The window re-solves hold the central solve's orders from a cold start,
 since a variant's polynomials can differ from the central solve's.
 
 ## The priors

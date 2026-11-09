@@ -16,7 +16,7 @@ sys.path.insert(0, ROOT)
 from maxent_upgrade import upgrade, load_moments, compute_fo_moments, released   # noqa: E402
 
 EXPECT = {"dy": {"pT_ll": (30.0, 500.0)}, "wp": {"pt_w": (25.0, 500.0)}, "wm": {"pt_w": (25.0, 500.0)},
-          "ggh": {"pT_H": (37.0, 1000.0)}, "aa": {"pt_aa": (28.0, 500.0)},
+          "ggh": {"pT_H": (54.0, 1000.0)}, "aa": {"pt_aa": (28.0, 500.0)},
           "zj": {"ptj1": (30.0, 1000.0), "ptj2": (30.0, 1000.0)}}
 
 
@@ -50,7 +50,10 @@ def test_exact_combination():
         mb, _ = load_moments(p, check_seam=False, qt_basis="booked")
         m, _ = load_moments(p, check_seam=False)
         for o in exp:
-            d = next(x for x in t["towers"].values() if x.get("observable") == o and x["kind"] == "window")
+            if p in released.NOMINAL_WINDOW:            # the nominal tower lives in a window table (Higgs: 54 GeV)
+                d = released.window_table(p)["windows"][released.NOMINAL_WINDOW[p]]
+            else:
+                d = next(x for x in t["towers"].values() if x.get("observable") == o and x["kind"] == "window")
             lo, hi = float(d["soft_lo"]), float(d["range"][1]); L, U = released.acting_range(d)
             xm, xc = released._log_u(L, lo, hi), released._log_u(U, lo, hi)
             al = 2 / (xc - xm); N = len(mb["recoil"][o]["window_values"])
@@ -62,7 +65,7 @@ def test_exact_combination():
                                    np.polynomial.chebyshev.chebval(al * x - 1 - al * xm, [0] * n + [1]),
                                    rtol=1e-9, atol=1e-9 * np.abs(A[n]).max())
             v = np.asarray(m["recoil"][o]["window_values"]); err = np.asarray(m["recoil"][o]["stat_errors"])
-            acc, st, sc = released._range_accumulators(released.PROCESSES[p], d, N, A, 0, None)
+            acc, st, sc = released._range_accumulators(d.get("_src", released.PROCESSES[p]), d, N, A, 0, None)
             assert np.allclose(st, err) and np.allclose(sc, m["recoil"][o]["scale_errors"])
             worst = max(worst, float(np.max(np.abs(v - acc) / err)))
     assert worst < 0.01, worst                       # rounding far below the Monte Carlo errors

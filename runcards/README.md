@@ -16,14 +16,15 @@ variants).
 | `ggh_moments3.run` | on-shell H at NNLO (heavy-top effective theory, `decay_type = 3`), μ = m_H, 40 runs (`ggh_moments3`); also books the leading-jet reference histograms | `moments/ggh_nnlo_moments` |
 | `zj_moments.run` | Z+jet at NLO, μ = H_T/2, 40 runs (`zj_moments2`) | `moments/zj_nlo_moments` |
 | `ggh_winvar.run` | the H recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`ggh_winvar`) | `moments/ggh_nnlo_moments_winvar` |
+| `ggh_winvar_cc.run` | the H recoil tower with the color-corrected window D (the default) and its variants E, F, channels R, RV, RR, 40 runs (`ggh_cc`) | `moments/ggh_nnlo_moments_winvar_cc` |
 | `gg_winvar.run` | the γγ recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`gg_winvar`) | `moments/aa_nnlo_moments_winvar` |
 | `dy_ptz_full.run` | the real channels (R, RR, RV) of the Z run with a full-range p_T^ℓℓ histogram, 6 runs (`dy_profile_poc_ptzfull`) | the fixed-order recoil curve below the matching scale (no table) |
 | `ggh_fid.run` | H → γγ at NNLO (`decay_type = 3`) in the ATLAS fiducial region, μ = m_H, 20 runs (`ggh_fid`) | the fixed-order jet multiplicity (no table); with at most two partons, it has no events with three or more jets |
 
 The run directory and card of every table are also recorded in its `provenance` field.
 
-The tables added for the paper (the window variants of Drell-Yan, W± and Z+jet, the Higgs
-variant D and the CT18NNLO members) come from further runs. Their cards keep the PROCESS,
+The tables added for the paper (the window variants of Drell-Yan, W± and Z+jet, the earlier
+Higgs window D and the CT18NNLO members) come from further runs. Their cards keep the PROCESS,
 PARAMETERS, SELECTORS and central SCALES blocks of the cards above. Only the run name, the
 statistics, the channel, the HISTOGRAMS block and, for the members, the PDF member and a
 central-only SCALES block differ. Those cards are not shipped. Each table's `provenance` names
@@ -41,8 +42,12 @@ its runs (`../REPRODUCE.md`).
 | gg → H, p_T^H | (37, 74) | (25, 50) | (50, 100) | (37, 148) | hard cut at 1000 GeV |
 | γγ, p_T^γγ | (28, 56) | (19, 38) | (37, 74) | (28, 112) | hard cut at 500 GeV |
 
+`ggh_winvar_cc.run` books, in the same way, the nominal (37, 74) window and the Higgs windows
+D = (54, 108), E = (72, 144) and F = (54, 216), cut at 1000 GeV. It needs the patches
+`nnlojet_patch/winvar_cc_*.f90.patch` on top of the two above.
+
 Only the channels R, RV and RR run, because LO, V and VV have no recoil and every window gives
-them zero weight. The runs use seeds 101–140 and the run names `GGH_WINVAR` and `GG_WINVAR`, so
+them zero weight. The runs use seeds 101–140 and the run names `GGH_WINVAR`, `GGH_CC` and `GG_WINVAR`, so
 their output can never be pooled with the main runs by accident. The cards keep only the
 accumulators the windowed moments need: 53 single-bin histograms, `norm_born` and the
 profiles of the four windows.

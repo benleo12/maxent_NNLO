@@ -1,0 +1,106 @@
+!## nnlojet-cc 2026-11-07: ggh_winvar card with windows D, E, F
+PROCESS  H
+  collider = LHC
+  sqrts = 13000.0
+  jet = antikt[0.4]
+  jet_exclusive = .false.
+  jet_recomb = V4
+  decay_type = 3
+END_PROCESS
+
+RUN  GGH_CC
+  PDF = CT18NNLO[0]
+  tcut = 1d-8
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .true.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  MASS[H]  = 125
+  WIDTH[H] = 0.004029643852
+  MASS[Z]  = 91.1876
+  MASS[W]  = 80.398
+  MASS[t]  = 173.2
+END_PARAMETERS
+
+SELECTORS
+END_SELECTORS
+
+HISTOGRAMS
+  ! ---- SLIM production card (nnlojet-winvar): reference distributions, Born moments and
+  ! ---- jet followers of the source card dropped (not needed for the windowed recoil moments)
+  chebT_yh_1 > norm_born   min=-1.001 max=1.001 nbins=1
+  w_pth      > prof_wpt_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_1 > prof_wpt_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_2 > prof_wpt_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_3 > prof_wpt_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_4 > prof_wpt_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_5 > prof_wpt_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_6 > prof_wpt_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_7 > prof_wpt_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_8 > prof_wpt_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_9 > prof_wpt_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_10 > prof_wpt_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_11 > prof_wpt_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_12 > prof_wpt_12  min=-1.001 max=1.001 nbins=1 profile = T
+  ! ---- MATCHING-WINDOW VARIANTS (nnlojet-winvar), same log map and closing edge
+  ! ---- as the nominal w_pth (pa,pb) = (37, 74):  D = (54, 108), E = (72, 144), F = (54, 216)
+  ! ---- <T_n>_V = prof_wptV_n / prof_wptV_0 ;  R_V = prof_wptV_0 / sigma_fid
+  w_pth_D > prof_wptD_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_1 > prof_wptD_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_2 > prof_wptD_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_3 > prof_wptD_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_4 > prof_wptD_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_5 > prof_wptD_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_6 > prof_wptD_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_7 > prof_wptD_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_8 > prof_wptD_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_9 > prof_wptD_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_10 > prof_wptD_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_11 > prof_wptD_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_D_12 > prof_wptD_12  min=-1.001 max=1.001 nbins=1 profile = T
+  w_pth_E > prof_wptE_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_1 > prof_wptE_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_2 > prof_wptE_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_3 > prof_wptE_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_4 > prof_wptE_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_5 > prof_wptE_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_6 > prof_wptE_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_7 > prof_wptE_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_8 > prof_wptE_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_9 > prof_wptE_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_10 > prof_wptE_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_11 > prof_wptE_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_E_12 > prof_wptE_12  min=-1.001 max=1.001 nbins=1 profile = T
+  w_pth_F > prof_wptF_0  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_1 > prof_wptF_1  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_2 > prof_wptF_2  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_3 > prof_wptF_3  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_4 > prof_wptF_4  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_5 > prof_wptF_5  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_6 > prof_wptF_6  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_7 > prof_wptF_7  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_8 > prof_wptF_8  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_9 > prof_wptF_9  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_10 > prof_wptF_10  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_11 > prof_wptF_11  min=-1.001 max=1.001 nbins=1 profile = T
+  chebTw_pth_F_12 > prof_wptF_12  min=-1.001 max=1.001 nbins=1 profile = T
+END_HISTOGRAMS
+
+SCALES
+  muf = 1.0 * 125  mur = 1.0 * 125
+  muf = 2.0 * 125  mur = 2.0 * 125
+  muf = 0.5 * 125  mur = 0.5 * 125
+  muf = 1.0 * 125  mur = 0.5 * 125
+  muf = 0.5 * 125  mur = 1.0 * 125
+  muf = 1.0 * 125  mur = 2.0 * 125
+  muf = 2.0 * 125  mur = 1.0 * 125
+END_SCALES
+
+CHANNELS
+  R
+END_CHANNELS

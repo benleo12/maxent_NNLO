@@ -1,0 +1,59 @@
+--- driver/core/EvalFuncs.f90.orig
++++ driver/core/EvalFuncs.f90
+@@ -3052,6 +3052,56 @@
+     eval_chebTw_pth_C = chebTwwin_pth(npar, n, 37.0_wp, 148.0_wp)
+   end function eval_chebTw_pth_C
+ 
++  ! gg -> H color-corrected transition region (v_m = 54 GeV): D = (54,108), the default window,
++  ! E = (72,144) and F = (54,216), its variants; copies of the nominal w_pth/chebTw_pth with other (pa, pb)
++  real(kind=wp) function eval_w_pth_D(npar)          ! (54,108)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_w_pth_D = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_pth_D = prof_w(v1_pt(pV), 54.0_wp, 108.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_w_pth_D
++
++  real(kind=wp) function eval_chebTw_pth_D(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_chebTw_pth_D = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_chebTw_pth_D = rf_chebTw_log(v1_pt(pV), n, 1.0_wp, 1000.0_wp, 54.0_wp, 108.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_chebTw_pth_D
++
++  real(kind=wp) function eval_w_pth_E(npar)          ! (72,144)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_w_pth_E = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_pth_E = prof_w(v1_pt(pV), 72.0_wp, 144.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_w_pth_E
++
++  real(kind=wp) function eval_chebTw_pth_E(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_chebTw_pth_E = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_chebTw_pth_E = rf_chebTw_log(v1_pt(pV), n, 1.0_wp, 1000.0_wp, 72.0_wp, 144.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_chebTw_pth_E
++
++  real(kind=wp) function eval_w_pth_F(npar)          ! (54,216)
++    integer, intent(in) :: npar
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_w_pth_F = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_w_pth_F = prof_w(v1_pt(pV), 54.0_wp, 216.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_w_pth_F
++
++  real(kind=wp) function eval_chebTw_pth_F(npar, n)
++    integer, intent(in) :: npar, n
++    real(kind=wp), dimension(4) :: pV
++    if (npar < 1) then; eval_chebTw_pth_F = 0.0_wp; return; end if
++    pV(1:4) = kin(npar)%p(1:4, npar - 1) + kin(npar)%p(1:4, npar)
++    eval_chebTw_pth_F = rf_chebTw_log(v1_pt(pV), n, 1.0_wp, 1000.0_wp, 54.0_wp, 216.0_wp, 1000.0_wp, 1000.0_wp)
++  end function eval_chebTw_pth_F
++
+   !===========================================================================
+   !  DY+jet (ZJ) Chebyshev moments, all with SMOOTH profiles:
+   !    pT_j1 : constrain only ABOVE a resolution cut   w = prof_w(pTj1, 30,60,..)

@@ -12,8 +12,10 @@ channel-summed accumulators of every independent run at all seven scales, from w
 pooled as the ratio of summed accumulators; window rates are the mean over the runs of the
 per-run rate, the convention of the authors' solves.  <name>_winvar.json holds the recoil
 tower (for "zj" both jet towers and their joint block) booked with other matching windows
-(`window="A"`, "B", "C", and "D" for "ggh": the matching-window variants).  For "wp", "wm"
-and "ggh", <name>_pdf.json holds the moments of the CT18NNLO members (`pdf_member=k`).
+(`window="A"`, "B", "C": the matching-window variants).  The Higgs nominal window is the
+color-corrected 54-108 GeV window D of ggh_nnlo_moments_winvar_cc.json, with the variants "E", "F"
+and "N37" (the main table's 37-74 GeV window).  For "wp", "wm" and "ggh", <name>_pdf.json holds the
+moments of the CT18NNLO members (`pdf_member=k`; for the Higgs nominal window ggh_nnlo_moments_pdf_cc.json).
 """
 import gzip
 import json
@@ -28,6 +30,15 @@ PROCESSES = {"dy": "dy_nnlo_moments", "wp": "w_nnlo_moments_WP", "wm": "w_nnlo_m
 # [2/3, 4/3] v_m (A), [4/3, 8/3] v_m (B) and [1, 4] v_m (C) instead of [1, 2] v_m;
 # for the Higgs boson D rises over [54, 108] GeV, the color-corrected matching scale
 WINDOW_VARIANTS = {p: PROCESSES[p] + "_winvar" for p in PROCESSES}
+# The Higgs transition region starts at the color-corrected 54 GeV (the transition criterion with the gluon
+# color factor C_A/C_F): window D of <ggh>_winvar_cc, booked at all seven scales over 40 runs, is the nominal Higgs
+# recoil tower, mapped onto its own acting range [54, 1000] GeV.  Its variants are "N37" (the color-blind 37-74 GeV
+# window of the main table), "E" (72-144 GeV, near the color-corrected threshold 0.1) and "F" (54-216 GeV, twice the
+# width).  The variants A, B, C of <ggh>_winvar, which move the 37 GeV window, stay available.
+NOMINAL_WINDOW = {"ggh": "D"}
+EXTRA_WINDOWS = {"ggh": PROCESSES["ggh"] + "_winvar_cc"}
+MAIN_AS_VARIANT = {"ggh": "N37"}
+PDF_MEMBERS_NOMINAL = {"ggh": PROCESSES["ggh"] + "_pdf_cc"}
 # the moments of the CT18NNLO members 0..58 (the PDF band)
 PDF_MEMBERS = {p: PROCESSES[p] + "_pdf" for p in ("wp", "wm", "ggh")}
 # The NNLO Z+jet calculation of the letter (STRIPPER, R. Poncelet), as produced: its profiled
@@ -77,7 +88,16 @@ def window_table(process):
     if process not in WINDOW_VARIANTS:
         return None
     with open(_path(WINDOW_VARIANTS[process])) as f:
-        return json.load(f)
+        wt = json.load(f)
+    for d in wt["windows"].values():
+        d["_src"] = WINDOW_VARIANTS[process]
+    if process in EXTRA_WINDOWS:                 # windows of a later production replace those of the same name
+        with open(_path(EXTRA_WINDOWS[process])) as f:
+            xt = json.load(f)
+        for V, d in xt["windows"].items():
+            d["_src"] = EXTRA_WINDOWS[process]
+            wt["windows"][V] = d
+    return wt
 
 
 def _variant(wt, V):
@@ -88,14 +108,18 @@ def _variant(wt, V):
 
 def windows(process):
     """{window: profile} of the matching windows released for a process's recoil tower:
-    'nominal' (the central choice) and the variants 'A', 'B', 'C' (and 'D' for "ggh");
+    'nominal' (the central choice) and the variants 'A', 'B', 'C' (for "ggh" also 'N37', 'E', 'F');
     an empty dict for a process without variants.  For "zj" the profile is that of both jets."""
     wt = window_table(process)
     if wt is None:
         return {}
     key = (wt.get("replaces_towers") or [wt["replaces_tower"]])[0]
-    out = {"nominal": dict(table(process)["towers"][key]["profile"])}
-    out.update({V: dict(d["profile"]) for V, d in wt["windows"].items()})
+    main = dict(table(process)["towers"][key]["profile"])
+    nom = NOMINAL_WINDOW.get(process)
+    out = {"nominal": dict(wt["windows"][nom]["profile"]) if nom else main}
+    if process in MAIN_AS_VARIANT:
+        out[MAIN_AS_VARIANT[process]] = main
+    out.update({V: dict(d["profile"]) for V, d in wt["windows"].items() if V != nom})
     return out
 
 
@@ -253,7 +277,10 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         they disagree by more than 15%.  The window is compiled into the fixed-order run,
         so the check can only warn.  Window variants are deliberate moves of the window and
         are not checked.
-    window : None, "nominal", "A", "B", "C" or (for "ggh") "D"
+    window : None, "nominal", "A", "B", "C" or (for "ggh") "N37", "E", "F"
+        For "ggh" the nominal window is the color-corrected 54-108 GeV window D (on its own acting
+        range [54, 1000] GeV), "N37" the main table's color-blind 37-74 GeV window, and "E" (72-144 GeV)
+        and "F" (54-216 GeV) its variants; A, B, C move the 37 GeV window.
         Replace the recoil tower (for "zj" both jet towers and their joint block) by the same
         tower booked with another matching window (`windows(process)` lists them), the
         inputs of the matching-uncertainty band.  The returned moments and config carry that
@@ -313,6 +340,12 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     name = PROCESSES.get(process, process)
 
     variant, vjoint = {}, {}
+    nominal = NOMINAL_WINDOW.get(process)
+    own_range, union_with = False, None
+    if window in (None, "nominal") and nominal:
+        window, own_range = nominal, True        # the process's nominal window lives in a window table
+    elif window is not None and window == MAIN_AS_VARIANT.get(process):
+        window = None                            # the main table's own window, now a variant
     if window not in (None, "nominal"):
         wt = window_table(process)
         if wt is None:
@@ -326,14 +359,21 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         if repool and any("numerator_tags" not in d for d in vt.values()):
             raise ValueError(f"{process}: window {window!r} is released at the central scale only; "
                              f"it does not combine with scale= or runs=")
-        variant = {k: (d, WINDOW_VARIANTS[process]) for k, d in vt.items()}
+        src = wt["windows"][window].get("_src", WINDOW_VARIANTS[process])
+        variant = {k: (d, src) for k, d in vt.items()}
+        if nominal and not own_range and src == EXTRA_WINDOWS.get(process):
+            union_with = _variant(wt, nominal)[0]    # a variant of the nominal window: the union with its range
     if pdf_member is not None:
-        pt = pdf_table(process)
+        if own_range and process in PDF_MEMBERS_NOMINAL:
+            with open(_path(PDF_MEMBERS_NOMINAL[process])) as f:
+                pt = json.load(f)
+        else:
+            pt = pdf_table(process)
         if pt is None:
             raise ValueError(f"{process}: no CT18NNLO member moments are released (only for {sorted(PDF_MEMBERS)})")
         if not 0 <= int(pdf_member) < int(pt["n_members"]):
             raise ValueError(f"{process}: pdf_member must be 0..{pt['n_members'] - 1}, got {pdf_member}")
-        if repool or variant or nnlo_zj:
+        if repool or (variant and not own_range) or nnlo_zj:
             raise ValueError(f"{process}: pdf_member shifts the central moments; it does not combine with "
                              f"scale=, runs=, window= or nnlo_zj=")
 
@@ -380,7 +420,8 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
             raise ValueError(f"{process}: two recoil towers in {recoil} constrain events['{d['observable']}']; "
                              f"impose one of them")
         prof = d["profile"]
-        booked[d["observable"]] = dict(d=d, src=src, N=len(v), key=key)
+        booked[d["observable"]] = dict(d=d, src=src, N=len(v), key=key, own=own_range and key in variant,
+                                       union_with=(union_with or {}).get(key))
         if repool:
             R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs, d.get("rate_norm_tag", "norm_born"))
         else:
@@ -511,8 +552,8 @@ def _to_acting_range(rc, cfg, info, t, name, scale, runs):
         return
     lo, hi = float(d["soft_lo"]), float(d["range"][1])
     L, U = acting_range(d)
-    main = t["towers"][info["key"]]                 # the main table's tower that this one is or replaces
-    if src != name:
+    main = info.get("union_with") or t["towers"][info["key"]]   # the tower whose range a variant covers
+    if src != name and not info.get("own"):
         # a window variant: the interval covering its own acting range and the main tower's, so that the variant
         # imposes the central solve's polynomials wherever its range allows and differs from it only by its window
         Lm, Um = acting_range(main)
@@ -527,9 +568,9 @@ def _to_acting_range(rc, cfg, info, t, name, scale, runs):
         _, st, sc = _range_accumulators(src, d, N, A, scale, runs)
     else:
         # a variant released without per-run values: the main tower's errors, scaled (_variant_errors)
-        if (float(main["soft_lo"]), float(main["range"][1])) != (lo, hi):
+        if (float(t["towers"][info["key"]]["soft_lo"]), float(t["towers"][info["key"]]["range"][1])) != (lo, hi):
             raise ValueError(f"{name}: variant of {d['observable']} booked on another interval than the main tower")
-        st, sc = _variant_errors(name, main, d, N, A)
+        st, sc = _variant_errors(name, t["towers"][info["key"]], d, N, A)
     st, sc = [float(x) for x in st], [float(x) for x in sc]
     rc.update(window_values=[float(x) for x in v], wprofile_values=[float(x) for x in v],
               stat_errors=st, scale_errors=sc, window_errors=[_hyp(a_, b_) for a_, b_ in zip(st, sc)],

@@ -21,6 +21,7 @@ r"""Checks of the released moment tables and the loader (no event samples needed
 """
 import contextlib
 import io
+import json
 import os
 import sys
 
@@ -118,11 +119,12 @@ def _pooled_windows(p):
 
 
 def test_window_variants():
-    for p, towers, Vs in (("ggh", ["pT_H"], "ABCD"), ("aa", ["pt_aa"], "ABC"), ("dy", ["pT_ll"], "ABC"),
+    for p, towers, Vs in (("ggh", ["pT_H"], "ABCEF"), ("aa", ["pt_aa"], "ABC"), ("dy", ["pT_ll"], "ABC"),
                           ("wp", ["pt_w"], "ABC"), ("wm", ["pt_w"], "ABC"), ("zj", ["ptj1", "ptj2"], "ABC")):
         nominal, cn = load_moments(p, check_seam=False, qt_basis="booked")
         wins = released.windows(p)
-        assert sorted(wins) == sorted(Vs) + ["nominal"], (p, sorted(wins))
+        extra = [released.MAIN_AS_VARIANT[p]] if p in released.MAIN_AS_VARIANT else []
+        assert sorted(wins) == sorted(list(Vs) + extra) + ["nominal"], (p, sorted(wins))
         assert wins["nominal"] == cn["recoil"][towers[0]]["profile"]
         wt = released.window_table(p)
         for V in Vs:
@@ -154,6 +156,11 @@ def test_window_variants():
                         raise AssertionError(f"{p} window {V} is central-scale only")
         m, c = load_moments(p, window="nominal", check_seam=False, qt_basis="booked")
         assert m == nominal and c == cn
+        for V in extra:                               # the main table's own window as a variant (Higgs: 37 GeV)
+            m, c = load_moments(p, window=V, check_seam=False, qt_basis="booked")
+            d = released.table(p)["towers"][towers[0]]
+            assert c["recoil"][towers[0]]["profile"] == wins[V] == d["profile"]
+            assert m["recoil"][towers[0]]["window_values"] == d["values"][:len(m["recoil"][towers[0]]["window_values"])]
     # the Drell-Yan and W variants A start below the lower end of the log map (30 and 25 GeV)
     for p, tower, a in (("dy", "pT_ll", 20.0), ("wp", "pt_w", 17.0), ("wm", "pt_w", 17.0)):
         _, c = load_moments(p, window="A", qt_basis="booked")
@@ -207,7 +214,8 @@ def test_window_below_map():
 
 def test_pdf_members():
     for p, recoil in (("wp", None), ("wm", ["pt_w", "ctw_window"]), ("ggh", None)):
-        pt = released.pdf_table(p)
+        pt = (json.load(open(released._path(released.PDF_MEMBERS_NOMINAL[p]))) if p in released.PDF_MEMBERS_NOMINAL
+              else released.pdf_table(p))                  # Higgs: the members of the nominal 54 GeV window
         assert pt["n_members"] == 59 == len(pt["sigma_fid_ratio"]) and pt["sigma_fid_ratio"][0] == 1.0
         m0, c0 = load_moments(p, recoil=recoil, check_seam=False, qt_basis="booked")
         mm, cm = load_moments(p, recoil=recoil, pdf_member=0, qt_basis="booked")
@@ -261,7 +269,17 @@ def test_acoplanarity_tower():
         raise AssertionError("two towers of one observable must raise")
 
 
+def test_higgs_window_from_color_factor():
+    """The nominal Higgs window starts at the color-corrected matching scale (C_A/C_F = 9/4), within 1 GeV,
+    and the main table's 37 GeV window at the color-blind one."""
+    from maxent_upgrade import matching_scale
+    mH = float(released.table("ggh")["hard_scale_GeV"])
+    assert abs(released.windows("ggh")["nominal"]["a"] - matching_scale(mH, color=9 / 4)) < 1.0
+    assert abs(released.windows("ggh")["N37"]["a"] - matching_scale(mH)) < 1.0
+
+
 if __name__ == "__main__":
     for f in (test_tables_load, test_higgs_cross_section, test_runs_reproduce_tables, test_window_variants,
-              test_window_consistency, test_window_below_map, test_pdf_members, test_acoplanarity_tower):
+              test_window_consistency, test_window_below_map, test_pdf_members, test_acoplanarity_tower,
+              test_higgs_window_from_color_factor):
         f(); print(f"{f.__name__}: PASS")

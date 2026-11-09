@@ -58,10 +58,12 @@ diverges in the soft limit. Examples are the singlet transverse momentum, the ac
 - That is all the fixed order supplies. `upgrade()` forms the blended target of each order,
   μ_n = (1 − r) ⟨T_n⟩_{p, 1−w} + r ⟨T_n⟩_{FO, w}, from these numbers and the prior itself
   (or, with `transition="windowed"`, imposes w T_n and w directly).
-- The matching scale follows from power counting, α_s(p_T) ln²(Q/p_T) < 0.2 with Q the hard
-  scale (`maxent_upgrade.matching_scale(Q)`): 28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W,
-  27.7 GeV for diphoton production (Q = 90 GeV) and 37.3 GeV for Q = m_H. The released tables
-  use 30 (rounded up), 25, 28 and 37 GeV.
+- The matching scale follows from power counting, α_s(p_T) (C_i/C_F) ln²(Q/p_T) < 0.2 with Q the
+  hard scale and C_i/C_F the color factor of the incoming partons relative to quarks
+  (`maxent_upgrade.matching_scale(Q, color=...)`): 28.0 GeV for Q = m_Z, 25.0 GeV for Q = m_W,
+  27.7 GeV for diphoton production (Q = 90 GeV) and, with C_A/C_F = 9/4, 54.3 GeV for gluon
+  fusion at Q = m_H (37.3 GeV without the color factor). The released tables use 30 (rounded
+  up), 25, 28 and 54 GeV. The main Higgs table books 37 GeV, the letter's window.
 
 **Joint moments.** To constrain a correlation that the marginal towers cannot reach, book the
 products ⟨w_x w_y T_m(u(x)) T_n(u(y))⟩/⟨w_x w_y⟩ for m, n = 1 … 4 and their rate

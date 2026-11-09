@@ -297,6 +297,11 @@ WINVAR = {
  "ggh_winvar": dict(file="ggh_nnlo_moments_winvar", main="ggh", base="ggh_winvar", run="GGH_WINVAR", prefix="H",
     runcard="runcards/ggh_winvar.run", decay_type=3, tower="pT_H", tag="prof_wpt",
     windows={"A": (25.0, 50.0), "B": (50.0, 100.0), "C": (37.0, 148.0)}),
+ # the color-corrected Higgs transition region, v_m = 54 GeV (C_A/C_F in the transition criterion): window D is the
+ # Higgs nominal window since 2026-11-09, E and F its higher-threshold and double-width variants (runs of 2026-11-07)
+ "ggh_winvar_cc": dict(file="ggh_nnlo_moments_winvar_cc", main="ggh", base="ggh_cc", run="GGH_CC", prefix="H",
+    runcard="runcards/ggh_winvar_cc.run", decay_type=3, tower="pT_H", tag="prof_wpt",
+    windows={"D": (54.0, 108.0), "E": (72.0, 144.0), "F": (54.0, 216.0)}),
  "aa_winvar": dict(file="aa_nnlo_moments_winvar", main="aa", base="gg_winvar", run="GG_WINVAR", prefix="GG",
     runcard="runcards/gg_winvar.run", tower="pt_aa", tag="prof_wpt",
     windows={"A": (19.0, 38.0), "B": (37.0, 74.0), "C": (28.0, 112.0)}),
