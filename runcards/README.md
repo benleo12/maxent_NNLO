@@ -4,9 +4,8 @@ One file per production behind a released table, as run with NNLOJET v1.0.2 and 
 in `../nnlojet_patch/`. Each production ran one perturbative channel per job: the CHANNELS
 block of a shipped card shows one of them, and the cards of the other channels differ only in
 that line. Where a card has a `warmup` line, it is the card of the run that made the Vegas grid;
-the other runs used the same card without it (production only). `gg_moments2.run` and the two
-window-variant cards have none: those productions reused existing grids (see below for the
-variants).
+the other runs used the same card without it (production only). `gg_moments2.run` and the
+cards of the window runs have none: those productions reused existing grids (see below).
 
 | run card | production (run directory) | used for |
 |---|---|---|
@@ -15,22 +14,22 @@ variants).
 | `gg_moments2.run` | γγ at NNLO, μ = m_γγ, 40 runs (`gg_moments2`) | `moments/aa_nnlo_moments` |
 | `ggh_moments3.run` | on-shell H at NNLO (heavy-top effective theory, `decay_type = 3`), μ = m_H, 40 runs (`ggh_moments3`); also books the leading-jet reference histograms | `moments/ggh_nnlo_moments` |
 | `zj_moments.run` | Z+jet at NLO, μ = H_T/2, 40 runs (`zj_moments2`) | `moments/zj_nlo_moments` |
-| `ggh_winvar.run` | the H recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`ggh_winvar`) | `moments/ggh_nnlo_moments_winvar` |
-| `ggh_winvar_cc.run` | the H recoil tower with the color-corrected window D (the default) and its variants E, F, channels R, RV, RR, 40 runs (`ggh_cc`) | `moments/ggh_nnlo_moments_winvar_cc` |
-| `gg_winvar.run` | the γγ recoil tower with three other matching windows, channels R, RV, RR, 40 runs (`gg_winvar`) | `moments/aa_nnlo_moments_winvar` |
+| `ggh_winvar.run` | the H recoil tower with three other windows around 37 GeV (earlier, kept for the record), channels R, RV, RR, 40 runs (`ggh_winvar`) | `moments/ggh_nnlo_moments_winvar` |
+| `ggh_winvar_cc.run` | the H recoil tower with the color-corrected 54 GeV window (the default) and the windows (72, 144) and (54, 216) GeV, channels R, RV, RR, 40 runs (`ggh_cc`) | `moments/ggh_nnlo_moments_winvar_cc` |
+| `gg_winvar.run` | the γγ recoil tower with three other windows, among them the two moved ones of the matching uncertainty, channels R, RV, RR, 40 runs (`gg_winvar`) | `moments/aa_nnlo_moments_winvar` |
 | `dy_ptz_full.run` | the real channels (R, RR, RV) of the Z run with a full-range p_T^ℓℓ histogram, 6 runs (`dy_profile_poc_ptzfull`) | the fixed-order recoil curve below the matching scale (no table) |
 | `ggh_fid.run` | H → γγ at NNLO (`decay_type = 3`) in the ATLAS fiducial region, μ = m_H, 20 runs (`ggh_fid`) | the fixed-order jet multiplicity (no table); with at most two partons, it has no events with three or more jets |
 
 The run directory and card of every table are also recorded in its `provenance` field.
 
-The tables added for the paper (the window variants of Drell-Yan, W± and Z+jet, the earlier
-Higgs window D and the CT18NNLO members) come from further runs. Their cards keep the PROCESS,
+The tables added for the paper (the moved windows of Drell-Yan, W± and Z+jet, an earlier
+booking of the 54 GeV Higgs window and the CT18NNLO members) come from further runs. Their cards keep the PROCESS,
 PARAMETERS, SELECTORS and central SCALES blocks of the cards above. Only the run name, the
 statistics, the channel, the HISTOGRAMS block and, for the members, the PDF member and a
 central-only SCALES block differ. Those cards are not shipped. Each table's `provenance` names
 its runs (`../REPRODUCE.md`).
 
-## The window-variant productions
+## The window productions
 
 `ggh_winvar.run` and `gg_winvar.run` need the two additional patches
 `nnlojet_patch/winvar_*.f90.patch`. They book, in one run:
@@ -42,8 +41,8 @@ its runs (`../REPRODUCE.md`).
 | gg → H, p_T^H | (37, 74) | (25, 50) | (50, 100) | (37, 148) | hard cut at 1000 GeV |
 | γγ, p_T^γγ | (28, 56) | (19, 38) | (37, 74) | (28, 112) | hard cut at 500 GeV |
 
-`ggh_winvar_cc.run` books, in the same way, the nominal (37, 74) window and the Higgs windows
-D = (54, 108), E = (72, 144) and F = (54, 216), cut at 1000 GeV. It needs the patches
+`ggh_winvar_cc.run` books, in the same way, the (37, 74) window and the Higgs windows (54, 108),
+(72, 144) and (54, 216), cut at 1000 GeV (`prof_wpt{D,E,F}`). It needs the patches
 `nnlojet_patch/winvar_cc_*.f90.patch` on top of the two above.
 
 Only the channels R, RV and RR run, because LO, V and VV have no recoil and every window gives
@@ -53,14 +52,14 @@ accumulators the windowed moments need: 53 single-bin histograms, `norm_born` an
 profiles of the four windows.
 
 The window rate needs the cross section of all six channels. It is therefore W0_V / σ_fid,
-with W0_V the mean over the variant runs of `prof_wpt{V}_0` and σ_fid the mean over the main
-runs (`ggh_moments3`, `gg_moments2`) of `norm_born`. The variant table's `_runs.json.gz`
+with W0_V the mean over these runs of `prof_wpt{V}_0` and σ_fid the mean over the main
+runs (`ggh_moments3`, `gg_moments2`) of `norm_born`. The window table's `_runs.json.gz`
 carries both.
 
-**Vegas grids.** The variant runs did not make their own warm-up. Their grids are copies of the
+**Vegas grids.** The window runs did not make their own warm-up. Their grids are copies of the
 main runs' grids, renamed to the new run name:
 
-| grid of the variant run | copied from (main run) | md5 |
+| grid of the window run | copied from (main run) | md5 |
 |---|---|---|
 | `ggh_winvar/ch_R/H.GGH_WINVAR.y1.00E-08.R` | `ggh_moments3/ch_R/H.GGH_MOMENTS.y1.00E-08.R` | 88ee94c325e7afa9ababe9d23e27e139 |
 | `ggh_winvar/ch_RV/H.GGH_WINVAR.y1.00E-08.RV` | `ggh_moments3/ch_RV/H.GGH_MOMENTS.y1.00E-08.RV` | 895d197d7e4fe3e2023888a99771db20 |

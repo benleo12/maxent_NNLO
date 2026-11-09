@@ -51,7 +51,7 @@ Command-line versions of the same steps:
 ```bash
 python moments/load_moments.py dy                                # towers, their arrays, default constraint set
 python examples/upgrade_with_released_moments.py dy my_prior.npz # writes my_prior_dy_upgraded.npz
-python examples/bands_with_released_moments.py dy my_prior.npz   # scale, bootstrap, window (and PDF) variants
+python examples/bands_with_released_moments.py dy my_prior.npz   # scale, bootstrap, matching (and PDF) bands
 ```
 
 No sample yet? `python examples/example_moments.py` runs the whole chain on toy events.
@@ -117,7 +117,7 @@ Details are in [`moments/README.md`](moments/README.md).
 The statistical price is the Kish effective sample size, reported as `result.effN` and
 `result.effN_retained`. On the letter's priors, with the released tables, it is 99.9% for
 Drell-Yan and 88.2% for gluon-fusion Higgs production with the letter's 37 GeV window
-(`window="N37"`), 91.8% with the default 54 GeV window. On the authors' priors it is 99.8% for
+(`window="down"`), 91.8% with the default 54 GeV window. On the authors' priors it is 99.8% for
 W+ and W- (99.7% with the optional decay-angle window), and the merged diphoton prior keeps
 94.9% of its own effective count. The tables reproduce the authors' stored weights
 ([`REPRODUCE.md`](REPRODUCE.md)).
@@ -169,8 +169,8 @@ The construction, its accuracy, and the rule that places the matching scale
 |---|---|---|---|---|
 | `dy` | pp → Z/γ* → ℓℓ, 13 TeV, ATLAS | NNLO, 298 | m_ll (BW, 12), \|y_ll\| (lin, 12, of which the SNR rule imposes 11 on the paper's prior); p_T^ll window 30→60 GeV, cut 500 (log, 20) | \|cos θ*\| (lin [0, 1], 6); joint m_ll × \|cos θ*\| (16); lepton p_T reference towers; the p_T^ll tower with three other matching windows |
 | `wp`, `wm` | pp → W± → ℓν, 7 TeV, ATLAS | NNLO, 40 each | m_W (BW, 12), \|y_W\| (lin, 12); p_T^W window 25→50 GeV, cut 500 (log, 20) | decay-angle window (flat for \|cos θ*\| < 0.6, zero at 0.7; lin, 6), optional; full-range signed angle (8); joint p_T^W × cos θ* (16); the p_T^W tower with three other matching windows; CT18NNLO member moments |
-| `aa` | pp → γγ, 8 TeV, ATLAS | NNLO, 40 | m_γγ (log, 6), \|cos θ*\| (lin, 6); p_T^γγ window 28→56 GeV, cut 500 (log, 12) | the p_T^γγ tower with three other matching windows (`window="A"`, `"B"`, `"C"`) |
-| `ggh` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO, 40 | \|y_H\| (lin, 6); p_T^H window 54→108 GeV, cut 1000 (log, 12, of which the SNR rule imposes 11 on the paper's prior) | the letter's p_T^H window 37→74 GeV (`window="N37"`); the p_T^H tower with five other matching windows (E, F around 54 GeV, A, B, C around 37 GeV); CT18NNLO member moments for the 54 and the 37 GeV windows |
+| `aa` | pp → γγ, 8 TeV, ATLAS | NNLO, 40 | m_γγ (log, 6), \|cos θ*\| (lin, 6); p_T^γγ window 28→56 GeV, cut 500 (log, 12) | the p_T^γγ tower with its window moved down and up |
+| `ggh` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO, 40 | \|y_H\| (lin, 6); p_T^H window 54→108 GeV, cut 1000 (log, 12, of which the SNR rule imposes 11 on the paper's prior) | the p_T^H tower with its window moved down to 37→74 GeV (the letter's) and up to 72→144 GeV; CT18NNLO member moments for the 54 and the 37 GeV windows |
 | `zj` | pp → Z(→ℓℓ) + jet, 13 TeV, ATLAS, ≥ 1 jet | NLO, 40 | m_ll (BW, 6), \|y_ll\| (lin, 6); p_T^j1 (12) and p_T^j2 (6) windows 30→60 GeV, cut 1000; joint p_T^j1 × p_T^j2 (16); every tower windowed | p_T^j2 to 8 orders; the paper's lepton-pair acoplanarity window 0.687→1.374 (`aco`: log on [0.687, π], from the binned NLO distribution; the optional tower imposes 4 of its 8 orders); an earlier acoplanarity window 0.05→0.2 (`pimdphi`: log, 4 of 12 orders); both jet windows and the joint block with three other matching windows |
 
 How the tables are stored:
@@ -184,22 +184,23 @@ How the tables are stored:
   factor): the moments as the ratio of summed accumulators, the window rates as the mean of
   the per-run rates (the convention of the authors' solves; `provenance.conventions` in each
   table says so).
-- `moments/<name>_winvar.json` (with its CSV) holds the recoil tower booked with three other
-  matching windows, rising over about [⅔ v_m, ⁴⁄₃ v_m] (A), [⁴⁄₃ v_m, ⁸⁄₃ v_m] (B) and
-  [v_m, 4 v_m] (C). For Z+jet both jet windows and their joint block move.
-  `load_moments(p, window="A")` returns the main table with the recoil tower replaced by that
-  window: the inputs of a matching uncertainty. The `ggh` and `aa` variants A, B, C have their
-  own per-run file. The others are booked at the central scale only.
+- The matching uncertainty moves the transition region of the recoil tower down to about
+  [⅔ v_m, ⁴⁄₃ v_m] and up to about [⁴⁄₃ v_m, ⁸⁄₃ v_m], where the expansion parameter of the
+  matching-scale rule is about 0.4 and 0.1: its threshold 0.2 varied by a factor of two.
+  `load_moments(p, window="down")` and `window="up"` return the main table with the recoil
+  tower booked with that window (for Z+jet both jet towers and their joint block).
+  `moments/<name>_winvar.json` holds these towers. The Higgs and diphoton ones carry per-run
+  values; the others are booked at the central scale only.
 - The Higgs transition region starts at 54 GeV, the matching scale with the gluon color factor
-  C_A in place of C_F. `moments/ggh_nnlo_moments_winvar_cc.json` holds the p_T^H tower booked with
-  this window, rising over [54, 108] GeV (D), and with two variants, [72, 144] GeV (E) and
-  [54, 216] GeV (F), at all seven scales with per-run values. `load_moments("ggh")` imposes D on
-  its own acting range [54, 1000] GeV. `window="N37"` returns the main table's 37→74 GeV window,
-  the letter's, and A, B, C move that window.
+  C_A in place of C_F. `moments/ggh_nnlo_moments_winvar_cc.json` holds the p_T^H tower booked
+  with this window, rising over [54, 108] GeV, and with the upper window, [72, 144] GeV, at all
+  seven scales with per-run values. `load_moments("ggh")` imposes the 54 GeV window on its own
+  acting range [54, 1000] GeV. `window="down"` returns the main table's 37→74 GeV window, the
+  letter's.
 - For `wp`, `wm` and `ggh`, `moments/<name>_pdf.json` holds the moments of the CT18NNLO
   members 0–58. `load_moments(p, pdf_member=k)` adds the difference between member k and
   member 0 to the central moments: the inputs of the PDF band. For `ggh` the members of the
-  default 54 GeV window are in `ggh_nnlo_moments_pdf_cc.json`, and `window="N37"` with
+  default 54 GeV window are in `ggh_nnlo_moments_pdf_cc.json`, and `window="down"` with
   `pdf_member=k` uses those of the 37 GeV window.
 
 `load_moments` returns each logarithmically mapped window tower on its **acting range**, from
@@ -211,8 +212,8 @@ and the package pools them from the per-run accumulators. `qt_basis="booked"` re
 moments as booked.
 
 `load_moments` checks each recoil window against the matching-scale rule at the table's hard
-scale Q and **prints a warning** on a disagreement (not for the window variants, which move the
-window on purpose). The window is compiled into the fixed-order run, so the code cannot change
+scale Q and **prints a warning** on a disagreement (not for the moved windows of the matching
+uncertainty, which move the window on purpose). The window is compiled into the fixed-order run, so the code cannot change
 it.
 
 **The map and the window are part of the target.** Declaring a different map from the one
@@ -297,7 +298,7 @@ config = {
 |---|---|---|
 | `moment_selection` | `True` | impose each tower up to its highest order with SNR_n > `snr_threshold`; `False` imposes every supplied order |
 | `snr_threshold` | `1.0` | the resolution threshold |
-| `fixed_orders` | `None` | `{obs: N}`: impose exactly N orders of a tower; holds band variants to the central constraint set |
+| `fixed_orders` | `None` | `{obs: N}`: impose exactly N orders of a tower; holds the re-solves of a band to the central constraint set |
 | `L2` | `1e-4` | ridge on the dual (numerical stabilizer) |
 | `lam0` | `None` | warm start from a previous `result.report["lam"]` |
 | `keep_features` | `False` | also return the feature matrix `Phi` and prior `p` in `result.report` |
@@ -332,29 +333,30 @@ The uncertainty bands are loops over the same call. They are implemented in
    The per-bin envelope is the band.
 2. **Target statistics:** re-solve once per bootstrap replica of the independent fixed-order
    runs, `load_moments(process, runs=rng.integers(0, n_runs, n_runs))`.
-3. **Matching:** re-solve once per window variant, `load_moments(process, window=V)` for
-   V = A, B, C (and D for the Higgs boson). The envelope of the nominal solve and the variants
-   is the matching uncertainty.
+3. **Matching:** re-solve with the transition region moved down and up,
+   `load_moments(process, window="down")` and `window="up"`, the threshold of the matching-scale
+   rule varied by a factor of two. Their envelope around the nominal solve is the matching
+   uncertainty.
 4. **PDF** (W± and the Higgs boson): re-solve once per CT18NNLO member,
    `load_moments(process, pdf_member=k)` for k = 1..58. `released.hessian_band` turns the 59
    results (member 0 is the central solve) into the 68% CL band.
 5. **Sample statistics:** the usual per-bin error of the weighted events, Σ q_i².
 
-The error bar combines 2 and 5 in quadrature. Every variant uses:
+The error bar combines 2 and 5 in quadrature. Every re-solve uses:
 - `fixed_orders` = the central solve's `report["moment_selection"]["chosen"]`, so that it
   imposes the same constraint set;
-- `lam0` = the central `report["lam"]`, except the window variants, whose polynomials can
+- `lam0` = the central `report["lam"]`, except with a moved window, whose polynomials can
   differ from the central solve's.
 
-The paper evaluates the matching band up to 4 v_m, where the widest window variant's transition
-region ends. Above it every variant's target is fixed order alone, and the variants differ only
-by the Monte Carlo noise of their input runs, which are smaller than the main one.
+Above the upper window's transition region, at about ⁸⁄₃ v_m, every target is fixed order
+alone, and the moved windows differ from the nominal one only by the Monte Carlo noise of their
+input runs, which are smaller than the main one.
 
 The released tables reproduce the authors' stored weights: the central solves to 2 × 10⁻¹¹ or better,
-the window variants of the Higgs and diphoton tables bit for bit, and the scale and bootstrap
+the moved Higgs and diphoton windows bit for bit, and the scale and bootstrap
 re-solves, whose targets are identical to the authors', to between 10⁻¹³ and 1.5 × 10⁻⁶: the
 larger differences are the solver's own stopping tolerance. On the paper's priors the central,
-window-variant and CT18NNLO-member solves reproduce the stored weights to round-off
+moved-window and CT18NNLO-member solves reproduce the stored weights to round-off
 ([`REPRODUCE.md`](REPRODUCE.md)).
 
 ## Moments from your own fixed-order code
@@ -362,8 +364,8 @@ window-variant and CT18NNLO-member solves reproduce the stored weights to round-
 - [`MOMENT_CONSTRUCTION.md`](MOMENT_CONSTRUCTION.md): the recipe (maps, window, errors, how
   many orders, which calculation each tower comes from).
 - [`nnlojet_patch/`](nnlojet_patch/): the patches that make NNLOJET v1.0.2 accumulate
-  event-level moments as single-number profile histograms, and the two that add the window
-  variants.
+  event-level moments as single-number profile histograms, and those that add the moved
+  windows.
 - [`runcards/`](runcards/): the NNLOJET run cards of every production behind a table.
 - [`export_moments.py`](export_moments.py): pools the runs into the tables
   (`NNLOJET_ROOT=<dir> python export_moments.py dy`).
@@ -378,7 +380,7 @@ window-variant and CT18NNLO-member solves reproduce the stored weights to round-
 | window w(v), rising v_m → 2 v_m, cut at c | `config["recoil"][obs]["profile"] = {"a", "b", "c"[, "d"]}`; `profile_w` |
 | window rate r = ⟨w⟩ | `rate`, `window_rate` |
 | blended target (the default) / windowed form | `config["recoil"][obs]["transition"]` = `"blend"` / `"windowed"` |
-| matching-window variants (the paper's transition-region variants) | `load_moments(process, window="A")`, `"B"`, `"C"`; for `"ggh"` also `"N37"`, `"E"`, `"F"` |
+| transition region moved down and up (the matching uncertainty) | `load_moments(process, window="down")`, `"up"`; `released.windows` |
 | CT18NNLO member k; the PDF band | `load_moments(process, pdf_member=k)`; `released.hessian_band` |
 | follower (never constrained) | any array in `events` not named in `config` |
 | upgraded sample (MaxEnt in figures) | `result.weights` |

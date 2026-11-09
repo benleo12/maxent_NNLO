@@ -8,18 +8,19 @@ Loops over the same call (README, "Uncertainty bands"):
                (load_moments(process, scale=k));
   * target statistics: one re-solve per bootstrap replica of the independent fixed-order
                runs (load_moments(process, runs=resample));
-  * matching: one re-solve per window variant A, B, C (and D for "ggh") of the recoil
-               tower (load_moments(process, window=V)); the envelope of the nominal solve and
-               the variants is the matching uncertainty;
+  * matching: one re-solve with the transition region moved down and one with it moved up
+               (load_moments(process, window="down"), window="up"), the threshold of the
+               transition criterion varied by a factor of two; their envelope around the nominal
+               solve is the matching uncertainty;
   * PDF ("wp", "wm" and "ggh" only): one re-solve per CT18NNLO member k = 1..58
                (load_moments(process, pdf_member=k)); released.hessian_band of any histogram
                of the 59 weight sets (member 0 = central) is the 68% CL band;
   * sample statistics: the usual per-bin error of the weighted events, sum of q_i^2.
-Every variant imposes the central solve's constraint set (fixed_orders) and starts from its
-multipliers (lam0).  The output holds the central weights, the six scale variants, the
-bootstrap replicas and, where released, the window variants and the PDF members; the
-per-bin envelope of the scale variants is the band, the bootstrap spread (+) the sample's own
-error the error bar.
+Every re-solve imposes the central solve's constraint set (fixed_orders) and starts from its
+multipliers (lam0), except the moved windows, which start cold.  The output holds the central
+weights, the six scale re-solves, the bootstrap replicas and, where released, the two moved
+windows and the PDF members; the per-bin envelope of the scale re-solves is the band, the
+bootstrap spread (+) the sample's own error the error bar.
 """
 import os
 import sys
@@ -59,14 +60,12 @@ def main():
           f"{100*min(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}-{100*max(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}%")
 
     window_w = {}
-    for V in released.windows(process):
-        if V == "nominal":
-            continue
-        m_v, c_v = load_moments(process, window=V)
-        # the variant's polynomials can differ from the central solve's: hold its degrees, not its multipliers
+    for w in ("down", "up") if released.windows(process) else ():
+        m_v, c_v = load_moments(process, window=w)
+        # a moved window's polynomials can differ from the central solve's: hold its degrees, not its multipliers
         r = upgrade(events, m_v, {**c_v, "fixed_orders": frozen["fixed_orders"]})
-        window_w[f"window_{V}"] = r.weights
-        print(f"  window {V} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
+        window_w[f"window_{w}"] = r.weights
+        print(f"  window {w} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
 
     pdf = {}
     if released.pdf_table(process) is not None:

@@ -50,10 +50,11 @@ def test_exact_combination():
         mb, _ = load_moments(p, check_seam=False, qt_basis="booked")
         m, _ = load_moments(p, check_seam=False)
         for o in exp:
-            if p in released.NOMINAL_WINDOW:            # the nominal tower lives in a window table (Higgs: 54 GeV)
-                d = released.window_table(p)["windows"][released.NOMINAL_WINDOW[p]]
+            g = released._window(p, "nominal") if p in released.WINDOWS else None
+            if g:                                       # the nominal tower lives in a window table (Higgs: 54 GeV)
+                d, src = g[0][o] if o in g[0] else next(iter(g[0].values())), g[3]
             else:
-                d = next(x for x in t["towers"].values() if x.get("observable") == o and x["kind"] == "window")
+                d, src = next(x for x in t["towers"].values() if x.get("observable") == o and x["kind"] == "window"), p
             lo, hi = float(d["soft_lo"]), float(d["range"][1]); L, U = released.acting_range(d)
             xm, xc = released._log_u(L, lo, hi), released._log_u(U, lo, hi)
             al = 2 / (xc - xm); N = len(mb["recoil"][o]["window_values"])
@@ -65,7 +66,7 @@ def test_exact_combination():
                                    np.polynomial.chebyshev.chebval(al * x - 1 - al * xm, [0] * n + [1]),
                                    rtol=1e-9, atol=1e-9 * np.abs(A[n]).max())
             v = np.asarray(m["recoil"][o]["window_values"]); err = np.asarray(m["recoil"][o]["stat_errors"])
-            acc, st, sc = released._range_accumulators(d.get("_src", released.PROCESSES[p]), d, N, A, 0, None)
+            acc, st, sc = released._range_accumulators(src, d, N, A, 0, None)
             assert np.allclose(st, err) and np.allclose(sc, m["recoil"][o]["scale_errors"])
             worst = max(worst, float(np.max(np.abs(v - acc) / err)))
     assert worst < 0.01, worst                       # rounding far below the Monte Carlo errors

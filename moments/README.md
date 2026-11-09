@@ -24,15 +24,15 @@ print(result.describe())
 
 Complete scripts:
 - `examples/upgrade_with_released_moments.py` (the upgrade);
-- `examples/bands_with_released_moments.py` (the scale, bootstrap, window and PDF variants).
+- `examples/bands_with_released_moments.py` (the scale, bootstrap, matching and PDF bands).
 
 | table | process | order | runs | default towers | also in the table |
 | --- | --- | --- | --- | --- | --- |
-| `dy_nnlo_moments` | pp → Z/γ* → ℓ⁺ℓ⁻, 13 TeV, ATLAS fiducial | NNLO | 298 | `mll` (BW, 12), `y_abs` (lin, 12, of which the SNR rule imposes 11 on the paper's prior), `pT_ll` window 30→60 GeV, cut 500 (log, 20) | `abs_costh` (\|cos θ*\|, lin [0, 1], 6), joint `mll_x_abs_costh` (16), lepton-pT reference towers `pT_l1` (log [27, 200], 6) and `pT_l2` (log [27, 150], 6); window variants of `pT_ll` (`dy_nnlo_moments_winvar`) |
-| `w_nnlo_moments_WP`, `_WM` | pp → W± → ℓν, 7 TeV, ATLAS fiducial | NNLO | 40 per charge | `m_w` (BW, 12), `y_abs` (lin, 12), `pt_w` window 25→50 GeV, cut 500 (log, 20) | decay-angle window `ctw_window` (flat for \|cos θ*\| < 0.6, zero beyond 0.7; lin, 6), optional; full-range `ctw_full` (8); joint `pt_w_x_ctw` (16); window variants of `pt_w` (`w_nnlo_moments_W{P,M}_winvar`); CT18NNLO members (`w_nnlo_moments_W{P,M}_pdf`) |
-| `aa_nnlo_moments` | pp → γγ, 8 TeV, ATLAS fiducial | NNLO | 40 | `m_aa` (log, 6), `abs_costh_aa` (\|cos θ*\|, lin [0, 1], 6), `pt_aa` window 28→56 GeV, cut 500 (log, 12) | window variants of `pt_aa` (`aa_nnlo_moments_winvar`) |
-| `ggh_nnlo_moments` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO | 40 | `y_abs` (lin, 6), `pT_H` window 37→74 GeV, cut 1000 (log, 12); the default `pT_H` tower is the 54→108 GeV window of `ggh_nnlo_moments_winvar_cc` | window variants of `pT_H` (`ggh_nnlo_moments_winvar`, `ggh_nnlo_moments_winvar_cc`); CT18NNLO members (`ggh_nnlo_moments_pdf`, `ggh_nnlo_moments_pdf_cc`) |
-| `zj_nlo_moments` | pp → Z(→ℓ⁺ℓ⁻) + jet, 13 TeV, ATLAS fiducial, ≥ 1 jet | NLO | 40 | `mll` (BW, 6), `y_abs` (lin, 6), `ptj1` (12) and `ptj2` (6) windows 30→60 GeV, cut 1000, joint `ptj1_x_ptj2` (16), all windowed | `ptj2` to 8 orders; the paper's acoplanarity tower `aco`, window 0.687→1.374 (log [0.687, π], 8; the optional tower imposes 4); the earlier `pimdphi` window 0.05→0.2 (log, 12; the optional tower imposes 4); window variants of both jets (`zj_nlo_moments_winvar`) |
+| `dy_nnlo_moments` | pp → Z/γ* → ℓ⁺ℓ⁻, 13 TeV, ATLAS fiducial | NNLO | 298 | `mll` (BW, 12), `y_abs` (lin, 12, of which the SNR rule imposes 11 on the paper's prior), `pT_ll` window 30→60 GeV, cut 500 (log, 20) | `abs_costh` (\|cos θ*\|, lin [0, 1], 6), joint `mll_x_abs_costh` (16), lepton-pT reference towers `pT_l1` (log [27, 200], 6) and `pT_l2` (log [27, 150], 6); the moved `pT_ll` windows (`dy_nnlo_moments_winvar`) |
+| `w_nnlo_moments_WP`, `_WM` | pp → W± → ℓν, 7 TeV, ATLAS fiducial | NNLO | 40 per charge | `m_w` (BW, 12), `y_abs` (lin, 12), `pt_w` window 25→50 GeV, cut 500 (log, 20) | decay-angle window `ctw_window` (flat for \|cos θ*\| < 0.6, zero beyond 0.7; lin, 6), optional; full-range `ctw_full` (8); joint `pt_w_x_ctw` (16); the moved `pt_w` windows (`w_nnlo_moments_W{P,M}_winvar`); CT18NNLO members (`w_nnlo_moments_W{P,M}_pdf`) |
+| `aa_nnlo_moments` | pp → γγ, 8 TeV, ATLAS fiducial | NNLO | 40 | `m_aa` (log, 6), `abs_costh_aa` (\|cos θ*\|, lin [0, 1], 6), `pt_aa` window 28→56 GeV, cut 500 (log, 12) | the moved `pt_aa` windows (`aa_nnlo_moments_winvar`) |
+| `ggh_nnlo_moments` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO | 40 | `y_abs` (lin, 6), `pT_H` window 37→74 GeV, cut 1000 (log, 12); the default `pT_H` tower is the 54→108 GeV window of `ggh_nnlo_moments_winvar_cc` | the moved `pT_H` windows (`ggh_nnlo_moments_winvar_cc`; earlier ones in `ggh_nnlo_moments_winvar`); CT18NNLO members (`ggh_nnlo_moments_pdf`, `ggh_nnlo_moments_pdf_cc`) |
+| `zj_nlo_moments` | pp → Z(→ℓ⁺ℓ⁻) + jet, 13 TeV, ATLAS fiducial, ≥ 1 jet | NLO | 40 | `mll` (BW, 6), `y_abs` (lin, 6), `ptj1` (12) and `ptj2` (6) windows 30→60 GeV, cut 1000, joint `ptj1_x_ptj2` (16), all windowed | `ptj2` to 8 orders; the paper's acoplanarity tower `aco`, window 0.687→1.374 (log [0.687, π], 8; the optional tower imposes 4); the earlier `pimdphi` window 0.05→0.2 (log, 12; the optional tower imposes 4); the moved windows of both jets (`zj_nlo_moments_winvar`) |
 
 The default depths and transitions are part of each table
 (`default_constraints.max_orders` and `.transition`), so `load_moments(process)` returns
@@ -52,62 +52,67 @@ configuration behind the authors' Z+jet solves. On their earlier prior these kee
 the jet towers, 35.9% with the joint moments and 35.3% with the `pimdphi` tower added. On the
 paper's prior they keep 92.4% with the joint moments and 86.4% with the `aco` tower added.
 
-## Matching-window variants
+## Matching windows
 
-Every recoil tower is also released with other matching windows, the inputs of a matching
-uncertainty (the paper's transition-region variants):
+The matching uncertainty moves the transition region of every recoil tower down to about
+[⅔ v_m, ⁴⁄₃ v_m] and up to about [⁴⁄₃ v_m, ⁸⁄₃ v_m], where the expansion parameter of the
+matching-scale rule is about 0.4 and 0.1: its threshold 0.2 varied by a factor of two.
 
-| table | nominal (a, b) | `window="A"` | `"B"` | `"C"` | upper edge |
+| recoil tower | nominal (a, b) | `window="down"` | `window="up"` | upper edge | moved windows: table (key) |
 |---|---|---|---|---|---|
-| `dy_nnlo_moments_winvar` (`pT_ll`) | (30, 60) | (20, 40) | (40, 80) | (30, 120) | cut at 500 GeV |
-| `w_nnlo_moments_WP_winvar`, `_WM_winvar` (`pt_w`) | (25, 50) | (17, 34) | (33, 66) | (25, 100) | cut at 500 GeV |
-| `ggh_nnlo_moments_winvar` (`pT_H`) | (37, 74) | (25, 50) | (50, 100) | (37, 148) | cut at 1000 GeV |
-| `aa_nnlo_moments_winvar` (`pt_aa`) | (28, 56) | (19, 38) | (37, 74) | (28, 112) | cut at 500 GeV |
-| `zj_nlo_moments_winvar` (`ptj1`, `ptj2`, `ptj1_x_ptj2`) | (30, 60) | (20, 40) | (40, 80) | (30, 120) | cut at 1000 GeV |
+| Drell-Yan `pT_ll` | (30, 60) | (20, 40) | (40, 80) | cut at 500 GeV | `dy_nnlo_moments_winvar` (A, B) |
+| W± `pt_w` | (25, 50) | (17, 34) | (33, 66) | cut at 500 GeV | `w_nnlo_moments_W{P,M}_winvar` (A, B) |
+| Higgs `pT_H` | (54, 108) | (37, 74) | (72, 144) | cut at 1000 GeV | `ggh_nnlo_moments_winvar_cc` (nominal D, up E); down is the main table's |
+| diphoton `pt_aa` | (28, 56) | (19, 38) | (37, 74) | cut at 500 GeV | `aa_nnlo_moments_winvar` (A, B) |
+| Z+jet `ptj1`, `ptj2`, `ptj1_x_ptj2` | (30, 60) | (20, 40) | (40, 80) | cut at 1000 GeV | `zj_nlo_moments_winvar` (A, B) |
 
-The Higgs nominal window is the color-corrected one, D = (54, 108) GeV, from the matching scale
-with the color factor C_A in place of C_F. `ggh_nnlo_moments_winvar_cc` books it with two
-variants, `window="E"` (72, 144) and `"F"` (54, 216), cut at 1000 GeV. `load_moments("ggh")`
-imposes D on its own acting range [54, 1000] GeV. `window="N37"` returns the main table's
-(37, 74) window, the letter's, and A, B, C above move that window.
+The Higgs window starts at the color-corrected matching scale, 54 GeV, with the color factor C_A
+in place of C_F. `load_moments("ggh")` imposes it on its own acting range [54, 1000] GeV. Its
+lower window is the main table's (37, 74), the letter's window.
 
-`load_moments(process, window=V)` returns the main table with the recoil tower replaced by
-variant V: its moments, its rate and its `profile`, which the solver uses (do not change it).
-For Z+jet both jet towers and their joint block move together. Every other tower is the main
-table's, and the seam check is skipped for the variant. `released.windows(process)` lists the
-windows.
+The window tables also hold windows the package no longer uses: the doubled width (v_m, 4 v_m)
+(key C), the earlier Higgs windows around 37 GeV in `ggh_nnlo_moments_winvar`, an earlier
+central-scale booking of (54, 108) there (key D) and the (54, 216) window of
+`ggh_nnlo_moments_winvar_cc` (key F). They stay for the record.
 
-The Drell-Yan and W variants A start below the lower end of their log map (30 and 25 GeV).
+`load_moments(process, window="down")` (or `"up"`) returns the main table with the recoil tower
+replaced by the moved one: its moments, its rate and its `profile`, which the solver uses (do
+not change it). For Z+jet both jet towers and their joint block move together. Every other tower
+is the main table's, and the seam check is skipped for the moved window.
+`released.windows(process)` gives the three profiles.
+
+The Drell-Yan and W lower windows start below the lower end of their log map (30 and 25 GeV).
 There the booked measurement function is w(v) T_n(−1), since u is clipped to [−1, 1]. The
 package evaluates the prior's events the same way, so nothing changes in the call.
 
-**The Higgs and diphoton variants A, B, C** come from dedicated NNLOJET runs (channels R, RV
-and RR, seeds 101–140, `runcards/ggh_winvar.run` and `gg_winvar.run`), which also book the
-nominal window: it reproduces the main table, with a worst pull of 2.1 (Higgs) and 0.7
-(diphoton) over the twelve orders and window rates of 0.21659 against 0.21661 (Higgs) and
-0.28041 against 0.28070 (diphoton), well within their errors (field `validation`). All four
-rates are ratios of run means, not the main tables' mean of per-run rates. Their window rate
+**The diphoton windows and the earlier Higgs windows around 37 GeV** come from dedicated NNLOJET
+runs (channels R, RV and RR, seeds 101–140, `runcards/gg_winvar.run` and `ggh_winvar.run`), which
+also book the nominal window: it reproduces the main table, with a worst pull of 2.1 (Higgs) and
+0.7 (diphoton) over the twelve orders and window rates of 0.21659 against 0.21661 (Higgs) and
+0.28041 against 0.28070 (diphoton), well within their errors (field `validation`). Their rates
+are ratios of run means, not the main tables' mean of per-run rates. Their window rate
 is W0_V / σ_fid, with σ_fid from the six channels of the main run. They carry per-run
 accumulators at all seven scales.
 
-**The Higgs windows D, E, F** come from runs like those of A, B, C (channels R, RV and RR, seeds
-101–140, the same phase-space points, `runcards/ggh_winvar_cc.run` with the patches
-`nnlojet_patch/winvar_cc_*.f90.patch`), with per-run accumulators at all seven scales. They also
-book the 37 GeV window, which reproduces the main table with a worst pull of 2.07 over the twelve
-orders. Window D reproduces the earlier central-scale release of D with pulls of at most 2.2.
+**The Higgs windows from 54 GeV** (`ggh_nnlo_moments_winvar_cc`) come from runs like those
+(channels R, RV and RR, seeds 101–140, the same phase-space points, `runcards/ggh_winvar_cc.run`
+with the patches `nnlojet_patch/winvar_cc_*.f90.patch`), with per-run accumulators at all seven
+scales. They also book the 37 GeV window, which reproduces the main table with a worst pull of
+2.07 over the twelve orders. The nominal (54, 108) window reproduces its earlier central-scale
+booking with pulls of at most 2.2.
 Their CT18NNLO members (`ggh_nnlo_moments_pdf_cc`) come from the member runs below, with
 channels R, RV and RR and the same phase-space points. Member 0 reproduces the main table with
 worst pulls of 1.9 (`y_abs`) and 1.0 (`pT_H`).
 
-**The other variants** (Drell-Yan, W±, Z+jet and the earlier Higgs D) come from runs at the central
-scale only, with the channels whose windowed moments are nonzero (R, RV and RR; LO, V and R for
-Z+jet). Each run books the nominal and the variant windows on the same phase-space points. A
-variant enters by the difference method:
+**The other moved windows** (Drell-Yan, W±, Z+jet) come from runs at the central scale only,
+with the channels whose windowed moments are nonzero (R, RV and RR; LO, V and R for Z+jet). Each
+run books the nominal and the moved windows on the same phase-space points. A moved window V
+enters by the difference method:
 - ⟨T_n⟩_V = ⟨T_n⟩_nominal of the main table + (⟨T_n⟩_V − ⟨T_n⟩_nominal) of these runs;
 - R_V = R_nominal of the main table + (ΣW0_V − ΣW0_nominal) of these runs / (n_runs σ_fid).
 
 Its Monte Carlo error is the run jackknife of the difference, added in quadrature to the main
-table's. Its scale errors are the main table's. These variants do not combine with `scale=` or
+table's. Its scale errors are the main table's. These windows do not combine with `scale=` or
 `runs=`. The nominal window of the new runs reproduces the main table within statistics (field
 `validation`): worst pulls 1.93 (Drell-Yan), 1.97 and 1.23 (W+, W−), 0.76 and 1.04 (the two
 jets) and 1.82 (Higgs). Each table's `provenance` names the runs.
@@ -234,12 +239,11 @@ Window towers add:
   `examples/upgrade_with_released_moments.py` uses it to set the absolute rate of the upgraded
   sample.
 
-**A window-variant table** (`*_winvar.json`) carries `variant_of`, `replaces_tower`, its
-`provenance` (with the main run that supplies σ_fid) and `windows[V]` for V = A, B, C (and D
-for the Higgs boson), each shaped like a window tower. For Z+jet it carries `replaces_towers`
-and `replaces_joint`, and each `windows[V]` holds a `profile`, the `towers` and the `joint`
-block. A variant without `numerator_tags` is central-scale only. The Higgs D carries its own
-`provenance`.
+**A window table** (`*_winvar.json`, `*_winvar_cc.json`) carries `variant_of`,
+`replaces_tower`, its `provenance` (with the main run that supplies σ_fid) and `windows[V]` for
+each booked window V, each shaped like a window tower. For Z+jet it carries `replaces_towers` and
+`replaces_joint`, and each `windows[V]` holds a `profile`, the `towers` and the `joint` block. A
+window without `numerator_tags` is central-scale only.
 
 **A CT18NNLO member table** (`*_pdf.json`) carries `variant_of`, `n_members`, its
 `provenance` and `towers[key]`, with `values[k]` per member k (and `window_rate[k]` for a
@@ -247,7 +251,7 @@ window tower), and `sigma_fid_ratio[k]`.
 
 **`<table>_runs.json.gz`** holds `{runs, scales, channels, tags, acc[run][tag][scale]}`: every
 accumulator above, summed over the perturbative channels of each independent run, at all seven
-scales, at full double precision. A window-variant file adds `reference`, the main run's
+scales, at full double precision. A window-table file adds `reference`, the main run's
 `norm_born` per run.
 - Pooling all runs reproduces every released value, error and rate, to 10⁻⁸
   (`tests/test_released.py`). `sigma_fid_pb` is 2.002 × 10⁻³ times the run mean of
@@ -272,9 +276,9 @@ The moments are:
 
 Both are pooled over the independent runs as the ratio of summed numerators to summed
 denominators. Each window rate is the mean over the runs of the per-run rate ⟨w⟩/σ_fid, the
-convention of the authors' solves. The rate of a Higgs or diphoton variant A, B, C is the
-ratio of its two run means (W0_V over the variant runs, σ_fid over the main runs). The other
-variants add a difference to the main table's rate. Every table states its conventions in
+convention of the authors' solves. The rate of a moved Higgs or diphoton window is the ratio of
+its two run means (W0_V over its own runs, σ_fid over the main runs). The other moved windows add
+a difference to the main table's rate. Every table states its conventions in
 `provenance.conventions`.
 
 ## Caveats
@@ -303,7 +307,7 @@ variants add a difference to the main table's rate. Every table states its conve
   ([`../REPRODUCE.md`](../REPRODUCE.md)). Pooling the rate as a ratio of sums, like the
   moments, would differ by at most 0.05 statistical standard deviations, except for diphoton
   (0.34), and would move the merged diphoton prior's retained fraction from 94.87% to 94.85%.
-  A window variant's rate is the ratio of two run means (variant runs, main runs) either way.
+  The rate of a moved window is the ratio of two run means (its own runs, the main runs) either way.
 
 All tables were produced by `export_moments.py` from the NNLOJET productions whose run cards
 are in `../runcards/`. What they reproduce on the authors' priors is listed in

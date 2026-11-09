@@ -70,12 +70,14 @@ products ⟨w_x w_y T_m(u(x)) T_n(u(y))⟩/⟨w_x w_y⟩ for m, n = 1 … 4 and 
 ⟨w_x w_y⟩/⟨1⟩, with w = 1 for an observable that has no window. They are imposed in the
 windowed form, and every recoil tower they couple must be windowed too.
 
-**Matching uncertainty.** To estimate it, book the same windowed moments and rate with a few
-other windows, for instance rising over [⅔ v_m, ⁴⁄₃ v_m], [⁴⁄₃ v_m, ⁸⁄₃ v_m] and [v_m, 4 v_m],
-and re-solve with each (`load_moments(process, window=V)` for the released variants).
+**Matching uncertainty.** The threshold 0.2 of the rule is a choice. Varying it by a factor of
+two moves the transition region down to about [⅔ v_m, ⁴⁄₃ v_m] (expansion parameter about 0.4)
+and up to about [⁴⁄₃ v_m, ⁸⁄₃ v_m] (about 0.1). To estimate the uncertainty, book the same
+windowed moments and rate with these two windows and re-solve with each
+(`load_moments(process, window="down")` and `window="up"` for the released tables).
 Dedicated runs need only the channels with a nonzero recoil and can reuse the main run's Vegas
 grids; their rate then needs σ_fid from all channels of the main run. If they also book the
-nominal window, a variant can enter as its difference to the nominal one, added to the main
+nominal window, a moved window can enter as its difference to the nominal one, added to the main
 run's moments; the difference needs far fewer points than the moments themselves. A window may
 start below the lower end of the map: u is clipped to [−1, 1] there, in the fixed-order code
 and in the package alike.

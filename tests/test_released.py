@@ -104,69 +104,65 @@ def test_runs_reproduce_tables():
             a, _ = load_moments(p, **kw, qt_basis="booked")
             b, _ = load_moments(p, scale=0, runs=list(range(n)), **kw, qt_basis="booked")
             worst = _compare(a, b, worst)
-        for V in _pooled_windows(p):
-            a, _ = load_moments(p, window=V, check_seam=False, qt_basis="booked")
-            b, _ = load_moments(p, window=V, scale=0, runs=list(range(n)), check_seam=False, qt_basis="booked")
+        for w in _pooled_windows(p):
+            a, _ = load_moments(p, window=w, check_seam=False, qt_basis="booked")
+            b, _ = load_moments(p, window=w, scale=0, runs=list(range(n)), check_seam=False, qt_basis="booked")
             worst = _compare(a, b, worst)
     assert worst < 1e-8, worst
 
 
 def _pooled_windows(p):
-    """the window variants released with per-run accumulators (the others are central-scale only)"""
-    wt = released.window_table(p)
-    return [V for V, W in (wt or {}).get("windows", {}).items()
-            if all("numerator_tags" in d for d in (W["towers"].values() if "towers" in W else [W]))]
+    """the windows booked outside the main table with per-run accumulators (the others are central-scale only)"""
+    out = []
+    for w in released.WINDOWS.get(p, {}):
+        g = released._window(p, w)
+        if g and all("numerator_tags" in d for d in g[0].values()):
+            out.append(w)
+    return out
 
 
-def test_window_variants():
-    for p, towers, Vs in (("ggh", ["pT_H"], "ABCEF"), ("aa", ["pt_aa"], "ABC"), ("dy", ["pT_ll"], "ABC"),
-                          ("wp", ["pt_w"], "ABC"), ("wm", ["pt_w"], "ABC"), ("zj", ["ptj1", "ptj2"], "ABC")):
+def test_matching_windows():
+    for p, towers in (("ggh", ["pT_H"]), ("aa", ["pt_aa"]), ("dy", ["pT_ll"]), ("wp", ["pt_w"]), ("wm", ["pt_w"]),
+                      ("zj", ["ptj1", "ptj2"])):
         nominal, cn = load_moments(p, check_seam=False, qt_basis="booked")
         wins = released.windows(p)
-        extra = [released.MAIN_AS_VARIANT[p]] if p in released.MAIN_AS_VARIANT else []
-        assert sorted(wins) == sorted(list(Vs) + extra) + ["nominal"], (p, sorted(wins))
+        assert list(wins) == ["nominal", "down", "up"], (p, list(wins))
         assert wins["nominal"] == cn["recoil"][towers[0]]["profile"]
-        wt = released.window_table(p)
-        for V in Vs:
+        assert wins["down"]["a"] < wins["nominal"]["a"] < wins["up"]["a"]
+        for w in ("down", "up"):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
-                m, c = load_moments(p, window=V, qt_basis="booked")                    # the seam check stays quiet
+                m, c = load_moments(p, window=w, qt_basis="booked")                    # the seam check stays quiet
             assert out.getvalue() == "", out.getvalue()
-            W = wt["windows"][V]
+            g = released._window(p, w)
             for tower in towers:
                 prof = c["recoil"][tower]["profile"]
-                assert prof == wins[V] and m["recoil"][tower]["x_match"] == prof["a"]
-                d = W["towers"][tower] if "towers" in W else W
+                assert prof == wins[w] and m["recoil"][tower]["x_match"] == prof["a"]
+                d = g[0][tower] if g else released.table(p)["towers"][tower]
                 assert m["recoil"][tower]["rate"] == d["window_rate"]
                 assert m["recoil"][tower]["window_values"] == d["values"][:len(m["recoil"][tower]["window_values"])]
                 assert m["recoil"][tower]["window_values"] != nominal["recoil"][tower]["window_values"]
-                assert c["recoil"][tower]["range"] == cn["recoil"][tower]["range"]
             assert m["born"] == nominal["born"] and c["born"] == cn["born"]
-            for key, j in W.get("joint", {}).items():                 # Z+jet: the joint block moves too
+            for key, j in (g[1] if g else {}).items():               # Z+jet: the joint block moves too
                 assert m["mixed"][key]["rate"] == j["window_rate"]
                 assert c["mixed"][key]["profile"] == j["profile"]
-                assert {o: pr["a"] for o, pr in j["profile"].items()} == {o: wins[V]["a"] for o in towers}
-            if V not in _pooled_windows(p):
+                assert {o: pr["a"] for o, pr in j["profile"].items()} == {o: wins[w]["a"] for o in towers}
+            if g and w not in _pooled_windows(p):
                 for kw in (dict(scale=1), dict(runs=[0, 1])):
                     try:
-                        load_moments(p, window=V, **kw, qt_basis="booked")
+                        load_moments(p, window=w, **kw, qt_basis="booked")
                     except ValueError as e:
                         assert "central scale only" in str(e), str(e)
                     else:
-                        raise AssertionError(f"{p} window {V} is central-scale only")
+                        raise AssertionError(f"{p} window {w} is central-scale only")
         m, c = load_moments(p, window="nominal", check_seam=False, qt_basis="booked")
         assert m == nominal and c == cn
-        for V in extra:                               # the main table's own window as a variant (Higgs: 37 GeV)
-            m, c = load_moments(p, window=V, check_seam=False, qt_basis="booked")
-            d = released.table(p)["towers"][towers[0]]
-            assert c["recoil"][towers[0]]["profile"] == wins[V] == d["profile"]
-            assert m["recoil"][towers[0]]["window_values"] == d["values"][:len(m["recoil"][towers[0]]["window_values"])]
-    # the Drell-Yan and W variants A start below the lower end of the log map (30 and 25 GeV)
+    # the Drell-Yan and W lower windows start below the lower end of the log map (30 and 25 GeV)
     for p, tower, a in (("dy", "pT_ll", 20.0), ("wp", "pt_w", 17.0), ("wm", "pt_w", 17.0)):
-        _, c = load_moments(p, window="A", qt_basis="booked")
+        _, c = load_moments(p, window="down", qt_basis="booked")
         assert c["recoil"][tower]["profile"]["a"] == a < c["recoil"][tower]["soft_lo"]
-    for bad in (lambda: load_moments("aa", window="D", qt_basis="booked"), lambda: load_moments("dy", window="E", qt_basis="booked"),
-                lambda: load_moments("ggh", recoil=[], window="A", qt_basis="booked")):
+    for bad in (lambda: load_moments("aa", window="C", qt_basis="booked"), lambda: load_moments("ggh", window="D", qt_basis="booked"),
+                lambda: load_moments("ggh", recoil=[], window="up", qt_basis="booked")):
         try:
             bad()
         except (ValueError, KeyError):
@@ -235,7 +231,7 @@ def test_pdf_members():
         if recoil is None and p != "ggh":                         # a tower not imposed is not shifted
             assert "ctw1" not in load_moments(p, pdf_member=3, qt_basis="booked")[0]["recoil"]
     for bad in (lambda: load_moments("dy", pdf_member=1, qt_basis="booked"), lambda: load_moments("wp", pdf_member=59, qt_basis="booked"),
-                lambda: load_moments("wp", pdf_member=1, scale=2, qt_basis="booked"), lambda: load_moments("ggh", pdf_member=1, window="D", qt_basis="booked")):
+                lambda: load_moments("wp", pdf_member=1, scale=2, qt_basis="booked"), lambda: load_moments("ggh", pdf_member=1, window="up", qt_basis="booked")):
         try:
             bad()
         except ValueError:
@@ -259,7 +255,7 @@ def test_acoplanarity_tower():
     assert all(r["transition"] == "windowed" for r in c["recoil"].values())
     assert c["recoil"]["pimdphi"]["profile"] == t["profile"] and "mixed" in c
     assert m["recoil"]["pimdphi"]["rate"] == t["window_rate"]
-    m, c = load_moments("zj", recoil=["ptj1", "ptj2", "aco"], window="B")      # with a jet-window variant
+    m, c = load_moments("zj", recoil=["ptj1", "ptj2", "aco"], window="up")     # with the jet windows moved up
     assert c["recoil"]["pimdphi"]["profile"] == t["profile"] and c["recoil"]["ptj1"]["profile"]["a"] == 40.0
     try:
         load_moments("zj", recoil=["ptj1", "ptj2", "pimdphi", "aco"])
@@ -271,15 +267,15 @@ def test_acoplanarity_tower():
 
 def test_higgs_window_from_color_factor():
     """The nominal Higgs window starts at the color-corrected matching scale (C_A/C_F = 9/4), within 1 GeV,
-    and the main table's 37 GeV window at the color-blind one."""
+    and its lower window (the main table's 37 GeV one) at the color-blind one."""
     from maxent_upgrade import matching_scale
     mH = float(released.table("ggh")["hard_scale_GeV"])
     assert abs(released.windows("ggh")["nominal"]["a"] - matching_scale(mH, color=9 / 4)) < 1.0
-    assert abs(released.windows("ggh")["N37"]["a"] - matching_scale(mH)) < 1.0
+    assert abs(released.windows("ggh")["down"]["a"] - matching_scale(mH)) < 1.0
 
 
 if __name__ == "__main__":
-    for f in (test_tables_load, test_higgs_cross_section, test_runs_reproduce_tables, test_window_variants,
+    for f in (test_tables_load, test_higgs_cross_section, test_runs_reproduce_tables, test_matching_windows,
               test_window_consistency, test_window_below_map, test_pdf_members, test_acoplanarity_tower,
               test_higgs_window_from_color_factor):
         f(); print(f"{f.__name__}: PASS")

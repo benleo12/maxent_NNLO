@@ -4,16 +4,19 @@
 
 - The Higgs transition region starts at 54 GeV, the matching scale with the gluon color factor
   C_A in place of C_F (the paper's criterion α_s (C_i/C_F) ln²(Q/p_T) < 0.2). `load_moments("ggh")`
-  imposes the p_T^H window 54→108 GeV (D) on its acting range [54, 1000] GeV, from new NNLOJET runs
+  imposes the p_T^H window 54→108 GeV on its acting range [54, 1000] GeV, from new NNLOJET runs
   at all seven scales with per-run values (`moments/ggh_nnlo_moments_winvar_cc`, run card
   `runcards/ggh_winvar_cc.run`, patches `nnlojet_patch/winvar_cc_*.f90.patch`). The 37 GeV window
-  booked in the same runs reproduces the main table (worst pull 2.07), and D reproduces its
-  earlier central-scale release (pulls of at most 2.2).
-- Higgs window variants `"N37"` (the main table's 37→74 GeV window, the letter's), `"E"`
-  (72→144 GeV) and `"F"` (54→216 GeV). A, B, C still move the 37 GeV window. The letter's Higgs
-  solve is `load_moments("ggh", window="N37", qt_basis="booked")`.
+  booked in the same runs reproduces the main table (worst pull 2.07), and the 54 GeV window its
+  earlier central-scale booking (pulls of at most 2.2).
+- The matching uncertainty is the threshold 0.2 of the matching-scale rule varied by a factor of
+  two: `load_moments(p, window="down")` and `window="up"` move the transition region to about
+  [⅔ v_m, ⁴⁄₃ v_m] and [⁴⁄₃ v_m, ⁸⁄₃ v_m] for every process (for the Higgs boson 37→74 and
+  72→144 GeV); `released.windows(p)` returns {"nominal", "down", "up"}. The window names A, B, C
+  (and D for the Higgs boson) are gone, and so is the doubled width; their tables stay for the
+  record. The letter's Higgs solve is `load_moments("ggh", window="down", qt_basis="booked")`.
 - CT18NNLO members of the 54 GeV window (`moments/ggh_nnlo_moments_pdf_cc`), used by
-  `load_moments("ggh", pdf_member=k)`. With `window="N37"` the members of the 37 GeV window apply.
+  `load_moments("ggh", pdf_member=k)`. With `window="down"` the members of the 37 GeV window apply.
 - `matching_scale(Q, color=...)` takes the color factor C_i/C_F (default 1): 54.3 GeV for
   Q = m_H with color = 9/4. New test `test_higgs_window_from_color_factor`.
 - `REPRODUCE.md`: the gg → H rows re-solved with the new default.
