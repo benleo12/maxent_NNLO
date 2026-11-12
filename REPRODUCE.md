@@ -30,13 +30,14 @@ recoil, joint, soft-constraint and warm-start solves with the earlier checkout
 `881fa39`. The GitHub CI workflow is configured to run the full tests, this
 comparison and a custom-process example on Python 3.9 and 3.13.
 
-The local check on 12 November passed 21 interface and released-table tests.
-The compatibility comparison passed for 32 arrays using 2,000 synthetic events
-per case, at relative tolerance `1e-12` and absolute tolerance `1e-14`. A fresh
-installation loaded its packaged tables from outside the checkout, and the
-custom-process example produced its diagnostic output and plot. The full suite
-and production-sample re-solves have not been rerun for this reorganization.
-The production results below are the earlier checks described in each row.
+On 12 November, all 38 tests passed on the Mac mini with Python 3.11 and NumPy 2.4.6.
+The compatibility comparison passed for 32 arrays using 12,000 synthetic events
+per case, at relative tolerance `1e-12` and absolute tolerance `1e-14`. Undefined-name
+and formatting checks also passed. A fresh installation loaded its packaged tables
+from outside the checkout, and the custom-process example produced its diagnostic
+output and plot. Production-sample re-solves have not been rerun for this
+reorganization. The production results below are the earlier checks described in
+each row.
 
 ## 1. The tables, from NNLOJET
 
