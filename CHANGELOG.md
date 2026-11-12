@@ -15,7 +15,8 @@
 - Band examples accept added constraints and save the cross sections corresponding
   to scale, statistical and PDF re-solves through `released.cross_section`.
 - CI exercises supported Python versions, numerical compatibility with the previous
-  implementation, command-line use and the complete custom-process example.
+  implementation, command-line use and the complete custom-process example. Its
+  Ubuntu 24.04 image supports both Python 3.9 and 3.13.
 
 ## Unreleased (2026-11-09)
 

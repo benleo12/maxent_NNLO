@@ -28,7 +28,7 @@ The implementation was reorganized on 12 November without changing the moment
 tables or the reweighting equations. `tests/compare_previous.py` compares Born,
 recoil, joint, soft-constraint and warm-start solves with the earlier checkout
 `881fa39`. The GitHub CI workflow is configured to run the full tests, this
-comparison and a custom-process example on Python 3.9 and 3.13.
+comparison and a custom-process example on Python 3.9 and 3.13 using Ubuntu 24.04.
 
 On 12 November, all 38 tests passed on the Mac mini with Python 3.11 and NumPy 2.4.6.
 The compatibility comparison passed for 32 arrays using 12,000 synthetic events
