@@ -20,7 +20,8 @@ BW_M, BW_G = 91.1876, 2.4952
 def cheb(u, N):
     """Chebyshev polynomials T_0..T_N of u (clipped to [-1, 1]); returns shape (len(u), N+1)."""
     u = np.clip(np.asarray(u, float), -1, 1)
-    out = np.zeros((len(u), N + 1)); out[:, 0] = 1.0
+    out = np.zeros((len(u), N + 1))
+    out[:, 0] = 1.0
     if N >= 1:
         out[:, 1] = u
     for n in range(2, N + 1):
@@ -41,7 +42,8 @@ def umap(x, lo, hi, kind):
         t, tl, th = f(np.clip(x, lo, hi)), f(lo), f(hi)
         return 2 * (t - tl) / (th - tl) - 1
     if kind == 'log':
-        lo = max(lo, 1e-6); xx = np.clip(x, lo, hi)
+        lo = max(lo, 1e-6)
+        xx = np.clip(x, lo, hi)
         return 2 * (np.log(xx) - np.log(lo)) / (np.log(hi) - np.log(lo)) - 1
     if kind != 'lin':
         raise ValueError(f"unknown map '{kind}': use 'lin', 'log', 'bw' or ('bw', M, Gamma)")

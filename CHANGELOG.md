@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-11-12
+
+- A shorter quick start, a catalogue covering every paper configuration and prior
+  comparison, and a worked guide to user-defined processes and observables.
+- `maxent-upgrade inspect` shows the actual arrays, selection, maps and windows.
+  `maxent-upgrade reweight` preserves event order and saves cross-section weights,
+  with explicit unit-area and normalization options.
+- A self-contained custom-process example demonstrates separate and joint moments.
+  An optional plotting script works with any stored event observable.
+- The current method is separated into constraints, reweighting, solver and result
+  modules. Existing top-level calls and the older histogram imports remain available.
+- Clearer result summaries and early errors for empty or non-vector event arrays.
+- Band examples accept added constraints and save the cross sections corresponding
+  to scale, statistical and PDF re-solves through `released.cross_section`.
+- CI exercises supported Python versions, numerical compatibility with the previous
+  implementation, command-line use and the complete custom-process example.
+
 ## Unreleased (2026-11-09)
 
 - The Higgs transition region starts at 54 GeV, the matching scale with the gluon color factor

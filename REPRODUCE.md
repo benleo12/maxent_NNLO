@@ -11,6 +11,33 @@ It does not distribute the event samples (the priors) or the NNLOJET output file
 large, nor the scripts that draw the paper's figures. The event samples are available from the
 authors on request.
 
+## Running the examples
+
+The [example catalogue](examples/README.md) lists all five applications, the added
+constraints, prior comparisons and the letter's inputs. `examples/paper_examples.py`
+selects their configurations. The same released moments can be imposed on another
+compatible prior, but the resulting weights and retained statistics will depend on
+that prior.
+
+The command-line output stores replacement event weights in pb. The Python API
+returns normalized weights. For the Higgs plots, explicitly use the paper's
+48.58 pb normalization. The uncertainty example stores normalized weights and the
+corresponding `sigma_*_pb` arrays for absolute predictions.
+
+The implementation was reorganized on 12 November without changing the moment
+tables or the reweighting equations. `tests/compare_previous.py` compares Born,
+recoil, joint, soft-constraint and warm-start solves with the earlier checkout
+`881fa39`. The GitHub CI workflow is configured to run the full tests, this
+comparison and a custom-process example on Python 3.9 and 3.13.
+
+The local check on 12 November passed 21 interface and released-table tests.
+The compatibility comparison passed for 32 arrays using 2,000 synthetic events
+per case, at relative tolerance `1e-12` and absolute tolerance `1e-14`. A fresh
+installation loaded its packaged tables from outside the checkout, and the
+custom-process example produced its diagnostic output and plot. The full suite
+and production-sample re-solves have not been rerun for this reorganization.
+The production results below are the earlier checks described in each row.
+
 ## 1. The tables, from NNLOJET
 
 1. Patch and build NNLOJET v1.0.2 with [`nnlojet_patch/`](nnlojet_patch/README.md) (the

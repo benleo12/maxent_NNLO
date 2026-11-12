@@ -1,84 +1,103 @@
-#!/usr/bin/env python3
-r"""The uncertainty bands, from the released per-run tables.
+"""Uncertainty re-solves with the same constraints as the central result.
 
-    python examples/bands_with_released_moments.py dy my_prior.npz [n_boot] [out.npz]
+    python examples/bands_with_released_moments.py dy prior.npz [n_boot] [bands.npz]
+    python examples/bands_with_released_moments.py wp prior.npz 20 bands.npz --recoil pt_w ctw_window
 
-Loops over the same call (README, "Uncertainty bands"):
-  * scale:     one re-solve per scale choice k = 1..6 of the seven-point variation
-               (load_moments(process, scale=k));
-  * target statistics: one re-solve per bootstrap replica of the independent fixed-order
-               runs (load_moments(process, runs=resample));
-  * matching: one re-solve with the transition region moved down and one with it moved up
-               (load_moments(process, window="down"), window="up"), the threshold of the
-               transition criterion varied by a factor of two; their envelope around the nominal
-               solve is the matching uncertainty;
-  * PDF ("wp", "wm" and "ggh" only): one re-solve per CT18NNLO member k = 1..58
-               (load_moments(process, pdf_member=k)); released.hessian_band of any histogram
-               of the 59 weight sets (member 0 = central) is the 68% CL band;
-  * sample statistics: the usual per-bin error of the weighted events, sum of q_i^2.
-Every re-solve imposes the central solve's constraint set (fixed_orders) and starts from its
-multipliers (lam0), except the moved windows, which start cold.  The output holds the central
-weights, the six scale re-solves, the bootstrap replicas and, where released, the two moved
-windows and the PDF members; the per-bin envelope of the scale re-solves is the band, the
-bootstrap spread (+) the sample's own error the error bar.
+Saved event weights sum to one. Matching arrays sigma_*_pb provide the total
+cross section for absolute predictions, e.g. scale_w * sigma_scale_pb[:, None].
+The scale array excludes the central solve; include central in its envelope.
+Moment counts stay fixed. A moved window starts from zero multipliers because
+its measurement functions can differ. Shower changes require separate prior
+weights or samples from the generator and another call to upgrade.
 """
-import os
+import argparse
+from pathlib import Path
 import sys
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # if not pip-installed
-from maxent_upgrade import upgrade, load_moments, released   # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from maxent_upgrade import upgrade, load_moments, released
 
 
 def main():
-    if len(sys.argv) < 3:
-        sys.exit(__doc__)
-    process, prior = sys.argv[1], sys.argv[2]
-    n_boot = int(sys.argv[3]) if len(sys.argv) > 3 else 20
-    out = sys.argv[4] if len(sys.argv) > 4 else os.path.splitext(prior)[0] + f"_{process}_bands.npz"
-    events = {k: np.asarray(v, float) for k, v in np.load(prior).items() if np.ndim(v) == 1}
-
-    moments, config = load_moments(process)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("process", choices=released.processes())
+    parser.add_argument("prior")
+    parser.add_argument("n_boot", nargs="?", type=int, default=20)
+    parser.add_argument("output", nargs="?")
+    parser.add_argument("--born", nargs="*")
+    parser.add_argument("--recoil", nargs="*")
+    parser.add_argument("--mixed", nargs="*")
+    parser.add_argument("--nnlo-zj", action="store_true")
+    parser.add_argument("--skip-pdf", action="store_true", help="omit the 59 PDF-member solves")
+    args = parser.parse_args()
+    if args.n_boot < 0:
+        parser.error("n_boot must be nonnegative")
+    output = args.output or str(Path(args.prior).with_suffix("")) + f"_{args.process}_bands.npz"
+    if Path(output).suffix != ".npz":
+        parser.error("the output filename must end in .npz")
+    if Path(output).exists():
+        parser.error("output already exists; choose a different path")
+    with np.load(args.prior, allow_pickle=False) as sample:
+        events = dict(sample)
+    selection = dict(born=args.born, recoil=args.recoil, mixed=args.mixed, nnlo_zj=args.nnlo_zj)
+    process = args.process
+    moments, config = load_moments(process, **selection)
     central = upgrade(events, moments, config)
-    frozen = {**config, "fixed_orders": dict(central.report["moment_selection"]["chosen"]),
-              "lam0": central.report["lam"]}
-    print(f"central: {central.summary()}")
+    orders = dict(central.report["moment_selection"]["chosen"])
+    frozen = {**config, "fixed_orders": orders, "lam0": central.report["lam"]}
+    print(f"Central: {central.summary()}")
+    saved = dict(central=central.weights, sigma_central_pb=released.cross_section(process))
 
-    scale_w = []
-    for k in range(1, 7):
-        m_k, _ = load_moments(process, scale=k, check_seam=False)
-        r = upgrade(events, m_k, frozen); scale_w.append(r.weights)
-        print(f"  scale {k} ({released.table(process)['scales'][k]}): effN {100*r.effN:.1f}%")
+    scale_weights, scale_rates = [], []
+    for scale in range(1, 7):
+        shifted, _ = load_moments(process, scale=scale, check_seam=False, **selection)
+        result = upgrade(events, shifted, frozen)
+        scale_weights.append(result.weights)
+        scale_rates.append(released.cross_section(process, scale=scale))
+        print(f"Scale {scale}: {result.summary()}")
+    saved.update(scale_w=np.asarray(scale_weights), sigma_scale_pb=np.asarray(scale_rates))
 
     n_runs = released.table(process)["n_independent_runs"]
-    rng = np.random.default_rng(1); boot_w = []
-    for b in range(n_boot):
-        m_b, _ = load_moments(process, runs=rng.integers(0, n_runs, n_runs), check_seam=False)
-        boot_w.append(upgrade(events, m_b, frozen).weights)
-    print(f"  {n_boot} bootstrap replicas of the {n_runs} runs: effN "
-          f"{100*min(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}-{100*max(1/(len(q)*(q**2).sum()) for q in boot_w):.1f}%")
+    rng = np.random.default_rng(1)
+    bootstrap_weights, bootstrap_rates = [], []
+    for _ in range(args.n_boot):
+        runs = rng.integers(0, n_runs, n_runs)
+        shifted, _ = load_moments(process, runs=runs, check_seam=False, **selection)
+        bootstrap_weights.append(upgrade(events, shifted, frozen).weights)
+        bootstrap_rates.append(released.cross_section(process, runs=runs))
+    saved.update(boot_w=np.asarray(bootstrap_weights).reshape(args.n_boot, len(central.weights)),
+                 sigma_boot_pb=np.asarray(bootstrap_rates))
+    print(f"Input statistics: {args.n_boot} resamples of {n_runs} independent runs")
+    if args.nnlo_zj:
+        print("The NNLO Z+jet input has no per-run replicas; only the Drell-Yan input is resampled.")
 
-    window_w = {}
-    for w in ("down", "up") if released.windows(process) else ():
-        m_v, c_v = load_moments(process, window=w)
-        # a moved window's polynomials can differ from the central solve's: hold its degrees, not its multipliers
-        r = upgrade(events, m_v, {**c_v, "fixed_orders": frozen["fixed_orders"]})
-        window_w[f"window_{w}"] = r.weights
-        print(f"  window {w} {c_v['recoil'][next(iter(c_v['recoil']))]['profile']}: effN {100*r.effN:.1f}%")
+    for window in ("down", "up") if released.windows(process) else ():
+        if args.nnlo_zj:
+            # The letter's NNLO Z+jet tower has no released moved-window moments.
+            continue
+        shifted, shifted_config = load_moments(process, window=window, **selection)
+        result = upgrade(events, shifted, {**shifted_config, "fixed_orders": orders})
+        saved[f"window_{window}"] = result.weights
+        print(f"Transition {window}: {result.summary()}")
+    saved["sigma_window_pb"] = np.asarray(saved["sigma_central_pb"])
 
-    pdf = {}
-    if released.pdf_table(process) is not None:
-        pdf_w = [central.weights]
-        for k in range(1, released.pdf_table(process)["n_members"]):
-            m_k, c_k = load_moments(process, pdf_member=k)
-            pdf_w.append(upgrade(events, m_k, {**c_k, "fixed_orders": frozen["fixed_orders"],
-                                               "lam0": frozen["lam0"]}).weights)
-        pdf["pdf_w"] = np.array(pdf_w)
-        print(f"  {len(pdf_w)} CT18NNLO members: released.hessian_band(<histograms of pdf_w>) is the band")
+    members = released.pdf_table(process)
+    if members is not None and not args.skip_pdf:
+        pdf_weights, pdf_rates = [central.weights], [released.cross_section(process)]
+        for member in range(1, members["n_members"]):
+            shifted, shifted_config = load_moments(process, pdf_member=member, **selection)
+            result = upgrade(events, shifted, {**shifted_config, "fixed_orders": orders,
+                                               "lam0": central.report["lam"]})
+            pdf_weights.append(result.weights)
+            pdf_rates.append(released.cross_section(process, pdf_member=member))
+        saved.update(pdf_w=np.asarray(pdf_weights), sigma_pdf_pb=np.asarray(pdf_rates))
+        print(f"PDF: {len(pdf_weights)} members; use released.hessian_band on their histograms")
 
-    np.savez_compressed(out, central=central.weights, scale_w=np.array(scale_w), boot_w=np.array(boot_w), **window_w, **pdf)
-    print(f"wrote {out}")
+    np.savez_compressed(output, **saved)
+    print(f"Saved {output}: normalized weights and the corresponding cross sections in pb")
 
 
 if __name__ == "__main__":

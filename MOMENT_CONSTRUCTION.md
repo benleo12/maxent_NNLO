@@ -26,18 +26,16 @@ fiducial region:
 That is the same as booking the observable T_n(u(v)) as a one-bin histogram and dividing by
 the fiducial cross section. The patch in `nnlojet_patch/` does exactly this for NNLOJET.
 
-The map matters. It decides how much a few moments resolve:
-- on the Drell-Yan mass, six moments on the Breit-Wigner map bring the spectrum to 0.9% of
-  NNLO and twelve to 0.75%, while the same six on the linear map leave it at 1.1%, little
-  better than the unconstrained prior (1.5%);
-- the map must be identical on both sides, because the prior side evaluates the same T_n(u).
-  On the Drell-Yan prior, declaring the linear map for moments booked on the Breit-Wigner map
-  converges with clean closure and collapses N_eff/N from 99.9% to 10.8%.
+The map controls how efficiently a finite set of moments represents the correction.
+It must be identical on the prior and fixed-order sides. Declaring another map
+without recomputing the target moments imposes a different problem, even if the
+solver reports good moment agreement.
 
 ## 2. Born towers and recoil windows
 
-Every constrained observable is either a Born tower or a recoil window. The observable
-decides which, not preference.
+Choose the constraint according to the region in which fixed order reliably
+describes the observable. Born variables can also need a restricted window near
+an acceptance edge, as in the W decay-angle example.
 
 **Born tower.** The observable is fixed by the Born kinematics of the color singlet and is
 infrared safe over its whole range: the mass, the rapidity, the Collins-Soper decay angle.
@@ -82,10 +80,10 @@ run's moments; the difference needs far fewer points than the moments themselves
 start below the lower end of the map: u is clipped to [−1, 1] there, in the fixed-order code
 and in the package alike.
 
-Putting a recoil observable in the Born slot is not merely inaccurate. Imposing the
-full-range moments of π − Δφ contradicts the window, which keeps the shower below the
-matching scale, and the solve has no positive-weight solution. A convergence failure of
-this kind is a diagnosis, not a numerical problem to tune away.
+A bounded measurement function alone does not make fixed order reliable near a
+Born singularity. Choose the window in the fixed-order calculation and use that
+same definition on the prior. A numerical failure can indicate incompatible
+moments, insufficient support or inconsistent definitions, and needs inspection.
 
 ## 3. Errors
 

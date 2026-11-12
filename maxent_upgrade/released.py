@@ -102,7 +102,8 @@ def windows(process):
     if process not in WINDOWS:
         return {}
     got = {w: _window(process, w) for w in WINDOWS[process]}
-    key = next(iter(next(g for g in got.values() if g)[0]))        # the recoil tower the windows move
+    # the recoil tower the windows move
+    key = next(iter(next(g for g in got.values() if g)[0]))
     return {w: (g[2] if g else dict(table(process)["towers"][key]["profile"])) for w, g in got.items()}
 
 
@@ -139,6 +140,44 @@ def sigma_fid(process):
     """The fixed-order cross section of a table's production inside its selection (inclusive for
     the Higgs boson), {value, stat, scale_lo, scale_hi[, note]} in pb."""
     return table(process)["sigma_fid_pb"]
+
+
+def cross_section(process, scale=None, runs=None, pdf_member=None):
+    """Cross section in pb for a central, scale, run-resampled or PDF-member input.
+
+    Use the same variation arguments as load_moments when normalizing a band.
+    Scale and run variations use the released total-cross-section accumulators.
+    PDF members use the separately released member-to-central cross-section ratio.
+    A PDF variation cannot be combined with scale or run variations here.
+    """
+    central = float(sigma_fid(process)["value"])
+    if pdf_member is not None:
+        if scale is not None or runs is not None:
+            raise ValueError(
+                "cross_section: use a PDF member separately from scale or run variations")
+        members = pdf_table(process)
+        if members is None:
+            raise ValueError(f"no PDF-member cross sections are released for {process!r}")
+        k = int(pdf_member)
+        if k != pdf_member or not 0 <= k < members["n_members"]:
+            raise ValueError(f"pdf_member must be an integer from 0 to {members['n_members'] - 1}")
+        return central * float(members["sigma_fid_ratio"][k])
+    if scale is None and runs is None:
+        return central
+    k = 0 if scale is None else int(scale)
+    if (scale is not None and k != scale) or not 0 <= k < 7:
+        raise ValueError("scale must be an integer from 0 to 6")
+    columns, accumulators, _ = _runs(PROCESSES.get(process, process))
+    total = accumulators[:, columns["norm_born"], :]
+    selected = total
+    if runs is not None:
+        indices = np.asarray(runs)
+        if (indices.ndim != 1 or indices.size == 0 or not np.issubdtype(indices.dtype, np.integer)
+                or (indices < 0).any() or (indices >= len(total)).any()):
+            raise ValueError(
+                f"runs must be a nonempty sequence of indices from 0 to {len(total) - 1}")
+        selected = total[indices]
+    return central * float(selected[:, k].mean() / total[:, 0].mean())
 
 
 def _runs(name):
@@ -190,8 +229,10 @@ def _rate(name, w_tag, scale, runs, norm_tag="norm_born"):
         mean = per.mean(0)
         return float(np.mean(per[:, scale])), stat, float(0.5 * (mean.max() - mean.min()))
     S = _sel(ref, runs)
-    Wm, Sm = w.mean(0), S.mean(0); R = Wm / Sm
-    rel = [x[:, scale].std(ddof=1) / np.sqrt(len(x)) / m[scale] if len(x) > 1 else 0.0 for x, m in ((w, Wm), (S, Sm))]
+    Wm, Sm = w.mean(0), S.mean(0)
+    R = Wm / Sm
+    rel = [x[:, scale].std(ddof=1) / np.sqrt(len(x)) / m[scale] if len(x)
+           > 1 else 0.0 for x, m in ((w, Wm), (S, Sm))]
     return float(R[scale]), float(abs(R[scale]) * np.hypot(*rel)), float(0.5 * (R.max() - R.min()))
 
 
@@ -202,8 +243,10 @@ def _stripper_block(path, block):
     for o in re.findall(r"<observable>(.*?)</observable>", s, re.S):
         if re.search(r"<description>(.*?)</description>", o, re.S).group(1).strip() == block:
             bins = re.findall(r"<bin>(.*?)</bin>", o, re.S)
-            V = np.array([[float(x) for x in re.search(r"<values>(.*?)</values>", b, re.S).group(1).split(",")] for b in bins])
-            E = np.array([[float(x) for x in re.search(r"<errors>(.*?)</errors>", b, re.S).group(1).split(",")] for b in bins])
+            V = np.array([[float(x) for x in re.search(r"<values>(.*?)</values>",
+                         b, re.S).group(1).split(",")] for b in bins])
+            E = np.array([[float(x) for x in re.search(r"<errors>(.*?)</errors>",
+                         b, re.S).group(1).split(",")] for b in bins])
             return V[1:-1, :7], E[1:-1, 0]
     raise KeyError(f"{path}: no block {block!r}")
 
@@ -214,10 +257,12 @@ def _nnlo_zj_recoil(scale, runs):
     W, e = _stripper_block(os.path.join(_data_dir(), NNLO_ZJ_FILE), "pT_Z_cm_rm1_w1")
     col, A, _ = _runs(PROCESSES["dy"])
     sig = 2.002e-3 * float(_sel(A, runs)[:, col["norm_born"], scale].mean())   # pb
-    j = _TO_STRIPPER[scale]; W0 = W[0, j]
+    j = _TO_STRIPPER[scale]
+    W0 = W[0, j]
     v = W[1:, j] / W0
     st = np.sqrt((e[1:] / W0) ** 2 + (W[1:, 0] * e[0] / W0 ** 2) ** 2)
-    r = W[1:, :] / W[0, :]; sc = 0.5 * (r.max(1) - r.min(1))
+    r = W[1:, :] / W[0, :]
+    sc = 0.5 * (r.max(1) - r.min(1))
     R = float(W0 / sig)
     v, st, sc = [float(x) for x in v], [float(x) for x in st], [float(x) for x in sc]
     return dict(window_values=v, window_errors=[_hyp(a, b) for a, b in zip(st, sc)],
@@ -308,17 +353,20 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     """
     t = table(process)
     if scale is not None and not 0 <= int(scale) < len(t["scales"]):
-        raise ValueError(f"{process}: scale must be 0..{len(t['scales']) - 1} (0 = central), got {scale}")
+        raise ValueError(
+            f"{process}: scale must be 0..{len(t['scales']) - 1} (0 = central), got {scale}")
     if runs is not None:
         runs = np.asarray(runs, int)
         n_runs = int(t["n_independent_runs"])
         if runs.ndim != 1 or runs.size == 0 or runs.min() < 0 or runs.max() >= n_runs:
-            raise ValueError(f"{process}: runs must be a non-empty list of positions in 0..{n_runs - 1}")
+            raise ValueError(
+                f"{process}: runs must be a non-empty list of positions in 0..{n_runs - 1}")
     dflt = t["default_constraints"]
     born = dflt["born"] if born is None else list(born)
     recoil = dflt["recoil"] if recoil is None else list(recoil)
     mixed = dflt.get("mixed", []) if mixed is None else list(mixed)
-    depth = dict(dflt.get("max_orders") or {}); depth.update(max_orders or {})
+    depth = dict(dflt.get("max_orders") or {})
+    depth.update(max_orders or {})
     repool = scale is not None or runs is not None
     s = 0 if scale is None else int(scale)
     name = PROCESSES.get(process, process)
@@ -332,7 +380,8 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
     w = _window(process, which) if process in WINDOWS else None
     if w is not None:
         vt, vjoint, _, src = w
-        own_range = which == "nominal"           # a nominal window booked outside the main table (Higgs: 54 GeV)
+        # a nominal window booked outside the main table (Higgs: 54 GeV)
+        own_range = which == "nominal"
         if not own_range and not any(k in recoil for k in vt):
             raise ValueError(f"{process}: window={window!r} moves the recoil tower(s) {list(vt)}, "
                              f"which this call does not impose (recoil={recoil})")
@@ -341,7 +390,8 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
                              f"it does not combine with scale= or runs=")
         swap = {k: (d, src) for k, d in vt.items()}          # towers that replace the main table's
         if not own_range and WINDOWS[process]["nominal"] is not None:
-            union_with = _window(process, "nominal")[0]   # a moved window also covers the nominal window's range
+            # a moved window also covers the nominal window's range
+            union_with = _window(process, "nominal")[0]
     if pdf_member is not None:
         if own_range and process in PDF_MEMBERS_NOMINAL:
             with open(_path(PDF_MEMBERS_NOMINAL[process])) as f:
@@ -349,9 +399,11 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         else:
             pt = pdf_table(process)
         if pt is None:
-            raise ValueError(f"{process}: no CT18NNLO member moments are released (only for {sorted(PDF_MEMBERS)})")
+            raise ValueError(
+                f"{process}: no CT18NNLO member moments are released (only for {sorted(PDF_MEMBERS)})")
         if not 0 <= int(pdf_member) < int(pt["n_members"]):
-            raise ValueError(f"{process}: pdf_member must be 0..{pt['n_members'] - 1}, got {pdf_member}")
+            raise ValueError(
+                f"{process}: pdf_member must be 0..{pt['n_members'] - 1}, got {pdf_member}")
         if repool or (swap and not own_range) or nnlo_zj:
             raise ValueError(f"{process}: pdf_member shifts the central moments; it does not combine with "
                              f"scale=, runs=, window= or nnlo_zj=")
@@ -402,7 +454,8 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
         booked[d["observable"]] = dict(d=d, src=src, N=len(v), key=key, own=own_range and key in swap,
                                        union_with=(union_with or {}).get(key))
         if repool:
-            R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs, d.get("rate_norm_tag", "norm_born"))
+            R, Rs, Rc = _rate(src, d["denominator_tag"], s, runs,
+                              d.get("rate_norm_tag", "norm_born"))
         else:
             R, Rs, Rc = d["window_rate"], d["window_rate_stat"], d["window_rate_scale"]
         moments["recoil"][d["observable"]] = dict(
@@ -417,20 +470,25 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
             config["recoil"][d["observable"]]["transition"] = tr
         if (check_seam and src == name and d.get("matching_scale_rule") and t.get("hard_scale_GeV")):
             from . import check_seam as _check
-            _check(float(prof["a"]), float(t["hard_scale_GeV"]), label=f"{process} {d['observable']}")
+            _check(float(prof["a"]), float(t["hard_scale_GeV"]),
+                   label=f"{process} {d['observable']}")
     if mixed:
-        moments["mixed"] = {}; config["mixed"] = {}
+        moments["mixed"] = {}
+        config["mixed"] = {}
         towers_by_obs = {d["observable"]: d for d in t["towers"].values()}
         for key in mixed:
-            j = dict(t["joint"][key], **vjoint.get(key, {})); keys = list(j["values"])
+            j = dict(t["joint"][key], **vjoint.get(key, {}))
+            keys = list(j["values"])
             if repool:
-                v, st, sc = _repool(name, [j["numerator_tags"][k] for k in keys], j["denominator_tag"], s, runs)
+                v, st, sc = _repool(name, [j["numerator_tags"][k]
+                                    for k in keys], j["denominator_tag"], s, runs)
                 if j["denominator_tag"] == "norm_born":
                     R, Rs, Rc = 1.0, 0.0, 0.0
                 else:
                     R, Rs, Rc = _rate(name, j["denominator_tag"], s, runs)
             else:
-                v = [j["values"][k] for k in keys]; st = [j["stat_errors"][k] for k in keys]
+                v = [j["values"][k] for k in keys]
+                st = [j["stat_errors"][k] for k in keys]
                 sc = [j["scale_errors"][k] for k in keys]
                 R, Rs, Rc = j["window_rate"], j["window_rate_stat"], j["window_rate_scale"]
             idx = [tuple(int(x) for x in k.split(",")) for k in keys]
@@ -446,7 +504,8 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
                                         profile=j["profile"], n=j["n"])
     if nnlo_zj:
         if name != PROCESSES["dy"] or "pT_ll" not in moments["recoil"]:
-            raise ValueError("nnlo_zj=True replaces the Drell-Yan p_T^ll tower: use it with load_moments(\"dy\")")
+            raise ValueError(
+                "nnlo_zj=True replaces the Drell-Yan p_T^ll tower: use it with load_moments(\"dy\")")
         moments["recoil"]["pT_ll"] = _nnlo_zj_recoil(s, runs)
     if pdf_member is not None:
         k = int(pdf_member)
@@ -457,9 +516,11 @@ def load_moments(process, born=None, recoil=None, mixed=None, max_orders=None,
                 b["values"] = list(np.asarray(b["values"]) + dv[:len(b["values"])])
             elif key in recoil:
                 rc = moments["recoil"][d["observable"]]
-                rc["window_values"] = list(np.asarray(rc["window_values"]) + dv[:len(rc["window_values"])])
+                rc["window_values"] = list(np.asarray(
+                    rc["window_values"]) + dv[:len(rc["window_values"])])
                 rc["wprofile_values"] = rc["window_values"]
-                rc["rate"] = rc["wprofile_rate"] = float(rc["rate"] + (d["window_rate"][k] - d["window_rate"][0]))
+                rc["rate"] = rc["wprofile_rate"] = float(
+                    rc["rate"] + (d["window_rate"][k] - d["window_rate"][0]))
     if qt_basis == "range":
         for obs, info in booked.items():
             if nnlo_zj and obs == "pT_ll":
@@ -476,7 +537,8 @@ def acting_range(tower, profile=None):
     prof = tower["profile"] if profile is None else profile
     lo, hi = float(tower["soft_lo"]), float(tower["range"][1])
     a, c, e = float(prof["a"]), prof.get("c"), prof.get("d")
-    top = float(e) if (e is not None and c is not None and float(e) > float(c)) else (float(c) if c is not None else hi)
+    top = float(e) if (e is not None and c is not None and float(e)
+                       > float(c)) else (float(c) if c is not None else hi)
     return max(lo, a), min(top, hi)
 
 
@@ -502,7 +564,8 @@ def _range_accumulators(src, d, N, A, scale, runs):
     Acc = _sel(Acc, runs)
     den = Acc[:, col[d["denominator_tag"]], :]
     num = np.stack([Acc[:, col[tg], :] for tg in d["numerator_tags"][:N]])
-    new = A[1:N + 1, 0][:, None, None] * den[None] + np.einsum("nk,krs->nrs", A[1:N + 1, 1:N + 1], num)
+    new = A[1:N + 1, 0][:, None, None] * den[None] + \
+        np.einsum("nk,krs->nrs", A[1:N + 1, 1:N + 1], num)
     pooled = new.sum(1) / den.sum(0)[None]
     per = new[:, :, scale] / den[None, :, scale]
     st = per.std(1, ddof=1) / np.sqrt(per.shape[1]) if per.shape[1] > 1 else np.zeros(N)
@@ -531,7 +594,8 @@ def _to_acting_range(rc, cfg, info, t, name, scale, runs):
         return
     lo, hi = float(d["soft_lo"]), float(d["range"][1])
     L, U = acting_range(d)
-    main = info.get("union_with") or t["towers"][info["key"]]   # the tower whose range a moved window covers
+    # the tower whose range a moved window covers
+    main = info.get("union_with") or t["towers"][info["key"]]
     if src != name and not info.get("own"):
         # a moved window: the interval covering its own acting range and the nominal tower's, so that it imposes
         # the central solve's polynomials wherever its range allows and differs from it only by its window
@@ -548,18 +612,22 @@ def _to_acting_range(rc, cfg, info, t, name, scale, runs):
     else:
         # a moved window released without per-run values: the main tower's errors, scaled (_moved_errors)
         if (float(t["towers"][info["key"]]["soft_lo"]), float(t["towers"][info["key"]]["range"][1])) != (lo, hi):
-            raise ValueError(f"{name}: moved window of {d['observable']} booked on another interval than the main tower")
+            raise ValueError(
+                f"{name}: moved window of {d['observable']} booked on another interval than the main tower")
         st, sc = _moved_errors(name, t["towers"][info["key"]], d, N, A)
     st, sc = [float(x) for x in st], [float(x) for x in sc]
     rc.update(window_values=[float(x) for x in v], wprofile_values=[float(x) for x in v],
-              stat_errors=st, scale_errors=sc, window_errors=[_hyp(a_, b_) for a_, b_ in zip(st, sc)],
+              stat_errors=st, scale_errors=sc, window_errors=[
+                  _hyp(a_, b_) for a_, b_ in zip(st, sc)],
               soft_lo=L, x_hi=U)
     cfg.update(range=(L, U), soft_lo=L)
 
 
 def summary(process):
     """A few lines describing a table: process, provenance, towers, and the default constraint set."""
-    t = table(process); sf = t["sigma_fid_pb"]; pv = t.get("provenance", {})
+    t = table(process)
+    sf = t["sigma_fid_pb"]
+    pv = t.get("provenance", {})
     lines = [f"{process}: {t['process']} at {t['order']}, {t['n_independent_runs']} runs, "
              f"sigma {sf['value']:.4g} pb (stat {sf['stat']:.2g}, scale {sf['scale_lo']:.4g}-{sf['scale_hi']:.4g})",
              f"   fiducial: {t['fiducial']}"]

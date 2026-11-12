@@ -1,426 +1,178 @@
 # maxent_upgrade
 
-**Positive-weight event samples that carry fixed-order (NLO, NNLO) information, by reweighting
-a parton-shower sample you already have.**
+**Fixed-order QCD information in the shower events you already have.**
 
-`maxent_upgrade` takes two inputs:
-- a positive-weight LO+PS sample, the *prior*;
-- a handful of event-level Chebyshev moments from a fixed-order calculation.
+Reweight a positive-weight LO+PS sample using fixed-order moments of selected
+observables. The package selects the resolved moments, solves for positive event
+weights and reports their agreement with the input. Event kinematics stay intact.
 
-It returns new per-event weights that reproduce those moments. The weights come from the
-maximum-entropy exponential tilt of the prior, so every weight is positive by construction.
-No event is generated and no weight changes sign. The paper's fixed-order moments are
-released here, for Drell-Yan, W±, gluon-fusion Higgs and diphoton production at NNLO and Z+jet
-production at NLO, so you can upgrade your own prior today. So are the NNLO Z+jet p_T^ℓℓ
-moments of the letter: `load_moments("dy", nnlo_zj=True)` imposes them in place of the
-Drell-Yan recoil tower. The `zj` table here is a separate NLO calculation with jet towers.
-The paper and the letter are cited [below](#citation-and-licence).
+The same solver works with any compatible prior and user-defined observables.
+A new process needs its observable definitions and fixed-order moments, with no
+changes to the solver. Ready-to-use inputs accompany the paper for Drell–Yan,
+W±, Higgs, diphoton and Z+jet production.
 
-![maxent_upgrade: fixed-order moments and a positive-weight prior in, positive weights out](docs/flowchart.png)
-
-*One call: map, features, select, solve, tilt, check. The uncertainty bands re-run the same
-call, warm-started, once per scale choice, once per bootstrap replica of the released
-fixed-order runs, once per matching window and, for W± and the Higgs boson, once per CT18NNLO
-member.*
-
----
+[Quick start](#quick-start) · [All paper examples](examples/README.md) ·
+[New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
+[Reproduction](REPRODUCE.md)
 
 ## Install
 
-Pure Python plus NumPy (Python ≥ 3.9). From a clone:
+Python 3.9 or newer and NumPy are sufficient. From a checkout:
 
 ```bash
-pip install .            # or: pip install -e .   (the released tables are installed with the package)
+python -m pip install .
 ```
 
-## Quick start: your prior, the released moments
+Optional plotting support: `python -m pip install '.[plot]'`.
+
+## Quick start
+
+Inspect the required arrays and selection, then reweight your sample:
+
+```bash
+maxent-upgrade inspect dy
+maxent-upgrade reweight dy my_prior.npz posterior.npz
+```
+
+`my_prior.npz` contains one array per event for `mll`, `y_abs`, `pT_ll` and a
+strictly positive `weight`. Values use GeV. Apply the table's fiducial selection
+before reweighting. Other event arrays are preserved in the output.
+
+`posterior.npz` adds **`weight_upgraded`, in pb**, summing to the table's fiducial
+cross section. Use these as replacement event weights. Pass `--unit-area` for
+weights summing to one, or `--cross-section PB` to set another normalization.
+The command also works as `python -m maxent_upgrade`.
+
+The Python interface is equally short:
 
 ```python
 import numpy as np
-from maxent_upgrade import upgrade, load_moments
+from maxent_upgrade import load_moments, sigma_fid, upgrade
 
-moments, config = load_moments("dy")      # Drell-Yan at NNLO: the paper's constraint set
-events = dict(np.load("my_prior.npz"))    # arrays mll, y_abs, pT_ll, ... and positive 'weight'
+with np.load("my_prior.npz") as sample:
+    events = dict(sample)
+
+moments, config = load_moments("dy")
 result = upgrade(events, moments, config)
-print(result.describe())                  # what was imposed, how well it closed, what it cost
-w = result.weights                        # positive, sum to one; histogram any observable with them
+print(result.describe())
+
+shape_weights = result.weights                          # sum = 1
+weights_pb = shape_weights * sigma_fid("dy")["value"]   # sum = cross section in pb
 ```
 
-Command-line versions of the same steps:
+`result.weights` already contains the prior weights. Do **not** multiply it by
+`events["weight"]` again. For a relative reweighting factor, use
+`result.weights / (events["weight"] / events["weight"].sum())`.
+
+## Try it without an event sample
 
 ```bash
-python moments/load_moments.py dy                                # towers, their arrays, default constraint set
-python examples/upgrade_with_released_moments.py dy my_prior.npz # writes my_prior_dy_upgraded.npz
-python examples/bands_with_released_moments.py dy my_prior.npz   # scale, bootstrap, matching (and PDF) bands
+python examples/custom_observables.py
+python examples/plot_result.py custom_result.npz mass --label Mass --unit GeV
 ```
 
-No sample yet? `python examples/example_moments.py` runs the whole chain on toy events.
-From Drell-Yan shower output, build `events` from the two Born-level leptons:
+This short, self-contained example builds synthetic prior and target samples,
+constrains two distributions and adds their joint moments. It prints the change
+in their correlation and saves the weights. The optional plot shows the prior,
+posterior and known target. The data are illustrative, not a QCD prediction.
 
-```python
-def dy_events(l1, l2, w):   # l1, l2: (N, 4) arrays (E, px, py, pz) in GeV, w: weights
-    P = l1 + l2
-    pt = lambda p: np.hypot(p[:, 1], p[:, 2])
-    eta = lambda p: np.arcsinh(p[:, 3] / pt(p))
-    mll = np.sqrt(np.maximum(P[:, 0]**2 - (P[:, 1:]**2).sum(1), 0.0))
-    fid = ((pt(l1) > 27) & (pt(l2) > 27) & (abs(eta(l1)) < 2.5) & (abs(eta(l2)) < 2.5)
-           & (mll > 66) & (mll < 116))                # the table's fiducial selection
-    y_abs = np.abs(np.arctanh(P[:, 3] / P[:, 0]))
-    return fid, dict(mll=mll[fid], y_abs=y_abs[fid], pT_ll=pt(P)[fid], weight=w[fid])
+## The paper examples
 
-fid, events = dy_events(l1, l2, w)      # a follower x joins as events["x"] = x[fid]
-result = upgrade(events, *load_moments("dy"))
-```
-
-The released processes are:
-
-| key | process |
-|---|---|
-| `dy` | Drell-Yan |
-| `wp`, `wm` | W+, W- |
-| `aa` | diphoton |
-| `ggh` | gluon-fusion Higgs |
-| `zj` | Z+jet at NLO |
-
-Details are in [`moments/README.md`](moments/README.md).
-
-## What you need, what you get
-
-**You need**
-- A positive-weight LO+PS sample of the process. It must store, per event, the observables the
-  constraint set names, inside the same fiducial selection as the fixed-order input. For the
-  released tables, the lepton observables are Born-level (before QED final-state radiation)
-  and the decay angles are Collins-Soper angles (the absolute value \|cos θ*\| for the Z and
-  the photon pair, the signed angle of the charged lepton for the W; see `moments/README.md`).
-- Event-level moments from a fixed-order code at the target order, with their Monte Carlo and
-  scale errors. They must be computed with the same maps and window as on the prior side.
-  Either take the released tables, or compute your own
-  ([`MOMENT_CONSTRUCTION.md`](MOMENT_CONSTRUCTION.md)).
-
-**You get**
-- Strictly positive weights, by construction: q = p · exp(λ·m)/Z.
-- The Born observables (masses, rapidities, decay angles) reproduced at the accuracy of the
-  input over their full range.
-- The recoil (the transverse momentum of the color singlet) reproduced at the accuracy of the
-  input above the matching scale. From an inclusive NNLO calculation that accuracy is
-  NLO(V+jet), because a recoil needs a real emission.
-- Below the matching scale, the shower's spectrum kept as it is, up to the overall
-  normalization; across the rise of the window, a smooth blend of the two.
-- Every other observable, a *follower*, moving only through its correlation with the
-  constrained ones in the prior. A follower that the constraints do not reach keeps the
-  prior's accuracy.
-
-**You do not get**
-- Events where the prior has none. The tilt moves weight, it never creates it.
-- Fixed-order accuracy in followers that do not correlate with the constraints.
-
-The statistical price is the Kish effective sample size, reported as `result.effN` and
-`result.effN_retained`. On the letter's priors, with the released tables, it is 99.9% for
-Drell-Yan and 88.2% for gluon-fusion Higgs production with the letter's 37 GeV window
-(`window="down"`), 91.8% with the default 54 GeV window. On the authors' priors it is 99.8% for
-W+ and W- (99.7% with the optional decay-angle window), and the merged diphoton prior keeps
-94.9% of its own effective count. The tables reproduce the authors' stored weights
-([`REPRODUCE.md`](REPRODUCE.md)).
-
-## How it works (the six steps of the figure)
-
-1. **Map** each constrained observable onto u ∈ [-1, 1]: linear (rapidities, angles),
-   logarithmic (transverse momenta, continuum masses) or Breit-Wigner (resonant masses).
-2. **Features.** The measurement functions are the Chebyshev polynomials T_n(u), n = 1 … N.
-   - A Born observable contributes its *tower* T_1(u) … T_N(u), imposed over the full
-     fiducial range at the fixed-order values.
-   - A recoil observable enters through the C² *window* w(v), which rises from the matching
-     scale v_m to 2 v_m and is cut at 500 GeV (1000 GeV for the Higgs boson and the jets).
-     The fixed order supplies the windowed moments ⟨w T_n⟩/⟨w⟩ and the window rate
-     r = ⟨w⟩. By default (`transition="blend"`) the target of each order is the blend
-     μ_n = (1 − r) ⟨T_n⟩_{p, 1−w} + r ⟨T_n⟩_{FO, w} of the prior's own moment weighted by
-     1 − w and the fixed-order moment weighted by w, and the measurement functions are the
-     bare T_n(u(v)), held constant below the window: the prior's spectrum is kept below v_m,
-     fixed order rules above 2 v_m with its share r of the cross section, and the two are
-     mixed across the rise. Above a hard cut c the features vanish, and one extra constraint
-     (`<obs>_above`) keeps the prior's shape there. `transition="windowed"` imposes
-     w(v) T_n(u) and w(v) instead.
-   - Joint moments (optional) contribute products of two towers, always in the windowed
-     form; every recoil tower they couple must be windowed too (blended towers are in general
-     inconsistent with fixed-order joint moments), as in the Z+jet (`zj`) configuration.
-3. **Select.** Each tower is imposed up to its highest order n whose shift the input resolves,
-   SNR_n = |μ_n^target − μ_n^prior| / σ_n^FO > 1, where σ_n^FO is the Monte Carlo error
-   combined with the scale envelope. For a window tower the comparison is between the windowed
-   moments ⟨w T_n⟩/⟨w⟩ of fixed order and prior. Interior orders below 1 stay in the tower.
-   Their targets agree with the prior within the error, so imposing them holds those moments
-   where both put them.
-4. **Solve** the convex dual for the multipliers λ.
-   - The features are z-scored, the dual is minimized by damped Newton steps, and the ridge
-     (`L2 = 1e-4`, the paper's ε) is a safeguard for directions the prior's events barely span
-     (it is not a statistical weight). With the p_T and jet towers on their acting range
-     (below), results do not depend on its value between 10⁻⁴ and 10⁻⁶.
-   - The minimum is unique.
-   - It takes seconds to a minute for 10⁶ events.
-5. **Tilt** the prior: q_i = p_i exp(λ·m(Φ_i)) / Z.
-6. **Check** that every q_i > 0, the closure of every moment (also in units of its error),
-   and the effective statistics. `result.describe()` prints all of it.
-
-The construction, its accuracy, and the rule that places the matching scale
-(α_s(p_T) ln²(Q/p_T) < 0.2) are in the paper.
-
-## The released moments
-
-| key | process (fiducial) | order, runs | default constraint set | also in the table |
-|---|---|---|---|---|
-| `dy` | pp → Z/γ* → ℓℓ, 13 TeV, ATLAS | NNLO, 298 | m_ll (BW, 12), \|y_ll\| (lin, 12, of which the SNR rule imposes 11 on the paper's prior); p_T^ll window 30→60 GeV, cut 500 (log, 20) | \|cos θ*\| (lin [0, 1], 6); joint m_ll × \|cos θ*\| (16); lepton p_T reference towers; the p_T^ll tower with three other matching windows |
-| `wp`, `wm` | pp → W± → ℓν, 7 TeV, ATLAS | NNLO, 40 each | m_W (BW, 12), \|y_W\| (lin, 12); p_T^W window 25→50 GeV, cut 500 (log, 20) | decay-angle window (flat for \|cos θ*\| < 0.6, zero at 0.7; lin, 6), optional; full-range signed angle (8); joint p_T^W × cos θ* (16); the p_T^W tower with three other matching windows; CT18NNLO member moments |
-| `aa` | pp → γγ, 8 TeV, ATLAS | NNLO, 40 | m_γγ (log, 6), \|cos θ*\| (lin, 6); p_T^γγ window 28→56 GeV, cut 500 (log, 12) | the p_T^γγ tower with its window moved down and up |
-| `ggh` | gg → H (on-shell, heavy-top limit), 13 TeV, inclusive | NNLO, 40 | \|y_H\| (lin, 6); p_T^H window 54→108 GeV, cut 1000 (log, 12, of which the SNR rule imposes 11 on the paper's prior) | the p_T^H tower with its window moved down to 37→74 GeV (the letter's) and up to 72→144 GeV; CT18NNLO member moments for the 54 and the 37 GeV windows |
-| `zj` | pp → Z(→ℓℓ) + jet, 13 TeV, ATLAS, ≥ 1 jet | NLO, 40 | m_ll (BW, 6), \|y_ll\| (lin, 6); p_T^j1 (12) and p_T^j2 (6) windows 30→60 GeV, cut 1000; joint p_T^j1 × p_T^j2 (16); every tower windowed | p_T^j2 to 8 orders; the paper's lepton-pair acoplanarity window 0.687→1.374 (`aco`: log on [0.687, π], from the binned NLO distribution; the optional tower imposes 4 of its 8 orders); an earlier acoplanarity window 0.05→0.2 (`pimdphi`: log, 4 of 12 orders); both jet windows and the joint block with three other matching windows |
-
-How the tables are stored:
-- Each table is a self-describing JSON file in `moments/` (installed as
-  `maxent_upgrade/moments/`) with a CSV of its moments and their errors. Its `provenance`
-  names the NNLOJET run, its run card and its seeds.
-- `moments/<name>_runs.json.gz` holds the channel-summed fixed-order accumulators of every
-  independent run at all seven scales, so that any scale choice or any resample of the runs can
-  be pooled again (`load_moments(p, scale=k)`, `load_moments(p, runs=...)`).
-- Pooling all runs reproduces every released number (the cross section after a fixed
-  factor): the moments as the ratio of summed accumulators, the window rates as the mean of
-  the per-run rates (the convention of the authors' solves; `provenance.conventions` in each
-  table says so).
-- The matching uncertainty moves the transition region of the recoil tower down to about
-  [⅔ v_m, ⁴⁄₃ v_m] and up to about [⁴⁄₃ v_m, ⁸⁄₃ v_m], where the expansion parameter of the
-  matching-scale rule is about 0.4 and 0.1: its threshold 0.2 varied by a factor of two.
-  `load_moments(p, window="down")` and `window="up"` return the main table with the recoil
-  tower booked with that window (for Z+jet both jet towers and their joint block).
-  `moments/<name>_winvar.json` holds these towers. The Higgs and diphoton ones carry per-run
-  values; the others are booked at the central scale only.
-- The Higgs transition region starts at 54 GeV, the matching scale with the gluon color factor
-  C_A in place of C_F. `moments/ggh_nnlo_moments_winvar_cc.json` holds the p_T^H tower booked
-  with this window, rising over [54, 108] GeV, and with the upper window, [72, 144] GeV, at all
-  seven scales with per-run values. `load_moments("ggh")` imposes the 54 GeV window on its own
-  acting range [54, 1000] GeV. `window="down"` returns the main table's 37→74 GeV window, the
-  letter's.
-- For `wp`, `wm` and `ggh`, `moments/<name>_pdf.json` holds the moments of the CT18NNLO
-  members 0–58. `load_moments(p, pdf_member=k)` adds the difference between member k and
-  member 0 to the central moments: the inputs of the PDF band. For `ggh` the members of the
-  default 54 GeV window are in `ggh_nnlo_moments_pdf_cc.json`, and `window="down"` with
-  `pdf_member=k` uses those of the 37 GeV window.
-
-`load_moments` returns each logarithmically mapped window tower on its **acting range**, from
-the window's lower edge to its cut, where its measurement functions vary (`qt_basis="range"`,
-the default). The booked maps run beyond it (the Drell-Yan p_T^ll map to 2500 GeV, the Higgs
-p_T^H map from 1 GeV), and their polynomials are nearly collinear on the acting range. Both maps
-are affine in ln v, so the moments on the acting range are exact combinations of the booked ones,
-and the package pools them from the per-run accumulators. `qt_basis="booked"` returns the
-moments as booked.
-
-`load_moments` checks each recoil window against the matching-scale rule at the table's hard
-scale Q and **prints a warning** on a disagreement (not for the moved windows of the matching
-uncertainty, which move the window on purpose). The window is compiled into the fixed-order run, so the code cannot change
-it.
-
-**The map and the window are part of the target.** Declaring a different map from the one
-compiled into the fixed-order run converges with clean closure onto wrong constraints, and only
-a collapsed `effN` betrays it. On the Drell-Yan prior, a linear instead of a Breit-Wigner mass
-map gives effN 10.7% instead of 99.9%. Use the `config` that `load_moments` returns.
-
-## The inputs in detail
-
-### `events`
-
-A dict of 1-D arrays of equal length, one entry per event. It holds:
-- the strictly positive prior weights under `'weight'` (or `config["weight_key"]`);
-- one array per observable named in `config`.
-
-Every other array is a follower. `upgrade` does not use it, and it inherits `result.weights`.
-No cuts are applied inside the package: prior and moments must integrate the same phase space.
-
-`upgrade` stops with a message that says what to fix on:
-- a missing array;
-- unequal lengths;
-- non-finite values;
-- a constrained observable without moments;
-- a recoil window that holds no prior event (a units hint);
-- an unknown `transition`, or a joint block that couples a blended tower.
-
-It warns when more than 5% of a Born observable lies outside its range (such events are
-clipped to the edge on both sides, as in the fixed-order code), when a window's profile does
-not start where the moments were booked (`x_match`), and on config keys it does not read.
-
-### `moments`
-
-Each moment is a weighted sum over the fixed-order phase-space points, one number per order,
-never a histogram:
-
-```python
-moments = {
-  "born":   {"mll":   {"values": [mu_1, ...], "errors": [s_1, ...],      # errors: stat (+) scale
-                       "stat_errors": [...], "scale_errors": [...]},     # optional, recommended
-             "y_abs": {...}},
-  "recoil": {"pT_ll": {"window_values": [mu_1, ...], "window_errors": [...],
-                       "rate": r, "x_match": 30., "x_hi": 2500., "soft_lo": 30.,
-                       "stat_errors": [...], "scale_errors": [...], "rate_stat": ..., "rate_scale": ...}},
-  "mixed":  {"ptj1_x_ptj2": {"values": {(1, 1): mu_11, ...}, "errors": {...},    # optional
-                             "stat_errors": {...}, "scale_errors": {...}, "rate": r}},
-}
-```
-
-- **Born:** `values[n-1]` = Σ_j w_j T_n(u(v_j)) / Σ_j w_j over the fiducial region.
-- **Recoil:** `window_values[n-1]` = ⟨w T_n(u)⟩ / ⟨w⟩. Here u is the logarithmic map on
-  [`soft_lo`, `x_hi`], and w is the window of `config["recoil"][obs]["profile"]` (or the hard
-  window [`x_match`, `x_hi`) when no profile is given). The window rate is `rate` = ⟨w⟩ / ⟨1⟩,
-  and `x_match` is where the window starts. The solver forms the blended targets from these
-  numbers; the fixed order supplies nothing else.
-- **Joint:** `values[(m, n)]` = ⟨w_x w_y T_m(u(x)) T_n(u(y))⟩ / ⟨w_x w_y⟩ with its rate
-  ⟨w_x w_y⟩ / ⟨1⟩ (w = 1 for an observable without a window).
-- **Errors:** `errors` / `window_errors` are the total fixed-order uncertainties, the run-to-run
-  Monte Carlo error combined with the seven-point scale half-range. They decide which orders
-  are resolved. The two parts are also given separately as `stat_errors` and `scale_errors`.
-- **Building the dict yourself:**
-  - `compute_fo_moments(fo_events, config)` builds it, joint blocks included, from fixed-order
-    events held in Python. Without `n_max` it books 12 orders per Born tower and 20 per recoil
-    tower.
-  - `chebyshev_moment(x, w, n_max, a, b, mp)` is the moment definition itself.
-
-### `config`
-
-```python
-config = {
-  "born":   {"mll":   {"range": (66., 116.), "map": "bw"},              # "lin", "log", "bw" or ("bw", M, Gamma)
-             "y_abs": {"range": (0., 2.4),   "map": "lin"}},
-  "recoil": {"pT_ll": {"range": (30., 2500.), "map": "log", "soft_lo": 30.,
-                       "profile": {"a": 30., "b": 60., "c": 500.}}},    # window: rises a -> b, cut at c (or falls c -> d)
-}
-```
-
-`load_moments("dy")` returns exactly this, with the Breit-Wigner map written out as
-`("bw", 91.1876, 2.4952)`. A recoil tower may add `"transition": "windowed"` (the default is
-`"blend"`); `load_moments` does so for the Z+jet towers.
-
-| knob | default | meaning |
+| Input | Process | Default constrained observables |
 |---|---|---|
-| `moment_selection` | `True` | impose each tower up to its highest order with SNR_n > `snr_threshold`; `False` imposes every supplied order |
-| `snr_threshold` | `1.0` | the resolution threshold |
-| `fixed_orders` | `None` | `{obs: N}`: impose exactly N orders of a tower; holds the re-solves of a band to the central constraint set |
-| `L2` | `1e-4` | ridge on the dual (numerical stabilizer) |
-| `lam0` | `None` | warm start from a previous `result.report["lam"]` |
-| `keep_features` | `False` | also return the feature matrix `Phi` and prior `p` in `result.report` |
-| `soft_constraints` | `False` | impose each moment with a Gaussian penalty of width its error (`soft_errors="stat"` or `"total"`); see `combine_moments` |
-| `weight_key` | `"weight"` | the key of the prior weights in `events` |
+| `dy` | Drell–Yan, 13 TeV, NNLO | dilepton mass, absolute rapidity, recoil |
+| `wp`, `wm` | W±, 7 TeV, NNLO | lepton–neutrino mass, absolute W rapidity, recoil |
+| `ggh` | gluon-fusion Higgs, 13 TeV, NNLO | absolute Higgs rapidity, recoil |
+| `aa` | diphotons, 8 TeV, NNLO | diphoton mass, Collins–Soper angle, recoil |
+| `zj` | Z+jet, 13 TeV, NLO | dilepton mass and rapidity, two jet momenta and their joint moments |
 
-## Results
+[The example guide](examples/README.md) includes all five applications, both W
+charges, the added decay-angle and acoplanarity constraints, separate and joint
+jet constraints, the prior comparisons, uncertainty re-solves, and the letter's
+NNLO Z+jet input. A single script makes the choices explicit:
 
-| field | meaning |
+```bash
+python examples/paper_examples.py --list
+python examples/paper_examples.py wp-angle --inspect
+python examples/paper_examples.py wp-angle my_wp_prior.npz wp_angle.npz
+```
+
+The tables include their fixed-order definitions and provenance. The authors'
+large event samples and plotting inputs are not distributed here. You can use
+your own compatible prior, or request the authors' samples for numerical
+reproduction. See [REPRODUCE.md](REPRODUCE.md).
+
+## A new process or observable
+
+The solver accepts arrays and moment constraints. Observable names are chosen by
+you, and the prior can come from any generator that supplies positive weights
+and adequate phase-space coverage.
+
+```python
+from maxent_upgrade import compute_fo_moments, upgrade
+
+config = {
+    "born": {
+        "mass": {"range": (60.0, 140.0), "map": "lin"},
+        "cos_theta": {"range": (-1.0, 1.0), "map": "lin"},
+    }
+}
+moments = compute_fo_moments(fixed_order_events, config, n_max=8)
+result = upgrade(prior_events, moments, config)
+```
+
+Here `prior_events` and `fixed_order_events` each contain `mass`, `cos_theta` and
+`weight` arrays. Their event counts may differ. Fixed-order weights may be signed.
+You can also accumulate the moment sums directly in your fixed-order code and
+pass the resulting dictionary, without exporting its phase-space points.
+
+The [new-process guide](docs/NEW_PROCESSES.md) gives the full path, including
+recoil windows, correlations, uncertainty inputs and automation. The
+[fixed-order recipe](MOMENT_CONSTRUCTION.md) gives the precise measurement functions.
+
+## Reading the result
+
+- **Moment agreement:** achieved moments compared with the input Monte Carlo
+  uncertainties. A successful minimization alone does not establish that a prior
+  is physically adequate.
+- **Retained statistics:** `result.effN_retained` compares the effective event
+  count with that of the prior. It is the useful measure for weighted or sliced samples.
+- **Weight spread:** the range of the normalized weight ratio `q/p`. Inspect
+  sparsely populated regions of observables important to your analysis as well.
+
+Accuracy belongs to the constrained distributions and their stated kinematic
+regions, up to moment truncation. Inclusive NNLO input supplies NNLO Born moments
+and NLO hard-recoil moments. The low-recoil region relies on the shower.
+Unconstrained distributions inherit the prior's conditional distributions, and
+missing phase space cannot be generated by reweighting. Both sides must use the
+same cuts, units, maps, windows and observable definitions.
+
+## Code and reference material
+
+| File | Purpose |
 |---|---|
-| `weights` | the new weights q_i > 0, summing to one |
-| `effN` | Kish effective sample fraction 1/(N Σ q_i²) |
-| `effN_retained` | Kish(q)/Kish(p): the fraction of the prior's own effective count that the upgrade keeps (equal to `effN` for an unweighted prior; the meaningful number for a sliced or weighted one) |
-| `closure` | worst relative deviation of an achieved moment from its target |
-| `max_pull` | worst \|achieved − target\| of a moment in units of the target's Monte Carlo error |
-| `moment_snr` | the resolution spectra SNR_n per tower |
-| `chosen_moments` | orders imposed per tower and joint block |
-| `x_match` | the matching scale of the first recoil window |
-| `report` | multipliers `lam`, targets `mu`, `feature_names`, the per-tower table `towers`, `windows` (with each tower's `transition`), `shares`, `q_over_p_range`, `moment_selection` |
+| [`reweight.py`](maxent_upgrade/reweight.py) | build constraints, select moments, solve and report |
+| [`constraints.py`](maxent_upgrade/constraints.py) | fixed-order moments and transition functions |
+| [`basis.py`](maxent_upgrade/basis.py) | variable maps and Chebyshev polynomials |
+| [`solver.py`](maxent_upgrade/solver.py) | the convex-dual Newton solver |
+| [`result.py`](maxent_upgrade/result.py) | weights and readable diagnostics |
+| [`released.py`](maxent_upgrade/released.py) | released tables and their variations |
+| [`cli.py`](maxent_upgrade/cli.py) | inspect inputs and reweight NPZ files |
 
-The window shares (the share above a blended window's hard cut, the rate of a windowed tower
-or joint block) are constraints but not moments: their closure and pull are in
-`report["shares"]`. `result.describe()` prints the per-tower table and the shares;
-`result.summary()` prints one line.
+[Moment definitions and provenance](moments/README.md) ·
+[NNLOJET patches](nnlojet_patch/README.md) · [Run cards](runcards/README.md) ·
+[Changelog](CHANGELOG.md)
 
-## Uncertainty bands
+The earlier histogram interface remains available for existing scripts, documented
+in the [API reference](docs/REFERENCE.md#legacy-histogram-input).
 
-The uncertainty bands are loops over the same call. They are implemented in
-`examples/bands_with_released_moments.py`.
+## Citation
 
-1. **Scale:** re-solve once per scale choice, `load_moments(process, scale=k)` for k = 1..6.
-   The per-bin envelope is the band.
-2. **Target statistics:** re-solve once per bootstrap replica of the independent fixed-order
-   runs, `load_moments(process, runs=rng.integers(0, n_runs, n_runs))`.
-3. **Matching:** re-solve with the transition region moved down and up,
-   `load_moments(process, window="down")` and `window="up"`, the threshold of the matching-scale
-   rule varied by a factor of two. Their envelope around the nominal solve is the matching
-   uncertainty.
-4. **PDF** (W± and the Higgs boson): re-solve once per CT18NNLO member,
-   `load_moments(process, pdf_member=k)` for k = 1..58. `released.hessian_band` turns the 59
-   results (member 0 is the central solve) into the 68% CL band.
-5. **Sample statistics:** the usual per-bin error of the weighted events, Σ q_i².
+B. Assi, *Maximum-entropy reweighting of color-singlet samples* (2026).
+The manuscript describes the method and the five applications.
 
-The error bar combines 2 and 5 in quadrature. Every re-solve uses:
-- `fixed_orders` = the central solve's `report["moment_selection"]["chosen"]`, so that it
-  imposes the same constraint set;
-- `lam0` = the central `report["lam"]`, except with a moved window, whose polynomials can
-  differ from the central solve's.
+For the letter's NNLO Z+jet recoil moments (`load_moments("dy", nnlo_zj=True)`),
+also cite B. Assi, R. Poncelet and J. Whitehead, *Positive-weight moment matching
+at NNLO and beyond* (2026), IFJPAN-IV-2026-23, MCNET-26-35.
 
-Above the upper window's transition region, at about ⁸⁄₃ v_m, every target is fixed order
-alone, and the moved windows differ from the nominal one only by the Monte Carlo noise of their
-input runs, which are smaller than the main one.
-
-The released tables reproduce the authors' stored weights: the central solves to 2 × 10⁻¹¹ or better,
-the moved Higgs and diphoton windows bit for bit, and the scale and bootstrap
-re-solves, whose targets are identical to the authors', to between 10⁻¹³ and 1.5 × 10⁻⁶: the
-larger differences are the solver's own stopping tolerance. On the paper's priors the central,
-moved-window and CT18NNLO-member solves reproduce the stored weights to round-off
-([`REPRODUCE.md`](REPRODUCE.md)).
-
-## Moments from your own fixed-order code
-
-- [`MOMENT_CONSTRUCTION.md`](MOMENT_CONSTRUCTION.md): the recipe (maps, window, errors, how
-  many orders, which calculation each tower comes from).
-- [`nnlojet_patch/`](nnlojet_patch/): the patches that make NNLOJET v1.0.2 accumulate
-  event-level moments as single-number profile histograms, and those that add the moved
-  windows.
-- [`runcards/`](runcards/): the NNLOJET run cards of every production behind a table.
-- [`export_moments.py`](export_moments.py): pools the runs into the tables
-  (`NNLOJET_ROOT=<dir> python export_moments.py dy`).
-
-## Glossary: notation and code
-
-| notation | code |
-|---|---|
-| prior p_i | `events["weight"]` |
-| tower of depth N (moments n = 1..N of one observable) | the lists in `moments`; `n_orders` in a table |
-| matching scale v_m | `x_match`; `profile["a"]` |
-| window w(v), rising v_m → 2 v_m, cut at c | `config["recoil"][obs]["profile"] = {"a", "b", "c"[, "d"]}`; `profile_w` |
-| window rate r = ⟨w⟩ | `rate`, `window_rate` |
-| blended target (the default) / windowed form | `config["recoil"][obs]["transition"]` = `"blend"` / `"windowed"` |
-| transition region moved down and up (the matching uncertainty) | `load_moments(process, window="down")`, `"up"`; `released.windows` |
-| CT18NNLO member k; the PDF band | `load_moments(process, pdf_member=k)`; `released.hessian_band` |
-| follower (never constrained) | any array in `events` not named in `config` |
-| upgraded sample (MaxEnt in figures) | `result.weights` |
-| resolution criterion SNR_n > 1 | `moment_selection`, `snr_threshold`, `result.moment_snr` |
-| closure; worst pull | `result.closure`; `result.max_pull` |
-| ridge ε of the dual | the config key `L2` |
-
-## Legacy: histogram input
-
-`upgrade_from_histograms(events, fo_low, fo_high, config)` implements an earlier,
-histogram-based variant of the construction:
-- binned K-factor targets from two consecutive orders;
-- a data-driven matching scale;
-- the dials `WSIG`, `RELMAX`, `DELTA`, `CLIP`, `MINSUP`, `RSUP` and `band`.
-
-It is kept for users who have only binned fixed-order output, and was not used for the paper's
-results. `examples/example_synthetic.py` shows it. Its helpers are `moment_snr`,
-`resolved_order`, `FOHist` and `fo_from_dat`.
-
-## Repository layout
-
-| path | content |
-|---|---|
-| `maxent_upgrade/` | the package: `__init__.py` (`upgrade` and helpers), `released.py` (`load_moments`), `basis.py` (maps and Chebyshev polynomials), `maxent_match.py` (the solver and the legacy engine) |
-| `moments/` | the released tables, their per-run files, and their README |
-| `examples/` | `upgrade_with_released_moments.py`, `bands_with_released_moments.py`, `example_moments.py`, `example_diphoton.py` (toy prior), `example_synthetic.py` (legacy) |
-| `tests/` | `test_released.py`, `test_blend.py`, `test_two_recoils.py`, `test_mixed_moments.py` (`python tests/<file>`, or `pip install -e ".[test]"` then `pytest tests/`) |
-| `docs/` | the flowchart |
-| `nnlojet_patch/`, `runcards/`, `export_moments.py` | the fixed-order side |
-| [`REPRODUCE.md`](REPRODUCE.md) | what the repository reproduces, and how |
-| [`CHANGELOG.md`](CHANGELOG.md) | changes between releases |
-
-## Citation and licence
-
-If you use the package or the released moments, please cite the paper,
-B. Assi, *Maximum-entropy reweighting of color-singlet samples* (2026), arXiv:26xx.xxxxx.
-It describes the method and every released table.
-
-If you use the NNLO Z+jet p_T^ℓℓ moments (`load_moments("dy", nnlo_zj=True)`), please also cite
-the letter, B. Assi, R. Poncelet, J. Whitehead, *Positive-weight moment matching at NNLO and
-beyond* (2026), IFJPAN-IV-2026-23, MCNET-26-35.
-
-MIT licence (see `LICENSE`).
+MIT license. See [LICENSE](LICENSE).

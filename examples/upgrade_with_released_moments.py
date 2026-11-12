@@ -1,43 +1,21 @@
-#!/usr/bin/env python3
-r"""Upgrade YOUR prior with the released fixed-order moments.
+"""Reweight your prior using a released table.
 
-    python examples/upgrade_with_released_moments.py dy  my_prior.npz  [out.npz]
+    python examples/upgrade_with_released_moments.py dy prior.npz [posterior.npz]
 
-`my_prior.npz` holds one array per observable the table constrains (see
-`python moments/load_moments.py dy`) and the positive prior weights under 'weight', all of
-the same length, for events inside the table's fiducial selection, with the observables
-defined as moments/README.md states (Born-level leptons, Collins-Soper angles; Z+jet: events
-with at least one jet).  The output holds the same arrays plus 'weight_upgraded', normalized
-to the fixed-order cross section of the table in pb (`sigma_fid(process)`; for the Higgs
-boson the paper normalizes to the N3LO cross section instead, see the table's note).
+The installed command is maxent-upgrade reweight dy prior.npz [posterior.npz].
+Use maxent-upgrade inspect dy to see the required arrays and fiducial selection.
+The output preserves the input arrays and adds weight_upgraded in pb.
 """
-import os
+from pathlib import Path
 import sys
 
-import numpy as np
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # if not pip-installed
-from maxent_upgrade import upgrade, load_moments, sigma_fid   # noqa: E402
-
-
-def main():
-    if len(sys.argv) < 3:
-        sys.exit(__doc__)
-    process, prior = sys.argv[1], sys.argv[2]
-    out = sys.argv[3] if len(sys.argv) > 3 else os.path.splitext(prior)[0] + f"_{process}_upgraded.npz"
-    moments, config = load_moments(process)
-    P = dict(np.load(prior))
-    events = {k: np.asarray(v, float) for k, v in P.items() if np.ndim(v) == 1}
-    res = upgrade(events, moments, config)          # stops with a clear message if an array is missing
-    print(res.describe())
-    sig = sigma_fid(process)
-    w = res.weights / res.weights.sum() * sig["value"]
-    print(f"normalized to the fixed-order cross section of the table, {sig['value']:.4g} pb")
-    if sig.get("note"):
-        print(f"  note: {sig['note']}")
-    np.savez_compressed(out, **P, weight_upgraded=w)
-    print(f"wrote {out} (original arrays + 'weight_upgraded')")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from maxent_upgrade.cli import main
 
 
 if __name__ == "__main__":
-    main()
+    args = sys.argv[1:]
+    if len(args) == 2:
+        process, prior = args
+        args.append(str(Path(prior).with_suffix("")) + f"_{process}_upgraded.npz")
+    main(["reweight", *args])
