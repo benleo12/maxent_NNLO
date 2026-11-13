@@ -188,17 +188,29 @@ Retain the exact configuration with the moments. Save the event ordering and the
 solver's diagnostic output with each result. The selected moment count can differ
 between priors because the correction required by each prior differs.
 
-For uncertainty re-solves on one prior, keep the central set of moment orders:
+For uncertainty propagation on one prior, supply the varied moments and rates
+to `upgrade_ensemble`. It keeps the central moment orders fixed:
 
 ```python
-fixed_orders = result.report["moment_selection"]["chosen"]
-shifted_config = {**config, "fixed_orders": fixed_orders, "lam0": result.report["lam"]}
-shifted_result = upgrade(prior, shifted_moments, shifted_config)
+from maxent_upgrade import Variation, upgrade_ensemble
+
+variations = {
+    "scale": [Variation(moments_up, cross_section=sigma_up_pb),
+              Variation(moments_down, cross_section=sigma_down_pb)],
+}
+ensemble = upgrade_ensemble(prior, moments, config, variations,
+                            cross_section=sigma_pb)
+hist = ensemble.histogram(prior["mass"], np.linspace(60, 140, 21))
 ```
 
-Use a cold start when a changed map or window changes the measurement functions.
-The [band example](../examples/bands_with_released_moments.py) demonstrates scale,
-input-statistical, transition and PDF variations using the released tables.
+Pass `config=shifted_config` in a `Variation` when a map or window changes. The
+solver then uses a cold start. A `stat` source takes independent-run bootstrap
+replicas and reports their standard deviation. Other custom sources default to
+an envelope including the central result. Histograms retain each source separately,
+and `ensemble.arrays()` saves coherent event weights in pb for any later observable.
+The complete [custom uncertainty example](../examples/custom_uncertainties.py)
+runs without external data. For released processes, `upgrade_with_uncertainties`
+builds the variations automatically, including available PDF and window inputs.
 
 Automation covers the numerical reweighting. The user specifies the physics input:
 which observables to constrain, where fixed order is reliable, and whether the

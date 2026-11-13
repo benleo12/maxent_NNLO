@@ -111,11 +111,39 @@ or joint block) are constraints but not moments: their closure and pull are in
 
 ## Uncertainty bands
 
-The uncertainty bands are loops over the same call. Saved event weights sum to one.
-`released.cross_section(process, scale=k)`, `runs=...` or `pdf_member=k` supplies
-the matching total cross section in pb. The example saves these as `sigma_*_pb`
-arrays alongside the weights. The loops are implemented in
-[bands_with_released_moments.py](../examples/bands_with_released_moments.py).
+The released inputs can be propagated in one call:
+
+```python
+from maxent_upgrade import upgrade_with_uncertainties
+
+ensemble = upgrade_with_uncertainties(events, "wp", n_boot=20, seed=1,
+                                      recoil=["pt_w", "ctw_window"])
+hist = ensemble.histogram(events["pt_w"], bins=[0, 10, 20, 40, 80, 160])
+```
+
+`ensemble.central` is the usual `UpgradeResult`. `ensemble.weights[source]`
+holds the unit-area weights, and `ensemble.cross_sections[source]` their rates
+in pb. `ensemble.arrays()` produces NPZ-ready **cross-section weights**, including
+`weight_upgraded` and `weight_scale`, `weight_stat`, `weight_window`, `weight_pdf`
+for available sources. Each variation array has shape `(members, events)` and
+excludes the central result. PDF rows are members 1..58 in eigenvector-pair order.
+`cross_section_<source>_pb`, labels, source names and methods are saved alongside.
+`arrays(unit_area=True)` instead saves every weight vector with sum one.
+
+The histogram returns `central`, `<source>_low`, `<source>_high`, `sample_error`
+and `edges`. Defaults are densities in pb per observable unit. `density=False`
+returns bin integrals. `unit_area=True` normalizes by the full sample, including
+events outside the displayed bins. On a saved output, call
+`histogram_bands(values, edges, saved)` or use `maxent-upgrade histogram`.
+Histogram each coherent variation **before** taking an envelope or Hessian
+combination. Taking per-event up/down envelopes would destroy cancellations.
+
+Use `sources=("scale", "window")` to request a subset. The baseline uses the
+nominal window. Sources unavailable for the selected constraints appear in
+`ensemble.notes`. The stored weights use about `8*N_events*N_variations` bytes.
+The function accepts the same Born, recoil, joint and map selections as the loader.
+For the optional NNLO Z+jet recoil input, bootstrap propagation covers only the
+Drell–Yan part because no per-run NNLO Z+jet replicas were released.
 
 1. **Scale:** re-solve once per scale choice, `load_moments(process, scale=k)` for k = 1..6.
    The per-bin envelope including the central prediction is the band.
@@ -128,13 +156,31 @@ arrays alongside the weights. The loops are implemented in
 4. **PDF** (W± and the Higgs boson): re-solve once per CT18NNLO member,
    `load_moments(process, pdf_member=k)` for k = 1..58. `released.hessian_band` turns the 59
    results (member 0 is the central solve) into the 68% CL band.
-5. **Sample statistics:** the usual per-bin variance of the weighted events, Σ q_i².
+5. **Sample statistics:** `sample_error` uses the usual weighted-event variance,
+   conditional on the fitted weights. Unit-area histograms include covariance
+   with their normalization. This does not resample the prior and repeat its fit.
 
-The error bar combines 2 and 5 in quadrature. Every re-solve uses:
+The helper keeps these sources separate. The paper's error bars combine 2 and 5
+in quadrature. Every re-solve uses:
 - `fixed_orders` = the central solve's `report["moment_selection"]["chosen"]`, so that it
   imposes the same constraint set;
 - `lam0` = the central `report["lam"]`, except with a moved window, whose polynomials can
   differ from the central solve's.
+
+Generator variations can be supplied on the same events as
+`prior_weights={"ISR down": weights_down, "ISR up": weights_up}`. These are
+replacement **prior** weights, not factors multiplying the posterior. The driver
+re-solves the central target for each and adds a shower envelope, keeping the
+fixed-order rate. For changes to kinematics or event counts, reweight the separate
+samples and compare their histograms. For a new process use `upgrade_ensemble`
+with `Variation` inputs, as in [custom_uncertainties.py](../examples/custom_uncertainties.py).
+Pass a shifted `config` when maps/windows change; this triggers a cold start.
+Custom PDF prescriptions can be applied to member histograms instead of using
+the CT18-specific `hessian68` method.
+
+The lower-level [band example](../examples/bands_with_released_moments.py) remains
+available to inspect the loops explicitly. Its older file format keeps unit-area
+weights and separate `sigma_*_pb` arrays.
 
 Above the highest transition region and below the hard cutoff, all three windows
 assign unit weight to the fixed-order input. Their finite-moment posteriors can

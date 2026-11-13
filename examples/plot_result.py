@@ -10,6 +10,10 @@ import argparse
 from pathlib import Path
 
 import numpy as np
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from maxent_upgrade import histogram_bands
 
 
 def main():
@@ -23,6 +27,7 @@ def main():
     parser.add_argument("--range", nargs=2, type=float, dest="limits", metavar=("LOW", "HIGH"))
     parser.add_argument("--log-x", action="store_true")
     parser.add_argument("--log-y", action="store_true")
+    parser.add_argument("--band", default="scale", help="uncertainty source to show if present (default: scale)")
     parser.add_argument("--output", help="PDF, SVG or PNG (default: <sample>_<observable>.pdf)")
     args = parser.parse_args()
     try:
@@ -50,6 +55,8 @@ def main():
                          1) if args.log_x else np.linspace(lo, hi, args.bins + 1)
     hist = {name: np.histogram(x, edges, weights=w / w.sum())[0] / np.diff(edges)
             for name, w in weights.items()}
+    with np.load(args.sample, allow_pickle=False) as data:
+        bands = histogram_bands(x, edges, data, unit_area=True) if "uncertainty_sources" in data else {}
     plt.rcParams.update({"font.family": "serif", "font.size": 11, "axes.spines.top": False,
                          "axes.spines.right": False, "savefig.bbox": "tight"})
     fig, (ax, ratio) = plt.subplots(2, 1, figsize=(6.5, 5.8), sharex=True,
@@ -57,6 +64,13 @@ def main():
     styles = {prior_label: ("#8a8a8a", "--"), "MaxEnt": ("#b71727", "-"),
               "Synthetic target": ("#222222", ":")}
     reference = hist[prior_label]
+    if args.band + "_low" in bands:
+        low, high = bands[args.band + "_low"], bands[args.band + "_high"]
+        ax.stairs(high, edges, baseline=low, fill=True, color="#b71727", alpha=0.18,
+                  label=f"MaxEnt {args.band} uncertainty", linewidth=0)
+        ratio.stairs(np.divide(high, reference, out=np.full_like(high, np.nan), where=reference > 0), edges,
+                     baseline=np.divide(low, reference, out=np.full_like(low, np.nan), where=reference > 0),
+                     fill=True, color="#b71727", alpha=0.18, linewidth=0)
     for name, values in hist.items():
         color, line = styles[name]
         ax.stairs(values, edges, color=color, linestyle=line, linewidth=1.8, label=name)

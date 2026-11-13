@@ -6,6 +6,7 @@ import numpy as np
 
 from . import released
 from .reweight import upgrade
+from .uncertainty import histogram_bands, upgrade_with_uncertainties
 
 
 def _selection(parser):
@@ -75,16 +76,58 @@ def reweight(args):
         raise ValueError("the target cross section must be a finite positive number in pb")
     print(f"Selection required: {released.table(args.process)['fiducial']}")
     print("The package applies no cuts. Input events must already satisfy this selection.\n")
-    result = upgrade(events, moments, config)
+    if args.uncertainties:
+        if args.cross_section is not None:
+            raise ValueError("--cross-section cannot override the correlated rates of an uncertainty ensemble")
+        ensemble = upgrade_with_uncertainties(
+            events, args.process, sources=args.sources, n_boot=args.bootstrap, seed=args.seed,
+            born=args.born, recoil=args.recoil, mixed=args.mixed, window=args.window, nnlo_zj=args.nnlo_zj,
+            progress=lambda label, result: print(f"{label}: {result.summary()}", flush=True),
+        )
+        result = ensemble.central
+        additions = ensemble.arrays(unit_area=args.unit_area)
+        for note in ensemble.notes:
+            print(note)
+    else:
+        result = upgrade(events, moments, config)
+        additions = dict(weight_upgraded=result.weights * total,
+                         weight_normalization=np.asarray("unit_area" if args.unit_area else "pb"),
+                         moment_names=np.asarray(list(result.chosen_moments), dtype=str),
+                         moment_orders=np.asarray(list(result.chosen_moments.values()), dtype=int))
+        if not args.unit_area:
+            additions["cross_section_upgraded_pb"] = np.asarray(total)
     print(result.describe())
-    saved = dict(events, weight_upgraded=result.weights * total)
-    if not args.unit_area:
-        saved["cross_section_upgraded_pb"] = np.asarray(total)
+    collisions = set(events).intersection(additions)
+    if collisions:
+        raise ValueError(f"input already contains output fields: {sorted(collisions)}")
+    saved = dict(events, **additions)
     np.savez_compressed(output, **saved)
     convention = "unit-area weights" if args.unit_area else f"cross-section weights summing to {total:.6g} pb"
     print(f"\nSaved {output}: original arrays plus weight_upgraded ({convention}).")
     if sigma.get("note") and args.cross_section is None and not args.unit_area:
         print(sigma["note"])
+
+
+def histogram(args):
+    """Build bands after histogramming coherent variations, for any saved observable."""
+    output = Path(args.output)
+    if output.suffix != ".npz" or output.resolve() == Path(args.sample).resolve():
+        raise ValueError("choose a separate .npz output file")
+    if output.exists() and not args.force:
+        raise ValueError(f"output already exists: {output}; choose another path or use --force")
+    with np.load(args.sample, allow_pickle=False) as sample:
+        values = sample[args.observable]
+        lo, hi = args.limits if args.limits else (values.min(), values.max())
+        if not np.isfinite([lo, hi]).all() or not lo < hi or args.bins < 1:
+            raise ValueError("use a finite increasing range and a positive number of bins")
+        if args.log_bins and lo <= 0:
+            raise ValueError("logarithmic bins need a positive lower edge")
+        edges = (np.geomspace if args.log_bins else np.linspace)(lo, hi, args.bins + 1)
+        hist = histogram_bands(values, edges, sample, unit_area=args.unit_area, density=True)
+        hist["observable"] = np.asarray(args.observable)
+        hist["normalization"] = np.asarray("unit_area" if args.unit_area or "cross_section_upgraded_pb" not in sample else "pb")
+    np.savez_compressed(output, **hist)
+    print(f"Saved {output}: central density and a separate band for each available source.")
 
 
 def main(argv=None):
@@ -109,7 +152,22 @@ def main(argv=None):
                       help="override the total cross section in pb")
     norm.add_argument("--unit-area", action="store_true", help="save weights summing to one")
     solve.add_argument("--force", action="store_true", help="replace an existing output file")
+    solve.add_argument("--uncertainties", action="store_true", help="re-solve available input variations")
+    solve.add_argument("--sources", nargs="+", choices=("scale", "stat", "window", "pdf"),
+                       default=["scale", "stat", "window", "pdf"], help="uncertainty sources to propagate")
+    solve.add_argument("--bootstrap", type=int, default=20, help="independent-run bootstrap replicas (default: 20)")
+    solve.add_argument("--seed", type=int, default=1, help="bootstrap random seed")
     solve.set_defaults(run=reweight)
+    hist = commands.add_parser("histogram", help="histogram a saved observable with separate uncertainty bands")
+    hist.add_argument("sample")
+    hist.add_argument("observable")
+    hist.add_argument("output", help="output NPZ file of bin edges and densities")
+    hist.add_argument("--bins", type=int, default=30)
+    hist.add_argument("--range", nargs=2, type=float, dest="limits", metavar=("LOW", "HIGH"))
+    hist.add_argument("--log-bins", action="store_true")
+    hist.add_argument("--unit-area", action="store_true")
+    hist.add_argument("--force", action="store_true")
+    hist.set_defaults(run=histogram)
     args = parser.parse_args(argv)
     try:
         args.run(args)

@@ -64,6 +64,40 @@ weights_pb = shape_weights * sigma_fid("dy")["value"]   # sum = cross section in
 `events["weight"]` again. For a relative reweighting factor, use
 `result.weights / (events["weight"] / events["weight"].sum())`.
 
+## Predictions with uncertainties
+
+Add `--uncertainties` to re-solve the available scale choices, independent-run
+bootstrap replicas, moved transition windows and PDF members:
+
+```bash
+maxent-upgrade reweight dy my_prior.npz posterior.npz --uncertainties
+maxent-upgrade histogram posterior.npz pT_ll recoil.npz --bins 30 --range 0 300
+python examples/plot_result.py posterior.npz pT_ll --range 1 300 --log-x --band scale
+```
+
+Every variation carries its own total cross section and positive replacement
+event weights. The central moment orders stay fixed. Histogram bands keep the
+sources separate: scale/window envelopes, integration-statistical standard
+deviation and the CT18 68% Hessian band where available. The file also includes
+the usual weighted-sample statistical error. Unavailable inputs are reported.
+Shower variations can be supplied as generator weights through the Python API.
+
+```python
+from maxent_upgrade import upgrade_with_uncertainties
+
+result = upgrade_with_uncertainties(events, "dy", n_boot=20)
+hist = result.histogram(events["pT_ll"], np.linspace(0, 300, 31))
+# hist["central"], hist["scale_low"], hist["scale_high"], ... are in pb/GeV
+np.savez_compressed("posterior.npz", **events, **result.arrays())
+```
+
+Use `--sources scale window` to request fewer sources, or `--bootstrap 100` for
+more integration replicas. Storing weights costs 8 bytes per event per variation.
+The same workflow supports new processes through `upgrade_ensemble`; the complete
+[custom uncertainty example](examples/custom_uncertainties.py) runs without any
+external data. See the [uncertainty reference](docs/REFERENCE.md#uncertainty-bands)
+for normalization, shower inputs and the saved-array format.
+
 ## Try it without an event sample
 
 ```bash

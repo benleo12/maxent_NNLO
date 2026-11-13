@@ -38,6 +38,9 @@ jobs:
         run: |
           python examples/custom_observables.py
           python examples/plot_result.py custom_result.npz mass --label Mass --unit GeV
+          python examples/custom_uncertainties.py
+          python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
+          maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp
         run: |

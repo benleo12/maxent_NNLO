@@ -168,6 +168,30 @@ python examples/paper_examples.py ggh higgs_prior.npz higgs_up.npz --window up
 
 These standalone commands select moments afresh. To construct a band, hold the
 central moment orders fixed, as in [bands_with_released_moments.py](bands_with_released_moments.py).
+
+The same calculation is available directly from the installed command:
+
+```bash
+maxent-upgrade reweight wp my_wp_prior.npz wp_bands.npz --uncertainties --recoil pt_w ctw_window
+maxent-upgrade histogram wp_bands.npz pt_w wp_recoil.npz --bins 30 --range 0 150
+python examples/plot_result.py wp_bands.npz pt_w --band pdf --range 0 150
+```
+
+The new output includes event arrays and coherent replacement weights in pb for
+each variation. `--sources scale window` selects fewer sources. The histogram
+command produces separate bands and weighted-sample statistical errors, for any
+observable present in the event file. Use `--unit-area` for normalized shapes.
+The old band script above retains its documented shape-weight/rate format.
+
+For a complete example with your own observable names and uncertainty inputs:
+
+```bash
+python examples/custom_uncertainties.py
+python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
+```
+
+This synthetic example uses `upgrade_ensemble` and `Variation` without a released
+process table. Its target and variations are illustrative, not QCD predictions.
 That script provides the scale, input-statistical, matching and released PDF
 re-solves. Its saved event weights sum to one. Matching `sigma_*_pb` arrays contain the
 cross section for each scale, statistical replica or PDF member. For example,
