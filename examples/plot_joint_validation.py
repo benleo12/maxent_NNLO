@@ -51,7 +51,7 @@ def main():
             axis.set_major_locator(FixedLocator([60, 100, 200, 400, 1000]))
             axis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:g}"))
             axis.set_minor_formatter(NullFormatter())
-        print(f"{title}: half the summed absolute bin-probability difference = {np.abs(shape-target).sum()/2:.4f}")
+        print(f"{title}: half the summed absolute bin-probability difference = {np.abs(shape - target).sum() / 2:.4f}")
     axes[0].set_ylabel(r"$p_T^{j_2}$ [GeV]")
     fig.colorbar(mesh, ax=axes, orientation="horizontal", location="top", shrink=0.65,
                  label="MaxEnt / fixed order", extend="both")
