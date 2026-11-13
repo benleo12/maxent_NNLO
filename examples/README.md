@@ -192,6 +192,18 @@ python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
 
 This synthetic example uses `upgrade_ensemble` and `Variation` without a released
 process table. Its target and variations are illustrative, not QCD predictions.
+
+The paper's two-dimensional jet-correlation comparison also runs without the
+large event samples:
+
+```bash
+python examples/plot_joint_validation.py
+```
+
+It compares the separate and joint fits with an independently integrated Z+2-jet
+reference. [Binned data and provenance](data/README.md) are included. For other
+observables, form the same two-dimensional histograms from your posterior event
+weights and fixed-order reference, with common bins and normalization.
 That script provides the scale, input-statistical, matching and released PDF
 re-solves. Its saved event weights sum to one. Matching `sigma_*_pb` arrays contain the
 cross section for each scale, statistical replica or PDF member. For example,
