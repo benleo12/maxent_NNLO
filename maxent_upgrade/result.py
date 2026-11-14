@@ -68,6 +68,9 @@ class UpgradeResult:
                     else f"effective fraction {100 * self.effN:.2f}%")
         residual = (f"largest moment residual {self.max_pull:.3g} MC errors"
                     if np.isfinite(self.max_pull) else f"relative moment residual {self.closure:.2g}")
+        if (not np.isfinite(self.max_pull)
+                and np.any(np.abs(self.report.get("zero_error_residuals", [])) > 1e-12)):
+            residual = "nonzero residual for an input with zero MC error"
         return f"{len(self.weights):,} events | {retained} | {residual} | positive weights: {bool((self.weights > 0).all())}"
 
     def describe(self) -> str:

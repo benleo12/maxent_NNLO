@@ -225,6 +225,11 @@ def test_exact_targets_do_not_report_zero_pull_for_nonzero_ridge_residual():
     fit = fit_constraints(np.ones(len(x)), data, [block], prior_id="events", l2=.1)
     assert np.isnan(fit.central.max_pull)
     assert abs(fit.central.report["zero_error_residuals"][0, 0]) > .001
+    assert "zero MC error" in fit.central.summary()
+    zero = NumericalInput(("rate", "x"), [1, 0], np.zeros((2, 2)), "exact-zero")
+    zero_block = ConstraintBlock.from_input("x", x[:, None], zero, labels=("x",))
+    zero_fit = fit_constraints(np.exp(x), zero, [zero_block], prior_id="events", l2=.1)
+    assert np.isnan(zero_fit.central.closure) and "zero MC error" in zero_fit.central.summary()
 
 
 def test_zero_ridge_dependent_response_and_overflowed_prior_fail_clearly():

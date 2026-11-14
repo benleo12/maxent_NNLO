@@ -458,10 +458,11 @@ def fit_constraints(prior_weights, data, blocks, *, prior_id, event_ids=None, l2
                   q_over_p_range=(float(np.min(weights[0] / p)), float(np.max(weights[0] / p))))
     relative = np.divide(np.abs(residual[0]), np.abs(target[:, 0]),
                          out=np.zeros(len(labels)), where=target[:, 0] != 0)
+    undefined_relative = (target[:, 0] == 0) & (np.abs(residual[0]) > 1e-12)
     unscaled = (error == 0) & (np.abs(residual[0]) > 1e-12 * (1 + np.abs(target[:, 0])))
     max_pull = float("nan") if unscaled.any() else float(np.max(pull[np.isfinite(pull)], initial=0))
     central = UpgradeResult(weights[0], 1 / (len(p) * (weights[0] @ weights[0])),
-                            float(np.max(relative, initial=0)), float("nan"),
+                            float("nan") if undefined_relative.any() else float(np.max(relative, initial=0)), float("nan"),
                             report, {}, {b.name: len(b.labels) for b in blocks},
                             effN_retained=stats["effective_fraction_retained"],
                             max_pull=max_pull)
@@ -514,7 +515,8 @@ def load_frozen(path, prior_weights, data, blocks, *, prior_id, event_ids=None):
     pull = np.divide(np.abs(residual[0]), error, out=np.zeros(len(fit.labels)), where=error > 0)
     relative = np.divide(np.abs(residual[0]), np.abs(target[:, 0]),
                          out=np.zeros(len(fit.labels)), where=target[:, 0] != 0)
-    fit.central.closure = float(np.max(relative, initial=0))
+    undefined_relative = (target[:, 0] == 0) & (np.abs(residual[0]) > 1e-12)
+    fit.central.closure = float("nan") if undefined_relative.any() else float(np.max(relative, initial=0))
     unscaled = (error == 0) & (np.abs(residual[0]) > 1e-12 * (1 + np.abs(target[:, 0])))
     fit.central.max_pull = float("nan") if unscaled.any() else float(np.max(pull, initial=0))
     fit.central.report.update(lam=lams[0], Phi=fit.phi, feature_names=fit.labels,
