@@ -1,0 +1,121 @@
+{
+  "observable": "rho*s_x",
+  "massless_identity": "rho*s_x=(pT_lepton^2-pT_neutrino^2)/(m_lnu^2+qT^2)",
+  "model_before": "R+H",
+  "residual_convention": "posterior minus fixed-order training moment at corresponding coherent scale",
+  "scale_factors_muR_muF": [
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      0.5,
+      0.5
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      0.5,
+      1
+    ],
+    [
+      1,
+      0.5
+    ]
+  ],
+  "uncertainty": "central complete training residual covariance, including refit response and finite weighted prior",
+  "validation_reference_opened": false,
+  "interpretation": "The measured imbalance deficit has opposite sign for the two charges; no threshold-acceptance closure or uniquely low-recoil attribution follows.",
+  "charges": {
+    "WP": {
+      "source": "fits160/WP/full/SELECTION.json",
+      "source_sha256": "c1bdc373074b9447acf3761805d6bf3c0b0079deaed2076de17b2643a207c4a2",
+      "block": "S",
+      "label": "pred_S_0_4",
+      "zero_based_block_index": 4,
+      "block_labels": [
+        "pred_S_0_0",
+        "pred_S_0_1",
+        "pred_S_0_2",
+        "pred_S_0_3",
+        "pred_S_0_4",
+        "pred_S_1_0",
+        "pred_S_1_1",
+        "pred_S_1_2",
+        "pred_S_1_3",
+        "pred_S_1_4",
+        "pred_S_2_0",
+        "pred_S_2_1",
+        "pred_S_2_2",
+        "pred_S_2_3",
+        "pred_S_2_4"
+      ],
+      "coherent_scale_residuals": [
+        -0.0029867162471343515,
+        -0.0032134650882793166,
+        -0.002751872561935688,
+        -0.003350682569747772,
+        -0.002832118250777456,
+        -0.002595566014506754,
+        -0.003134292236475829
+      ],
+      "central_numerical_error": 0.00014433104098360218,
+      "central_residual_over_error": -20.69351282149818,
+      "sign_at_every_scale": "negative",
+      "scale_range": [
+        -0.003350682569747772,
+        -0.002595566014506754
+      ]
+    },
+    "WM": {
+      "source": "fits160/WM/full/SELECTION.json",
+      "source_sha256": "d8af9debaaa4d66d68efcb278d2a50b08ac42f2c0f24c8dd1211f71c796fe7ae",
+      "block": "S",
+      "label": "pred_S_0_4",
+      "zero_based_block_index": 4,
+      "block_labels": [
+        "pred_S_0_0",
+        "pred_S_0_1",
+        "pred_S_0_2",
+        "pred_S_0_3",
+        "pred_S_0_4",
+        "pred_S_1_0",
+        "pred_S_1_1",
+        "pred_S_1_2",
+        "pred_S_1_3",
+        "pred_S_1_4",
+        "pred_S_2_0",
+        "pred_S_2_1",
+        "pred_S_2_2",
+        "pred_S_2_3",
+        "pred_S_2_4"
+      ],
+      "coherent_scale_residuals": [
+        0.0019104628192895537,
+        0.0018923518277489592,
+        0.0018956882518645062,
+        0.0017590317072028964,
+        0.0020553317995564,
+        0.0020479783296174113,
+        0.0017619459392235323
+      ],
+      "central_numerical_error": 0.00015108972172138852,
+      "central_residual_over_error": 12.644558461842115,
+      "sign_at_every_scale": "positive",
+      "scale_range": [
+        0.0017590317072028964,
+        0.0020553317995564
+      ]
+    }
+  }
+}

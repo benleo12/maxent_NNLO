@@ -46,6 +46,11 @@ independent NNLO integration, and the acceptance of a tighter lepton cut.
 effective statistics, ratios and input provenance. The fit needs no network
 access or external event sample after installation.
 
+[![Actual Drell–Yan example: constrained recoil and independent angular comparison](docs/images/dy_example.png)](examples/README.md)
+
+The example's generated figure shows the supplied hard-recoil information and
+the separate angular prediction. The shaded angular shoulder is marked explicitly.
+
 The example distinguishes propagated input errors from physics validation.
 The independent angle is allowed to disagree: it was not fitted. The
 [sample recipe](examples/data/DY_GENERATION.md) explains the sampling weights,
@@ -76,23 +81,6 @@ The [example catalogue](examples/README.md) gives both charges, extended physica
 constraints and independent comparisons. The compact samples preserve original
 weights, event identities and documented sampling corrections. Their statistics
 differ from the full paper productions.
-
-## Decide which information to add
-
-A small executable [constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) walks
-through fitting separate moments, diagnosing an omitted correlation, freezing
-the chosen physical block and predicting an independent reference:
-
-```bash
-python examples/constraint_workflow.py output/constraint_tutorial
-```
-
-It writes event weights, readable PDF/PNG figures and a local HTML report, with
-the full numerical covariance and provenance beside them. This controlled
-Born-decay illustration explains the workflow; it is not an NNLO calculation.
-The [advanced interface](docs/STUDY_API.md) accepts arbitrary declared event
-functions and common-run fixed-order integrals, using the same solver as
-`upgrade`. Paired model changes retain their shared target and event fluctuations.
 
 ## Quick start
 
@@ -166,6 +154,38 @@ The same workflow supports new processes through `upgrade_ensemble`; the complet
 [custom uncertainty example](examples/custom_uncertainties.py) runs without any
 external data. See the [uncertainty reference](docs/REFERENCE.md#uncertainty-bands)
 for normalization, shower inputs and the saved-array format.
+
+## Decide which information to add
+
+The [real W tutorial](docs/W_CONSTRAINT_TUTORIAL.md) tests declared spin and
+production–decay constraints using their common integration covariance. It saves
+the chosen fits before comparing new lepton selections with an independent NNLO
+calculation:
+
+```bash
+python examples/w_constraint_workflow.py wm --output w_minus
+```
+
+Open `w_minus/report/report.html` for training diagnostics, the independent
+lepton spectrum and paired model changes. Absolute event weights and complete
+covariance accompany the figures. The 80,000-event fixture makes its own training
+choice; it does not inherit the full paper sample's result. Saved fits can be
+reused in another numerical environment without a new solve.
+
+A small controlled [constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) walks
+through fitting separate moments, diagnosing an omitted correlation, freezing
+the chosen physical block and predicting an independent reference:
+
+```bash
+python examples/constraint_workflow.py output/constraint_tutorial
+```
+
+It writes event weights, readable PDF/PNG figures and a local HTML report, with
+the full numerical covariance and provenance beside them. This controlled
+Born-decay illustration explains the workflow; it is not an NNLO calculation.
+The [advanced interface](docs/STUDY_API.md) accepts arbitrary declared event
+functions and common-run fixed-order integrals, using the same solver as
+`upgrade`. Paired model changes retain their shared target and event fluctuations.
 
 ## Try it without an event sample
 

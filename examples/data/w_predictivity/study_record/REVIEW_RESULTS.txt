@@ -1,0 +1,140 @@
+Independent W outcome review, 2026-11-14
+Reviewer: skeptical_referee agent. No fits, choices, reference runs or
+manuscript sources changed. Reference opened only after root approval.
+
+Inputs reviewed
+---------------
+validation_final/RESULTS.json, READER_SUMMARY.json, both charge metric caches,
+asymmetry.npz and VALIDATION_COMPLETE.json; the independently integrated raw
+reference means/covariances; current validate.py and precision stopping record.
+
+Reviewed artifact SHA256:
+RESULTS.json: 07d2c729d51035be220c108ae6a4fd4337c50378fdb683bc45fdd4a88002e140
+READER_SUMMARY.json: dc3006bf40e30b4ea8fb9b9855478c922ac7d08c0ff939033cee2b95b820b0cb
+WP_metrics.npz: a75ebe6c1d3d2d5af29663d05e46f2faf9a6341c763ffd1e32e97a854d59cf54
+WM_metrics.npz: d9a2e1741cd8278f8a5feb290c38da1021e1536725343e5ec963eb30ac87771d
+asymmetry.npz: a647bf04c65c0a15c278f5e8eebaa8a72d60d2ecc0b0848205b8effc0c24123c
+
+Independent implementation checks
+---------------------------------
+All cached means and covariances are finite. For all 20 models and seven scale
+choices, population+migration=physical and the three recoil/polar-region sums
+equal the total old-cut fraction to below 5e-16. Corresponding covariance null
+identities pass. Conditional-hard means equal the joint accepted fraction
+divided by the hard fraction to below 3e-16, and independent propagation from
+the numerator/denominator covariance reproduces its stored variance to below
+1e-21. Recomputing all 33 reference charge-asymmetry means and their complete
+covariance from the independent raw charge integrals reproduces the cache
+exactly. The validator explicitly guards frozen archive identity, label/scale
+and pair ordering, seed uniqueness, T/V separation and charge independence.
+
+Acceptance outcomes
+-------------------
+Residuals below are model minus independent reference, in percentage points.
+The selected model is the frozen R+H+S. Its quoted error includes the linear
+training-input response, refitted finite-prior sampling and independent
+reference integration; it is not a theory uncertainty or calibrated coverage.
+
+Selection                 WP R       WP selected         WM R       WM selected
+pTl>28                   -0.2985     +0.0545 +/-0.0687    +0.4846     -0.0360 +/-0.0786
+pTl>32                   -0.6615     -0.1301 +/-0.0850    +0.6762     -0.1571 +/-0.1121
+mT>60                    +0.0617     +0.0986 +/-0.0865    -0.0128     -0.0129 +/-0.0973
+combined fiducial         +0.4666     +0.0468 +/-0.0677    +0.2336     +0.0600 +/-0.1471
+pTl>32 AND qT>50          -0.0415     +0.0055 +/-0.0131    +0.1114     -0.0184 +/-0.0149
+pTl>32 GIVEN qT>50        -0.9692     +0.1643 +/-0.2636    +2.9663     -0.2889 +/-0.2730
+old pTl>27               +0.0033     +0.3183 +/-0.0620    +0.6452     +0.2110 +/-0.0671
+old pTl>30               -0.5030     -0.0704 +/-0.0805    +0.5287     -0.1579 +/-0.0965
+
+The combined test retains pTl>20 and adds mT>60, pTnu>30 and |eta_l|<1.7.
+The AND row is normalized to the original baseline; the GIVEN row uses its
+own qT>50 denominator. They must not be interchanged.
+
+The clean physical result is the conditional-hard comparison. R-to-selected
+changes the hard-event fraction by only +0.000361 pp (WP) / +0.000056 pp (WM),
+while the conditional acceptance changes by +1.1335 +/-0.2213 pp and
+-3.2552 +/-0.1912 pp respectively, including paired covariance. It changes
+the decay acceptance within almost the same hard-recoil population. H/S
+provide NLO radiation-sensitive information from the inclusive NNLO inputs.
+
+The R-minus-blended-anchor change must remain separate: for pTl>32 it is
++0.08994 pp (WP) and +0.0437 pp (WM), whereas the added H/S change relative
+to R is +0.5314 +/-0.0386 pp and -0.8333 +/-0.0349 pp. The recoil-prescription
+change alone does not explain the improvement. D/M and window controls do
+not reproduce the large spin-induced changes; they remain descriptive
+controls, not a post-validation model-selection opportunity.
+
+The transverse-mass acceptance is almost unchanged, and its WP central
+agreement slightly worsens. The old27 WP acceptance also worsens relative
+to the R control. Do not describe the outcome as universal improvement.
+The unchanged-prior P comparison already uses coherent NNLO baseline rates
+for each charge. Its charge asymmetry therefore includes that rate correction.
+
+Charge-asymmetry shape
+----------------------
+Unweighted binwise RMS residuals, descriptive only, R -> selected:
+eta28:    0.006086 -> 0.003931
+eta32:    0.011307 -> 0.003690
+eta_mT60: 0.004044 -> 0.004117
+These are not global significance tests. Local overshoots remain: in bin8
+the selected eta28 and eta_mT60 residuals are about +0.0101 and +0.0103.
+
+All acceptance-reference precision goals pass, as do every eta28 and mT60
+asymmetry bin. Eta32 bins0,3,4 retain errors 0.002136,0.002042,0.002164 above
+the predeclared 0.002 goal. One valid WP RV run contributes 70.6% of the first
+bin's variance. It is retained; do not attach Gaussian significance to that
+reference bin, merge bins, or treat its quoted error as validated coverage.
+
+Old-cut population/migration interpretation
+-------------------------------------------
+For old30, selected low-qT (<25 GeV) migration residuals are
+WP -0.1412 +/-0.0512 pp; WM -0.1346 +/-0.0482 pp.
+In the 25--50 GeV region they are -0.0039 and +0.0130 pp; above50 they are
+-0.0113 and -0.0235 pp. The remaining recoil-sensitive discrepancy is thus
+concentrated at low recoil, while the hard-region migration is much improved.
+
+The independent 3x3 joint map locates almost the entire old30 low-recoil
+accepted-rate deficit outside the angular window, at |c|>0.7:
+WP -0.1482 +/-0.0175 pp; WM -0.1871 +/-0.0143 pp.
+The two other polar cells in that recoil slice are compatible with zero.
+Near the W resonance, |c|>0.7 gives b=m*sqrt(1-c^2)/2 below about28.7 GeV,
+so passing pTl>30 there requires recoil migration. The off-shell mass tail
+prevents calling the whole cell strictly Born-forbidden.
+
+Old27 remains a counterexample to uniform improvement. Its selected low-qT
+migration residuals are +0.3149 +/-0.0401 pp and +0.2429 +/-0.0368 pp. At
+25--50 GeV the remaining accepted-rate excess is mostly projected population,
+not migration. The exact ledger separates these additive contributions but
+does not uniquely establish missing resummation, a shower error, or the
+optimal physical low-recoil distribution.
+
+Optional reference-sensitivity check
+------------------------------------
+The low-recoil migration pattern meets the previously declared trigger for
+a bounded DYTurbo feasibility pilot. Root authorized at most one CPU node
+for30 minutes, W+ old baseline/30 only, owned by qcd_argument using the
+already verified isolated installation. No additional NNLOJET calculation
+or retuning is proposed. Even a comparable resummed shift would show
+reference-treatment sensitivity, not unique causation. Publication need not
+depend on the pilot if precision/cross-code matching is not achieved within
+the bound.
+
+Minimal presentation
+--------------------
+Keep all five distinct new acceptance selections in the main table for both
+charges:28,32,conditional-hard32,mT60,combined. Put the redundant baseline
+joint fraction and hard denominator in the full appendix/public table, with
+all old-cut and singleton results. State the old27 failure in the main prose.
+A main eta32 panel is consistent with the prespecified tutorial focus; show
+eta28 and mT60 together in the supplement. The old30 recoil-by-polar accepted
+fraction maps, R and selected on a common scale, provide a useful independent
+joint diagnostic. Their entries are baseline-normalized contributions, not
+conditional efficiencies or measurements of azimuthal coefficients.
+
+Conclusion
+----------
+The study demonstrates useful prediction beyond imposed moments: physical
+recoil--decay constraints improve several independently calculated lepton
+selections, with a particularly clean hard-recoil conditional test. Its mixed
+outcomes and additive localization also establish where the finite set of
+constraints leaves unresolved low-recoil acceptance information. There is no
+remaining numerical/accounting blocker in the reviewed result caches.

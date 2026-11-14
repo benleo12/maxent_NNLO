@@ -1,0 +1,23 @@
+{
+  "tasks": 1920,
+  "counts": {
+    "WM/R": 160,
+    "WM/LO": 160,
+    "WM/RR": 160,
+    "WM/VV": 160,
+    "WM/V": 160,
+    "WM/RV": 160,
+    "WP/R": 160,
+    "WP/LO": 160,
+    "WP/RR": 160,
+    "WP/VV": 160,
+    "WP/V": 160,
+    "WP/RV": 160
+  },
+  "binary_sha256": [
+    "122ab364c2292472ffd1957290d746f6d869c3c948730195edbd2985e4ea5179"
+  ],
+  "all_manifest_cards_match": true,
+  "physical_core_pinning": true,
+  "all_outputs_success": true
+}

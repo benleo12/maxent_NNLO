@@ -18,6 +18,17 @@ ETA_EDGES = np.array([0., .21, .42, .63, .84, 1.05,
 CUTS = ("pt28", "pt32", "hard", "pt32hard", "mt60", "combined")
 
 
+def prediction_columns(events):
+    """Combine the public observable groups in the common reference order."""
+    groups = observable_groups(events, exploratory=True)
+    values = np.column_stack([g["values"] for g in groups.values()])
+    labels = tuple(label for g in groups.values() for label in g["labels"])
+    definition = dict(groups={key: g["definition"] for key, g in groups.items()},
+                      role="prespecified validation plus separately identified old-cut exploratory ledger",
+                      denominator="same original baseline")
+    return values, labels, definition
+
+
 def observable_groups(events, *, exploratory=False):
     """Return named columns, labels and exact definitions for the fixed W tests.
 

@@ -1,0 +1,24 @@
+{
+  "charge": "wp",
+  "subset": "full",
+  "candidate": "N",
+  "returncode": 0,
+  "elapsed_s": 19.988855750998482,
+  "command": [
+    "/global/common/software/nersc/pe/conda-envs/26.11.0/python-3.13/nersc-python/bin/python",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/scripts/train.py",
+    "--training",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/pooled160/T_WP.npz",
+    "--prior",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/priors/w_prior_v6_nomec_wp.npz",
+    "--charge",
+    "wp",
+    "--output",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/fits160",
+    "--subset",
+    "full",
+    "--candidate",
+    "N"
+  ],
+  "job": "61286310"
+}

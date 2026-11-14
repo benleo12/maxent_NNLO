@@ -1,0 +1,98 @@
+{
+  "cards/WM/T/LO/rc.run": {
+    "before": "1c5ddc5820d49c6f7ba59988456be4bcd6918b2d1369d0c09a08ba5748b66491",
+    "after": "e87a456a58597fbeaa07c9bfe99ec5327798158cd81ba66f8c3d6b58719a747a"
+  },
+  "cards/WM/T/R/rc.run": {
+    "before": "a335c9bdf706ecfc13756ee802be78921c204f797a61a2d42b35a429a757864a",
+    "after": "0773b158efddf7e749bc045cb5c87b5c5869e5af99adfcbad9ca7b15911dd548"
+  },
+  "cards/WM/T/RR/rc.run": {
+    "before": "ea723e78d3c0040cee7e4e884e1c04448380b5b0a8078948fd741ad275f7a55b",
+    "after": "cfa4866ae5e27388438e39d6e86500e47fc26bcdad7364311c8db2928868d863"
+  },
+  "cards/WM/T/RV/rc.run": {
+    "before": "9f6ce35ca48c4107352178294dfee6547a7dc675adc6dddc758aebb9b8e6536c",
+    "after": "049316046b6dbd73acc9ea4734b8f25c86123a1082f49c8f4dad2a17b2a54a30"
+  },
+  "cards/WM/T/V/rc.run": {
+    "before": "dc0bdedb477421e93145a3113fec74ed7a8c948dd01405c47e7a1ad75bde1e08",
+    "after": "3c226be9a5b8a47589eac43f3999e041d72851185902c9b6322d926f7d223509"
+  },
+  "cards/WM/T/VV/rc.run": {
+    "before": "a647237a6dd12c86fc1916f9c1b55e5cf9189c630a84459aeb79294f51545218",
+    "after": "007c0239b107abd79ba1a355a7d7f6e3253e7d9f0d0893cfdcc6fea651cf6fee"
+  },
+  "cards/WM/V/LO/rc.run": {
+    "before": "2fec33b17fde27bb9bcb5770828c0fc050e0f1ac672d4c62e747f3538a1133e0",
+    "after": "e8dd9ad212df3f10b0ff7b3aea1d6a259105c8aca97fd2c00235a32b38d336aa"
+  },
+  "cards/WM/V/R/rc.run": {
+    "before": "2fca1dda87e017f5ac2c13514aa30ebeebf0cf09c0ae4006d00a83a7006e8872",
+    "after": "d57f5071e0a8415d4fd807e781cb57c925a167a7b63b363bebc85c8478fa07d9"
+  },
+  "cards/WM/V/RR/rc.run": {
+    "before": "25ea8d73968084c5f1473e337f1cd8a79fd3289e3839550ab6cba5b4fce1f879",
+    "after": "b50b3457e19724397ee76a6b02024e42e02c26276e77d48801b7c88234bca831"
+  },
+  "cards/WM/V/RV/rc.run": {
+    "before": "52e33429aba9ac94e7e3a0a4fd4b8d77309811a3b76e09ffc1c7cb22f761d9b0",
+    "after": "cf760f0e4a094d94fc63fd8cca760243da94f4768e254ce5a5b8ff844fa71c92"
+  },
+  "cards/WM/V/V/rc.run": {
+    "before": "90ad95bd6a90074c4c79b5f4b5b287c68a17083ca7bd6de88856549b2a7a44a6",
+    "after": "83386fb8ef664198b57e08549d40aa9fd93fb60341761becb536d84b986f677f"
+  },
+  "cards/WM/V/VV/rc.run": {
+    "before": "c14b7559ca3f542dbb33e13b543b82b373a35fb781be34ecc5b92743de79390b",
+    "after": "5df5facf8c8280be318b8a5504ee287dfb0df17bcf64d866c158d4d53958687e"
+  },
+  "cards/WP/T/LO/rc.run": {
+    "before": "f078b05b9f25ca8b9e0f918c0c94ee4731eaa3f0f02f0ca8816f04ba765fc87d",
+    "after": "3bf6c338dfe8c407beb2ae9e1c69c777b7183ccae8ce8953c4c88c161923b1db"
+  },
+  "cards/WP/T/R/rc.run": {
+    "before": "a1e0449c5db537d808c8ad3257dc62d21072098234512f12171cbf12d4159043",
+    "after": "4594f61c607f0b247b36459a57556a99ca1345e5d2d2c369b8947799ec43ef7d"
+  },
+  "cards/WP/T/RR/rc.run": {
+    "before": "92bc09f6a754e9ac147e0ab30422168fd3dc88999c4c0f78fd48871e8cee3c2f",
+    "after": "860d149d086299c6872cd49141ddbee9041c790f5a5dc434b5ea69ea77964406"
+  },
+  "cards/WP/T/RV/rc.run": {
+    "before": "88196cd7080d73fd26eb9f3fd00ade0e34db63e032b3172d131960c1e9b1a5d5",
+    "after": "feac77084b50268525fb0d5898a116c768fb9b4d38872bc6a6958f7a2ba7630e"
+  },
+  "cards/WP/T/V/rc.run": {
+    "before": "3a6dde81d4468018d86d93bd749f25cf982d8c3e059176b6a4dcd2897090c331",
+    "after": "aa5a0315fa5194ccd908c271533fceaaccb9cf87fb8342dd01b410a32a002aed"
+  },
+  "cards/WP/T/VV/rc.run": {
+    "before": "a71a72221758bf6c1a21cb93f8469022f425b519b9def5b186e782c159c058c6",
+    "after": "3cca4e22ccdf0a16776e854d02ccb454f3f8cfd81ab466dcd78a8135cbb0b67b"
+  },
+  "cards/WP/V/LO/rc.run": {
+    "before": "b2bfe5f2cfa6f78e33007a4cda8c76ef652bbae6e4ee2b10d541322ee2359c29",
+    "after": "0d1bfcb2f8d895d61ddda8ea08c3c3f5207c52b51a7210c6fd780690b13f074e"
+  },
+  "cards/WP/V/R/rc.run": {
+    "before": "3a0ee354be4a968a44b6d27e56c70b4eaeb7b3df327f0e092cbfd07785f66714",
+    "after": "61a0deae5fedf2f923cede3502065f09e9ae31b990de0d20fe59e0deed623644"
+  },
+  "cards/WP/V/RR/rc.run": {
+    "before": "2e69800989d8b56ea9cbe9b636bf77baeb402153e78567285355e729d23fd48b",
+    "after": "2efc33887ff2dfa41a9d3a019b1c68e13939dc0d94ea5a81294117debe2974be"
+  },
+  "cards/WP/V/RV/rc.run": {
+    "before": "6b106da4e24b11bcee0edc22e81fc2442694f6e0bf424ad871adda3f45b675cd",
+    "after": "e7b3ed52802637e43709d709ed5e719653750d73d7085da937e07c3b37aca57e"
+  },
+  "cards/WP/V/V/rc.run": {
+    "before": "790573e744ef056be8ddfdd22d878109555eacd404f726e28b1dc8c3e4e2272c",
+    "after": "5e687afd3bc84f7d73439c7450b6336be1beb700a613c6a7dc228b2d0853f3d5"
+  },
+  "cards/WP/V/VV/rc.run": {
+    "before": "cb0ad854ccb5e93cc3d533008a8d019c1fab754ede74243db89e5ffd3a90e2e2",
+    "after": "136e4e2f78ee5d80a38f67eee85f42fd6ed633d30a6595984c90c502ae833523"
+  }
+}

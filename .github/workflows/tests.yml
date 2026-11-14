@@ -24,7 +24,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install '.[test,plot,hepmc]' ruff pycodestyle
       - name: Python syntax and undefined names
-        run: ruff check --select F821 maxent_upgrade examples tests
+        # Preserve the byte-identical campaign source archive; check the public runners.
+        run: ruff check --select F821 --extend-exclude 'examples/data/w_predictivity/study_record/**' maxent_upgrade examples tests
       - name: Tests
         run: python -m pytest -q tests
       - name: Previous implementation
@@ -48,6 +49,9 @@ jobs:
           python examples/plot_w_joint.py --output w_joint_check --full-scans
           python examples/constraint_workflow.py constraint_workflow_check --stage train
           python examples/constraint_workflow.py constraint_workflow_check --stage validate
+          python examples/w_constraint_workflow.py wp --output w_plus_study_check
+          python examples/w_constraint_workflow.py wm --output w_minus_study_check
+          python examples/plot_w_predictivity.py --output w_predictivity_plots_check
           python examples/paper_examples.py wp examples/data/w_predictivity/w_wp_prior.npz wp_check.npz
           python examples/paper_examples.py wm examples/data/w_predictivity/w_wm_prior.npz wm_check.npz
           python examples/application_demo.py ggh --output ggh_check --bootstrap 2 --plot
@@ -60,4 +64,4 @@ jobs:
           maxent-upgrade inspect dy
           maxent-upgrade inspect ggh
       - name: Formatting
-        run: pycodestyle --max-line-length=100 --ignore=E501,E402,E731,W503,W504 --exclude=legacy.py,maxent_match.py maxent_upgrade examples
+        run: pycodestyle --max-line-length=100 --ignore=E501,E402,E731,W503,W504 --exclude=legacy.py,maxent_match.py,study_record maxent_upgrade examples

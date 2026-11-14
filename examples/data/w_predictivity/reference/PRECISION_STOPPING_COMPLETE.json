@@ -1,0 +1,35 @@
+{
+  "final_stop": true,
+  "central_predictions_blinded": true,
+  "extensions_used": 2,
+  "completed_counts": {
+    "WP": {
+      "LO": 256,
+      "R": 2048,
+      "V": 128,
+      "RR": 1899,
+      "RV": 1024,
+      "VV": 64
+    },
+    "WM": {
+      "LO": 256,
+      "R": 2048,
+      "V": 128,
+      "RR": 1871,
+      "RV": 585,
+      "VV": 65
+    }
+  },
+  "reference_sha256": {
+    "WP": "32259faba4df462953a8bdd047c3d59acec76e191dd1f01706b38bca51eed45c",
+    "WM": "e7afc5fcb45a93e7fd02f85c3d61e54f7f8a40ac4c4360f7fcfec582528555a4"
+  },
+  "total_reference_runs": 10372,
+  "total_reference_points": 2593000000,
+  "absolute_cap_points": 2880000000,
+  "all_precision_passed": false,
+  "stopping_record_sha256": "124a2c8566eaa2af4bc3619776a4e1d4ba5379223dd229dfa254a55a4857f4d2",
+  "final_allocation_sha256": "89427a21aebfa7fe0bb249cc653620ba54e684243ed4ea60392cd81310304164",
+  "decision": "Stop after the single final extension; retain all physical seeds and report every remaining precision miss, with no model or bin changes.",
+  "recorded_utc": "2026-11-14T19:37:04Z"
+}

@@ -1,0 +1,1270 @@
+{
+  "runs_per_channel": 160,
+  "validation_opened": false,
+  "charges": {
+    "WP": {
+      "stable": true,
+      "selected": {
+        "full": "R+H+S",
+        "even": "R+H+S",
+        "odd": "R+H+S"
+      },
+      "status": {
+        "full": "training_sequence_complete",
+        "even": "training_sequence_complete",
+        "odd": "training_sequence_complete"
+      },
+      "decisions": {
+        "full": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ],
+        "even": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ],
+        "odd": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ]
+      },
+      "controls": {
+        "D": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10137210740383874,
+              0.059840015879481095,
+              0.13803326747802078,
+              0.0731363510732864,
+              0.09311170390132242,
+              0.13040084201446664,
+              0.11597902160608374
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9968856771504367,
+          "q_over_p_range": [
+            0.8332129868633016,
+            1.7877485367278
+          ]
+        },
+        "G": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10192061601610763,
+              0.060341989431523184,
+              0.1386343425784548,
+              0.07362073618091348,
+              0.09368357378541538,
+              0.13104382627223807,
+              0.11649624889648746
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9969045374032824,
+          "q_over_p_range": [
+            0.8351078940118758,
+            1.7958333942528257
+          ]
+        },
+        "H": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.043369905988861146,
+              0.0554346047541462,
+              0.028514927174163276,
+              0.06002314695670768,
+              0.03848923084525182,
+              0.024227678698016168,
+              0.04795826864541409
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9942144629508592,
+          "q_over_p_range": [
+            0.5997794187327692,
+            2.60089284554838
+          ]
+        },
+        "H0": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.04314419845843611,
+              0.05519717945508778,
+              0.028311645319244755,
+              0.059787683709546055,
+              0.03825963117700261,
+              0.024017056894816154,
+              0.04773594847430202
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9947363754921934,
+          "q_over_p_range": [
+            0.6119389813250725,
+            2.6072101565681467
+          ]
+        },
+        "J4": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.09893730366186512,
+              0.05803104666216498,
+              0.13496196567107596,
+              0.07152562452886098,
+              0.09037259874130789,
+              0.126748575429968,
+              0.1139585916886743
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.996766190803212,
+          "q_over_p_range": [
+            0.7967560598580904,
+            1.8010339127213568
+          ]
+        },
+        "M": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10319896167467055,
+              0.06116878194295417,
+              0.14045814698790213,
+              0.07424704410483733,
+              0.09519149302185394,
+              0.13310919833298232,
+              0.11755835841537263
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.996883794334122,
+          "q_over_p_range": [
+            0.8298272922898391,
+            1.7987675789876496
+          ]
+        },
+        "N": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10446156576309991,
+              0.06231019511749879,
+              0.14177233920831225,
+              0.07528754314268069,
+              0.09657689031772866,
+              0.13458999929814702,
+              0.11868434001002327
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9969534017562928,
+          "q_over_p_range": [
+            0.8424883734201716,
+            1.7652181584510376
+          ]
+        },
+        "R+D": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.04386466057655199,
+              0.05591337895506061,
+              0.030425515340083906,
+              0.06049992917157594,
+              0.03898449341916508,
+              0.03165570742409326,
+              0.04845288955287974
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963037030267609,
+          "q_over_p_range": [
+            0.6764382791716214,
+            2.729169556864321
+          ]
+        },
+        "R+G": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.04384336175736548,
+              0.05589430932332325,
+              0.029011133041124272,
+              0.06048223405532017,
+              0.0389615454546548,
+              0.024717552499242696,
+              0.04843327069874003
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963226089526521,
+          "q_over_p_range": [
+            0.6732571412609109,
+            2.7388414341610483
+          ]
+        },
+        "R+J4": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.04377106977803299,
+              0.0558060075816924,
+              0.028959200163588213,
+              0.06039437644811417,
+              0.03888972880711399,
+              0.024664946338243322,
+              0.04836236708104104
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9961867656070147,
+          "q_over_p_range": [
+            0.6743024344964751,
+            2.744282968851033
+          ]
+        },
+        "R+M": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.043852188757320935,
+              0.05590202329436912,
+              0.029021875512855535,
+              0.06048861796824135,
+              0.038971740783888556,
+              0.024729566788898934,
+              0.04844072071461129
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963006030543711,
+          "q_over_p_range": [
+            0.6709462629440243,
+            2.7421857218600802
+          ]
+        },
+        "R+N": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.04390638814889807,
+              0.05595429374676772,
+              0.029077229642933564,
+              0.060541103760356305,
+              0.039026018258495276,
+              0.024785251882510604,
+              0.04849544970744325
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963701491342509,
+          "q_over_p_range": [
+            0.6759940418782802,
+            2.7061928414710184
+          ]
+        },
+        "R+W": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.043838983505607304,
+              0.05588891303891156,
+              0.02900782582942091,
+              0.06047624623255434,
+              0.0389578104782495,
+              0.02471459264089401,
+              0.048428472252691396
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9962948973458212,
+          "q_over_p_range": [
+            0.6728913603415208,
+            2.733257375120702
+          ]
+        },
+        "R": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.043850956289416994,
+              0.0559002531562146,
+              0.029020718874679743,
+              0.06048705237173311,
+              0.03897042073241998,
+              0.02472864863287926,
+              0.04843950314836262
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963161434524889,
+          "q_over_p_range": [
+            0.6736035623098924,
+            2.7407127261400106
+          ]
+        },
+        "S": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.038893461684370495,
+              0.04913876130170553,
+              0.025799527021682415,
+              0.05309614068848403,
+              0.034768603090696674,
+              0.022237851374489435,
+              0.04283580033272556
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9914332442310173,
+          "q_over_p_range": [
+            0.4782546590426953,
+            3.3535452226872815
+          ]
+        },
+        "S0": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.039778075122434316,
+              0.0509737582417665,
+              0.025755764255182587,
+              0.05505659469249405,
+              0.03547348148041575,
+              0.022028262437465557,
+              0.04383923986770978
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9926890263763937,
+          "q_over_p_range": [
+            0.44079238954236744,
+            2.8448499350810295
+          ]
+        },
+        "W": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10109617839126193,
+              0.05952352907614798,
+              0.13780854954093127,
+              0.0727895175119949,
+              0.09286715392111182,
+              0.13019791391158825,
+              0.11567634419993761
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9968749641025263,
+          "q_over_p_range": [
+            0.8278901934782872,
+            1.7913076304741593
+          ]
+        },
+        "anchor": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.10181642840635807,
+              0.0602442481399455,
+              0.13852433053988533,
+              0.07353389530470865,
+              0.09356531553526085,
+              0.13090960704218496,
+              0.11641034118316002
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9968982361846794,
+          "q_over_p_range": [
+            0.8343572322878904,
+            1.7965911765411968
+          ]
+        }
+      },
+      "needs_extension": false,
+      "final_status": "stable"
+    },
+    "WM": {
+      "stable": true,
+      "selected": {
+        "full": "R+H+S",
+        "even": "R+H+S",
+        "odd": "R+H+S"
+      },
+      "status": {
+        "full": "training_sequence_complete",
+        "even": "training_sequence_complete",
+        "odd": "training_sequence_complete"
+      },
+      "decisions": {
+        "full": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ],
+        "even": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ],
+        "odd": [
+          [
+            "D",
+            "retain"
+          ],
+          [
+            "M",
+            "retain"
+          ],
+          [
+            "H",
+            "add"
+          ],
+          [
+            "S",
+            "add"
+          ]
+        ]
+      },
+      "controls": {
+        "D": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14104403948138144,
+              0.10307996699252013,
+              0.17571101017141233,
+              0.11508949603790947,
+              0.13331064732857265,
+              0.16873113774286408,
+              0.1538989052606371
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9966059984634015,
+          "q_over_p_range": [
+            0.8480496062415847,
+            2.1595327970406712
+          ]
+        },
+        "G": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.1441964378617569,
+              0.10562754555527147,
+              0.17959345368320703,
+              0.11752345588924239,
+              0.13662056561572766,
+              0.17286089585833633,
+              0.1568744605912984
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9966160757391753,
+          "q_over_p_range": [
+            0.8481548137635501,
+            2.147967523406192
+          ]
+        },
+        "H": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.03014838082969496,
+              0.040517930494426306,
+              0.01835664705662459,
+              0.04477427300939957,
+              0.025391793201932085,
+              0.02101252592498783,
+              0.03461263337392273
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9943949425146835,
+          "q_over_p_range": [
+            0.5648164374569189,
+            2.9520843921350064
+          ]
+        },
+        "H0": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029722578947703606,
+              0.040100557993439916,
+              0.01787322668537356,
+              0.04434895691876597,
+              0.024972778526426296,
+              0.020341547673655404,
+              0.034177272301284825
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.994705790923136,
+          "q_over_p_range": [
+            0.5761607069148943,
+            2.9953426630574644
+          ]
+        },
+        "J4": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14066268661412176,
+              0.10269898407337114,
+              0.17533421989341183,
+              0.11470007707931087,
+              0.13294361087502157,
+              0.16839782307382672,
+              0.15348876682370555
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9965824687046843,
+          "q_over_p_range": [
+            0.8339184871335014,
+            2.1629146889036392
+          ]
+        },
+        "M": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14195535327850678,
+              0.10381324692705218,
+              0.17682883338922284,
+              0.11581265309972948,
+              0.1342461786830571,
+              0.16989976954685768,
+              0.1547820046767115
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9965776645906904,
+          "q_over_p_range": [
+            0.8408675917865801,
+            2.145645612704885
+          ]
+        },
+        "N": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14219508981000223,
+              0.10360889474139966,
+              0.17755590016341027,
+              0.11538836402213364,
+              0.13475424579727968,
+              0.17094521938409935,
+              0.15475450461733356
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9967087360388999,
+          "q_over_p_range": [
+            0.8588437047419727,
+            2.1410961510544624
+          ]
+        },
+        "R+D": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029878275461104508,
+              0.04026521546325157,
+              0.017776966861285944,
+              0.04451619980599112,
+              0.025124591760293104,
+              0.020164266973014572,
+              0.03433761689293991
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.996332193384494,
+          "q_over_p_range": [
+            0.8041699781903543,
+            3.0415275141568485
+          ]
+        },
+        "R+G": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.02989019446771587,
+              0.040274680920840175,
+              0.02180924220679,
+              0.04452602420493796,
+              0.025136428057915803,
+              0.022061526793506276,
+              0.034349702563642025
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963429762999401,
+          "q_over_p_range": [
+            0.8056585370457938,
+            3.030193674611698
+          ]
+        },
+        "R+J4": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029854516105347197,
+              0.040236750601046735,
+              0.017759261506660524,
+              0.044486635711121554,
+              0.025102067047722765,
+              0.020171156858063064,
+              0.034312239036893635
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963085888383263,
+          "q_over_p_range": [
+            0.7880575866206593,
+            3.0440959325387418
+          ]
+        },
+        "R+M": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029927679521194458,
+              0.040310684306549244,
+              0.017829132271585082,
+              0.0445574986476327,
+              0.02517912867703204,
+              0.020196342831192794,
+              0.034382153194747925
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963036787735161,
+          "q_over_p_range": [
+            0.7971344380829557,
+            3.0333177996492826
+          ]
+        },
+        "R+N": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.02986746814721246,
+              0.04025950118257623,
+              0.021000462673899465,
+              0.0445154759338378,
+              0.025107953033552056,
+              0.020617852432257926,
+              0.0343326935911484
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9964356569999578,
+          "q_over_p_range": [
+            0.8144228237883598,
+            3.033658263614279
+          ]
+        },
+        "R+W": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029860307820515908,
+              0.040246226645224786,
+              0.023912552474309963,
+              0.044498727637315855,
+              0.025105144891917727,
+              0.02426067540025816,
+              0.03432101017150981
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963165602747437,
+          "q_over_p_range": [
+            0.7919322973724433,
+            3.030551716252363
+          ]
+        },
+        "R": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.029898961400601127,
+              0.04028137619661897,
+              0.017802898605664516,
+              0.04453145809460364,
+              0.02514647676967037,
+              0.02016470418160701,
+              0.034356871329568606
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9963488773942897,
+          "q_over_p_range": [
+            0.8045244629681514,
+            3.0395698451044275
+          ]
+        },
+        "S": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.03147451621964984,
+              0.04099620764917488,
+              0.02020093373890846,
+              0.04484958133398558,
+              0.027201279086641328,
+              0.01925800044799283,
+              0.035513741230809845
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9925538731434971,
+          "q_over_p_range": [
+            0.4683787217807482,
+            2.9454329230535974
+          ]
+        },
+        "S0": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.03178100986678017,
+              0.04162251189548926,
+              0.020172993041426383,
+              0.04551351633587299,
+              0.02744173012780007,
+              0.017634554433274156,
+              0.03586261020446876
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9934471153337481,
+          "q_over_p_range": [
+            0.43303428522520926,
+            2.9805454993814364
+          ]
+        },
+        "W": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14449381899158614,
+              0.10590703015544257,
+              0.17988922842186336,
+              0.11774408161334755,
+              0.13697733348147623,
+              0.17320471582469835,
+              0.15711805668873027
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9965880463114043,
+          "q_over_p_range": [
+            0.8333452640342777,
+            2.148212459394589
+          ]
+        },
+        "anchor": {
+          "checks": {
+            "passed": true,
+            "finite_positive_weights": true,
+            "normalized_weights": true,
+            "target_closure_per_scale": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "maximum_residual_over_tolerance_per_scale": [
+              0.14113702844957515,
+              0.10318951939635876,
+              0.17578531872630726,
+              0.11520058716187134,
+              0.13340311949329378,
+              0.1688047716420698,
+              0.1539941810288454
+            ],
+            "interpretation": "numerical imposed-target review; no independent predictive-accuracy claim"
+          },
+          "ess_retained": 0.9966229220666611,
+          "q_over_p_range": [
+            0.8483357010558399,
+            2.1551663539404275
+          ]
+        }
+      },
+      "needs_extension": false,
+      "final_status": "stable"
+    }
+  },
+  "ready_to_freeze": true,
+  "maximum_training_runs_per_channel": 640
+}

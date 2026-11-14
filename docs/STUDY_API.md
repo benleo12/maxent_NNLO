@@ -165,7 +165,8 @@ numerical libraries and BLAS thread settings when reloading: even changing the
 reduction order can alter a prior-dependent blended target at roundoff and
 trigger a mismatch. This safeguard does not silently accept approximately
 matching feature arrays. The one-command tutorials perform training and
-validation in the same environment; staged runs should retain that environment.
+validation in the same environment. Staged runs using compact records should
+retain that environment; self-contained records use the portable path below.
 
 For a saved analysis that will move between numerical environments, opt into a
 self-contained archive:

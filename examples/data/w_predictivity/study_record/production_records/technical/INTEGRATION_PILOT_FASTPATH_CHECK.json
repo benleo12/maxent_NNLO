@@ -1,0 +1,175 @@
+{
+  "checks": [
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "T",
+      "common_tables": 74,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "common_tables": 1,
+      "max_relative_difference": 0.0
+    }
+  ],
+  "completed": 24,
+  "passed": true,
+  "validation_blinding": "Only baseline normalization inspected in validation pilots; new selected rates/spectra not read."
+}

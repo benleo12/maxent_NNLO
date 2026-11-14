@@ -1,0 +1,28 @@
+{
+  "schema": "maxent_upgrade.documentation-previews.v1",
+  "previews": {
+    "dy_example.png": {
+      "command": "python examples/real_drell_yan.py --output dy_demo --plot",
+      "events": 112978,
+      "integration_replicas": 20,
+      "scope": "Actual compact Pythia example; hard-recoil closure and independent angular prediction",
+      "cached_plot_input_sha256": {
+        "recoil.npz": "2e65a1147e2702b5599de44b3e4eda27cd2c1ae9712acf8d4fe210aeb46a01aa",
+        "angle.npz": "58a7114a366c031f4190409342b0b01a664d5b399438d909c19e5bcf4efefd85",
+        "comparison.png": "18b99c71fbe76d2b528ef658e38a22fa743d9403edd6512e384c5b0919e12318"
+      }
+    },
+    "w_predictions.png": {
+      "command": "python examples/w_constraint_workflow.py wm --output w_minus",
+      "events": 80000,
+      "scope": "Actual compact W-minus fit; independent32GeV lepton spectrum and paired change from the windowed recoil anchor",
+      "training_threads": 2,
+      "validation_threads": 4,
+      "reference_sha256": "e7afc5fcb45a93e7fd02f85c3d61e54f7f8a40ac4c4360f7fcfec582528555a4",
+      "cached_report_sha256": "e7373cb463d64b2f05e7741e350e5211d1fdf0ba9df804186192f25618246604",
+      "rendering": "Current report renderer applied to the checked saved numerical arrays; charge label and subtraction title are presentation-only updates.",
+      "renderer_sha256": "ece5e4b245b3aa7facadec8f27201605040a477de19153f8000cc99644a9eadc",
+      "png_sha256": "ab3578bb97e6d864404e030052d33fe7b2b5b9ac41839673d804d07cbd217b9e"
+    }
+  }
+}

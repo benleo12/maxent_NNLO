@@ -1,0 +1,57 @@
+{
+  "WP": {
+    "path": "/Users/benassi/reweighting/prior_v6/built/w_prior_v6_nomec_wp.npz",
+    "sha256": "299496fc0c10eeb7393cbf07db48ed3e4c1c7be528965141e55d98f92bfc4e75",
+    "n_total": 1000000,
+    "n_fid": 522365,
+    "prior_sigma_fid_pb": 2829.4944954999996,
+    "flags": [
+      "QEDshowerByL=off",
+      "QEDshowerByOther=off",
+      "kt_hard=1.0",
+      "no_hadron=False",
+      "no_mec=True"
+    ],
+    "fiducial_index_sha256": "96c374cdbf8c800a876a34d1970a2adb09fd13145db26f4961b459055c107894",
+    "generation": {
+      "hard_process": "MadGraph SM LO pp > mu+ vm or mu- vm~",
+      "shower": "Pythia 8.312, power shower, matrix-element corrections off",
+      "pdf": "CT18NNLO, LHAPDF ID 14000",
+      "MW_GeV": 80.419,
+      "GammaW_GeV": 2.0476,
+      "GF_GeVminus2": 1.16639e-05,
+      "QED_shower": false,
+      "primordial_kT_hard_GeV": 1.0,
+      "stored_in_fid_note": "Stored flag uses pT_l>25 GeV. Study recomputes pT_l>20 GeV and every remaining cut.",
+      "electroweak_note": "Prior parameters differ from fixed order; its mass moments are included among the production constraints."
+    }
+  },
+  "WM": {
+    "path": "/Users/benassi/reweighting/prior_v6/built/w_prior_v6_nomec_wm.npz",
+    "sha256": "d8e9242c128baf213f21078543f05697dadeba8cd29045b1471c1e2c8f90eaac",
+    "n_total": 1000000,
+    "n_fid": 490046,
+    "prior_sigma_fid_pb": 1863.889961,
+    "flags": [
+      "QEDshowerByL=off",
+      "QEDshowerByOther=off",
+      "kt_hard=1.0",
+      "no_hadron=False",
+      "no_mec=True"
+    ],
+    "fiducial_index_sha256": "f66fb1ae26bcf180c1ef5330d52d16eeab8c2e2554cdd8014c02cc1457aa1891",
+    "generation": {
+      "hard_process": "MadGraph SM LO pp > mu+ vm or mu- vm~",
+      "shower": "Pythia 8.312, power shower, matrix-element corrections off",
+      "pdf": "CT18NNLO, LHAPDF ID 14000",
+      "MW_GeV": 80.419,
+      "GammaW_GeV": 2.0476,
+      "GF_GeVminus2": 1.16639e-05,
+      "QED_shower": false,
+      "primordial_kT_hard_GeV": 1.0,
+      "stored_in_fid_note": "Stored flag uses pT_l>25 GeV. Study recomputes pT_l>20 GeV and every remaining cut.",
+      "electroweak_note": "Prior parameters differ from fixed order; its mass moments are included among the production constraints."
+    }
+  },
+  "note": "The new study uses the identical full priors as v17; both full-file hashes and exact selected row IDs were checked. No regenerated or retuned prior is used."
+}

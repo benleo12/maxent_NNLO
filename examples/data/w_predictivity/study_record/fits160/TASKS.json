@@ -1,0 +1,212 @@
+[
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": null
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": null
+  },
+  {
+    "charge": "wp",
+    "subset": "even",
+    "candidate": null
+  },
+  {
+    "charge": "wm",
+    "subset": "even",
+    "candidate": null
+  },
+  {
+    "charge": "wp",
+    "subset": "odd",
+    "candidate": null
+  },
+  {
+    "charge": "wm",
+    "subset": "odd",
+    "candidate": null
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "anchor"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "anchor"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "D"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "D"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+D"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+D"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "M"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "M"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+M"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+M"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "N"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "N"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+N"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+N"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "G"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "G"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+G"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+G"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "W"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "W"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+W"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+W"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "J4"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "J4"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "R+J4"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "R+J4"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "H0"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "H0"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "H"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "H"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "S0"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "S0"
+  },
+  {
+    "charge": "wp",
+    "subset": "full",
+    "candidate": "S"
+  },
+  {
+    "charge": "wm",
+    "subset": "full",
+    "candidate": "S"
+  }
+]

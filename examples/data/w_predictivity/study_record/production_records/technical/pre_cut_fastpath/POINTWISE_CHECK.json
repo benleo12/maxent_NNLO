@@ -1,0 +1,18 @@
+{
+  "points": 3250,
+  "features": 157,
+  "max_continuous_abs_difference": 2.233768725545815e-13,
+  "max_charge_swap_difference": 0.0,
+  "max_abs_feature": 1.0000000000000013,
+  "max_eta_off_boundary_difference": 8.189005029635155e-13,
+  "boolean_boundary_ties": 7,
+  "boolean_off_boundary_mismatches": 0,
+  "region_packing_off_boundary_mismatches": 0,
+  "nonfinite_input_rejected": true,
+  "source_function_sha256": {
+    "eval_wpred": "2dccf513aef1a2b3d31199c839cfefdf39b39bcd1c431ad05e50345d694a631b",
+    "eval_wpred_eta": "4c20953875a98913f74aea54e8fbf976d114c1cdc8df9f4370eb9433a1f37773",
+    "eval_wpred_region": "078bf0bcd78b5cc818badbff8341fd4b0c4e2e2fd695b4e84adcd5a27412f1b3"
+  },
+  "test": "Exact booked bodies compiled with direct kinematic primitives; includes qT=0, clipped maps and both sides of all profile/partition boundaries."
+}

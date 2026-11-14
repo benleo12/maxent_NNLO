@@ -1,0 +1,10 @@
+{
+  "core_commit": "d8ece0d05d92687685cb454cd398e96be9cf6edc",
+  "core_archive_sha256": "64048f60ac0da90db94a43a2815062b72a831e4fbefd185a6e9990300385bb27",
+  "adapter_files": {
+    "examples/w_physical_inputs.py": "7cc9cdde5549522178566a536f38ce52f469ea163e89446dc520fff8eae2fcb9",
+    "examples/w_coordinates.py": "42e1a179b88858e2a74d0aa77e9631c44a0281ce2b679b536d392c24aa4ee613",
+    "examples/data/w_predictivity/feature_definitions.json": "253315f0440aa5f4411bc31455472e48e52dc42a9e6f274e3013f975f99dd709"
+  },
+  "environment": "NERSC module python/3.13-26.11.0: Python3.13.18,NumPy2.5.4,SciPy1.18.1,Matplotlib3.11.2; BLAS threads bounded per fit"
+}

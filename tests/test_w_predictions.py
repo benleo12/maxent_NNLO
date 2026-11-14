@@ -1,7 +1,7 @@
 """Physical selection bookkeeping and correlated derived W predictions."""
 import numpy as np
 
-from examples.w_predictions import acceptances, charge_asymmetry, observable_groups
+from examples.w_predictions import acceptances, charge_asymmetry, observable_groups, prediction_columns
 from maxent_upgrade import Prediction
 from test_w_physical_inputs import decay_events
 
@@ -9,6 +9,11 @@ from test_w_physical_inputs import decay_events
 def test_w_ledgers_partition_the_original_sample_and_preserve_cut_identity():
     events, _, _, _ = decay_events()
     groups = observable_groups(events, exploratory=True)
+    combined, labels, definition = prediction_columns(events)
+    assert combined.shape == (len(events["weight"]), 112)
+    assert len(labels) == len(set(labels)) == 112
+    assert definition["denominator"] == "same original baseline"
+    np.testing.assert_array_equal(combined, np.column_stack([g["values"] for g in groups.values()]))
     cuts, ledger = groups["cuts"], groups["old_cut_ledger"]
     values = dict(zip(ledger["labels"], ledger["values"].T))
     np.testing.assert_array_equal(cuts["values"][:, 0], 1)

@@ -1,0 +1,24 @@
+{
+  "charge": "wm",
+  "subset": "full",
+  "candidate": "R+G",
+  "returncode": 0,
+  "elapsed_s": 15.499301292002201,
+  "command": [
+    "/global/common/software/nersc/pe/conda-envs/26.11.0/python-3.13/nersc-python/bin/python",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/scripts/train.py",
+    "--training",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/pooled160/T_WM.npz",
+    "--prior",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/priors/w_prior_v6_nomec_wm.npz",
+    "--charge",
+    "wm",
+    "--output",
+    "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/fits160",
+    "--subset",
+    "full",
+    "--candidate",
+    "R+G"
+  ],
+  "job": "61286310"
+}

@@ -21,13 +21,25 @@ tutorials [custom_observables.py](custom_observables.py) and
 new observables, joint constraints and uncertainty inputs. They also demonstrate
 [held-out joint checks and local statistics](../docs/VALIDATION.md).
 
-For a complete training, frozen-fit and independent-prediction workflow, run:
+For a complete real-QCD training, frozen-fit and independent-prediction workflow:
+
+```bash
+python examples/w_constraint_workflow.py wp --output w_plus
+python examples/w_constraint_workflow.py wm --output w_minus
+```
+
+The [W tutorial](../docs/W_CONSTRAINT_TUTORIAL.md) explains the local HTML report,
+physical block choices, paired uncertainties, independent lepton predictions
+and reusable saved analyses. Both compact samples and their common-run numerical
+inputs are included. These fits make their own choices from the training data.
+
+For a smaller controlled illustration of an explicitly known correlation, run:
 
 ```bash
 python examples/constraint_workflow.py output/constraint_tutorial
 ```
 
-The [tutorial](../docs/CONSTRAINT_TUTORIAL.md) explains the resulting weights,
+The [controlled tutorial](../docs/CONSTRAINT_TUTORIAL.md) explains the resulting weights,
 PDF/PNG figures, local HTML report and complete covariance. This small controlled
 Born-decay example makes the workflow explicit without presenting it as QCD
 evidence. Its public [study interface](../docs/STUDY_API.md) also supports
@@ -97,6 +109,7 @@ Redraw the full-sample generator comparison, two-jet benchmark and independent W
 python examples/plot_dy_portability.py --output dy_portability_plots
 python examples/plot_zj_benchmark.py --output zj_benchmark_plots
 python examples/plot_w_joint.py --output w_joint_plots --full-scans
+python examples/plot_w_predictivity.py --output w_predictivity_plots
 ```
 
 The [generator comparison](data/dy_portability/README.md) uses the full Pythia
@@ -115,6 +128,13 @@ independent lepton/cut/charge-asymmetry predictions. Use `w_joint_refinement.py`
 to apply the frozen configurations to a compatible prior with coherent scale
 and integration variations. Its `selected` option reproduces the study choice;
 it does not select a new joint degree for an arbitrary prior.
+
+The follow-up [W predictivity study](data/w_predictivity/full_study/README.md)
+compares declared angular, production–decay and recoil–spin additions with an
+independent reference. Its full twenty-candidate arrays and paired covariance
+remain available even though the main figures show a readable subset. The old
+30 GeV cut map is exploratory. Use `w_constraint_workflow.py` for a fresh compact
+fit, its own training decision and a reusable saved analysis.
 
 These plotting commands use compact committed caches from the full productions.
 The bundled fitting fixtures have different event statistics. Fitting a new

@@ -1,0 +1,23 @@
+{
+  "frozen_utc": "2026-11-14T18:18:42Z",
+  "training_runs_per_channel": 160,
+  "selection": {
+    "WP": {
+      "selected": "R+H+S",
+      "weights": "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/fits160/WP/full/sequence_R+H+S.npz",
+      "sha256": "1fc6a7b1529bde04d0d801fc61cc64924822fb50af860c68f16818fdaca19c82",
+      "split_half_status": "stable"
+    },
+    "WM": {
+      "selected": "R+H+S",
+      "weights": "/pscratch/sd/b/bassi/jhep_w_predictivity_20261114/fits160/WM/full/sequence_R+H+S.npz",
+      "sha256": "9e5ac185c5e0ff9dea5250953058fb20885ce97c95c6d980cc6d85eb7fe1def1",
+      "split_half_status": "stable"
+    }
+  },
+  "training_review_sha256": "c29b52aff0c438c72bf25bfea6f87f7546f32efddea1f599d87c57d6f2d01e7f",
+  "protocol_sha256": "31e98a616c21b4400bdd484d1de2c7f01a4d6312a5c23d9a5bd8fb6cf3f6bbb9",
+  "reference_predictions_opened": false,
+  "controls": "All18 prespecified singleton controls retained; all pass numerical closure at all7 scales. Unchanged prior with coherent NNLO rates is fixed baseline P.",
+  "extension_required": false
+}

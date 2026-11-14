@@ -1,0 +1,4 @@
+122ab364c2292472ffd1957290d746f6d869c3c948730195edbd2985e4ea5179  /pscratch/sd/b/bassi/jhep_w_predictivity_20261114/install_v4/bin/NNLOJET
+2dfa502299bb961ee83b8e83b7c98fe657cf0c4c20e0762a636d4f0db7fbc030  /pscratch/sd/b/bassi/jhep_w_predictivity_20261114/install_v4/lib/libnnlojet_core.so
+c6bc9f5fd378c25128cb78f16ce6165d489fcbfbc5e7e8bd3663d275460b565b  /pscratch/sd/b/bassi/jhep_w_predictivity_20261114/install_v4/lib/libnnlojet_interface.so
+2649bc5969238011936d739f0914e8a4120e7a04823f8252faef91a085d9d90b  /pscratch/sd/b/bassi/jhep_w_predictivity_20261114/install_v4/lib/libnnlojet_w.so

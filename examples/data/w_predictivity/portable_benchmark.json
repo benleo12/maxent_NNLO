@@ -1,0 +1,71 @@
+{
+  "schema": "compact-w-portability-benchmark-v1",
+  "date": "2026-11-14",
+  "scheduler_job": "Symmetry 598488",
+  "hardware": "Intel Xeon Gold 6148, 2.40 GHz",
+  "runtime": "3.11",
+  "numpy": "2.4.6",
+  "blas": "OpenBLAS 0.3.34",
+  "training_threads": 2,
+  "reload_thread_settings": [
+    2,
+    4
+  ],
+  "events_per_charge": 80000,
+  "solver_commit": "2e19a3817170b2c57a3916af89853c8106362786",
+  "timing_scope": "Training, alternating-seed stability checks, all five portable candidate archives and event weights; excludes reference validation and plotting.",
+  "execution_hashes": {
+    "examples/w_constraint_workflow.py": "1f9e3cda8384042276ad44404c4809155001c8debdd9aa0c4a31f12abbd983a8",
+    "examples/w_selection.py": "ead31af7f39155b216ded30f9215e13c55fd332858b946b5537adfa1b91ba29a",
+    "examples/w_physical_inputs.py": "7cc9cdde5549522178566a536f38ce52f469ea163e89446dc520fff8eae2fcb9",
+    "examples/w_predictions.py": "440b45aff952bf62e877cdd46d31adba47100ee6623fa2695c9ef5f60f34ddb6",
+    "maxent_upgrade/study.py": "b65df145ad4da2373f7b00ac4f9f6b0bc19950a098edec1f656f59b665ede188"
+  },
+  "note": "Measured before final report-only additions and explicit seed sorting. Original training seed arrays were already sorted; these later edits do not alter the benchmarked fits.",
+  "checks": {
+    "wm": {
+      "charge": "wm",
+      "selected": "R+H+S",
+      "stable": true,
+      "numpy": "2.4.6",
+      "threads_requested": 4,
+      "thread_pools": null,
+      "weights_bitwise_unchanged": true,
+      "positive": true,
+      "portable_files_bytes": {
+        "candidate_1.npz": 27417424,
+        "candidate_2.npz": 25705213,
+        "candidate_0.npz": 402367,
+        "candidate_4.npz": 37102475,
+        "candidate_3.npz": 27759924
+      },
+      "max_prediction_abs_difference": 0.0,
+      "max_covariance_abs_difference": 1.48991929904696e-13,
+      "training_wall_seconds": 46.54,
+      "training_peak_rss_KiB": 1521364,
+      "portable_total_bytes": 118387403
+    },
+    "wp": {
+      "charge": "wp",
+      "selected": "R+H+S",
+      "stable": true,
+      "numpy": "2.4.6",
+      "threads_requested": 4,
+      "thread_pools": null,
+      "weights_bitwise_unchanged": true,
+      "positive": true,
+      "portable_files_bytes": {
+        "candidate_1.npz": 26400571,
+        "candidate_2.npz": 24752721,
+        "candidate_0.npz": 400434,
+        "candidate_4.npz": 36257450,
+        "candidate_3.npz": 26898653
+      },
+      "max_prediction_abs_difference": 0.0,
+      "max_covariance_abs_difference": 1.8562928971732617e-13,
+      "training_wall_seconds": 42.79,
+      "training_peak_rss_KiB": 1460092,
+      "portable_total_bytes": 114709829
+    }
+  }
+}

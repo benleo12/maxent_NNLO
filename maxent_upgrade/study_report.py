@@ -5,6 +5,7 @@ results and provenance are always written alongside the figures as JSON/NPZ.
 """
 from html import escape
 from pathlib import Path
+from textwrap import fill
 
 import numpy as np
 
@@ -20,7 +21,8 @@ STYLE = {"font.family": "DejaVu Sans", "font.size": 10, "axes.labelsize": 11,
 
 
 def write_study_report(directory, *, title, models, diagnostics, validations,
-                       edges, xlabel, selected, anchor, comparison=None, provenance=None, ylabel=None):
+                       edges, xlabel, selected, anchor, comparison=None, provenance=None, ylabel=None,
+                       color_overrides=None):
     """Write training.pdf/png, predictions.pdf/png, report.html/json and arrays.npz.
 
     ``models`` maps display names to ConstraintFit objects. ``diagnostics`` maps
@@ -48,6 +50,9 @@ def write_study_report(directory, *, title, models, diagnostics, validations,
     if prior:
         colors[prior] = "#87939d"
     colors[anchor], colors[selected] = "#23658b", "#bd3c3c"
+    if set(color_overrides or {}) - set(names):
+        raise ValueError("color overrides must name available candidates")
+    colors.update(color_overrides or {})
     edges = np.asarray(edges, float)
     nbin = len(validations[selected]["prediction"].labels)
     if edges.shape != (nbin + 1,) or not np.all(np.diff(edges) > 0):
@@ -228,8 +233,8 @@ def _prediction_figure(plt, directory, names, validations, edges, xlabel, select
                      fmt="o", color=color, ms=3, capsize=2, lw=1)
     axes[2].axhline(0, color=".5", lw=.7)
     axes[2].set(ylabel="Fit change\n[% of reference]", xlabel=xlabel)
-    axes[2].text(.02, .94, f"{selected} − {anchor}", transform=axes[2].transAxes,
-                 ha="left", va="top", fontsize=8, color=color)
+    axes[2].set_title(
+        fill(f"{selected} − {anchor}", width=75), loc="left", pad=4, fontsize=8, color=color)
     for ax in axes:
         ax.grid(axis="y", alpha=.15)
         ax.set_xlim(edges[0], edges[-1])

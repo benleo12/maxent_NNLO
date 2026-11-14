@@ -43,3 +43,9 @@ instead of fixed kinematic quotas to keep that interpretation simple.
 Absolute posterior event weights come from the fitted target cross section.
 The prior `weight` array itself is not already an absolute pb-per-event
 posterior: its original generation normalization is recorded separately.
+
+Run the complete [training and independent-prediction tutorial](../../../docs/W_CONSTRAINT_TUTORIAL.md)
+with `python examples/w_constraint_workflow.py wm --output w_minus` (or `wp`).
+Its [initial training vector](initial160/README.md) retains all fitted/diagnostic
+cross-covariance. The [portable-record benchmark](portable_benchmark.json) gives
+measured runtime, memory, archive size and a change-of-thread-count reload check.

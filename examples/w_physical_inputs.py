@@ -29,11 +29,14 @@ def load_input(path, *, sample_id=None):
     path = Path(path)
     with np.load(path, allow_pickle=False) as archive:
         meta = json.loads(str(archive["metadata"]))
+        if meta["group"] not in {"T", "V"}:
+            raise ValueError("the W input group must be T (training) or V (validation)")
         role = "training" if meta["group"] == "T" else "validation"
         seeds = archive["seeds"]
         actual = seeds[seeds >= 0]
-        if not np.issubdtype(seeds.dtype, np.integer) or len(np.unique(actual)) != len(actual):
-            raise ValueError("the W aggregate requires distinct integer physical seeds")
+        if (not np.issubdtype(seeds.dtype, np.integer) or (seeds < -1).any()
+                or len(np.unique(actual)) != len(actual)):
+            raise ValueError("the W aggregate requires distinct integer physical seeds and -1 padding")
         metadata = dict(meta, source_file=path.name, source_sha256=file_hash(path))
         return NumericalInput(meta["labels"], archive["mean"], archive["cov"],
                               sample_id or f"w-predictivity-{meta['charge']}-{meta['group']}",

@@ -1,0 +1,42 @@
+{
+  "schema": "compact-w-staged-validation-v1",
+  "scheduler_job": "Symmetry598518",
+  "training_threads": 2,
+  "validation_threads": 4,
+  "portable_records": true,
+  "no_new_solve_on_validation": true,
+  "numpy": "2.4.6",
+  "matplotlib": "3.11.2",
+  "results": {
+    "wp": {
+      "selected": "R+H+S",
+      "stable": true,
+      "training_sha256": "1784b18a0d750b1a4c6fdab163f9af1080dcfe8a6bda33943f9843923de3cf96",
+      "prior_sha256": "232655d8d7a2d0bd7f70d434bafa640e3280b4342ea9536a6c5992b384c1744c",
+      "reference_sha256": "32259faba4df462953a8bdd047c3d59acec76e191dd1f01706b38bca51eed45c",
+      "candidate_input_max_pull": {
+        "Blended recoil": 0.41674486382127857,
+        "Hard-recoil spin": 0.12157483873693618,
+        "Prior": null,
+        "Recoil\u2013spin moments": 0.10446966733575476,
+        "Windowed recoil": 0.12155537126228588
+      },
+      "report_sha256": "2096b596c9d8bccbc187d298fd01633a53176a9b73985c1e6804de01187e64ef"
+    },
+    "wm": {
+      "selected": "R+H+S",
+      "stable": true,
+      "training_sha256": "e4336115c56a70cbc5a303d4fa3461332a27129aa59dd41bb39d8e38314cb430",
+      "prior_sha256": "5594457e06303b1f5ac089126b9263f579384d1af3e86a9979430c69d91ac99f",
+      "reference_sha256": "e7afc5fcb45a93e7fd02f85c3d61e54f7f8a40ac4c4360f7fcfec582528555a4",
+      "candidate_input_max_pull": {
+        "Blended recoil": 0.12392553146559428,
+        "Hard-recoil spin": 0.03710258868315014,
+        "Prior": null,
+        "Recoil\u2013spin moments": 0.05997048895581633,
+        "Windowed recoil": 0.037375356478888344
+      },
+      "report_sha256": "e7373cb463d64b2f05e7741e350e5211d1fdf0ba9df804186192f25618246604"
+    }
+  }
+}

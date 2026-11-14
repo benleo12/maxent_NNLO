@@ -1,0 +1,66 @@
+{
+  "reference_independent": true,
+  "training_frozen": true,
+  "scale_order_checked": true,
+  "training_scale_order_evidence": {
+    "all_actual_cards_match": true,
+    "physical_training_runs": 1920,
+    "card_hashes": [
+      "19aa7e8d4bcdf15b71f630147822e99a1c5ac89abdbf3ff5a611820c0914431e",
+      "480a3cb99be501b862f5948bdebb1cda5dc9a0e229017b3c09d65c0361428891",
+      "49c427066a44b9e624c637db499ea1643c4019f85234bb35076d7a1d7d523cda",
+      "540eda005426fadfbe414dcb4b10e777b411665a02fab20cc969a89dc0ee362b",
+      "6a83f0eb8bbc5e9088420d3b040a68a650a867c29cc5a0066fa110a70f75316d",
+      "7cdd9150b976bb572bc9f7cbcabcf612715feb1ec003c2e8ca2442f9426f345b",
+      "a394cabd8958a93976efd1c74d26712d87428144a3e24dc1082e96657a38855e",
+      "a4720872650b4b53912f0a7289fe225a15ca7258d1fe0ffc00555ede274e7c33",
+      "da0d6ce1d7b4f2f1ffd976a65a01973c9bc873a3ae301086c61d8b6273b1d9d7",
+      "e62af167ac2d8e1538db01774422c154bc380bb96e1b8eefccd18f4ea65e4141",
+      "f51c88e9ac028c012f8e0749d4a95545ed64108a1aebe0ce669fa7f60e5237e1",
+      "fe881a7ba14309e301e6574de952e7fe7024fa884a790af06502e1e408112267"
+    ],
+    "scale_factors_muR_muF": [
+      [
+        1.0,
+        1.0
+      ],
+      [
+        2.0,
+        2.0
+      ],
+      [
+        0.5,
+        0.5
+      ],
+      [
+        2.0,
+        1.0
+      ],
+      [
+        1.0,
+        2.0
+      ],
+      [
+        0.5,
+        1.0
+      ],
+      [
+        1.0,
+        0.5
+      ]
+    ],
+    "scale_names": [
+      "central",
+      "scale_1",
+      "scale_2",
+      "scale_3",
+      "scale_4",
+      "scale_5",
+      "scale_6"
+    ],
+    "central_scale": "charged-lepton plus neutrino invariant mass"
+  },
+  "precision_passed": false,
+  "precision_misses_reported": true,
+  "results_sha256": "07d2c729d51035be220c108ae6a4fd4337c50378fdb683bc45fdd4a88002e140"
+}

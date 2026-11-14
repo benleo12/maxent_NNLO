@@ -1,0 +1,6921 @@
+{
+  "created_utc": "2026-11-14T18:09:12Z",
+  "protocol_sha256": "6af958c8d28529754db6d36b1f3bcdb297715db0b38c51c68447f077092d7a63",
+  "previous_physical_seed_count": 13888,
+  "seed_overlap_with_previous": 0,
+  "partition": "ordered tasks sliced by shard index, exactly one node per shard",
+  "tasks": [
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 0,
+      "seed": 72000,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 1,
+      "seed": 72001,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 2,
+      "seed": 72002,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 3,
+      "seed": 72003,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 4,
+      "seed": 72004,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 5,
+      "seed": 72005,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 6,
+      "seed": 72006,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 7,
+      "seed": 72007,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 8,
+      "seed": 72008,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 9,
+      "seed": 72009,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 10,
+      "seed": 72010,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 11,
+      "seed": 72011,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 12,
+      "seed": 72012,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 13,
+      "seed": 72013,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 14,
+      "seed": 72014,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 15,
+      "seed": 72015,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 16,
+      "seed": 72016,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 17,
+      "seed": 72017,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 18,
+      "seed": 72018,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 19,
+      "seed": 72019,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 20,
+      "seed": 72020,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 21,
+      "seed": 72021,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 22,
+      "seed": 72022,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 23,
+      "seed": 72023,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 24,
+      "seed": 72024,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 25,
+      "seed": 72025,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 26,
+      "seed": 72026,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 27,
+      "seed": 72027,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 28,
+      "seed": 72028,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 29,
+      "seed": 72029,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 30,
+      "seed": 72030,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 31,
+      "seed": 72031,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 32,
+      "seed": 72032,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 33,
+      "seed": 72033,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 34,
+      "seed": 72034,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 35,
+      "seed": 72035,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 36,
+      "seed": 72036,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 37,
+      "seed": 72037,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 38,
+      "seed": 72038,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 39,
+      "seed": 72039,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 40,
+      "seed": 72040,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 41,
+      "seed": 72041,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 42,
+      "seed": 72042,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 43,
+      "seed": 72043,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 44,
+      "seed": 72044,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 45,
+      "seed": 72045,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 46,
+      "seed": 72046,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 47,
+      "seed": 72047,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 48,
+      "seed": 72048,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 49,
+      "seed": 72049,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 50,
+      "seed": 72050,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 51,
+      "seed": 72051,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 52,
+      "seed": 72052,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 53,
+      "seed": 72053,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 54,
+      "seed": 72054,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 55,
+      "seed": 72055,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 56,
+      "seed": 72056,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 57,
+      "seed": 72057,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 58,
+      "seed": 72058,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 59,
+      "seed": 72059,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 60,
+      "seed": 72060,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 61,
+      "seed": 72061,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 62,
+      "seed": 72062,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WM",
+      "channel": "RR",
+      "group": "V",
+      "replica": 63,
+      "seed": 72063,
+      "points_per_run": 250000,
+      "card_sha256": "3e44f89e8df1e2c0f37c5dd9e46d7e34ea7279edef4ebff2bdfcb4ddf0c8c097"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 0,
+      "seed": 42000,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 1,
+      "seed": 42001,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 2,
+      "seed": 42002,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 3,
+      "seed": 42003,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 4,
+      "seed": 42004,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 5,
+      "seed": 42005,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 6,
+      "seed": 42006,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 7,
+      "seed": 42007,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 8,
+      "seed": 42008,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 9,
+      "seed": 42009,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 10,
+      "seed": 42010,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 11,
+      "seed": 42011,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 12,
+      "seed": 42012,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 13,
+      "seed": 42013,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 14,
+      "seed": 42014,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 15,
+      "seed": 42015,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 16,
+      "seed": 42016,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 17,
+      "seed": 42017,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 18,
+      "seed": 42018,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 19,
+      "seed": 42019,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 20,
+      "seed": 42020,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 21,
+      "seed": 42021,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 22,
+      "seed": 42022,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 23,
+      "seed": 42023,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 24,
+      "seed": 42024,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 25,
+      "seed": 42025,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 26,
+      "seed": 42026,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 27,
+      "seed": 42027,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 28,
+      "seed": 42028,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 29,
+      "seed": 42029,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 30,
+      "seed": 42030,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 31,
+      "seed": 42031,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 32,
+      "seed": 42032,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 33,
+      "seed": 42033,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 34,
+      "seed": 42034,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 35,
+      "seed": 42035,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 36,
+      "seed": 42036,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 37,
+      "seed": 42037,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 38,
+      "seed": 42038,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 39,
+      "seed": 42039,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 40,
+      "seed": 42040,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 41,
+      "seed": 42041,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 42,
+      "seed": 42042,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 43,
+      "seed": 42043,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 44,
+      "seed": 42044,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 45,
+      "seed": 42045,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 46,
+      "seed": 42046,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 47,
+      "seed": 42047,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 48,
+      "seed": 42048,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 49,
+      "seed": 42049,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 50,
+      "seed": 42050,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 51,
+      "seed": 42051,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 52,
+      "seed": 42052,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 53,
+      "seed": 42053,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 54,
+      "seed": 42054,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 55,
+      "seed": 42055,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 56,
+      "seed": 42056,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 57,
+      "seed": 42057,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 58,
+      "seed": 42058,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 59,
+      "seed": 42059,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 60,
+      "seed": 42060,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 61,
+      "seed": 42061,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 62,
+      "seed": 42062,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WP",
+      "channel": "RR",
+      "group": "V",
+      "replica": 63,
+      "seed": 42063,
+      "points_per_run": 250000,
+      "card_sha256": "c6d97c112d4be4cd2f2fd83a6ad098f6e16dd9e50e1571f9da29f9d6bf606b5e"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 0,
+      "seed": 76000,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 1,
+      "seed": 76001,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 2,
+      "seed": 76002,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 3,
+      "seed": 76003,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 4,
+      "seed": 76004,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 5,
+      "seed": 76005,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 6,
+      "seed": 76006,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 7,
+      "seed": 76007,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 8,
+      "seed": 76008,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 9,
+      "seed": 76009,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 10,
+      "seed": 76010,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 11,
+      "seed": 76011,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 12,
+      "seed": 76012,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 13,
+      "seed": 76013,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 14,
+      "seed": 76014,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 15,
+      "seed": 76015,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 16,
+      "seed": 76016,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 17,
+      "seed": 76017,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 18,
+      "seed": 76018,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 19,
+      "seed": 76019,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 20,
+      "seed": 76020,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 21,
+      "seed": 76021,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 22,
+      "seed": 76022,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 23,
+      "seed": 76023,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 24,
+      "seed": 76024,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 25,
+      "seed": 76025,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 26,
+      "seed": 76026,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 27,
+      "seed": 76027,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 28,
+      "seed": 76028,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 29,
+      "seed": 76029,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 30,
+      "seed": 76030,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 31,
+      "seed": 76031,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 32,
+      "seed": 76032,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 33,
+      "seed": 76033,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 34,
+      "seed": 76034,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 35,
+      "seed": 76035,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 36,
+      "seed": 76036,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 37,
+      "seed": 76037,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 38,
+      "seed": 76038,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 39,
+      "seed": 76039,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 40,
+      "seed": 76040,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 41,
+      "seed": 76041,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 42,
+      "seed": 76042,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 43,
+      "seed": 76043,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 44,
+      "seed": 76044,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 45,
+      "seed": 76045,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 46,
+      "seed": 76046,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 47,
+      "seed": 76047,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 48,
+      "seed": 76048,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 49,
+      "seed": 76049,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 50,
+      "seed": 76050,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 51,
+      "seed": 76051,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 52,
+      "seed": 76052,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 53,
+      "seed": 76053,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 54,
+      "seed": 76054,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 55,
+      "seed": 76055,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 56,
+      "seed": 76056,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 57,
+      "seed": 76057,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 58,
+      "seed": 76058,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 59,
+      "seed": 76059,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 60,
+      "seed": 76060,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 61,
+      "seed": 76061,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 62,
+      "seed": 76062,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WM",
+      "channel": "RV",
+      "group": "V",
+      "replica": 63,
+      "seed": 76063,
+      "points_per_run": 250000,
+      "card_sha256": "460d5720167689f0f40b88e04f2e670fce73f7c14237159d471030526122fc24"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 0,
+      "seed": 46000,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 1,
+      "seed": 46001,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 2,
+      "seed": 46002,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 3,
+      "seed": 46003,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 4,
+      "seed": 46004,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 5,
+      "seed": 46005,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 6,
+      "seed": 46006,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 7,
+      "seed": 46007,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 8,
+      "seed": 46008,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 9,
+      "seed": 46009,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 10,
+      "seed": 46010,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 11,
+      "seed": 46011,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 12,
+      "seed": 46012,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 13,
+      "seed": 46013,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 14,
+      "seed": 46014,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 15,
+      "seed": 46015,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 16,
+      "seed": 46016,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 17,
+      "seed": 46017,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 18,
+      "seed": 46018,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 19,
+      "seed": 46019,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 20,
+      "seed": 46020,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 21,
+      "seed": 46021,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 22,
+      "seed": 46022,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 23,
+      "seed": 46023,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 24,
+      "seed": 46024,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 25,
+      "seed": 46025,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 26,
+      "seed": 46026,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 27,
+      "seed": 46027,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 28,
+      "seed": 46028,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 29,
+      "seed": 46029,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 30,
+      "seed": 46030,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 31,
+      "seed": 46031,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 32,
+      "seed": 46032,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 33,
+      "seed": 46033,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 34,
+      "seed": 46034,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 35,
+      "seed": 46035,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 36,
+      "seed": 46036,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 37,
+      "seed": 46037,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 38,
+      "seed": 46038,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 39,
+      "seed": 46039,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 40,
+      "seed": 46040,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 41,
+      "seed": 46041,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 42,
+      "seed": 46042,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 43,
+      "seed": 46043,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 44,
+      "seed": 46044,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 45,
+      "seed": 46045,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 46,
+      "seed": 46046,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 47,
+      "seed": 46047,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 48,
+      "seed": 46048,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 49,
+      "seed": 46049,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 50,
+      "seed": 46050,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 51,
+      "seed": 46051,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 52,
+      "seed": 46052,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 53,
+      "seed": 46053,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 54,
+      "seed": 46054,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 55,
+      "seed": 46055,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 56,
+      "seed": 46056,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 57,
+      "seed": 46057,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 58,
+      "seed": 46058,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 59,
+      "seed": 46059,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 60,
+      "seed": 46060,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 61,
+      "seed": 46061,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 62,
+      "seed": 46062,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WP",
+      "channel": "RV",
+      "group": "V",
+      "replica": 63,
+      "seed": 46063,
+      "points_per_run": 250000,
+      "card_sha256": "ee810dfbe8bc730aa24016e80c44e21e762fcb4092d74bc04ae870ce18566220"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 0,
+      "seed": 80000,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 1,
+      "seed": 80001,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 2,
+      "seed": 80002,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 3,
+      "seed": 80003,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 4,
+      "seed": 80004,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 5,
+      "seed": 80005,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 6,
+      "seed": 80006,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 7,
+      "seed": 80007,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 8,
+      "seed": 80008,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 9,
+      "seed": 80009,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 10,
+      "seed": 80010,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 11,
+      "seed": 80011,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 12,
+      "seed": 80012,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 13,
+      "seed": 80013,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 14,
+      "seed": 80014,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 15,
+      "seed": 80015,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 16,
+      "seed": 80016,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 17,
+      "seed": 80017,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 18,
+      "seed": 80018,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 19,
+      "seed": 80019,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 20,
+      "seed": 80020,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 21,
+      "seed": 80021,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 22,
+      "seed": 80022,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 23,
+      "seed": 80023,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 24,
+      "seed": 80024,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 25,
+      "seed": 80025,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 26,
+      "seed": 80026,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 27,
+      "seed": 80027,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 28,
+      "seed": 80028,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 29,
+      "seed": 80029,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 30,
+      "seed": 80030,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 31,
+      "seed": 80031,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 32,
+      "seed": 80032,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 33,
+      "seed": 80033,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 34,
+      "seed": 80034,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 35,
+      "seed": 80035,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 36,
+      "seed": 80036,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 37,
+      "seed": 80037,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 38,
+      "seed": 80038,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 39,
+      "seed": 80039,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 40,
+      "seed": 80040,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 41,
+      "seed": 80041,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 42,
+      "seed": 80042,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 43,
+      "seed": 80043,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 44,
+      "seed": 80044,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 45,
+      "seed": 80045,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 46,
+      "seed": 80046,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 47,
+      "seed": 80047,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 48,
+      "seed": 80048,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 49,
+      "seed": 80049,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 50,
+      "seed": 80050,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 51,
+      "seed": 80051,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 52,
+      "seed": 80052,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 53,
+      "seed": 80053,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 54,
+      "seed": 80054,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 55,
+      "seed": 80055,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 56,
+      "seed": 80056,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 57,
+      "seed": 80057,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 58,
+      "seed": 80058,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 59,
+      "seed": 80059,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 60,
+      "seed": 80060,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 61,
+      "seed": 80061,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 62,
+      "seed": 80062,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WM",
+      "channel": "VV",
+      "group": "V",
+      "replica": 63,
+      "seed": 80063,
+      "points_per_run": 250000,
+      "card_sha256": "16abc1f5369c60604fe4805f826cfa55bbb7518821c27795553c55040c9b7f93"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 0,
+      "seed": 50000,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 1,
+      "seed": 50001,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 2,
+      "seed": 50002,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 3,
+      "seed": 50003,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 4,
+      "seed": 50004,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 5,
+      "seed": 50005,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 6,
+      "seed": 50006,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 7,
+      "seed": 50007,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 8,
+      "seed": 50008,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 9,
+      "seed": 50009,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 10,
+      "seed": 50010,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 11,
+      "seed": 50011,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 12,
+      "seed": 50012,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 13,
+      "seed": 50013,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 14,
+      "seed": 50014,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 15,
+      "seed": 50015,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 16,
+      "seed": 50016,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 17,
+      "seed": 50017,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 18,
+      "seed": 50018,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 19,
+      "seed": 50019,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 20,
+      "seed": 50020,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 21,
+      "seed": 50021,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 22,
+      "seed": 50022,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 23,
+      "seed": 50023,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 24,
+      "seed": 50024,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 25,
+      "seed": 50025,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 26,
+      "seed": 50026,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 27,
+      "seed": 50027,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 28,
+      "seed": 50028,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 29,
+      "seed": 50029,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 30,
+      "seed": 50030,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 31,
+      "seed": 50031,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 32,
+      "seed": 50032,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 33,
+      "seed": 50033,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 34,
+      "seed": 50034,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 35,
+      "seed": 50035,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 36,
+      "seed": 50036,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 37,
+      "seed": 50037,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 38,
+      "seed": 50038,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 39,
+      "seed": 50039,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 40,
+      "seed": 50040,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 41,
+      "seed": 50041,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 42,
+      "seed": 50042,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 43,
+      "seed": 50043,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 44,
+      "seed": 50044,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 45,
+      "seed": 50045,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 46,
+      "seed": 50046,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 47,
+      "seed": 50047,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 48,
+      "seed": 50048,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 49,
+      "seed": 50049,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 50,
+      "seed": 50050,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 51,
+      "seed": 50051,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 52,
+      "seed": 50052,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 53,
+      "seed": 50053,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 54,
+      "seed": 50054,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 55,
+      "seed": 50055,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 56,
+      "seed": 50056,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 57,
+      "seed": 50057,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 58,
+      "seed": 50058,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 59,
+      "seed": 50059,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 60,
+      "seed": 50060,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 61,
+      "seed": 50061,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 62,
+      "seed": 50062,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WP",
+      "channel": "VV",
+      "group": "V",
+      "replica": 63,
+      "seed": 50063,
+      "points_per_run": 250000,
+      "card_sha256": "5ed8e9dc2482cf6642555f7b19b0c40d5822d9e5d95d343afd647c1810082527"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 0,
+      "seed": 68000,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 1,
+      "seed": 68001,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 2,
+      "seed": 68002,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 3,
+      "seed": 68003,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 4,
+      "seed": 68004,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 5,
+      "seed": 68005,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 6,
+      "seed": 68006,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 7,
+      "seed": 68007,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 8,
+      "seed": 68008,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 9,
+      "seed": 68009,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 10,
+      "seed": 68010,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 11,
+      "seed": 68011,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 12,
+      "seed": 68012,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 13,
+      "seed": 68013,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 14,
+      "seed": 68014,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 15,
+      "seed": 68015,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 16,
+      "seed": 68016,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 17,
+      "seed": 68017,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 18,
+      "seed": 68018,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 19,
+      "seed": 68019,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 20,
+      "seed": 68020,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 21,
+      "seed": 68021,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 22,
+      "seed": 68022,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 23,
+      "seed": 68023,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 24,
+      "seed": 68024,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 25,
+      "seed": 68025,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 26,
+      "seed": 68026,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 27,
+      "seed": 68027,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 28,
+      "seed": 68028,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 29,
+      "seed": 68029,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 30,
+      "seed": 68030,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 31,
+      "seed": 68031,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 32,
+      "seed": 68032,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 33,
+      "seed": 68033,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 34,
+      "seed": 68034,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 35,
+      "seed": 68035,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 36,
+      "seed": 68036,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 37,
+      "seed": 68037,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 38,
+      "seed": 68038,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 39,
+      "seed": 68039,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 40,
+      "seed": 68040,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 41,
+      "seed": 68041,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 42,
+      "seed": 68042,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 43,
+      "seed": 68043,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 44,
+      "seed": 68044,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 45,
+      "seed": 68045,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 46,
+      "seed": 68046,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 47,
+      "seed": 68047,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 48,
+      "seed": 68048,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 49,
+      "seed": 68049,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 50,
+      "seed": 68050,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 51,
+      "seed": 68051,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 52,
+      "seed": 68052,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 53,
+      "seed": 68053,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 54,
+      "seed": 68054,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 55,
+      "seed": 68055,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 56,
+      "seed": 68056,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 57,
+      "seed": 68057,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 58,
+      "seed": 68058,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 59,
+      "seed": 68059,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 60,
+      "seed": 68060,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 61,
+      "seed": 68061,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 62,
+      "seed": 68062,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WM",
+      "channel": "V",
+      "group": "V",
+      "replica": 63,
+      "seed": 68063,
+      "points_per_run": 250000,
+      "card_sha256": "278e239c342b091de0adc5931ee8893b0a164da677c76deea4cc6de29badf36f"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 0,
+      "seed": 38000,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 1,
+      "seed": 38001,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 2,
+      "seed": 38002,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 3,
+      "seed": 38003,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 4,
+      "seed": 38004,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 5,
+      "seed": 38005,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 6,
+      "seed": 38006,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 7,
+      "seed": 38007,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 8,
+      "seed": 38008,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 9,
+      "seed": 38009,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 10,
+      "seed": 38010,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 11,
+      "seed": 38011,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 12,
+      "seed": 38012,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 13,
+      "seed": 38013,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 14,
+      "seed": 38014,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 15,
+      "seed": 38015,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 16,
+      "seed": 38016,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 17,
+      "seed": 38017,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 18,
+      "seed": 38018,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 19,
+      "seed": 38019,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 20,
+      "seed": 38020,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 21,
+      "seed": 38021,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 22,
+      "seed": 38022,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 23,
+      "seed": 38023,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 24,
+      "seed": 38024,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 25,
+      "seed": 38025,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 26,
+      "seed": 38026,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 27,
+      "seed": 38027,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 28,
+      "seed": 38028,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 29,
+      "seed": 38029,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 30,
+      "seed": 38030,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 31,
+      "seed": 38031,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 32,
+      "seed": 38032,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 33,
+      "seed": 38033,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 34,
+      "seed": 38034,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 35,
+      "seed": 38035,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 36,
+      "seed": 38036,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 37,
+      "seed": 38037,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 38,
+      "seed": 38038,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 39,
+      "seed": 38039,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 40,
+      "seed": 38040,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 41,
+      "seed": 38041,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 42,
+      "seed": 38042,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 43,
+      "seed": 38043,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 44,
+      "seed": 38044,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 45,
+      "seed": 38045,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 46,
+      "seed": 38046,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 47,
+      "seed": 38047,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 48,
+      "seed": 38048,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 49,
+      "seed": 38049,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 50,
+      "seed": 38050,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 51,
+      "seed": 38051,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 52,
+      "seed": 38052,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 53,
+      "seed": 38053,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 54,
+      "seed": 38054,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 55,
+      "seed": 38055,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 56,
+      "seed": 38056,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 57,
+      "seed": 38057,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 58,
+      "seed": 38058,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 59,
+      "seed": 38059,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 60,
+      "seed": 38060,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 61,
+      "seed": 38061,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 62,
+      "seed": 38062,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WP",
+      "channel": "V",
+      "group": "V",
+      "replica": 63,
+      "seed": 38063,
+      "points_per_run": 250000,
+      "card_sha256": "e237fc2d007ebe5dce9df1113e12530b99136fb107dc3d0c10fd094acc862674"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 0,
+      "seed": 64000,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 1,
+      "seed": 64001,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 2,
+      "seed": 64002,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 3,
+      "seed": 64003,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 4,
+      "seed": 64004,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 5,
+      "seed": 64005,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 6,
+      "seed": 64006,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 7,
+      "seed": 64007,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 8,
+      "seed": 64008,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 9,
+      "seed": 64009,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 10,
+      "seed": 64010,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 11,
+      "seed": 64011,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 12,
+      "seed": 64012,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 13,
+      "seed": 64013,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 14,
+      "seed": 64014,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 15,
+      "seed": 64015,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 16,
+      "seed": 64016,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 17,
+      "seed": 64017,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 18,
+      "seed": 64018,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 19,
+      "seed": 64019,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 20,
+      "seed": 64020,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 21,
+      "seed": 64021,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 22,
+      "seed": 64022,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 23,
+      "seed": 64023,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 24,
+      "seed": 64024,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 25,
+      "seed": 64025,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 26,
+      "seed": 64026,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 27,
+      "seed": 64027,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 28,
+      "seed": 64028,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 29,
+      "seed": 64029,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 30,
+      "seed": 64030,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 31,
+      "seed": 64031,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 32,
+      "seed": 64032,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 33,
+      "seed": 64033,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 34,
+      "seed": 64034,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 35,
+      "seed": 64035,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 36,
+      "seed": 64036,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 37,
+      "seed": 64037,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 38,
+      "seed": 64038,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 39,
+      "seed": 64039,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 40,
+      "seed": 64040,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 41,
+      "seed": 64041,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 42,
+      "seed": 64042,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 43,
+      "seed": 64043,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 44,
+      "seed": 64044,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 45,
+      "seed": 64045,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 46,
+      "seed": 64046,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 47,
+      "seed": 64047,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 48,
+      "seed": 64048,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 49,
+      "seed": 64049,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 50,
+      "seed": 64050,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 51,
+      "seed": 64051,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 52,
+      "seed": 64052,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 53,
+      "seed": 64053,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 54,
+      "seed": 64054,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 55,
+      "seed": 64055,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 56,
+      "seed": 64056,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 57,
+      "seed": 64057,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 58,
+      "seed": 64058,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 59,
+      "seed": 64059,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 60,
+      "seed": 64060,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 61,
+      "seed": 64061,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 62,
+      "seed": 64062,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WM",
+      "channel": "R",
+      "group": "V",
+      "replica": 63,
+      "seed": 64063,
+      "points_per_run": 250000,
+      "card_sha256": "f64d3ae2b9a2957115bf4e63a036b561cf7a66c883fd6271f663ccee4a72a3ab"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 0,
+      "seed": 34000,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 1,
+      "seed": 34001,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 2,
+      "seed": 34002,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 3,
+      "seed": 34003,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 4,
+      "seed": 34004,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 5,
+      "seed": 34005,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 6,
+      "seed": 34006,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 7,
+      "seed": 34007,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 8,
+      "seed": 34008,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 9,
+      "seed": 34009,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 10,
+      "seed": 34010,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 11,
+      "seed": 34011,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 12,
+      "seed": 34012,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 13,
+      "seed": 34013,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 14,
+      "seed": 34014,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 15,
+      "seed": 34015,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 16,
+      "seed": 34016,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 17,
+      "seed": 34017,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 18,
+      "seed": 34018,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 19,
+      "seed": 34019,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 20,
+      "seed": 34020,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 21,
+      "seed": 34021,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 22,
+      "seed": 34022,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 23,
+      "seed": 34023,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 24,
+      "seed": 34024,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 25,
+      "seed": 34025,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 26,
+      "seed": 34026,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 27,
+      "seed": 34027,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 28,
+      "seed": 34028,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 29,
+      "seed": 34029,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 30,
+      "seed": 34030,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 31,
+      "seed": 34031,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 32,
+      "seed": 34032,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 33,
+      "seed": 34033,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 34,
+      "seed": 34034,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 35,
+      "seed": 34035,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 36,
+      "seed": 34036,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 37,
+      "seed": 34037,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 38,
+      "seed": 34038,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 39,
+      "seed": 34039,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 40,
+      "seed": 34040,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 41,
+      "seed": 34041,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 42,
+      "seed": 34042,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 43,
+      "seed": 34043,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 44,
+      "seed": 34044,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 45,
+      "seed": 34045,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 46,
+      "seed": 34046,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 47,
+      "seed": 34047,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 48,
+      "seed": 34048,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 49,
+      "seed": 34049,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 50,
+      "seed": 34050,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 51,
+      "seed": 34051,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 52,
+      "seed": 34052,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 53,
+      "seed": 34053,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 54,
+      "seed": 34054,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 55,
+      "seed": 34055,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 56,
+      "seed": 34056,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 57,
+      "seed": 34057,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 58,
+      "seed": 34058,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 59,
+      "seed": 34059,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 60,
+      "seed": 34060,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 61,
+      "seed": 34061,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 62,
+      "seed": 34062,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WP",
+      "channel": "R",
+      "group": "V",
+      "replica": 63,
+      "seed": 34063,
+      "points_per_run": 250000,
+      "card_sha256": "ba5d6c816cc5eed75ac29dee571338f941463eb09e5e8542ddeb355e0ed33a48"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 0,
+      "seed": 60000,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 1,
+      "seed": 60001,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 2,
+      "seed": 60002,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 3,
+      "seed": 60003,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 4,
+      "seed": 60004,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 5,
+      "seed": 60005,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 6,
+      "seed": 60006,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 7,
+      "seed": 60007,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 8,
+      "seed": 60008,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 9,
+      "seed": 60009,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 10,
+      "seed": 60010,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 11,
+      "seed": 60011,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 12,
+      "seed": 60012,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 13,
+      "seed": 60013,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 14,
+      "seed": 60014,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 15,
+      "seed": 60015,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 16,
+      "seed": 60016,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 17,
+      "seed": 60017,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 18,
+      "seed": 60018,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 19,
+      "seed": 60019,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 20,
+      "seed": 60020,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 21,
+      "seed": 60021,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 22,
+      "seed": 60022,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 23,
+      "seed": 60023,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 24,
+      "seed": 60024,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 25,
+      "seed": 60025,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 26,
+      "seed": 60026,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 27,
+      "seed": 60027,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 28,
+      "seed": 60028,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 29,
+      "seed": 60029,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 30,
+      "seed": 60030,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 31,
+      "seed": 60031,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 32,
+      "seed": 60032,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 33,
+      "seed": 60033,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 34,
+      "seed": 60034,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 35,
+      "seed": 60035,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 36,
+      "seed": 60036,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 37,
+      "seed": 60037,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 38,
+      "seed": 60038,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 39,
+      "seed": 60039,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 40,
+      "seed": 60040,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 41,
+      "seed": 60041,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 42,
+      "seed": 60042,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 43,
+      "seed": 60043,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 44,
+      "seed": 60044,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 45,
+      "seed": 60045,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 46,
+      "seed": 60046,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 47,
+      "seed": 60047,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 48,
+      "seed": 60048,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 49,
+      "seed": 60049,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 50,
+      "seed": 60050,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 51,
+      "seed": 60051,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 52,
+      "seed": 60052,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 53,
+      "seed": 60053,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 54,
+      "seed": 60054,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 55,
+      "seed": 60055,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 56,
+      "seed": 60056,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 57,
+      "seed": 60057,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 58,
+      "seed": 60058,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 59,
+      "seed": 60059,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 60,
+      "seed": 60060,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 61,
+      "seed": 60061,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 62,
+      "seed": 60062,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WM",
+      "channel": "LO",
+      "group": "V",
+      "replica": 63,
+      "seed": 60063,
+      "points_per_run": 250000,
+      "card_sha256": "2d19220b086f81e64afd16522be18da3231643e332fe18c154b0d0ceb4322f55"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 0,
+      "seed": 30000,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 1,
+      "seed": 30001,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 2,
+      "seed": 30002,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 3,
+      "seed": 30003,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 4,
+      "seed": 30004,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 5,
+      "seed": 30005,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 6,
+      "seed": 30006,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 7,
+      "seed": 30007,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 8,
+      "seed": 30008,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 9,
+      "seed": 30009,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 10,
+      "seed": 30010,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 11,
+      "seed": 30011,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 12,
+      "seed": 30012,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 13,
+      "seed": 30013,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 14,
+      "seed": 30014,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 15,
+      "seed": 30015,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 16,
+      "seed": 30016,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 17,
+      "seed": 30017,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 18,
+      "seed": 30018,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 19,
+      "seed": 30019,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 20,
+      "seed": 30020,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 21,
+      "seed": 30021,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 22,
+      "seed": 30022,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 23,
+      "seed": 30023,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 24,
+      "seed": 30024,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 25,
+      "seed": 30025,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 26,
+      "seed": 30026,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 27,
+      "seed": 30027,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 28,
+      "seed": 30028,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 29,
+      "seed": 30029,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 30,
+      "seed": 30030,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 31,
+      "seed": 30031,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 32,
+      "seed": 30032,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 33,
+      "seed": 30033,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 34,
+      "seed": 30034,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 35,
+      "seed": 30035,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 36,
+      "seed": 30036,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 37,
+      "seed": 30037,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 38,
+      "seed": 30038,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 39,
+      "seed": 30039,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 40,
+      "seed": 30040,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 41,
+      "seed": 30041,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 42,
+      "seed": 30042,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 43,
+      "seed": 30043,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 44,
+      "seed": 30044,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 45,
+      "seed": 30045,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 46,
+      "seed": 30046,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 47,
+      "seed": 30047,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 48,
+      "seed": 30048,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 49,
+      "seed": 30049,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 50,
+      "seed": 30050,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 51,
+      "seed": 30051,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 52,
+      "seed": 30052,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 53,
+      "seed": 30053,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 54,
+      "seed": 30054,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 55,
+      "seed": 30055,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 56,
+      "seed": 30056,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 57,
+      "seed": 30057,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 58,
+      "seed": 30058,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 59,
+      "seed": 30059,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 60,
+      "seed": 30060,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 61,
+      "seed": 30061,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 62,
+      "seed": 30062,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    },
+    {
+      "charge": "WP",
+      "channel": "LO",
+      "group": "V",
+      "replica": 63,
+      "seed": 30063,
+      "points_per_run": 250000,
+      "card_sha256": "93ab4b6d544bbbe5a3d7dd988233800b93c7829495fba48fddc9b4792c2357a3"
+    }
+  ]
+}

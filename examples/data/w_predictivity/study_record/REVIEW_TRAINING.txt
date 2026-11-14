@@ -1,0 +1,102 @@
+Independent training review, 2026-11-14
+Reviewer: skeptical_referee agent; no campaign or manuscript edits.
+
+Scope
+-----
+Reviewed PROTOCOL.md, train.py, check_training.py, the pinned feature builder,
+fits160/FINAL_TRAINING_FREEZE.json, TRAINING_REVIEW.json, full/even/odd
+SELECTION.json records for both charges, the 18 full-sample controls, and
+HALF_PREDICTION_STABILITY.json / FINAL_TRAINING_DIAGNOSTICS.json. Independent
+validation central values and comparisons were not opened for this review.
+
+Provenance
+----------
+The actual protocol and training-review hashes match the final freeze:
+PROTOCOL.md:
+31e98a616c21b4400bdd484d1de2c7f01a4d6312a5c23d9a5bd8fb6cf3f6bbb9
+TRAINING_REVIEW.json:
+c29b52aff0c438c72bf25bfea6f87f7546f32efddea1f599d87c57d6f2d01e7f
+Freeze timestamp: 2026-11-14T18:18:42Z.
+Selected full-sample archive hashes recorded in that freeze:
+WP: 1fc6a7b1529bde04d0d801fc61cc64924822fb50af860c68f16818fdaca19c82
+WM: 9e5ac185c5e0ff9dea5250953058fb20885ce97c95c6d980cc6d85eb7fe1def1
+This review checked the freeze and prediction metadata contract; it did not
+independently download the large frozen weight archives again.
+
+Independent numerical recomputation
+-----------------------------------
+For all 24 block tests (two charges x three training subsets x four candidate
+blocks), reconstructed chi-square directly from the saved residual vector and
+complete statistical covariance as r^T C^{-1} r, then recomputed its chi-square
+tail probability using the full block dimension. Every addition/retention
+decision agreed. Maximum absolute discrepancy in chi-square was 6.37e-12.
+All covariance matrices were exactly symmetric in the serialized records.
+All standardized covariance eigenvalues exceeded the declared relative rank
+cutoff. Ranks are D=4, M=6, H=15, S=15; there are no discarded-mode flags.
+
+Both charges and both fixed training halves follow the declared single-pass
+sequence: do not add D; do not add M; add H; add S. All select R+H+S. H and S
+are far from the significance boundary at all seven coherent scales. The
+all-scale condition is a deterministic scale-robust addition rule; scale
+variations have not been treated as Gaussian statistical observations.
+
+The selected full WP fit has 81 constraints, maximum imposed-target residual
+0.044151 times its central input standard error (or the declared absolute
+floor), retained ESS fraction 0.991259, and q/p range [0.460914, 3.299848].
+The corresponding WM figures are 85 constraints, 0.047918, 0.992329, and
+[0.537694, 2.979494]. All 18 controls have positive finite normalized weights
+and pass all-scale imposed-target closure. Their worst closure ratios are
+below 0.142 (WP) and 0.180 (WM). Global ESS is a weight-stability diagnostic,
+not a certificate of local support or predictive accuracy.
+
+Post-selection checks
+---------------------
+The final descriptive D/M checks after R+H+S do not change the frozen model.
+Independently recomputed p-value ranges over the seven scales are:
+WP D: 0.06899--0.25754; WP M: 0.45740--0.71990;
+WM D: 0.02282--0.04875; WM M: 0.04684--0.22874.
+Thus neither omitted block becomes resolved under the declared 1% all-scale
+rule after adding H and S. This is not evidence that all mass/polar effects
+are absent, or that other untested blocks would be unnecessary.
+
+The half-prediction check uses the same prior and feature set and compares
+independent equal-size training halves. To first order, the standard error
+of their difference is twice the full-sample numerical-input standard error.
+The largest central differences divided by this expectation are 1.8292 (WP)
+and 2.5437 (WM), across 112 correlated outputs. This is a descriptive check
+for large fit instability, not a new selection rule, a global p-value, or an
+independent validation. Multiplier differences are archived; raw multiplier
+sizes alone are not physically invariant stability measures.
+
+Interpretation safeguards
+------------------------
+R changes the recoil target from the blended prescription to direct
+windowed fixed-order moments. R-minus-anchor must be shown separately from
+the effect of H/S. H turns on over 25--50 GeV and ends at 500 GeV. S is global,
+including above 500 GeV; an H-to-H+S change cannot uniquely be called a
+low-recoil effect. Both blocks vanish at Born level and their inclusive NNLO
+targets contain NLO W+jet information. They supply no resummation. Fiducial
+harmonic moments are measurement functions, not uncut angular coefficients.
+
+The exact accepted-fraction ledger I=I0+(I-I0) can locate differences in the
+projected population and recoil-sensitive migration, with a common original
+baseline denominator for each model. It does not by itself establish a
+unique shower or resummation cause. Improving agreement with a fixed-order
+cut value is not proof of a more accurate shower in the low-recoil region.
+
+Pre-unblinding validator review
+------------------------------
+The acceptance Jacobians, paired cross-model covariance subtraction, and
+cross-charge asymmetry derivatives in validate.py are correct. Asymmetries
+use absolute charge rates. The independent reference covariance enters each
+model-reference residual and cancels from paired model changes. Requested
+implementation guards: match selected archive hash to the freeze, verify
+pair/scale/eta-label ordering, and assert charge-stream seed independence.
+These are provenance/index checks and do not alter the frozen physics.
+
+Conclusion
+----------
+No training-stage scientific blocker was found. The evidence supports a
+numerically closed, reproducibly selected R+H+S fit within the prespecified
+candidate sequence. Predictivity and the physical size/location of residuals
+remain questions for the independent reference after its precision review.

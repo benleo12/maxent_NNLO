@@ -1,0 +1,28 @@
+{
+  "sha256": "b2b465adcdf16c2bd7047e4bd40954b3b604b81bea4ef66efd4bcb3d743f45bd",
+  "models": [
+    "P",
+    "anchor",
+    "R",
+    "D",
+    "R+D",
+    "M",
+    "R+M",
+    "N",
+    "R+N",
+    "G",
+    "R+G",
+    "W",
+    "R+W",
+    "J4",
+    "R+J4",
+    "H0",
+    "H",
+    "S0",
+    "S",
+    "R+H+S"
+  ],
+  "selected": "R+H+S",
+  "elapsed_s": 76.67542836401844,
+  "validation_reference_opened": false
+}
