@@ -1,0 +1,6 @@
+set automatic_html_opening False
+import model sm
+define p = g u c d s b u~ c~ d~ s~ b~
+generate p p > mu+ vm
+output w_lo_wp -nojpeg
+exit
