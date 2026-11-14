@@ -1,0 +1,54 @@
+{
+  "source_file": "dy_prior_v6_nomec10M_atlas.npz",
+  "source_sha256": "ae9ef60f7116ba619873868fd9be09e51ccc92191d18a13115193dde57e075ee",
+  "source_events": 3583332,
+  "seed": 13112026,
+  "sampling": "uniform without replacement within recoil strata",
+  "strata": [
+    {
+      "low": 0.0,
+      "high": 30.0,
+      "population": 2982076,
+      "selected": 50000,
+      "inclusion_probability": 0.01676684296443149
+    },
+    {
+      "low": 30.0,
+      "high": 60.0,
+      "population": 417545,
+      "selected": 20000,
+      "inclusion_probability": 0.04789902884719012
+    },
+    {
+      "low": 60.0,
+      "high": 100.0,
+      "population": 121447,
+      "selected": 20000,
+      "inclusion_probability": 0.16468088960616564
+    },
+    {
+      "low": 100.0,
+      "high": 200.0,
+      "population": 54286,
+      "selected": 15000,
+      "inclusion_probability": 0.27631433518770954
+    },
+    {
+      "low": 200.0,
+      "high": 500.0,
+      "population": 7803,
+      "selected": 7803,
+      "inclusion_probability": 1.0
+    },
+    {
+      "low": 500.0,
+      "high": null,
+      "population": 175,
+      "selected": 175,
+      "inclusion_probability": 1.0
+    }
+  ],
+  "weight": "original_weight / inclusion_probability",
+  "event_id": "source gidx, unchanged",
+  "source_index": "row in the full selected prior"
+}

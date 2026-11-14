@@ -1,5 +1,23 @@
 # Examples
 
+Start with the committed real Drell–Yan fitting example:
+
+```bash
+python examples/real_drell_yan.py --output dy_demo --plot
+```
+
+It creates `posterior.npz`, `recoil.npz`, `angle.npz`, `acceptance.npz`,
+`report.json` and, with `--plot`, `comparison.pdf`. The report contains local
+statistics, comparison ratios and source provenance. The [data recipe](data/DY_GENERATION.md)
+documents the generator sample, inverse-inclusion weights and independent angle
+reference. This is a fresh fit, not a plot of precomputed posterior weights.
+
+For full event records, [the HepMC example](../docs/HEPMC.md) reads, fits and
+reattaches weights by ID. For a new observable or process, start with
+`custom_observables.py` and `custom_uncertainties.py`; the first also demonstrates
+[held-out joint checks and local statistics](../docs/VALIDATION.md).
+
+
 Start with [custom_observables.py](custom_observables.py) for a complete run without
 external files. It uses synthetic data and shows what joint moments add. For
 physics applications, provide your own positive-weight prior inside the released

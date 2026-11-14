@@ -14,7 +14,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from maxent_upgrade import compute_fo_moments, upgrade
+from maxent_upgrade import compute_fo_moments, upgrade, joint_moment_residuals, bin_diagnostics
 
 
 def run(n_events=4000):
@@ -50,6 +50,13 @@ def run(n_events=4000):
     print("\nJoint moment <u(mass) cos(theta)>:")
     for name, weights in (("Target", target), ("Separate moments", separate.weights), ("Joint moments", joint.weights)):
         print(f"  {name:18} {weights @ correlation:.6f}")
+    print("\nJoint-block residuals, evaluated before and after imposing that block:")
+    for name, fit in (("Separate", separate), ("Joint", joint)):
+        checks = joint_moment_residuals(prior, fit.weights, moments, config)
+        largest = max(abs(row["residual"]) for row in checks["mass_angle"]["moments"])
+        print(f"  {name:8} largest absolute residual {largest:.5f}")
+    local = bin_diagnostics(prior["mass"], np.linspace(60, 140, 9), joint.weights)
+    print(f"Smallest local effective count in eight mass bins: {min(local['effective_events']):.1f}")
     return dict(prior, weight_upgraded=joint.weights,
                 weight_separate=separate.weights, weight_target=target)
 

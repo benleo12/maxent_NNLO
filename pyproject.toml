@@ -15,6 +15,7 @@ dependencies = ["numpy>=1.20"]
 [project.optional-dependencies]
 test = ["pytest"]
 plot = ["matplotlib>=3.5"]
+hepmc = ["pyhepmc>=2.13"]
 
 [project.scripts]
 maxent-upgrade = "maxent_upgrade.cli:main"

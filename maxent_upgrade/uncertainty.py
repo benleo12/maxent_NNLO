@@ -11,6 +11,7 @@ import numpy as np
 
 from . import released
 from .reweight import upgrade
+from .provenance import array_identity, canonical_json, content_hash, fit_provenance, effective_configuration, released_table_identity
 
 
 @dataclass
@@ -38,6 +39,7 @@ class EnsembleResult:
     methods: dict
     labels: dict
     notes: list = field(default_factory=list)
+    provenance: dict = field(default_factory=dict)
 
     def arrays(self, unit_area=False):
         """NPZ-ready arrays. By default all event weights are in pb.
@@ -60,6 +62,10 @@ class EnsembleResult:
             out["labels_" + source] = np.asarray(self.labels[source], dtype=str)
             if not unit_area:
                 out["cross_section_" + source + "_pb"] = self.cross_sections[source]
+        if self.provenance:
+            provenance = dict(self.provenance, normalization="unit_area" if unit_area else "pb",
+                              output_weights=array_identity(out["weight_upgraded"]))
+            out["provenance_json"] = np.asarray(canonical_json(provenance))
         return out
 
     def histogram(self, values, bins, *, unit_area=False, density=True):
@@ -106,12 +112,15 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
             raise ValueError(f"unknown uncertainty method {method!r}")
         chosen_methods[source] = method
     central = upgrade(events, moments, config)
+    provenance = fit_provenance(events, moments, config, central, cross_section=rate)
+    provenance["variations"] = {}
     if progress:
         progress("central", central)
     orders = dict(central.chosen_moments)
     weights, rates, labels = {}, {}, {}
     for source, shifts in variations.items():
         ws, rs, names = [], [], []
+        provenance["variations"][source] = []
         for i, shift in enumerate(shifts):
             shifted_events = events if shift.prior_weight is None else dict(events, weight=shift.prior_weight)
             shifted_config = dict(config if shift.config is None else shift.config)
@@ -121,18 +130,24 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
             if shift.config is None and shift.prior_weight is None:
                 shifted_config["lam0"] = central.report["lam"]
             shifted_rate = _positive_rate(rate if shift.cross_section is None else shift.cross_section)
-            result = upgrade(shifted_events, moments if shift.moments is None else shift.moments, shifted_config)
+            shifted_moments = moments if shift.moments is None else shift.moments
+            result = upgrade(shifted_events, shifted_moments, shifted_config)
             if result.chosen_moments != orders:
                 raise ValueError(f"{source}: a variation changed the constrained moment orders")
             label = shift.label or f"{source} {i + 1}"
             ws.append(result.weights)
             rs.append(shifted_rate)
             names.append(label)
+            provenance["variations"][source].append(dict(
+                label=label, moments_sha256=content_hash(shifted_moments),
+                configuration=effective_configuration(shifted_config), cross_section_pb=shifted_rate,
+                shape_weights=array_identity(result.weights),
+                prior_weights=(array_identity(shift.prior_weight) if shift.prior_weight is not None else None)))
             if progress:
                 progress(label, result)
         _check_count(source, chosen_methods[source], len(ws))
         weights[source], rates[source], labels[source] = np.asarray(ws), np.asarray(rs), names
-    return EnsembleResult(central, rate, weights, rates, chosen_methods, labels)
+    return EnsembleResult(central, rate, weights, rates, chosen_methods, labels, provenance=provenance)
 
 
 def _check_count(source, method, n):
@@ -210,6 +225,8 @@ def upgrade_with_uncertainties(events, process, *, sources=("scale", "stat", "wi
         notes.append("Shower variations require generator-supplied prior weights or separate samples.")
     result = upgrade_ensemble(events, moments, config, variations,
                               cross_section=released.cross_section(process), progress=progress)
+    result.provenance["moment_table"] = released_table_identity(process, table, selection, sources)
+    result.provenance["uncertainty_workflow"] = dict(sources=list(sources), bootstrap_replicas=int(n_boot), bootstrap_seed=seed)
     result.notes.extend(notes)
     return result
 

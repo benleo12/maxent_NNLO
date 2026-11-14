@@ -1,4 +1,6 @@
 """Coherent rate/shape propagation and the user-facing uncertainty workflow."""
+import json
+
 import numpy as np
 import pytest
 
@@ -95,7 +97,14 @@ def test_released_driver_and_cli_round_trip(tmp_path, monkeypatch):
         for k, v in events.items():
             np.testing.assert_array_equal(saved[k], v)
         for k, v in result.arrays().items():
-            np.testing.assert_array_equal(saved[k], v)
+            if k == "provenance_json":
+                actual = json.loads(str(saved[k]))
+                expected = json.loads(str(v))
+                input_file = actual.pop("input_file")
+                assert input_file["name"] == prior.name and len(input_file["sha256"]) == 64
+                assert actual == expected
+            else:
+                np.testing.assert_array_equal(saved[k], v)
     main(["histogram", str(posterior), "x", str(output), "--bins", "2", "--range", "-1", "1"])
     with np.load(output) as hist:
         assert hist["central"].sum() == pytest.approx(10)

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-13
+
+- A committed 112,978-event Drell–Yan fixture and complete fit with propagated
+  uncertainties, hard-recoil closure, independent decay-angle reference and
+  an example analysis cut. Sampling weights, IDs and reference provenance are retained.
+- Configuration, input/table hashes and normalization in saved fit provenance.
+- Held-out joint-moment residuals and local effective statistics/concentration.
+- An optional streaming HepMC adapter with ID-based weight association, tested
+  on real Herwig records and small deterministic records. Core solver unchanged.
+- Documentation separates input-error propagation, constraint closure and
+  independent physics validation.
+
 ## 2026-11-12
 
 - A shorter quick start, a catalogue covering every paper configuration and prior

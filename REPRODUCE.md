@@ -7,11 +7,32 @@ moment matching at NNLO and beyond*) and of the authors' further solves:
 1. the released moment tables, from the NNLOJET productions;
 2. the authors' solves, from the released tables, given the authors' priors.
 
-It does not distribute the event samples (the priors) or the NNLOJET output files, which are too
-large, nor the scripts that draw the paper's figures. The event samples are available from the
-authors on request.
+A compact real DY event sample, per-run reference histograms and a complete fitting
+example are distributed in `examples/data/`; see [the recipe](examples/data/DY_GENERATION.md).
+The full event productions and raw NNLOJET outputs remain available from the authors
+on request. The compact example is a new fit on a stratified subset, so it need not
+reproduce the full-production fit event by event.
 
 ## Running the examples
+
+From a clean checkout, `python -m pip install '.[plot]'` followed by
+`python examples/real_drell_yan.py --output dy_demo --plot` performs a real DY
+fit without downloads. It saves `posterior.npz`, `recoil.npz`, `angle.npz`,
+`acceptance.npz`, `report.json` and `comparison.pdf`. The fixed sampling seed and
+input hashes are recorded in `examples/data/dy_prior.json`; the bootstrap seed
+is 1 and the default count is 20. Elapsed time is machine-dependent; event IDs,
+inputs, configuration, normalization and comparison definitions are fixed.
+
+On 13 November 2026, the 112,978-event example took 4.84 seconds for its central,
+six scale, twenty integration and two moved-window fits on the Mac mini with two
+threads. Its posterior sums to 710.3611257 pb and retains 69,182 effective events,
+101.03% of the weighted prior's effective count. Six hard-recoil bins above
+60 GeV agree with the reference to about 1%; the independent unconstrained angle
+has larger differences that are reported, not treated as failed tests. This
+check concerns the compact example and does not replace the full-production rows
+below. The [HepMC guide](docs/HEPMC.md#record-round-trip-check) records the separate
+200-real-event extraction/fit/reattachment check.
+
 
 The [example catalogue](examples/README.md) lists all five applications, the added
 constraints, prior comparisons and the letter's inputs. `examples/paper_examples.py`
@@ -21,8 +42,8 @@ that prior.
 
 The command-line output stores replacement event weights in pb. The Python API
 returns normalized weights. For the Higgs plots, explicitly use the paper's
-48.58 pb normalization. The uncertainty example stores normalized weights and the
-corresponding `sigma_*_pb` arrays for absolute predictions.
+48.58 pb normalization. The automated uncertainty example stores absolute replacement weights by default;
+its `--unit-area` option stores normalized weights with the corresponding rates.
 
 The implementation was reorganized on 12 November without changing the moment
 tables or the reweighting equations. `tests/compare_previous.py` compares Born,

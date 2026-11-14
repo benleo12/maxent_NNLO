@@ -13,6 +13,7 @@ W±, Higgs, diphoton and Z+jet production.
 
 [Quick start](#quick-start) · [All paper examples](examples/README.md) ·
 [New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
+[Validation](docs/VALIDATION.md) · [Event records](docs/HEPMC.md) ·
 [Reproduction](REPRODUCE.md)
 
 ## Install
@@ -24,6 +25,31 @@ python -m pip install .
 ```
 
 Optional plotting support: `python -m pip install '.[plot]'`.
+
+## Run a real QCD example
+
+A compact Drell–Yan sample and fixed-order references are included in the checkout:
+
+```bash
+git clone https://github.com/benleo12/maxent_NNLO.git
+cd maxent_NNLO
+python -m pip install '.[plot]'
+python examples/real_drell_yan.py --output dy_demo --plot
+```
+
+This performs a new fit to the released NNLO moments on 112,978 real shower
+events. It saves event weights, separate uncertainty sources, a constrained
+hard-recoil comparison, an unconstrained decay-angle comparison against an
+independent NNLO integration, and the acceptance of a tighter lepton cut.
+`dy_demo/comparison.pdf` shows both comparisons; `report.json` records local
+effective statistics, ratios and input provenance. The fit needs no network
+access or external event sample after installation.
+
+The example distinguishes propagated input errors from physics validation.
+The independent angle is allowed to disagree: it was not fitted. The
+[sample recipe](examples/data/DY_GENERATION.md) explains the sampling weights,
+generator settings and which reference is independent. Omit `--plot` if only
+NumPy is installed.
 
 ## Quick start
 
@@ -43,7 +69,7 @@ cross section. Use these as replacement event weights. Pass `--unit-area` for
 weights summing to one, or `--cross-section PB` to set another normalization.
 The command also works as `python -m maxent_upgrade`.
 
-The Python interface is equally short:
+The direct interface is equally short:
 
 ```python
 import numpy as np
@@ -80,7 +106,7 @@ event weights. The central moment orders stay fixed. Histogram bands keep the
 sources separate: scale/window envelopes, integration-statistical standard
 deviation and the CT18 68% Hessian band where available. The file also includes
 the usual weighted-sample statistical error. Unavailable inputs are reported.
-Shower variations can be supplied as generator weights through the Python API.
+Shower variations can be supplied as generator weights through the direct interface.
 
 ```python
 from maxent_upgrade import upgrade_with_uncertainties
@@ -131,8 +157,8 @@ python examples/paper_examples.py wp-angle --inspect
 python examples/paper_examples.py wp-angle my_wp_prior.npz wp_angle.npz
 ```
 
-The tables include their fixed-order definitions and provenance. The authors'
-large event samples and plotting inputs are not distributed here. You can use
+The tables include their fixed-order definitions and provenance. The compact DY fitting inputs and independent joint-validation histograms are
+distributed here. The authors' full event productions are not. You can use
 your own compatible prior, or request the authors' samples for numerical
 reproduction. See [REPRODUCE.md](REPRODUCE.md).
 
@@ -165,6 +191,14 @@ recoil windows, correlations, uncertainty inputs and automation. The
 [fixed-order recipe](MOMENT_CONSTRUCTION.md) gives the precise measurement functions.
 
 ## Reading the result
+
+Saved fits include a [provenance record](docs/PROVENANCE.md) with configuration,
+input and moment-table hashes, selected orders and weight normalization.
+[Local statistics and joint checks](docs/VALIDATION.md) help decide whether an
+analysis needs more events or additional correlation constraints. An optional
+[HepMC adapter](docs/HEPMC.md) extracts the DY selection and attaches central
+weights back to selected full records by event ID.
+
 
 - **Moment agreement:** achieved moments compared with the input Monte Carlo
   uncertainties. A successful minimization alone does not establish that a prior

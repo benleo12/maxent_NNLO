@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install '.[test,plot]' ruff pycodestyle
+      - run: python -m pip install '.[test,plot,hepmc]' ruff pycodestyle
       - name: Python syntax and undefined names
         run: ruff check --select F821 maxent_upgrade examples tests
       - name: Tests
@@ -41,6 +41,7 @@ jobs:
           python examples/custom_uncertainties.py
           python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
           python examples/plot_joint_validation.py
+          python examples/real_drell_yan.py --output real_dy_check --bootstrap 2 --plot
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp

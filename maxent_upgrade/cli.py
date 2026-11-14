@@ -7,6 +7,7 @@ import numpy as np
 from . import released
 from .reweight import upgrade
 from .uncertainty import histogram_bands, upgrade_with_uncertainties
+from .provenance import canonical_json, file_hash, fit_provenance, released_table_identity
 
 
 def _selection(parser):
@@ -85,6 +86,7 @@ def reweight(args):
             progress=lambda label, result: print(f"{label}: {result.summary()}", flush=True),
         )
         result = ensemble.central
+        ensemble.provenance["input_file"] = dict(name=prior.name, sha256=file_hash(prior))
         additions = ensemble.arrays(unit_area=args.unit_area)
         for note in ensemble.notes:
             print(note)
@@ -96,6 +98,14 @@ def reweight(args):
                          moment_orders=np.asarray(list(result.chosen_moments.values()), dtype=int))
         if not args.unit_area:
             additions["cross_section_upgraded_pb"] = np.asarray(total)
+        selection = dict(born=args.born, recoil=args.recoil, mixed=args.mixed,
+                         window=args.window, nnlo_zj=args.nnlo_zj)
+        provenance = fit_provenance(
+            events, moments, config, result,
+            cross_section=sigma["value"] if args.unit_area else total,
+            normalization="unit_area" if args.unit_area else "pb", input_path=prior,
+            table=released_table_identity(args.process, released.table(args.process), selection))
+        additions["provenance_json"] = np.asarray(canonical_json(provenance))
     print(result.describe())
     collisions = set(events).intersection(additions)
     if collisions:

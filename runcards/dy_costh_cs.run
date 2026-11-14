@@ -1,0 +1,58 @@
+!#############################################################
+!## |cos theta*_CS| histogram for the JHEP Drell-Yan follower (written 2026-10-31).
+!## Physics identical to dy_profile_log30_hi (the production behind both papers):
+!## Z -> l+l-, 13 TeV, CT18NNLO[0], Gmu scheme, ATLAS Born-fiducial cuts, mur = muf = mll, 7-point set.
+!## Booked: cos_theta_CS_0PT (stock NNLOJET binding, well defined at pT_ll = 0) on [-1, 1] in 40 bins,
+!## folded to |cos theta*_CS| in 20 bins of 0.05 afterwards, and the fiducial rate as norm_born.
+!## Statistics per job are set from the Symmetry pilot (see README.txt), not copied from the production.
+!#############################################################
+
+PROCESS  Z
+  collider = pp
+  sqrts = 13000.0
+  decay_type = 1
+END_PROCESS
+
+RUN  DY_COSTH
+  PDF = CT18NNLO[0]
+  tcut = 1e-07
+  iseed = 1
+  warmup = 40000[5]
+  production = 400000[10]
+END_RUN
+
+PARAMETERS
+  MASS[Z]  = 91.1876
+  WIDTH[Z] = 2.4952
+  MASS[W]  = 80.385
+  WIDTH[W] = 2.085
+  SCHEME[alpha] = Gmu
+  GF = 1.1663787d-5
+END_PARAMETERS
+
+SELECTORS
+  select mll   min = 66   max = 116
+  select ptlp  min = 27
+  select ptlm  min = 27
+  select abs_ylp  max = 2.5
+  select abs_ylm  max = 2.5
+END_SELECTORS
+
+HISTOGRAMS
+  cos_theta_CS_0PT > costh_cs   min=-1 max=1 nbins=40
+  mll              > norm_born  min=66 max=116 nbins=1
+END_HISTOGRAMS
+
+SCALES
+  mur = 1.0 * mll  muf = 1.0 * mll
+  mur = 2.0 * mll  muf = 2.0 * mll
+  mur = 0.5 * mll  muf = 0.5 * mll
+  mur = 2.0 * mll  muf = 1.0 * mll
+  mur = 1.0 * mll  muf = 2.0 * mll
+  mur = 0.5 * mll  muf = 1.0 * mll
+  mur = 1.0 * mll  muf = 0.5 * mll
+END_SCALES
+
+CHANNELS
+  LO
+END_CHANNELS

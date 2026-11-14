@@ -1,4 +1,16 @@
-# Two-jet validation histogram
+# Public QCD inputs
+
+## Drell–Yan fitting example
+
+`dy_prior.npz` contains 112,978 real shower events with original event IDs and
+inverse-inclusion sampling weights. `dy_reference.npz` contains per-run
+fixed-order histograms, including a decay-angle integration independent of the
+moment constraints. Both files and their JSON provenance are committed.
+See [DY_GENERATION.md](DY_GENERATION.md) for generator settings, selection,
+units, the frozen sampling rule and reference construction. Run the new fit
+with `python examples/real_drell_yan.py --output dy_demo --plot`.
+
+## Two-jet validation histogram
 
 `zj_joint_validation.npz` accompanies the JHEP comparison of separate and joint
 jet moments. It contains binned sums, not event records. Run:

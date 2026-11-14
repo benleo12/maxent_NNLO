@@ -17,6 +17,8 @@ from .reweight import upgrade
 from .uncertainty import (
     EnsembleResult, Variation, histogram_bands, upgrade_ensemble, upgrade_with_uncertainties,
 )
+from .diagnostics import bin_diagnostics, joint_moment_residuals, weight_diagnostics
+from .provenance import fit_provenance
 
 __version__ = "1.1.0"
 
@@ -25,6 +27,7 @@ __all__ = [
     "compute_fo_moments", "chebyshev_moment", "profile_w", "matching_scale",
     "check_seam", "resolved_order", "combine_moments", "UpgradeResult",
     "upgrade_with_uncertainties", "upgrade_ensemble", "Variation", "EnsembleResult", "histogram_bands",
+    "bin_diagnostics", "joint_moment_residuals", "weight_diagnostics", "fit_provenance",
     "upgrade_from_histograms", "moment_snr", "FOHist", "fo_from_dat", "DEFAULTS",
 ]
 

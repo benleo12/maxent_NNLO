@@ -9,3 +9,7 @@ __pycache__/
 build/
 dist/
 .venv/
+
+# Compact public QCD inputs for the end-to-end fitting example.
+!examples/data/dy_prior.npz
+!examples/data/dy_reference.npz
