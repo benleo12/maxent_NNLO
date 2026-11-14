@@ -80,13 +80,16 @@ def plot_result(path, references, predictions):
     plt.close(figure)
 
 
-def run(output, bootstrap=20, make_plot=False):
+def run(output, bootstrap=20, make_plot=False, prior=None):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
-    prior_path = DATA / "dy_prior.npz"
+    prior_path = DATA / "dy_prior.npz" if prior is None else Path(prior)
     reference_path = DATA / "dy_reference.npz"
     with np.load(prior_path, allow_pickle=False) as source:
         events = dict(source)
+    required = {"weight", "mll", "y_abs", "pT_ll", "abs_costh", "pT_sub"}
+    if required.difference(events):
+        raise ValueError(f"comparison sample lacks {sorted(required.difference(events))}; supply selected DY arrays, including angle and subleading-lepton pT")
     with np.load(reference_path, allow_pickle=False) as source:
         reference_data = dict(source)
     start = time.perf_counter()
@@ -135,7 +138,8 @@ def run(output, bootstrap=20, make_plot=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output", default="dy_demo")
+    parser.add_argument("--prior", type=Path, help="another compatible selected DY sample; defaults to the committed Pythia subset")
     parser.add_argument("--bootstrap", type=int, default=20)
     parser.add_argument("--plot", action="store_true")
     args = parser.parse_args()
-    run(args.output, args.bootstrap, args.plot)
+    run(args.output, args.bootstrap, args.plot, prior=args.prior)

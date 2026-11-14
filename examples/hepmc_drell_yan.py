@@ -37,12 +37,12 @@ def main(argv=None):
                                         progress=lambda name, fit: print(f"{name}: {fit.summary()}", flush=True))
     record = json.loads(str(events["record_provenance_json"]))
     result.provenance["event_record"] = record
-    np.savez_compressed(output / "posterior.npz", **events, **result.arrays())
     absolute = result.arrays()
+    np.savez_compressed(output / "posterior.npz", **events, **absolute)
     variations = {f"maxent_{source}_{index + 1:03d}_pb_per_event": vector
                   for source in result.weights
                   for index, vector in enumerate(absolute["weight_" + source])}
-    attach_weights(args.input, output / "posterior.hepmc", events["event_id"], result.arrays()["weight_upgraded"],
+    attach_weights(args.input, output / "posterior.hepmc", events["event_id"], absolute["weight_upgraded"],
                    provenance=result.provenance, expected_source_sha256=record["source"]["sha256"], variations_pb=variations)
     (output / "statistics.json").write_text(canonical_json(weight_diagnostics(result.central.weights, events["weight"])) + "\n")
     print(f"Saved selected records, fitted arrays and all uncertainty weights in {output}")

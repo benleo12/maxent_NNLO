@@ -190,7 +190,8 @@ def attach_weights(input_path, output_path, event_ids, weights_pb, *, provenance
                     weight_name=name, selected_records=len(ids), cross_section_pb=float(values.sum()),
                     variation_cross_sections_pb={key: float(value.sum()) for key, value in variations.items()},
                     fit=provenance)
-    handle = tempfile.NamedTemporaryFile(prefix=".maxent-", suffix=".hepmc", dir=output_path.parent, delete=False)
+    handle = tempfile.NamedTemporaryFile(prefix=".maxent-", suffix="".join(output_path.suffixes) or ".hepmc",
+                                         dir=output_path.parent, delete=False)
     temporary = Path(handle.name)
     handle.close()
     try:

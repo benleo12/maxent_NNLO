@@ -128,7 +128,7 @@ def test_selected_records_only_and_stream_subset_limit(tmp_path):
     assert arrays["event_id"].tolist() == [2, 3]
     with hepmc.open(subset) as reader:
         assert [event.event_number for event in reader] == [2]
-    output = tmp_path/"weighted.hepmc"
+    output = tmp_path/"weighted.hepmc.gz"
     attach_weights(subset, output, np.array([2]), np.array([7.]))
     with hepmc.open(output) as reader:
         records = list(reader)

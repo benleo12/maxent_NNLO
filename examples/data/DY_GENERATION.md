@@ -96,3 +96,8 @@ histogram.
 and unit conversion. The compact input arrays and their JSON provenance are
 committed. Running the public example needs neither a generator nor NNLOJET nor
 access to the original large archives.
+
+To repeat the identical fit and reference comparisons on another compatible
+selected DY sample, pass `--prior my_prior.npz` to `examples/real_drell_yan.py`.
+The comparison uses `weight`, `mll`, `y_abs`, `pT_ll`, `abs_costh` and `pT_sub`;
+all other arrays, event IDs and supplied metadata are retained in its output.
