@@ -85,7 +85,7 @@ can also need restricted windows near acceptance edges, as in the W example.
 
 ## 3. Supply the moments
 
-If the fixed-order points are available in Python:
+If the fixed-order points are available as arrays:
 
 ```python
 from maxent_upgrade import compute_fo_moments, upgrade

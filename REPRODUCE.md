@@ -7,8 +7,10 @@ moment matching at NNLO and beyond*) and of the authors' further solves:
 1. the released moment tables, from the NNLOJET productions;
 2. the authors' solves, from the released tables, given the authors' priors.
 
-A compact real DY event sample, per-run reference histograms and a complete fitting
-example are distributed in `examples/data/`; see [the recipe](examples/data/DY_GENERATION.md).
+Compact real Pythia and Herwig DY event samples, per-run reference histograms
+and complete fitting examples are distributed in `examples/data/`; see the
+[Pythia recipe](examples/data/DY_GENERATION.md) and
+[Herwig recipe](examples/data/HERWIG_GENERATION.md).
 The full event productions and raw NNLOJET outputs remain available from the authors
 on request. The compact example is a new fit on a stratified subset, so it need not
 reproduce the full-production fit event by event.
@@ -40,7 +42,7 @@ selects their configurations. The same released moments can be imposed on anothe
 compatible prior, but the resulting weights and retained statistics will depend on
 that prior.
 
-The command-line output stores replacement event weights in pb. The Python API
+The command-line output stores replacement event weights in pb. The direct API
 returns normalized weights. For the Higgs plots, explicitly use the paper's
 48.58 pb normalization. The automated uncertainty example stores absolute replacement weights by default;
 its `--unit-area` option stores normalized weights with the corresponding rates.
@@ -59,6 +61,49 @@ from outside the checkout, and the custom-process example produced its diagnosti
 output and plot. Production-sample re-solves have not been rerun for this
 reorganization. The production results below are the earlier checks described in
 each row.
+
+## Current public demonstrations and independent studies
+
+The final application release passed 64 tests on 14 November 2026, including the
+unequal-channel W covariance checks. Fresh public plot commands also reproduce
+the independent comparisons and the W joint redistribution map from committed
+inputs only. The earlier 38-test record above describes the initial reorganization.
+
+All five applications have public fixed-order inputs and complete configurations.
+The [input guide](docs/INPUTS.md) lists the required event arrays, extraction
+instructions and cards. Fits with another prior take a user-supplied event file;
+the production paths in historical provenance are not runtime dependencies.
+
+| Workflow | Public reproduction route | Input needed from the user |
+|---|---|---|
+| Fresh Pythia or Herwig DY fit | `examples/real_drell_yan.py`, optionally `--prior examples/data/herwig_public_prior.npz` | None; compact real events are included |
+| Full-sample DY comparison | `examples/plot_dy_portability.py` | None; all plotted numerical caches and fit metadata are included |
+| Independent W predictions | `examples/plot_w_joint.py --full-scans` | None for cached plots; `w_joint_refinement.py` takes a compatible prior for a new fit |
+| Moment/histogram two-jet benchmark | `examples/plot_zj_benchmark.py` | None for cached plots; `zj_benchmark.py` takes a compatible prior for new fits |
+| Remaining five-application configurations | `examples/paper_examples.py --list`, then `EXAMPLE --inspect` | A compatible selected prior, with the schema in the input guide |
+
+The new W study uses directly booked recoil moments and a common windowed angular
+construction for its `A/J2/J4` sequence. It is distinct from the older blended-angle
+configuration in the historical checks below. The public reader reproduces all
+four frozen models for both charges, on 522,365 W+ and 490,046 W− events, with
+maximum relative weight differences below 2.3e-9. Full selected-model workflows
+with six scale alternatives and twenty correlated integration replicas preserve
+positive weights, event IDs and the separate cross section of every member.
+Checks and source identities are included with [the W inputs](examples/data/w_joint/README.md).
+
+The independent W reference keeps unequal per-channel production counts explicitly.
+Its raw arrays have NaN padding and seed -1 outside valid rows. The corresponding
+CI check reconstructs both the reference mean and its full covariance from the
+actual channel counts; it does not treat padding as extra integrations. The
+fresh runner only reads training inputs. Separate source archives record the
+selection rule, frozen configurations, precision protocols and validation.
+
+The full-sample DY and two-jet caches retain every variation and resolution used
+in their comparisons, including failed histogram fits and their reasons. Their
+cached-data plotting commands do not run another event fit. The numerical records
+in sections 2 and 3 below are historical compatibility checks of the letter and
+previous application configurations; they are not substitutes for these new
+independent prediction studies.
 
 ## 1. The tables, from NNLOJET
 

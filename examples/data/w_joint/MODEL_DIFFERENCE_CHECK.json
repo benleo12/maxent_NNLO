@@ -1,0 +1,5 @@
+{
+  "finite_difference_relative_max_norm": 4.0160224239718217e-10,
+  "cross_covariance_vs_paired_influence_relative_max_norm": 1.0525321614489988e-14,
+  "production_or_validation_data_used": false
+}

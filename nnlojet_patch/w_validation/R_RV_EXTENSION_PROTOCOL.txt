@@ -1,0 +1,28 @@
+Second precision extension, fixed before opening central validation predictions
+
+The complete initial two-charge precision audit found a residual error floor
+outside RR: RV alone contributes up to 1.14% to a W- eta bin, and R alone up
+to 0.47%. The original declared bin/asymmetry targets therefore cannot all
+be reached by extending RR alone. Neither the validation means nor any
+prediction/reference differences were inspected in making this decision.
+
+Append 224 independent R runs and 480 RV runs for EACH charge, all with the
+original 250000-point budget, cards and adapted grids. Final channel counts
+per charge are LO32, R256, V32, RR640, RV512, VV32. All original runs remain.
+The additional seeds are:
+  WP R: 911032..911255; WM R: 931032..931255;
+  WP RV: 914032..914511; WM RV: 934032..934511.
+These ranges do not overlap any training, other-channel or RR-extension seed.
+Perlmutter job 61257244 uses four CPU nodes and 128 one-thread integrations
+per node. The measured RV runtime suggests about 12-15 minutes after start.
+
+W+ was already frozen as A and W- as J2. This extension changes neither model
+selection nor weights. It refines only the independent validation reference.
+Per-channel seed counts determine each covariance and bootstrap sample size.
+Separate raw extension outputs and the original compact sample are preserved.
+
+Inspect all three predeclared precision criteria after combination. No seeds
+are removed, reweighted by estimated error, or discarded as outliers. No bins
+are merged after reading the results. If a remaining isolated bin misses its
+precision target, report that limitation explicitly. Additional channels are
+not added once the declared precision has been reached.

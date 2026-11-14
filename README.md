@@ -12,7 +12,7 @@ changes to the solver. Ready-to-use inputs accompany the paper for Drell–Yan,
 W±, Higgs, diphoton and Z+jet production.
 
 [Quick start](#quick-start) · [All paper examples](examples/README.md) ·
-[New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
+[Prior input schemas](docs/INPUTS.md) · [New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
 [Validation](docs/VALIDATION.md) · [Event records](docs/HEPMC.md) ·
 [Reproduction](REPRODUCE.md)
 
@@ -171,7 +171,10 @@ The [two-jet benchmark](examples/data/zj_benchmark/README.md) includes ordinary
 histogram comparators, every tested resolution and independent cut/balance
 predictions, with a portable fitting script and compact plotting caches. The
 [full-sample generator comparison](examples/data/dy_portability/README.md) can
-also be redrawn directly from its numerical caches.
+also be redrawn directly from its numerical caches. The
+[independent W study](examples/data/w_joint/README.md) provides frozen angular
+and joint configurations, correlated training inputs and independent predictions,
+with a public fitting command and complete comparison caches.
 
 The tables include their fixed-order definitions and provenance. The compact DY fitting inputs and independent joint-validation histograms are
 distributed here. The authors' full event productions are not. You can use

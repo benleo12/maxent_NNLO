@@ -1,0 +1,177 @@
+{
+  "schema": "w-prediction-study-final-manifest-v1",
+  "created_utc": "2026-11-14T06:05:41Z",
+  "inputs": {
+    "T_WP": {
+      "sha256": "da7e5a99cd36f55e2b4cb18080f39dac43d54e1ec396ec0e86f4faede75d24f7",
+      "channels": [
+        "LO",
+        "R",
+        "V",
+        "RR",
+        "RV",
+        "VV"
+      ],
+      "counts": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "points_per_run": 250000,
+      "physical_runs": 192,
+      "accumulator_shape": [
+        6,
+        32,
+        73,
+        7
+      ],
+      "seed_list_sha256": "faa8433a0e3cce1f81e3d50694798a9726c22c74f9a7001d94e888c8fc9f6c93",
+      "seed_range": [
+        710000,
+        715031
+      ],
+      "covariance_estimator": "sum over channels of sample covariance across seeds divided by seed count"
+    },
+    "T_WM": {
+      "sha256": "4e31b693111e571a572669ab70bc9208609fed36512ba08589aa4e9a632cd123",
+      "channels": [
+        "LO",
+        "R",
+        "V",
+        "RR",
+        "RV",
+        "VV"
+      ],
+      "counts": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "points_per_run": 250000,
+      "physical_runs": 192,
+      "accumulator_shape": [
+        6,
+        32,
+        73,
+        7
+      ],
+      "seed_list_sha256": "9a3f50a573c26fed4e9efbc2a0d5223af6d04336011cadbba7be6d0ccd7a6334",
+      "seed_range": [
+        730000,
+        735031
+      ],
+      "covariance_estimator": "sum over channels of sample covariance across seeds divided by seed count"
+    },
+    "V_WP": {
+      "sha256": "39c4196ce15835ad0283e028c52cf71efd19bbb480a6a72b0fc01c7799bc9f88",
+      "channels": [
+        "LO",
+        "R",
+        "V",
+        "RR",
+        "RV",
+        "VV"
+      ],
+      "counts": [
+        864,
+        2976,
+        96,
+        3296,
+        768,
+        32
+      ],
+      "points_per_run": 250000,
+      "physical_runs": 8032,
+      "accumulator_shape": [
+        6,
+        3296,
+        67,
+        7
+      ],
+      "seed_list_sha256": "914adc411633f979e8692cf75119e007e98b911e77161332ed3aecfbcf2ab090",
+      "seed_range": [
+        100032,
+        915031
+      ],
+      "covariance_estimator": "sum over channels of sample covariance across seeds divided by seed count"
+    },
+    "V_WM": {
+      "sha256": "073b9c1bbab219ab8480cb4b87c1437374dbcabd18fed917b0adc03f83d99943",
+      "channels": [
+        "LO",
+        "R",
+        "V",
+        "RR",
+        "RV",
+        "VV"
+      ],
+      "counts": [
+        1056,
+        1760,
+        64,
+        1824,
+        736,
+        32
+      ],
+      "points_per_run": 250000,
+      "physical_runs": 5472,
+      "accumulator_shape": [
+        6,
+        1824,
+        67,
+        7
+      ],
+      "seed_list_sha256": "49dd8eb0cc40bea6c136a32f812b642f51763b2f02537ab19afc3942a172e392",
+      "seed_range": [
+        200032,
+        935031
+      ],
+      "covariance_estimator": "sum over channels of sample covariance across seeds divided by seed count"
+    }
+  },
+  "total_physical_runs": 13888,
+  "total_integration_points": 3472000000,
+  "seed_groups_disjoint": true,
+  "all_physical_accumulators_finite": true,
+  "selected": {
+    "WP": "A",
+    "WM": "J2"
+  },
+  "freeze_utc": {
+    "WP": "2026-11-14T04:27:33Z",
+    "WM": "2026-11-14T04:40:27Z"
+  },
+  "weight_sha256": {
+    "WP": {
+      "B": "62c7cb0ed7499843e79cf067fa92ac26c14b7b9361a01891edeb8690a0a7f9ec",
+      "A": "f20ebdb90e3c6784d87c3d65726643698d9f4ca983f0f25c76e0798a20811a00",
+      "J2": "5ed572336c24e30c67c5317884acf6f6b919bb4253bc1766cc19d411de01b7dd",
+      "J4": "44869f79a768977d713599acaf827274687e3a043cf88fa32d7bcb8a32ba75bd"
+    },
+    "WM": {
+      "B": "2f58c0b7eacd7b62a0fc2cbda2ceb139a3777f1ac709abea0f2be8f547ea437e",
+      "A": "1b54235bddd260ed6eee8db15dd96e128c4c0c999549c68b731534bce7ab1e62",
+      "J2": "be22210979bfb2dafd011ca8341e097ac57beedb905f0d60c2f3660430186352",
+      "J4": "ec0358e9acf75f5a7a6ed05e28efc21035392e35ff18dfe1248d58394a934380"
+    }
+  },
+  "validation_complete": {
+    "completed_utc": "2026-11-14T06:05:40Z",
+    "selected": {
+      "WP": "A",
+      "WM": "J2"
+    },
+    "caveat": "Input-MC and finite-prior errors are linear-response estimates; scale envelopes remain separate. No uncertainty coverage claim."
+  },
+  "actual_precision_audit_sha256": "c6c69945bf7058eab5457ee2c19e76f3c46c009146a372c9879fa07b330caaea",
+  "training_package_snapshot": "b437a686f1282b0567010518c7b3b2daae838ab7",
+  "propagation": "Independent channel-wise whole-vector integration resampling; prediction input response is linear. Finite-prior influence functions include the fitted response, blended recoil targets and prior-standardized ridge. Model differences retain cross-model covariance.",
+  "limitations": "Scale alternatives are coherent seven-point vectors, not Gaussian errors or coverage intervals. No PDF-member integrations are added by this study. A finite moment fit establishes only the tested predictions, not universal NNLO+PS accuracy.",
+  "final_precision_decision": "After the last precision-only allocation, unblind once and report actual precision including any remaining misses; no model retuning or seed deletion."
+}

@@ -45,6 +45,7 @@ jobs:
           python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz --output herwig_check --bootstrap 2 --plot
           python examples/plot_zj_benchmark.py --output zj_benchmark_check
           python examples/plot_dy_portability.py --output dy_portability_check
+          python examples/plot_w_joint.py --output w_joint_check --full-scans
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp

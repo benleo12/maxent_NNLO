@@ -1,0 +1,34 @@
+Final precision allocation, fixed before any central validation comparison
+
+The R/RV extension achieved the acceptance and individual-bin precision
+criteria: relative acceptance errors below 0.1% and every eta bin below 1%.
+The asymmetry errors were 0.0015-0.0038, so the declared 0.002 goal was not
+met. A precision-only allocator used the full per-channel seed variance,
+the asymmetry derivatives, and measured run times to distribute a final
+independent sample. It never exposed central validation means or residuals.
+
+Forecast target: maximum asymmetry MC error 0.0019, a 5% margin. Forecast
+cost: 311.23 core-hours, or 18.24 ideal minutes on eight 128-core CPU nodes.
+The final extension contains 10496 additional 250000-point runs. Long runs
+are scheduled first to reduce idle tails. Final per-charge channel counts:
+             LO      R      V      RR      RV      VV
+  WP        864   2976     96    3296     768      32
+  WM       1056   1760     64    1824     736      32
+All original runs are retained with equal weight within each channel.
+
+New seeds are 100000 + charge_index*100000 + channel_index*10000 + replica,
+with WP/WM indices 0/1 and channel order LO,R,V,RR,RV,VV. Replica indices
+start at that channel's previous count and end at the final count minus one.
+These blocks are disjoint from all original, pilot and previous-extension
+seeds, and lie below NNLOJET's 1000000 seed ceiling. A proposed larger seed
+range was caught in a source audit and its queued job 61258800 was cancelled
+before it ran. That rejected manifest is retained separately. Corrected
+production is Perlmutter job 61258856.
+
+Both fitted models and all event weights remain frozen: WP A, WM J2.
+Pool each channel with its own run count, retaining numerator/denominator
+and cross-observable correlations. Predictions are not used for allocation.
+The variance forecast assumes comparable independent-run scatter and is not
+a guarantee against new subtraction outliers. After this final extension,
+report the measured precision including any remaining misses and proceed to
+the independent comparison; do not extend the campaign indefinitely.

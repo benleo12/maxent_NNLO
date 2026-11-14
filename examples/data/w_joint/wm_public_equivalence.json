@@ -1,0 +1,61 @@
+{
+  "charge": "wm",
+  "events": 490046,
+  "selection": "pt_l>20, pt_nu>25, mt>40 GeV; |y_l|<2.5; requested charge; pre-QED leptons",
+  "selected_index_sha256": "f66fb1ae26bcf180c1ef5330d52d16eeab8c2e2554cdd8014c02cc1457aa1891",
+  "models": {
+    "B": {
+      "seconds": 0.8721823330270126,
+      "max_absolute": 1.009067554855322e-14,
+      "max_relative": 2.2149297643357926e-09,
+      "l1": 4.4247647944728116e-13,
+      "sigma_pb": 2092.631421120546,
+      "orders": {
+        "m_w": 9,
+        "y_abs": 12,
+        "pt_w": 20
+      }
+    },
+    "A": {
+      "seconds": 1.0280592499766499,
+      "max_absolute": 1.0088980635625765e-14,
+      "max_relative": 2.2136057422813672e-09,
+      "l1": 4.439962736068481e-13,
+      "sigma_pb": 2092.631421120546,
+      "orders": {
+        "m_w": 9,
+        "y_abs": 12,
+        "pt_w": 20,
+        "ctw1": 6
+      }
+    },
+    "J2": {
+      "seconds": 1.0929074579617009,
+      "max_absolute": 1.0042225263970275e-14,
+      "max_relative": 2.220340210742716e-09,
+      "l1": 4.4244383966793343e-13,
+      "sigma_pb": 2092.631421120546,
+      "orders": {
+        "m_w": 9,
+        "y_abs": 12,
+        "pt_w": 20,
+        "ctw1": 6,
+        "rapidity_angle": 6
+      }
+    },
+    "J4": {
+      "seconds": 1.3673355829669163,
+      "max_absolute": 1.0060530492993387e-14,
+      "max_relative": 2.220442807154913e-09,
+      "l1": 4.4375772752956115e-13,
+      "sigma_pb": 2092.631421120546,
+      "orders": {
+        "m_w": 9,
+        "y_abs": 12,
+        "pt_w": 20,
+        "ctw1": 6,
+        "rapidity_angle": 20
+      }
+    }
+  }
+}

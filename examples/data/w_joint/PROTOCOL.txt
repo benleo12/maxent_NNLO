@@ -1,0 +1,109 @@
+Frozen W prediction study, 2026-11-13
+
+Purpose
+Test whether production/decay constraints selected without inspecting lepton
+validation distributions improve predictions for those distributions and for
+new fiducial cuts. Retain negative or inconclusive outcomes.
+
+Physics and events
+W+ and W- at 7 TeV. Baseline pT_l>20 GeV, |eta_l|<2.5, pT_nu>25 GeV,
+mT>40 GeV. NNLOJET input settings and electroweak scheme remain those of the
+released W_MOMENTS calculations: CT18NNLO central PDF, seven stated scale
+choices with mu=m_lnu, CMS/Gmu, M_W=80.385 and Gamma_W=2.085 on-shell
+parameters, M_Z=91.1876, Gamma_Z=2.4952, full CKM. This study will document
+the existing prior's distinct electroweak parameters rather than silently alter
+them. No new event generation is necessary for this experiment.
+
+Use the current positive-weight no-MEC priors on Mac mini. The decay variable
+is the SIGNED Collins-Soper angle of the charged lepton, with its z axis
+folded along the boson longitudinal momentum exactly as in the released
+moment code. The rapidity variable is |y_W| mapped on [0,4].
+
+Frozen model hierarchy
+P: prior, normalized to the NNLO baseline rate for shape comparisons.
+B: mass, |y_W| and recoil constraints of the released process.
+A: B plus coherent windowed angular constraints w(c)T_n(c), n=0..6.
+J2: A plus the complete 0<=k,n<=2 rapidity-angle block, adding only functions
+not already in A: w(c)T_k(u_y)T_n(c), k=1..2, n=0..2.
+J4: analogous complete block through degree four, k=1..4, n=0..4.
+The angle window is the existing smooth profile in c+1, with endpoints
+(0.3,0.4,1.6,1.7), hence one for |c|<=0.6 and zero for |c|>=0.7.
+Unlike the paper's blended angular target, A and J use identical windowed
+definitions and direct fixed-order sums. The current blended-angle fit will
+be retained as a separately labeled anchor, not confused with A.
+
+Constraint selection
+Central single-observable degrees are frozen from training only and held
+fixed for every variation. The available J2/J4 blocks are fixed now, not
+chosen from validation plots. Training residuals and their correlated
+statistical covariance determine whether the extra block is resolved. Scale
+variations are evaluated coherently as whole vectors, never as independent
+Gaussian errors. Report the residual block statistic and all seven scale
+vectors. Select the smallest complete candidate block that removes resolved
+training residuals in the remaining degree-four block, subject to numerical
+feasibility and statistical conditioning. If no block is resolved, retain A.
+No validation observable can trigger an extra constraint or degree change.
+
+Implementation of the training statistic, specified before production results:
+Use the covariance of (predicted diagnostic moments - their fixed-order sums),
+including correlations induced by the fitted constraints, via the derivative
+Cov_q(H,Phi) [Cov_q(Phi,Phi)+ridge]^{-1}. Add independent finite-prior covariance,
+including the prior contribution to blended recoil targets. Whiten the residual
+correlation matrix and retain eigenmodes above 1e-6 of its largest eigenvalue.
+Use a chi-square diagnostic with the retained rank. A block is called resolved
+only if p<0.01 for ALL seven coherent scale residual vectors (evaluated with
+the central statistical covariance); scales are not random Gaussian draws.
+A tests the entire degree-four block; J2 tests its remaining 14 functions; J4
+is the last predefined complete candidate. Select A, then J2, then J4 at the
+first block without a resolved residual. Retain results for all candidates.
+This is an approximate finite-Monte-Carlo diagnostic, not a calibrated coverage
+claim. The fixed ridge is the released solver default 1e-4. Report convergence,
+ridge residuals relative to input statistics, and effective statistics explicitly.
+If any frozen candidate's supplied target misses by more than one input Monte
+Carlo error at any coherent scale, flag it as failing the target-closure check.
+Do not conceal that failure or tune the ridge after reading validation.
+
+Independent integrations
+Reuse already-adapted grids for identical phase space, not previous production
+events. Use disjoint seeds for training and validation, with disjoint channel
+and charge offsets. Every group includes LO,R,V,RR,RV,VV and all seven scale
+choices. All production histograms are archived, but validation predictions
+remain unread until model choices and central weights are frozen.
+Initial production: 32 independent runs/group/channel/charge, each 250000
+points. Pilot: 20000 points/channel/charge for runtime, compatibility and
+numerical sanity checks only. Extend statistically, without choosing models
+from validation shapes, if the independent fixed-order precision is inadequate.
+Target precision: relative error <=0.3% for nested-cut acceptances and <=1%
+for populated charged-lepton eta bins; asymmetry absolute error <=0.002.
+Use per-run scatter and channel independence for covariance, with ratio and
+asymmetry uncertainties computed from coherent run resampling. Document
+unresolved bins rather than silently merge them after seeing discrepancies.
+
+Held-out predictions
+At pT_l thresholds 20,27,30 GeV, with other baseline cuts unchanged:
+separate-charge absolute |eta_l| spectra on the existing ATLAS edges
+[0,.21,.42,.63,.84,1.05,1.37,1.52,1.74,1.95,2.18,2.5], their charge asymmetry,
+total rates, and each new-cut acceptance relative to the baseline rate.
+Also validate baseline pT_l and mT distributions on declared runcard bins.
+None of these measurements is used in the weight fits.
+
+Inference
+Keep the same event weights when changing cuts. Compare B,A,selected J and
+the prior, including event statistics and independent fixed-order statistics.
+Input-statistical and coherent scale variations are retained separately.
+Success means improvement in independent, unfitted distributions and new-cut
+rates, beyond noise, with acceptable effective statistics. Failure means this
+constraint set is insufficient, not that the held-out results may be fitted
+retroactively. The experiment establishes performance only for the tested
+observables/cuts; it cannot establish universal NNLO+PS or uncertainty coverage.
+
+Numerical implementation, fixed before production: book the recoil polynomials
+directly in log(pT) on [25,500], the released solver's acting range. This is
+the same polynomial span as the booked [25,2500] basis, without an ill-conditioned
+degree-20 affine transformation of rounded text accumulators. The window and
+degree-selection rule are unchanged. Original pilot accumulators are retained.
+
+Resources
+Heavy work only Perlmutter/Symmetry/Mac mini. Private source and run trees.
+Mac mini fits capped at two threads. No paper/package edits or publication
+from this work stream. All scripts, hashes and compact results archived here.

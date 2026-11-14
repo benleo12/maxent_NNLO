@@ -1,0 +1,25 @@
+{
+  "process": "W-",
+  "comparison": "J2/A on the identical prior events; redistribution map, not NNLO closure",
+  "baseline_cuts": {
+    "pt_l_min_GeV": 20.0,
+    "pt_nu_min_GeV": 25.0,
+    "mt_min_GeV": 40.0,
+    "abs_eta_l_max": 2.5
+  },
+  "fiducial_event_count": 490046,
+  "fiducial_index_sha256": "f66fb1ae26bcf180c1ef5330d52d16eeab8c2e2554cdd8014c02cc1457aa1891",
+  "angle": "signed charged-lepton Collins-Soper cosine with axis folded along yW",
+  "mask": "raw count >=100 and A-weighted effective count >=100 per cell",
+  "probability_in_map_A": 0.9999999999999999,
+  "probability_in_map_J2": 1.0,
+  "A_weight_sha256": "1b54235bddd260ed6eee8db15dd96e128c4c0c999549c68b731534bce7ab1e62",
+  "J2_weight_sha256": "be22210979bfb2dafd011ca8341e097ac57beedb905f0d60c2f3660430186352",
+  "masked_cells": 136,
+  "displayed_cells": 184,
+  "displayed_correction_percent_range": [
+    -4.273761469156523,
+    3.6852008204608655
+  ],
+  "caveat": "No independently integrated two-dimensional NNLO reference is booked for this map. It shows where the fitted joint block changes event weights, not the accuracy of either distribution."
+}

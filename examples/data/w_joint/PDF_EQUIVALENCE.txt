@@ -1,0 +1,13 @@
+Symmetry and Perlmutter LHAPDF 6.5.5 comparison, 2026-11-13.
+CT18NNLO_0000.dat SHA256 is identical:
+ed6801f28d2fa7b66ca29364df8125e57b473bebdc9b3f557c0c4cb886cc1501
+The Symmetry .info additionally supplies AlphaS_FlavorScheme, NumFlavors,
+Lambda3/4/5. Both use AlphaS_Type=ipol with identical interpolation tables.
+Explicit evaluation by check_pdf.cc is identical at 17 printed digits:
+Q alpha_s xfxQ(21,0.05,Q) xfxQ(2,0.05,Q)
+20 0.15340579627934856 2.2886774897821387 0.62303500973042947
+40 0.13484714577118126 2.2088080481564822 0.62853030847536118
+80 0.12038112813318717 2.1258244246418352 0.63135966784361419
+160 0.10877611413784727 2.0442921343018194 0.63237555843675408
+500 0.09396753450755313 1.9183871144097102 0.63144919038583391
+Original .info files are retained in transfer_1 for inspection.

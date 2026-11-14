@@ -1,0 +1,8 @@
+{
+  "completed_utc": "2026-11-14T06:05:40Z",
+  "selected": {
+    "WP": "A",
+    "WM": "J2"
+  },
+  "caveat": "Input-MC and finite-prior errors are linear-response estimates; scale envelopes remain separate. No uncertainty coverage claim."
+}

@@ -54,17 +54,20 @@ weights, which must be multiplied by the desired cross section.
 | `dy-nnlo-zj` | Drell–Yan with the letter's NNLO Z+jet recoil moments | NNLO input for the hard recoil |
 | `dy-joint` | Drell–Yan with joint mass and decay-angle moments | the letter's joint-moment example |
 
-The following sections show what to supply and what to do with the weights.
+The [five-application input guide](../docs/INPUTS.md) gives the event-array
+schemas and extraction instructions. The following sections show how to use
+those arrays and the resulting weights.
 Full fiducial definitions, jet and isolation settings are in
 [the moment-table guide](../moments/README.md#what-your-prior-must-provide).
 
 ## Independent comparisons
 
-Redraw the full-sample generator comparison and two-jet benchmark:
+Redraw the full-sample generator comparison, two-jet benchmark and independent W study:
 
 ```bash
 python examples/plot_dy_portability.py --output dy_portability_plots
 python examples/plot_zj_benchmark.py --output zj_benchmark_plots
+python examples/plot_w_joint.py --output w_joint_plots --full-scans
 ```
 
 The [generator comparison](data/dy_portability/README.md) uses the full Pythia
@@ -75,8 +78,17 @@ fitting examples.
 The [two-jet benchmark](data/zj_benchmark/README.md) compares moment, marginal
 histogram and joint-histogram reweighting at a common integration budget. It
 retains every resolution, failed fit, local cell count and independent prediction.
-Use `zj_benchmark.py` to refit a compatible prior. Both plotting commands use
-compact committed caches; fitting a new prior requires event arrays.
+Use `zj_benchmark.py` to refit a compatible prior.
+
+The [W study](data/w_joint/README.md) releases its frozen production, angular
+and joint targets, full training covariance, original seed accumulators and
+independent lepton/cut/charge-asymmetry predictions. Use `w_joint_refinement.py`
+to apply the frozen configurations to a compatible prior with coherent scale
+and integration variations. Its `selected` option reproduces the study choice;
+it does not select a new joint degree for an arbitrary prior.
+
+These plotting commands use compact committed caches; fitting a new prior
+requires event arrays.
 
 ## Drell–Yan
 
@@ -233,6 +245,15 @@ python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
 This synthetic example uses `upgrade_ensemble` and `Variation` without a released
 process table. Its target and variations are illustrative, not QCD predictions.
 
+The older `bands_with_released_moments.py` script provides the scale, input-statistical, matching and released PDF
+re-solves. Its saved event weights sum to one. Matching `sigma_*_pb` arrays contain the
+cross section for each scale, statistical replica or PDF member. For example,
+`scale_w * sigma_scale_pb[:, None]` gives absolute event weights in pb.
+The letter’s NNLO Z+jet table has no run replicas or moved windows, so that
+part of the input cannot supply those variations. Shower
+variations require the corresponding weights or alternate samples from the user's
+generator and a new solve for each prior.
+
 The paper's two-dimensional jet-correlation comparison also runs without the
 large event samples:
 
@@ -244,16 +265,9 @@ It compares the separate and joint fits with an independently integrated Z+2-jet
 reference. [Binned data and provenance](data/README.md) are included. For other
 observables, form the same two-dimensional histograms from your posterior event
 weights and fixed-order reference, with common bins and normalization.
-That script provides the scale, input-statistical, matching and released PDF
-re-solves. Its saved event weights sum to one. Matching `sigma_*_pb` arrays contain the
-cross section for each scale, statistical replica or PDF member. For example,
-`scale_w * sigma_scale_pb[:, None]` gives absolute event weights in pb.
-The letter’s NNLO Z+jet table has no run replicas or moved windows, so that
-part of the input cannot supply those variations. Shower
-variations require the corresponding weights or alternate samples from the user's
-generator and a new solve for each prior.
 
-For the truncation example, repeat the solve with explicit counts, keeping the
+
+For a truncation study, repeat the solve with explicit counts, keeping the
 other constraints fixed:
 
 ```python
@@ -266,11 +280,12 @@ for degree in (2, 4, 8, 12):
 
 The highest requested degree cannot exceed the available moments.
 
-## NLO input and the linear mass-map control
+## Comparing perturbative orders and mass maps
 
-The paper also compares NLO and NNLO Drell–Yan input and compares the Breit–Wigner
-and linear mass maps. Their additional target tables are not released. The same
-solver supports both comparisons when those inputs are supplied.
+The same solver can compare NLO with NNLO moment inputs, or Breit–Wigner with
+linear mass maps. These are additional controls users can perform with suitably
+booked fixed-order inputs. The manuscript's mass-map illustrations show prior
+geometry and conditioning; they are not fitted linear-map comparisons.
 
 For an NLO-input comparison, construct the moments from an NLO calculation with
 the same observable definitions and selection, then call `upgrade` on the same
@@ -292,8 +307,9 @@ linear_result = upgrade(events, linear_moments, linear_config)
 
 Estimate production uncertainties with independent integrator runs, as described in
 the [new-process guide](../docs/NEW_PROCESSES.md#3-supply-the-moments). Relabeling
-existing moments with a different map is not a valid map comparison. Exact
-reproduction of these two controls needs the authors' target inputs and prior.
+existing moments with a different map is not a valid map comparison. These
+optional controls require target moments for the chosen order and map, together
+with a compatible prior.
 
 ## Your own process
 

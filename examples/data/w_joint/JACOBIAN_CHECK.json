@@ -1,0 +1,193 @@
+{
+  "dataset": "Deterministic 6000-event subset; synthetic target tilt; no production targets or validation predictions",
+  "fixed_orders": {
+    "m_w": 3,
+    "y_abs": 4,
+    "pt_w": 5
+  },
+  "ridge": 0.0001,
+  "checks": [
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_wptw_0",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 0.00023195748938199261,
+      "max_abs_error": 4.219972445979048e-05,
+      "predicted_max_abs": 0.1819286998329899
+    },
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_wptw_0",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 5.798174879316953e-05,
+      "max_abs_error": 1.0548544171984364e-05,
+      "predicted_max_abs": 0.1819286998329899
+    },
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_yc_10",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 3.878009025015672e-13,
+      "max_abs_error": 3.878009025015672e-13,
+      "predicted_max_abs": 1.0
+    },
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_yc_10",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 1.000088900582341e-12,
+      "max_abs_error": 1.000088900582341e-12,
+      "predicted_max_abs": 1.0
+    },
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_yc_21",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 3.0619951019161817e-13,
+      "max_abs_error": 3.0619951019161817e-13,
+      "predicted_max_abs": 1.0
+    },
+    {
+      "model": "A",
+      "kind": "target",
+      "direction": "prof_yc_21",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 3.878009025015672e-13,
+      "max_abs_error": 3.878009025015672e-13,
+      "predicted_max_abs": 1.0
+    },
+    {
+      "model": "A",
+      "kind": "prior",
+      "direction": "recoil",
+      "epsilon": 0.0002,
+      "relative_max_norm_error": 1.0067269564282189e-08,
+      "max_abs_error": 2.328687074984806e-12,
+      "predicted_max_abs": 0.00023131267719767718
+    },
+    {
+      "model": "A",
+      "kind": "prior",
+      "direction": "recoil",
+      "epsilon": 0.0001,
+      "relative_max_norm_error": 1.7075609026357407e-08,
+      "max_abs_error": 3.949804838667553e-12,
+      "predicted_max_abs": 0.00023131267719767718
+    },
+    {
+      "model": "A",
+      "kind": "prior",
+      "direction": "rapidity_angle",
+      "epsilon": 0.0002,
+      "relative_max_norm_error": 7.197288370751046e-10,
+      "max_abs_error": 2.053921529382441e-11,
+      "predicted_max_abs": 0.02853743553932537
+    },
+    {
+      "model": "A",
+      "kind": "prior",
+      "direction": "rapidity_angle",
+      "epsilon": 0.0001,
+      "relative_max_norm_error": 1.7179155076211475e-10,
+      "max_abs_error": 4.902490306074592e-12,
+      "predicted_max_abs": 0.02853743553932537
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_wptw_0",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 0.0002062996827571407,
+      "max_abs_error": 3.260265382059972e-05,
+      "predicted_max_abs": 0.1580354045380675
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_wptw_0",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 5.157506954991524e-05,
+      "max_abs_error": 8.150686980399821e-06,
+      "predicted_max_abs": 0.1580354045380675
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_yc_10",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 1.2209969149817756e-07,
+      "max_abs_error": 1.020018807640355e-06,
+      "predicted_max_abs": 8.353983495982703
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_yc_10",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 3.0526128692891314e-08,
+      "max_abs_error": 2.5501477529665806e-07,
+      "predicted_max_abs": 8.353983495982703
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_yc_21",
+      "epsilon": 2e-05,
+      "relative_max_norm_error": 4.164173089761878e-08,
+      "max_abs_error": 2.217890384126342e-07,
+      "predicted_max_abs": 5.326124386085903
+    },
+    {
+      "model": "J2",
+      "kind": "target",
+      "direction": "prof_yc_21",
+      "epsilon": 1e-05,
+      "relative_max_norm_error": 1.04107932596611e-08,
+      "max_abs_error": 5.544917985877973e-08,
+      "predicted_max_abs": 5.326124386085903
+    },
+    {
+      "model": "J2",
+      "kind": "prior",
+      "direction": "recoil",
+      "epsilon": 0.0002,
+      "relative_max_norm_error": 2.3348497879631925e-08,
+      "max_abs_error": 4.399177825265834e-12,
+      "predicted_max_abs": 0.00018841374070164313
+    },
+    {
+      "model": "J2",
+      "kind": "prior",
+      "direction": "recoil",
+      "epsilon": 0.0001,
+      "relative_max_norm_error": 5.57099203747908e-08,
+      "max_abs_error": 1.0496514492005019e-11,
+      "predicted_max_abs": 0.00018841374070164313
+    },
+    {
+      "model": "J2",
+      "kind": "prior",
+      "direction": "rapidity_angle",
+      "epsilon": 0.0002,
+      "relative_max_norm_error": 1.108421191164548e-08,
+      "max_abs_error": 5.940474515428321e-12,
+      "predicted_max_abs": 0.0005359401789483148
+    },
+    {
+      "model": "J2",
+      "kind": "prior",
+      "direction": "rapidity_angle",
+      "epsilon": 0.0001,
+      "relative_max_norm_error": 1.5508608592638418e-08,
+      "max_abs_error": 8.311686464378006e-12,
+      "predicted_max_abs": 0.0005359401789483148
+    }
+  ],
+  "passed": true,
+  "approximation": "First-order response about a fixed constraint set. Statistical covariance estimated from finite independent runs; the chi-square selection diagnostic is not a coverage claim."
+}

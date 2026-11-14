@@ -1,0 +1,111 @@
+{
+  "original": {
+    "EvalFuncs.f90": "c6b684c6edb0ca7babb9037be435a2fb0b94f00ce3c4699377759e16af697b7d",
+    "Observables.f90": "78c866158a8aea9e4b796b422761b09f58abb139ca318a4776cc24ce6f40cb2d",
+    "Parameters.f90": "553fce17d7306fb43a893fd35a39d3befadd75b2b99f917179fab2aba78aa739"
+  },
+  "new": {
+    "EvalFuncs.f90": "479a311f5002e3922e1039e1c5491f5805b724e363a83bc8290d817ece7c4262",
+    "Observables.f90": "af9a372a1043bee0c35aab509e338c2993c479c82a57a586998859fc075b4ae2",
+    "Parameters.f90": "553fce17d7306fb43a893fd35a39d3befadd75b2b99f917179fab2aba78aa739"
+  },
+  "grids": {
+    "cards/WP/T/LO/WP.W_VALID_T.y1.00E-07.LO": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_LO/WP.W_PDF.y1.00E-07.LO",
+      "sha256": "90f0ca5ed288054ecbe5c91a5ef603b57e46263fd8035b5b8aa58a7cc25b6726"
+    },
+    "cards/WP/T/R/WP.W_VALID_T.y1.00E-07.R": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_R/WP.W_PDF.y1.00E-07.R",
+      "sha256": "4a1314c9868e9a0e9a093f6e55b664497066a564acf369ec47c0fe72570075b3"
+    },
+    "cards/WP/T/V/WP.W_VALID_T.y1.00E-07.V": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_V/WP.W_PDF.y1.00E-07.V",
+      "sha256": "be6343b7d76d9eed64714c2f029cc7b1378576523afa6e285e09a25ae53342d1"
+    },
+    "cards/WP/T/RR/WP.W_VALID_T.y1.00E-07.RR": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_RR/WP.W_PDF.y1.00E-07.RR",
+      "sha256": "e849b84bc6698e695520e80d4a0c61a7cf288d21dd66e0dec0c5f52786bdd50a"
+    },
+    "cards/WP/T/RV/WP.W_VALID_T.y1.00E-07.RV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_RV/WP.W_PDF.y1.00E-07.RV",
+      "sha256": "5ca3df381b680d3abeaf377a5aeabd35e89239e120619ac544b49bdcbae76fde"
+    },
+    "cards/WP/T/VV/WP.W_VALID_T.y1.00E-07.VV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_VV/WP.W_PDF.y1.00E-07.VV",
+      "sha256": "e163f672055e4de0f41832d6baf71a8f8e532e2113ddff7df5eeee6edc84fe75"
+    },
+    "cards/WP/V/LO/WP.W_VALID_V.y1.00E-07.LO": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_LO/WP.W_PDF.y1.00E-07.LO",
+      "sha256": "90f0ca5ed288054ecbe5c91a5ef603b57e46263fd8035b5b8aa58a7cc25b6726"
+    },
+    "cards/WP/V/R/WP.W_VALID_V.y1.00E-07.R": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_R/WP.W_PDF.y1.00E-07.R",
+      "sha256": "4a1314c9868e9a0e9a093f6e55b664497066a564acf369ec47c0fe72570075b3"
+    },
+    "cards/WP/V/V/WP.W_VALID_V.y1.00E-07.V": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_V/WP.W_PDF.y1.00E-07.V",
+      "sha256": "be6343b7d76d9eed64714c2f029cc7b1378576523afa6e285e09a25ae53342d1"
+    },
+    "cards/WP/V/RR/WP.W_VALID_V.y1.00E-07.RR": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_RR/WP.W_PDF.y1.00E-07.RR",
+      "sha256": "e849b84bc6698e695520e80d4a0c61a7cf288d21dd66e0dec0c5f52786bdd50a"
+    },
+    "cards/WP/V/RV/WP.W_VALID_V.y1.00E-07.RV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_RV/WP.W_PDF.y1.00E-07.RV",
+      "sha256": "5ca3df381b680d3abeaf377a5aeabd35e89239e120619ac544b49bdcbae76fde"
+    },
+    "cards/WP/V/VV/WP.W_VALID_V.y1.00E-07.VV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wp_pdf/m00/ch_VV/WP.W_PDF.y1.00E-07.VV",
+      "sha256": "e163f672055e4de0f41832d6baf71a8f8e532e2113ddff7df5eeee6edc84fe75"
+    },
+    "cards/WM/T/LO/WM.W_VALID_T.y1.00E-07.LO": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_LO/WM.W_PDF.y1.00E-07.LO",
+      "sha256": "a612f58c264062371ed2fd95b1f1e8d4d85b05030880180bc5ced575fd30bbd8"
+    },
+    "cards/WM/T/R/WM.W_VALID_T.y1.00E-07.R": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_R/WM.W_PDF.y1.00E-07.R",
+      "sha256": "8a2d3083efd48dfbc4c159a15a0d06900007e2886746f7ddbcc7eb42cc4a6584"
+    },
+    "cards/WM/T/V/WM.W_VALID_T.y1.00E-07.V": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_V/WM.W_PDF.y1.00E-07.V",
+      "sha256": "49fe3eb2259e5ec87e1d4c3956c0194a60b2f2984ec7e958987ea6f63f71cbc4"
+    },
+    "cards/WM/T/RR/WM.W_VALID_T.y1.00E-07.RR": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_RR/WM.W_PDF.y1.00E-07.RR",
+      "sha256": "10bf87d13ac98ad67ff0094e6a7f43e477fa16b688f73f54fb81e6a4633965ea"
+    },
+    "cards/WM/T/RV/WM.W_VALID_T.y1.00E-07.RV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_RV/WM.W_PDF.y1.00E-07.RV",
+      "sha256": "76ea7c2806ab286978730174d4530235fa0f1272728a47df5c9213e533a17589"
+    },
+    "cards/WM/T/VV/WM.W_VALID_T.y1.00E-07.VV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_VV/WM.W_PDF.y1.00E-07.VV",
+      "sha256": "a8251f61868c442df2e3dcc88b344b031ce63a8f3c2170c1a43355aa92570c6f"
+    },
+    "cards/WM/V/LO/WM.W_VALID_V.y1.00E-07.LO": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_LO/WM.W_PDF.y1.00E-07.LO",
+      "sha256": "a612f58c264062371ed2fd95b1f1e8d4d85b05030880180bc5ced575fd30bbd8"
+    },
+    "cards/WM/V/R/WM.W_VALID_V.y1.00E-07.R": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_R/WM.W_PDF.y1.00E-07.R",
+      "sha256": "8a2d3083efd48dfbc4c159a15a0d06900007e2886746f7ddbcc7eb42cc4a6584"
+    },
+    "cards/WM/V/V/WM.W_VALID_V.y1.00E-07.V": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_V/WM.W_PDF.y1.00E-07.V",
+      "sha256": "49fe3eb2259e5ec87e1d4c3956c0194a60b2f2984ec7e958987ea6f63f71cbc4"
+    },
+    "cards/WM/V/RR/WM.W_VALID_V.y1.00E-07.RR": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_RR/WM.W_PDF.y1.00E-07.RR",
+      "sha256": "10bf87d13ac98ad67ff0094e6a7f43e477fa16b688f73f54fb81e6a4633965ea"
+    },
+    "cards/WM/V/RV/WM.W_VALID_V.y1.00E-07.RV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_RV/WM.W_PDF.y1.00E-07.RV",
+      "sha256": "76ea7c2806ab286978730174d4530235fa0f1272728a47df5c9213e533a17589"
+    },
+    "cards/WM/V/VV/WM.W_VALID_V.y1.00E-07.VV": {
+      "source": "/home/bassi/nnlojet-refs/runs/wm_pdf/m00/ch_VV/WM.W_PDF.y1.00E-07.VV",
+      "sha256": "a8251f61868c442df2e3dcc88b344b031ce63a8f3c2170c1a43355aa92570c6f"
+    }
+  },
+  "recoil_basis_correction": "Directly book identical polynomial span on log[25,500], before production. Old log[25,2500] pilot cards/files retained separately as technical checks."
+}

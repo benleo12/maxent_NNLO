@@ -1,0 +1,26 @@
+Precision-based validation extension, frozen before reading central predictions.
+
+The first independent W+ validation sample (32 runs/channel) gave relative
+acceptance errors 1.30% at pT_l>27 and 0.73% at pT_l>30. Its normalization
+error was 0.10%. A retained RR seed contributed 95.6%/86.0% of that channel's
+acceptance variance. It is neither deleted nor downweighted.
+
+Append 608 independent 250000-point RR runs for EACH charge, reaching 640 RR
+runs/charge. All other channels retain their original 32 equal-budget runs.
+New seeds are WP 913032..913639 and WM 933032..933639, distinct from all
+training seeds and the original 32 validation seeds. Use identical cards,
+phase-space grids, PDF and scale settings. Perlmutter job 61256667 uses two
+CPU nodes with 128 independent one-thread integrations per node.
+
+Combine equal-weight seed means within each channel, then add independent
+channels. The covariance of each channel mean uses its OWN number of runs.
+Coherent channel-wise bootstrap draws exactly that channel's run count.
+Preserve all raw original and additional accumulators and their provenance.
+Extension outputs live in an isolated input root; the original compact
+validation sample remains unchanged for the precision audit.
+
+After completion inspect ONLY precision: both charges' acceptance relative
+errors <=0.003, all declared eta-bin relative errors <=0.01, and charge-
+asymmetry absolute errors <=0.002 for thresholds 20,27,30. Failure to meet a
+target permits further independent precision work but never model retuning,
+seed deletion, outlier suppression or retrospective bin selection.
