@@ -51,6 +51,16 @@ The independent angle is allowed to disagree: it was not fitted. The
 generator settings and which reference is independent. Omit `--plot` if only
 NumPy is installed.
 
+Repeat the same workflow on the independent Herwig input:
+
+```bash
+python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz --output herwig_demo --plot
+```
+
+Its 98,808 events include the original weights, inclusion probabilities, IDs
+and lepton four-vectors. The [Herwig recipe](examples/data/HERWIG_GENERATION.md)
+records the production settings and sampling rule.
+
 ## Quick start
 
 Inspect the required arrays and selection, then reweight your sample:
@@ -157,6 +167,12 @@ python examples/paper_examples.py wp-angle --inspect
 python examples/paper_examples.py wp-angle my_wp_prior.npz wp_angle.npz
 ```
 
+The [two-jet benchmark](examples/data/zj_benchmark/README.md) includes ordinary
+histogram comparators, every tested resolution and independent cut/balance
+predictions, with a portable fitting script and compact plotting caches. The
+[full-sample generator comparison](examples/data/dy_portability/README.md) can
+also be redrawn directly from its numerical caches.
+
 The tables include their fixed-order definitions and provenance. The compact DY fitting inputs and independent joint-validation histograms are
 distributed here. The authors' full event productions are not. You can use
 your own compatible prior, or request the authors' samples for numerical
@@ -197,7 +213,7 @@ input and moment-table hashes, selected orders and weight normalization.
 [Local statistics and joint checks](docs/VALIDATION.md) help decide whether an
 analysis needs more events or additional correlation constraints. An optional
 [HepMC adapter](docs/HEPMC.md) extracts the DY selection and attaches central
-weights back to selected full records by event ID.
+and named coherent variation weights to selected full records by event ID.
 
 
 - **Moment agreement:** achieved moments compared with the input Monte Carlo

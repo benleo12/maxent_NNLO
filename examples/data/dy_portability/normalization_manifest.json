@@ -1,0 +1,87 @@
+{
+  "event_identity": "Rows are associated by event_id; Herwig also preserves native generator_event_number and shard_id",
+  "extraction": "ZIP member provenance_json.npy only; no event-weight arrays loaded",
+  "histogram_normalization": "Global fiducial unit-area shapes, including probability outside plotted bins",
+  "metadata_sha256": {
+    "herwig_common_weights.metadata.json": "29f7fc0175c49800c2b344e11d8f64000741ba193ffaa07606d45e74bd32bea3",
+    "herwig_weights.provenance.json": "736c26bc177df9cffa44ab04f4c4ff0bf10c9e722a95e420dba63771c85fca30",
+    "pythia_common_weights.metadata.json": "1defcd9ed5ca177873c758e67594a3a17342403d195792305fb063d041b7d49c",
+    "pythia_weights.provenance.json": "beef2957cef567e6ccdd65fd84449a941a574240665e808ab9ea49e922f455a0"
+  },
+  "outputs": {
+    "herwig": {
+      "central_weight_array": "weight_upgraded",
+      "common_archive": "herwig_common_weights.npz",
+      "common_archive_bytes": 4969753,
+      "common_metadata": "herwig_common_weights.metadata.json",
+      "common_normalization": "unit_area",
+      "ensemble_archive": "herwig_weights.npz",
+      "ensemble_archive_bytes": 118981582,
+      "ensemble_normalization": "pb",
+      "ensemble_provenance": "herwig_weights.provenance.json",
+      "events": 572823,
+      "provenance_member_crc32": "6f4c3f1a",
+      "variation_normalization": "Each weight_<source> member is in pb with its own varied cross section",
+      "weight_members_integrity": {
+        "weight_normalization.npy": {
+          "crc32": "76610238",
+          "uncompressed_bytes": 136
+        },
+        "weight_scale.npy": {
+          "crc32": "b7af456b",
+          "uncompressed_bytes": 27495632
+        },
+        "weight_stat.npy": {
+          "crc32": "322088de",
+          "uncompressed_bytes": 91651808
+        },
+        "weight_upgraded.npy": {
+          "crc32": "9f98c198",
+          "uncompressed_bytes": 4582712
+        },
+        "weight_window.npy": {
+          "crc32": "68a14724",
+          "uncompressed_bytes": 9165296
+        }
+      }
+    },
+    "pythia": {
+      "central_weight_array": "weight_upgraded",
+      "common_archive": "pythia_common_weights.npz",
+      "common_archive_bytes": 31042235,
+      "common_metadata": "pythia_common_weights.metadata.json",
+      "common_normalization": "unit_area",
+      "ensemble_archive": "pythia_weights.npz",
+      "ensemble_archive_bytes": 751977892,
+      "ensemble_normalization": "pb",
+      "ensemble_provenance": "pythia_weights.provenance.json",
+      "events": 3583332,
+      "provenance_member_crc32": "3f4d63c4",
+      "variation_normalization": "Each weight_<source> member is in pb with its own varied cross section",
+      "weight_members_integrity": {
+        "weight_normalization.npy": {
+          "crc32": "76610238",
+          "uncompressed_bytes": 136
+        },
+        "weight_scale.npy": {
+          "crc32": "8198e6b7",
+          "uncompressed_bytes": 172000064
+        },
+        "weight_stat.npy": {
+          "crc32": "5fd4f921",
+          "uncompressed_bytes": 573333248
+        },
+        "weight_upgraded.npy": {
+          "crc32": "449aee52",
+          "uncompressed_bytes": 28666784
+        },
+        "weight_window.npy": {
+          "crc32": "bee605ba",
+          "uncompressed_bytes": 57333440
+        }
+      }
+    }
+  },
+  "schema": "dy_portability.normalization.v1",
+  "source_archives_modified": false
+}

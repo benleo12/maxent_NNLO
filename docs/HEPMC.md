@@ -32,7 +32,9 @@ The output directory contains:
 
 The new HepMC weight **`maxent_pb_per_event` is already an absolute contribution
 in pb**. Its sum is the fitted fiducial cross section. Do not multiply it by the
-generator cross section again. Original event weights, particle momenta, vertex
+generator cross section again. Configure downstream analyses to sum these absolute
+weights directly: automatic normalization to the original cross-section metadata
+would change the intended fiducial rate. Original event weights, particle momenta, vertex
 connections and metadata remain in the selected records. The original generator
 cross-section metadata is preserved; the new rate and units are separately
 recorded in the `maxent_upgrade` run attribute. Every available variation is also attached as a named weight, for example

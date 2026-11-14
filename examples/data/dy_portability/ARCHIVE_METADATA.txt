@@ -1,0 +1,103 @@
+"""Archive portable normalization/provenance metadata without reading weights.
+
+Only provenance_json.npy is decompressed from each ensemble archive. The common
+order archives are not modified; explicit unit-area sidecars accompany them.
+This uses only the standard library, including a scalar-string NPY reader.
+"""
+from pathlib import Path
+import ast
+import hashlib
+import io
+import json
+import struct
+import tarfile
+import zipfile
+
+ROOT = Path('/pscratch/sd/b/bassi/jhep_excellence_20261113/shower_portability/analysis')
+
+def scalar_string(raw):
+    stream = io.BytesIO(raw)
+    assert stream.read(6) == b'\x93NUMPY'
+    major, minor = stream.read(2)
+    assert (major, minor) in ((1, 0), (2, 0), (3, 0))
+    size = struct.unpack('<H' if major == 1 else '<I', stream.read(2 if major == 1 else 4))[0]
+    header = ast.literal_eval(stream.read(size).decode('utf-8' if major == 3 else 'latin1'))
+    assert header['shape'] == (), header
+    dtype = header['descr']
+    if dtype[1] == 'U':
+        encoding = 'utf-32-be' if dtype[0] == '>' else 'utf-32-le'
+    elif dtype[1] == 'S':
+        encoding = 'utf-8'
+    else:
+        raise ValueError('Expected scalar text, found '+dtype)
+    return stream.read().decode(encoding).rstrip('\x00')
+
+def write_json(name, value):
+    (ROOT/name).write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False)+'\n')
+
+manifest = dict(
+    schema='dy_portability.normalization.v1',
+    extraction='ZIP member provenance_json.npy only; no event-weight arrays loaded',
+    source_archives_modified=False,
+    histogram_normalization='Global fiducial unit-area shapes, including probability outside plotted bins',
+    event_identity='Rows are associated by event_id; Herwig also preserves native generator_event_number and shard_id',
+    outputs={},
+)
+names=[]
+for label in ('pythia', 'herwig'):
+    source=ROOT/(label+'_weights.npz')
+    before=source.stat()
+    with zipfile.ZipFile(source) as archive:
+        member=archive.getinfo('provenance_json.npy')
+        provenance=json.loads(scalar_string(archive.read(member)))
+        members={entry.filename:dict(crc32=f'{entry.CRC:08x}',
+                                     uncompressed_bytes=entry.file_size)
+                 for entry in archive.infolist() if entry.filename.startswith('weight_')}
+    assert provenance['normalization']=='pb', provenance.get('normalization')
+    name=label+'_weights.provenance.json'
+    write_json(name,provenance)
+    names.append(name)
+    report=json.loads((ROOT/(label+'_report.json')).read_text())
+    common=ROOT/(label+'_common_weights.npz')
+    common_before=common.stat()
+    sidecar=dict(
+        schema='dy_portability.common_weights.v1',
+        source_archive=common.name, weight_array='weights', event_id_array='event_id',
+        weight_normalization='unit_area', units='dimensionless probability per event',
+        normalization_convention='Weights returned by upgrade sum to one over the full fiducial sample; do not renormalize within plotted bins',
+        normalization_evidence='Producer uses UpgradeResult.weights directly; this metadata-only audit does not load or sum the array',
+        absolute_prediction='Multiply each weight once by cross_section_multiplier_pb',
+        cross_section_multiplier_pb=report['cross_section_pb'],
+        events=report['events'], fixed_orders=report['common_orders'],
+        common_fit_recipe="load_moments('dy'); config['fixed_orders']={'mll':12,'y_abs':11,'pT_ll':16}; upgrade(events,moments,config)",
+        input_file=provenance.get('input_file'),
+        related_ensemble_provenance=name,
+    )
+    sidecar_name=label+'_common_weights.metadata.json'
+    write_json(sidecar_name,sidecar)
+    names.append(sidecar_name)
+    manifest['outputs'][label]=dict(
+        events=report['events'],
+        ensemble_archive=source.name, ensemble_archive_bytes=before.st_size,
+        ensemble_normalization='pb',
+        central_weight_array='weight_upgraded',
+        variation_normalization='Each weight_<source> member is in pb with its own varied cross section',
+        ensemble_provenance=name,
+        provenance_member_crc32=f'{member.CRC:08x}', weight_members_integrity=members,
+        common_archive=common.name, common_archive_bytes=common_before.st_size,
+        common_normalization='unit_area', common_metadata=sidecar_name,
+    )
+    after=source.stat()
+    assert (before.st_size,before.st_mtime_ns)==(after.st_size,after.st_mtime_ns)
+    after=common.stat()
+    assert (common_before.st_size,common_before.st_mtime_ns)==(after.st_size,after.st_mtime_ns)
+
+manifest['metadata_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in names}
+write_json('normalization_manifest.json',manifest)
+names.append('normalization_manifest.json')
+with tarfile.open(ROOT/'portability_metadata.tgz','w:gz') as archive:
+    for name in names:
+        archive.add(ROOT/name,arcname=name)
+print(json.dumps(dict(files=names, archive='portability_metadata.tgz',
+                      ensemble_normalization='pb',common_normalization='unit_area',
+                      weight_arrays_loaded=0,source_archives_modified=False),indent=2))

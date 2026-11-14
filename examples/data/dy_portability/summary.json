@@ -1,0 +1,44 @@
+{
+  "pythia": {
+    "events": 3583332,
+    "elapsed_seconds": 351.1347908130265,
+    "orders": {
+      "mll": 12,
+      "y_abs": 11,
+      "pT_ll": 16
+    },
+    "common_orders": {
+      "mll": 12,
+      "y_abs": 11,
+      "pT_ll": 16
+    },
+    "statistics": {
+      "events": 3583332,
+      "effective_events": 3580209.689206961,
+      "largest_weight_fraction": 4.608413603605753e-07,
+      "largest_variance_fraction": 7.603461714148496e-07,
+      "effective_fraction_retained": 0.9991286609329356
+    }
+  },
+  "herwig": {
+    "events": 572823,
+    "elapsed_seconds": 54.796949870011304,
+    "orders": {
+      "mll": 12,
+      "y_abs": 12,
+      "pT_ll": 17
+    },
+    "common_orders": {
+      "mll": 12,
+      "y_abs": 11,
+      "pT_ll": 16
+    },
+    "statistics": {
+      "events": 572823,
+      "effective_events": 571926.6322155583,
+      "largest_weight_fraction": 3.2829609437635435e-06,
+      "largest_variance_fraction": 6.1641294776384546e-06,
+      "effective_fraction_retained": 0.9984351749414152
+    }
+  }
+}

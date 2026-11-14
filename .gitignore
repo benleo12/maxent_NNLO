@@ -16,3 +16,4 @@ dist/
 !examples/data/w_joint/*.npz
 !examples/data/zj_benchmark/*.npz
 !examples/data/herwig_public_prior.npz
+!examples/data/dy_portability/*.npz

@@ -10,18 +10,20 @@ It creates `posterior.npz`, `recoil.npz`, `angle.npz`, `acceptance.npz`,
 `report.json` and, with `--plot`, `comparison.pdf`. The report contains local
 statistics, comparison ratios and source provenance. The [data recipe](data/DY_GENERATION.md)
 documents the generator sample, inverse-inclusion weights and independent angle
-reference. This is a fresh fit, not a plot of precomputed posterior weights.
+reference. This is a fresh fit, not a plot of precomputed posterior weights. Repeat it
+on the [independent Herwig sample](data/HERWIG_GENERATION.md) with
+`--prior examples/data/herwig_public_prior.npz --output herwig_demo`.
 
 For full event records, [the HepMC example](../docs/HEPMC.md) reads, fits and
-reattaches weights by ID. For a new observable or process, start with
-`custom_observables.py` and `custom_uncertainties.py`; the first also demonstrates
+reattaches central and coherent variation weights by ID. The optional extension
+tutorials [custom_observables.py](custom_observables.py) and
+[custom_uncertainties.py](custom_uncertainties.py) use synthetic data to explain
+new observables, joint constraints and uncertainty inputs. They also demonstrate
 [held-out joint checks and local statistics](../docs/VALIDATION.md).
 
-
-Start with [custom_observables.py](custom_observables.py) for a complete run without
-external files. It uses synthetic data and shows what joint moments add. For
-physics applications, provide your own positive-weight prior inside the released
-table's selection. The paper's large event samples are available from the authors.
+The full paper configurations below require a compatible positive-weight prior
+inside the released table's selection. The authors' full event productions are
+available on request.
 
 All commands below run from the repository root after `python -m pip install .`.
 Plotting is optional and uses `python -m pip install '.[plot]'`.
@@ -36,7 +38,7 @@ python examples/paper_examples.py dy my_dy_prior.npz dy.npz
 
 The inspect command lists the actual required arrays, selected maps and windows.
 All input arrays remain in the output, in their original order. `weight_upgraded`
-contains the new weights **in pb**. The Python API instead returns unit-normalized
+contains the new weights **in pb**. The direct `upgrade` call returns unit-normalized
 weights, which must be multiplied by the desired cross section.
 
 | Example name | Constraints | Further use |
@@ -55,6 +57,26 @@ weights, which must be multiplied by the desired cross section.
 The following sections show what to supply and what to do with the weights.
 Full fiducial definitions, jet and isolation settings are in
 [the moment-table guide](../moments/README.md#what-your-prior-must-provide).
+
+## Independent comparisons
+
+Redraw the full-sample generator comparison and two-jet benchmark:
+
+```bash
+python examples/plot_dy_portability.py --output dy_portability_plots
+python examples/plot_zj_benchmark.py --output zj_benchmark_plots
+```
+
+The [generator comparison](data/dy_portability/README.md) uses the full Pythia
+and Herwig productions, with matched hard-recoil bins and the independent angular
+reference. These curves have different event statistics from the compact public
+fitting examples.
+
+The [two-jet benchmark](data/zj_benchmark/README.md) compares moment, marginal
+histogram and joint-histogram reweighting at a common integration budget. It
+retains every resolution, failed fit, local cell count and independent prediction.
+Use `zj_benchmark.py` to refit a compatible prior. Both plotting commands use
+compact committed caches; fitting a new prior requires event arrays.
 
 ## Drell–Yan
 
@@ -131,7 +153,7 @@ production modes must also be supplied separately, as described in the paper.
 
 A prior with matrix-element corrections is reweighted by the same command. The
 prior changes, not the moments or solver. The letter's 37 GeV setup uses
-`load_moments("ggh", window="down", qt_basis="booked")` in Python.
+`load_moments("ggh", window="down", qt_basis="booked")`.
 
 ## Diphotons and prior dependence
 

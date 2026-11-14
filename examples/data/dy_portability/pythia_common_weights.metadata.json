@@ -1,0 +1,24 @@
+{
+  "absolute_prediction": "Multiply each weight once by cross_section_multiplier_pb",
+  "common_fit_recipe": "load_moments('dy'); config['fixed_orders']={'mll':12,'y_abs':11,'pT_ll':16}; upgrade(events,moments,config)",
+  "cross_section_multiplier_pb": 710.3611257116524,
+  "event_id_array": "event_id",
+  "events": 3583332,
+  "fixed_orders": {
+    "mll": 12,
+    "pT_ll": 16,
+    "y_abs": 11
+  },
+  "input_file": {
+    "name": "dy_full_prior.npz",
+    "sha256": "d1aeaf472426bb406d576df7e012836c5255470ecd8beb1d4bb614e9391ea9c6"
+  },
+  "normalization_convention": "Weights returned by upgrade sum to one over the full fiducial sample; do not renormalize within plotted bins",
+  "normalization_evidence": "Producer uses UpgradeResult.weights directly; this metadata-only audit does not load or sum the array",
+  "related_ensemble_provenance": "pythia_weights.provenance.json",
+  "schema": "dy_portability.common_weights.v1",
+  "source_archive": "pythia_common_weights.npz",
+  "units": "dimensionless probability per event",
+  "weight_array": "weights",
+  "weight_normalization": "unit_area"
+}
