@@ -10,6 +10,9 @@
   targets. Paired model differences retain shared fluctuations.
 - Added a small executable tutorial and standalone PDF/PNG/HTML reports, with
   portable results, full covariance and provenance alongside the figures.
+- Added optional self-contained frozen fits that retain exact features and
+  prior-dependent target ingredients for reload in another numerical environment,
+  with exact event/input/definition checks and no new solve.
 - Included real compact priors for every application, preserving source weights,
   event identities and sampling corrections, plus a shared W physical-block
   builder. Higgs, diphoton and Z+jet demonstrations perform fresh fits with

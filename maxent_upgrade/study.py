@@ -226,6 +226,7 @@ class ConstraintFit:
     frozen_id: str = None
     freeze_record: dict = None
     fit_configuration_sha256: str = None
+    raw_prior_identity: dict = None
     _geometry: dict = field(default=None, repr=False)
 
     @property
@@ -357,35 +358,56 @@ class ConstraintFit:
         return dict(block=block.name, labels=labels, residual=prediction, test=test,
                     omitted_fitted_labels=[x for x in block.labels if x in self.labels])
 
-    def freeze(self, path, *, selection, validation_plan):
+    def freeze(self, path, *, selection, validation_plan, portable=False):
         """Save immutable choices before validation; refuse to overwrite a freeze.
 
         This records the declared chronology. It cannot establish whether a
         person previously inspected an external reference. Include all candidate
         outcomes and diagnostic thresholds in ``selection``, and exact cuts,
         bins and observable definitions in ``validation_plan``.
+
+        ``portable=True`` also stores the exact fitted features, prior-dependent
+        target ingredients, normalized prior and common numerical input. This
+        larger archive can be restored without rebuilding numerical features.
         """
         if not selection or not validation_plan:
-            raise ValueError("record both the selection decision and the validation plan")
+            raise ValueError(
+                "record both the selection decision and the validation plan")
         for entry in validation_plan.values():
             if set(entry) != {"labels", "definition", "event_columns"}:
-                raise ValueError("build each validation-plan entry with plan_observable")
+                raise ValueError(
+                    "build each validation-plan entry with plan_observable")
+        _check_assembled(self)
         configuration = self.configuration
         if content_hash(configuration) != self.fit_configuration_sha256:
-            raise ValueError("a fit input or feature definition has changed since fitting")
-        modules = {p.name: file_hash(p) for p in sorted(Path(__file__).parent.glob("*.py"))}
+            raise ValueError(
+                "a fit input or feature definition has changed since fitting")
+        modules = {p.name: file_hash(p) for p in sorted(
+            Path(__file__).parent.glob("*.py"))}
         record = dict(configuration=configuration,
                       configuration_sha256=content_hash(configuration),
                       implementation_sha256=content_hash(modules), selection=json_value(selection),
                       validation_plan=json_value(validation_plan),
                       frozen_utc=datetime.now(timezone.utc).isoformat(),
                       weights=array_identity(self.scale_weights), multipliers=array_identity(self.scale_lam))
+        payload = {}
+        if portable:
+            if self.raw_prior_identity is None:
+                raise ValueError(
+                    "portable saving requires the original prior-weight identity")
+            payload = dict(saved_features=self.phi, saved_matrix=self.matrix, saved_offset=self.offset,
+                           saved_prior_derivative=self.prior_derivative, saved_prior=self.p,
+                           saved_event_ids=self.event_ids, saved_input_mean=self.data.mean,
+                           saved_input_covariance=self.data.covariance)
+            record["portable"] = dict(schema="maxent_upgrade.saved-fit-arrays.v1",
+                                      original_prior_weights=self.raw_prior_identity,
+                                      arrays={key: array_identity(value) for key, value in payload.items()})
         record["freeze_id"] = content_hash(record)
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("xb") as stream:
             np.savez_compressed(stream, weights=self.scale_weights, lam=self.scale_lam,
-                                manifest=np.array(canonical_json(record)))
+                                manifest=np.array(canonical_json(record)), **payload)
         self.frozen_id, self.freeze_record = record["freeze_id"], record
         return record
 
@@ -393,6 +415,26 @@ class ConstraintFit:
 def _check_block(block, n, d):
     if block.features.shape[0] != n or block.matrix.shape[1] != d:
         raise ValueError("block event order or numerical input dimension does not match")
+
+
+def _check_assembled(fit):
+    """Check declared blocks against their assembled numerical representation."""
+    n, d, scales = len(fit.p), len(fit.data.labels), len(fit.data.scale_names)
+    labels = tuple(label for block in fit.blocks for label in block.labels)
+    k = len(labels)
+    expected = dict(p=(n,), event_ids=(n,), phi=(n, k), prior_derivative=(n, k),
+                    matrix=(k, d), offset=(k,), scale_weights=(scales, n), scale_lam=(scales, k))
+    if fit.labels != labels or any(getattr(fit, name).shape != shape for name, shape in expected.items()):
+        raise ValueError("assembled fit dimensions or labels do not match the declared blocks")
+    start = 0
+    for block in fit.blocks:
+        _check_block(block, n, d)
+        stop = start + len(block.labels)
+        pairs = ((fit.phi[:, start:stop], block.features), (fit.matrix[start:stop], block.matrix),
+                 (fit.offset[start:stop], block.offset), (fit.prior_derivative[:, start:stop], block.prior_derivative))
+        if any(array_identity(a) != array_identity(b) for a, b in pairs):
+            raise ValueError("assembled fit arrays differ from the declared feature/target blocks")
+        start = stop
 
 
 def fit_constraints(prior_weights, data, blocks, *, prior_id, event_ids=None, l2=1e-4):
@@ -411,6 +453,7 @@ def fit_constraints(prior_weights, data, blocks, *, prior_id, event_ids=None, l2
         total = p.sum()
     if not np.isfinite(total):
         raise ValueError("the sum of prior weights must be finite")
+    raw_prior_identity = array_identity(p)
     p = p / total
     if not prior_id or not np.isfinite(l2) or l2 < 0:
         raise ValueError("declare a prior_id and finite nonnegative ridge")
@@ -468,23 +511,40 @@ def fit_constraints(prior_weights, data, blocks, *, prior_id, event_ids=None, l2
                             max_pull=max_pull)
     fit = ConstraintFit(central, weights, lams, data, blocks, p, ids, prior_id, l2,
                         phi, matrix, offset, pd, labels)
+    fit.raw_prior_identity = raw_prior_identity
     fit.fit_configuration_sha256 = content_hash(fit.configuration)
     return fit
 
 
-def load_frozen(path, prior_weights, data, blocks, *, prior_id, event_ids=None):
-    """Restore saved weights after checking the exact reconstructed input/features.
+def load_frozen(path, prior_weights, data=None, blocks=None, *, prior_id, event_ids=None):
+    """Restore saved weights with exact input/event/feature identity checks.
 
-    Feature arrays stay in the user's event representation; frozen archives do
-    not duplicate them. No fit is performed when loading.
+    Supply ``data`` and ``blocks`` to reconstruct an ordinary compact freeze.
+    Omit ``blocks`` for a portable freeze: its saved features and target input
+    are restored directly. Original prior weights and event IDs must still
+    match exactly. Supplying ``data`` also checks it against the saved input.
+    No fit is performed in either path.
     """
     with np.load(path, allow_pickle=False) as archive:
         record = json.loads(str(archive["manifest"]))
         weights, lams = archive["weights"].copy(), archive["lam"].copy()
+        if blocks is None:
+            portable = record.get("portable")
+            if portable is None:
+                raise ValueError(
+                    "a compact freeze requires the original training input and feature blocks")
+            payload = {key: archive[key].copy() for key in portable["arrays"]}
     freeze_id = record.pop("freeze_id")
     if content_hash(record) != freeze_id:
         raise ValueError("freeze manifest has changed")
     record["freeze_id"] = freeze_id
+    if blocks is None:
+        fit = _portable_inputs(prior_weights, data,
+                               prior_id, event_ids, record, payload)
+        return _restore_solution(fit, record, weights, lams)
+    if data is None:
+        raise ValueError(
+            "provide the original training input with reconstructed feature blocks")
     # Construct a no-constraint shell; restore the declared basis without solving.
     fit = fit_constraints(prior_weights, data, [], prior_id=prior_id, event_ids=event_ids,
                           l2=record["configuration"]["l2"])
@@ -496,37 +556,111 @@ def load_frozen(path, prior_weights, data, blocks, *, prior_id, event_ids=None):
         fit.phi = np.column_stack([b.features for b in fit.blocks])
         fit.matrix = np.concatenate([b.matrix for b in fit.blocks])
         fit.offset = np.concatenate([b.offset for b in fit.blocks])
-        fit.prior_derivative = np.column_stack([b.prior_derivative for b in fit.blocks])
+        fit.prior_derivative = np.column_stack(
+            [b.prior_derivative for b in fit.blocks])
+    return _restore_solution(fit, record, weights, lams)
+
+
+def _portable_inputs(prior_weights, data, prior_id, event_ids, record, payload):
+    """Restore recorded numerical definitions; never substitute approximate arrays."""
+    portable, configuration = record["portable"], record["configuration"]
+    if portable["schema"] != "maxent_upgrade.saved-fit-arrays.v1":
+        raise ValueError("unsupported portable-fit schema")
+    required = {"saved_features", "saved_matrix", "saved_offset", "saved_prior_derivative",
+                "saved_prior", "saved_event_ids", "saved_input_mean", "saved_input_covariance"}
+    if set(payload) != required:
+        raise ValueError("portable fit has missing or unexpected numerical arrays")
+    for key, value in payload.items():
+        if array_identity(value) != portable["arrays"][key]:
+            raise ValueError(
+                "stored portable feature, target or event arrays have changed")
+        value.setflags(write=False)
+    raw = np.asarray(prior_weights, float)
+    if raw.ndim != 1 or not len(raw):
+        raise ValueError("original prior weights must be a nonempty event vector")
+    ids = np.arange(len(raw)) if event_ids is None else np.asarray(event_ids)
+    if (array_identity(raw) != portable["original_prior_weights"]
+            or array_identity(ids) != configuration["prior"]["event_ids"]
+            or prior_id != configuration["prior"]["sample_id"]):
+        raise ValueError(
+            "original prior weights, event identities or prior_id do not match the portable fit")
+    identity = configuration["input"]
+    n, d, scales = len(raw), len(identity["labels"]), len(identity["scale_names"])
+    k = sum(len(block["labels"]) for block in configuration["blocks"])
+    shapes = dict(saved_features=(n, k), saved_matrix=(k, d), saved_offset=(k,),
+                  saved_prior_derivative=(n, k), saved_prior=(n,), saved_event_ids=(n,),
+                  saved_input_mean=(d, scales), saved_input_covariance=(d, d))
+    if any(payload[key].shape != shape for key, shape in shapes.items()):
+        raise ValueError("portable fit arrays have inconsistent event/feature/input/scale dimensions")
+    saved_prior = payload["saved_prior"]
+    if (not np.isfinite(saved_prior).all() or (saved_prior <= 0).any()
+            or not np.isclose(saved_prior.sum(), 1, rtol=0, atol=1e-12)):
+        raise ValueError("portable fit requires a positive normalized stored prior")
+    saved_data = NumericalInput(identity["labels"], payload["saved_input_mean"], payload["saved_input_covariance"],
+                                identity["sample_id"], role=identity["role"], normalization=identity["normalization"],
+                                scale_names=identity["scale_names"], metadata=identity["metadata"], run_ids=identity["run_ids"])
+    if saved_data.identity != identity or (data is not None and data.identity != identity):
+        raise ValueError("the numerical input does not match the portable fit")
+    fit = fit_constraints(raw, saved_data, [], prior_id=prior_id,
+                          event_ids=ids, l2=configuration["l2"])
+    fit.p, fit.event_ids = payload["saved_prior"], payload["saved_event_ids"]
+    fit.phi, fit.matrix = payload["saved_features"], payload["saved_matrix"]
+    fit.offset, fit.prior_derivative = payload["saved_offset"], payload["saved_prior_derivative"]
+    fit.raw_prior_identity = portable["original_prior_weights"]
+    restored, start = [], 0
+    for entry in configuration["blocks"]:
+        stop = start + len(entry["labels"])
+        restored.append(ConstraintBlock(entry["name"], fit.phi[:, start:stop], fit.matrix[start:stop],
+                                        entry["labels"], fit.offset[start:stop], fit.prior_derivative[:, start:stop],
+                                        metadata=entry["metadata"]))
+        start = stop
+    fit.blocks = tuple(restored)
+    fit.labels = tuple(label for block in fit.blocks for label in block.labels)
+    return fit
+
+
+def _restore_solution(fit, record, weights, lams):
+    """Check stored solution identities and refresh reports without solving."""
+    expected = (len(fit.data.scale_names), len(fit.p))
+    if weights.shape != expected or lams.shape != (expected[0], len(fit.labels)):
+        raise ValueError("stored weights or multipliers have inconsistent scale/event/feature dimensions")
     if (content_hash(fit.configuration) != record["configuration_sha256"]
             or array_identity(weights) != record["weights"]
             or array_identity(lams) != record["multipliers"]):
-        raise ValueError("frozen event data, target input, features or stored fit do not match")
+        raise ValueError(
+            "frozen event data, target input, features or stored fit do not match")
     fit.scale_weights, fit.scale_lam = weights, lams
+    _check_assembled(fit)
     weights.setflags(write=False)
     lams.setflags(write=False)
     fit.central.weights = weights[0]
     fit.central.effN = 1 / (len(fit.p) * (weights[0] @ weights[0]))
     fit.central.effN_retained = (fit.p @ fit.p) / (weights[0] @ weights[0])
     fit.central.chosen_moments = {b.name: len(b.labels) for b in fit.blocks}
-    target = fit.offset[:, None] + fit.matrix @ data.normalized
+    target = fit.offset[:, None] + fit.matrix @ fit.data.normalized
     residual = weights @ fit.phi - target.T
-    target_cov = fit.matrix @ data.normalized_covariance @ fit.matrix.T
+    target_cov = fit.matrix @ fit.data.normalized_covariance @ fit.matrix.T
     error = np.sqrt(np.maximum(np.diag(target_cov), 0))
-    pull = np.divide(np.abs(residual[0]), error, out=np.zeros(len(fit.labels)), where=error > 0)
+    pull = np.divide(np.abs(residual[0]), error, out=np.zeros(
+        len(fit.labels)), where=error > 0)
     relative = np.divide(np.abs(residual[0]), np.abs(target[:, 0]),
                          out=np.zeros(len(fit.labels)), where=target[:, 0] != 0)
     undefined_relative = (target[:, 0] == 0) & (np.abs(residual[0]) > 1e-12)
-    fit.central.closure = float("nan") if undefined_relative.any() else float(np.max(relative, initial=0))
-    unscaled = (error == 0) & (np.abs(residual[0]) > 1e-12 * (1 + np.abs(target[:, 0])))
-    fit.central.max_pull = float("nan") if unscaled.any() else float(np.max(pull, initial=0))
-    fit.central.report.update(lam=lams[0], Phi=fit.phi, feature_names=fit.labels,
+    fit.central.closure = float("nan") if undefined_relative.any(
+    ) else float(np.max(relative, initial=0))
+    unscaled = (error == 0) & (
+        np.abs(residual[0]) > 1e-12 * (1 + np.abs(target[:, 0])))
+    fit.central.max_pull = float(
+        "nan") if unscaled.any() else float(np.max(pull, initial=0))
+    fit.central.report.update(lam=lams[0], Phi=fit.phi, p=fit.p, feature_names=fit.labels,
                               mu=target[:, 0], constraint_residuals=residual,
                               target_covariance=target_cov,
-                              zero_error_labels=[label for label, e in zip(fit.labels, error) if e == 0],
+                              zero_error_labels=[label for label, e in zip(
+                                  fit.labels, error) if e == 0],
                               zero_error_residuals=residual[:, error == 0],
                               q_over_p_range=(float(np.min(weights[0] / fit.p)),
                                               float(np.max(weights[0] / fit.p))))
-    fit.frozen_id, fit.freeze_record = freeze_id, record
+    fit.frozen_id, fit.freeze_record = record["freeze_id"], record
     fit.fit_configuration_sha256 = record["configuration_sha256"]
     return fit
 

@@ -160,6 +160,36 @@ thresholds and controls in the selection record. Existing freeze files cannot
 be overwritten. `load_frozen(path, prior_weights, training, blocks, prior_id=...,
 event_ids=...)` verifies reconstruction and restores weights **without solving**.
 
+Compact reconstruction uses exact numerical-array identities. Keep the same
+numerical libraries and BLAS thread settings when reloading: even changing the
+reduction order can alter a prior-dependent blended target at roundoff and
+trigger a mismatch. This safeguard does not silently accept approximately
+matching feature arrays. The one-command tutorials perform training and
+validation in the same environment; staged runs should retain that environment.
+
+For a saved analysis that will move between numerical environments, opt into a
+self-contained archive:
+
+```python
+fit.freeze("portable_fit.npz", selection=all_candidate_outcomes,
+           validation_plan=plan, portable=True)
+saved = load_frozen("portable_fit.npz", events["weight"],
+                    prior_id="my-generator-sample", event_ids=events["event_id"])
+```
+
+Omitting reconstructed blocks selects the portable path. It restores the exact
+fitted feature columns, affine target ingredients, prior-target derivatives,
+normalized prior and complete numerical input. Original event identities and
+prior weights must match exactly. Array and definition identities are checked
+without tolerance-based matching, and no solve is performed. An optional
+supplied training input is checked against the saved one too.
+This archive is larger: features and prior-target derivatives require roughly
+16 bytes per event per fitted feature before compression, in addition to
+weights and the small common-input covariance. Original kinematics remain in
+your event file. Predictions and response arithmetic may differ at numerical
+roundoff across libraries, while saved weights and definitions are exact.
+Supplying explicit blocks still requests the strict reconstruction path.
+
 Independent references have `role="validation"`, a distinct sample identity and
 their own run IDs. The validation call requires an explicit independence
 declaration and rejects known run overlap. The software verifies the declared

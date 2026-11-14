@@ -20,7 +20,7 @@ STYLE = {"font.family": "DejaVu Sans", "font.size": 10, "axes.labelsize": 11,
 
 
 def write_study_report(directory, *, title, models, diagnostics, validations,
-                       edges, xlabel, selected, anchor, comparison=None, provenance=None):
+                       edges, xlabel, selected, anchor, comparison=None, provenance=None, ylabel=None):
     """Write training.pdf/png, predictions.pdf/png, report.html/json and arrays.npz.
 
     ``models`` maps display names to ConstraintFit objects. ``diagnostics`` maps
@@ -59,7 +59,7 @@ def write_study_report(directory, *, title, models, diagnostics, validations,
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     arrays, record = {}, dict(title=title, selected=selected, anchor=anchor, models={},
-                              edges=edges.tolist(), xlabel=xlabel, comparison=comparison,
+                              edges=edges.tolist(), xlabel=xlabel, ylabel=ylabel, comparison=comparison,
                               colors=colors, provenance=provenance or {},
                               interpretation="Input agreement, training correlation evidence and independent prediction are distinct checks. None certifies accuracy for other observables.")
     rows, diagnostic_rows = [], []
@@ -95,7 +95,7 @@ def write_study_report(directory, *, title, models, diagnostics, validations,
     with plt.rc_context(STYLE):
         note = (provenance or {}).get("display_note", "")
         pages = _training_figure(plt, directory, rows, diagnostic_rows, colors, note)
-        _prediction_figure(plt, directory, comparison, validations, edges, xlabel, selected, anchor, colors, note)
+        _prediction_figure(plt, directory, comparison, validations, edges, xlabel, selected, anchor, colors, note, ylabel)
     (directory / "report.html").write_text(_html(title, rows, diagnostic_rows, selected, anchor, pages))
     return record
 
@@ -176,7 +176,7 @@ def _diagnostic_panel(ax, diagnostics, colors):
     ax.grid(axis="x", alpha=.15)
 
 
-def _prediction_figure(plt, directory, names, validations, edges, xlabel, selected, anchor, colors, note):
+def _prediction_figure(plt, directory, names, validations, edges, xlabel, selected, anchor, colors, note, ylabel=None):
     centers, widths = (edges[1:] + edges[:-1]) / 2, np.diff(edges)
     reference = validations[selected]["reference"]
     ref = reference.mean[0]
@@ -206,7 +206,7 @@ def _prediction_figure(plt, directory, names, validations, edges, xlabel, select
     axes[0].errorbar(centers, ref / widths, yerr=referr / widths,
                      fmt=".", color="#252c34", ms=4, capsize=2, lw=1,
                      label="Independent reference: MC")
-    ylabel = validations[selected]["definition"].get("density_label", "Cross section / bin width")
+    ylabel = ylabel or validations[selected]["definition"].get("density_label", "Cross section / bin width")
     axes[0].set(ylabel=ylabel, title="3  Predictions after freezing the fit")
     axes[0].legend(loc="lower center", bbox_to_anchor=(.5, 1.10), ncol=2, frameon=False)
     scale_ratios = np.divide(chosen.mean, reference.mean,
