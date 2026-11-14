@@ -98,7 +98,7 @@ def main(argv=None):
                 central_ratio = ratio(hist["central"], ref["central"])
                 prior_ratio = ratio(hist["prior"], ref["central"])
                 # A scale member is a complete normalized prediction. Pair its
-                # numerator and independent reference at that same scale.
+                # numerator and reference at that same scale.
                 members = np.vstack([hist["central"], hist["scale_members"]])
                 if members.shape != ref["scale_members"].shape:
                     raise ValueError("posterior and reference need the same seven ordered scale members")
