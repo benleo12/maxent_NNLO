@@ -83,9 +83,14 @@ compact Pythia and Herwig event samples, fixed-order moments and reference array
 They perform new fits without an external event archive. The full-sample DY,
 independent W and two-jet comparison plots use committed numerical caches.
 
-Other application fits use your supplied compatible prior. The authors' complete
-million-event productions are not prerequisites for using the released moments.
-Reproducing their exact event-by-event results does require those same prior
+The [W fixtures](../examples/data/w_predictivity/README.md) contain both charges'
+pre-QED four-vectors, canonical observables and event identities. The
+[Higgs, diphoton and Z+jet examples](../examples/data/applications/README.md)
+perform new fits on compact committed priors and propagate the available input
+uncertainties. The example catalogue gives a runnable command for every process.
+These compact demonstrations do not reproduce the full productions' event
+statistics. You can supply a larger compatible prior through the same interface.
+Reproducing exact event-by-event paper results requires the same full prior
 events. For another process or observable, follow
 [New processes and observables](NEW_PROCESSES.md): supply its shared definitions,
 positive prior and compatible fixed-order moment inputs; the solver is unchanged.

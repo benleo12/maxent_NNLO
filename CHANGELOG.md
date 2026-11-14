@@ -10,6 +10,12 @@
   targets. Paired model differences retain shared fluctuations.
 - Added a small executable tutorial and standalone PDF/PNG/HTML reports, with
   portable results, full covariance and provenance alongside the figures.
+- Included real compact priors for every application, preserving source weights,
+  event identities and sampling corrections, plus a shared W physical-block
+  builder. Higgs, diphoton and Z+jet demonstrations perform fresh fits with
+  the available uncertainty sources and selected-observable plots.
+- Fixed transition variations when the lower Higgs window comes from the main
+  table, and report nonzero exact-target residuals without a misleading zero pull.
 - Kept the existing `upgrade` interface, released targets, scientific caches and
   default fit objective unchanged. Plotting remains optional.
 

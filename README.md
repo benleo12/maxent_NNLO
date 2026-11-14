@@ -62,6 +62,21 @@ Its 98,808 events include the original weights, inclusion probabilities, IDs
 and lepton four-vectors. The [Herwig recipe](examples/data/HERWIG_GENERATION.md)
 records the production settings and sampling rule.
 
+Compact real event samples also accompany W±, Higgs, diphoton and Z+jet
+production. Every application can be fitted from the checkout alone:
+
+```bash
+python examples/paper_examples.py wp examples/data/w_predictivity/w_wp_prior.npz wp.npz
+python examples/application_demo.py ggh --output ggh_demo --plot
+python examples/application_demo.py aa --output aa_demo --plot
+python examples/application_demo.py zj --output zj_demo --plot
+```
+
+The [example catalogue](examples/README.md) gives both charges, extended physical
+constraints and independent comparisons. The compact samples preserve original
+weights, event identities and documented sampling corrections. Their statistics
+differ from the full paper productions.
+
 ## Decide which information to add
 
 A small executable [constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) walks

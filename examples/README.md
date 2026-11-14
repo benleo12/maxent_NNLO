@@ -33,9 +33,26 @@ Born-decay example makes the workflow explicit without presenting it as QCD
 evidence. Its public [study interface](../docs/STUDY_API.md) also supports
 user-defined physical blocks and common-run integration inputs.
 
-The full paper configurations below require a compatible positive-weight prior
-inside the released table's selection. The authors' full event productions are
-available on request.
+Every application has a compact real prior in the checkout. Run the remaining
+examples without generating events or downloading an authors' archive:
+
+```bash
+python examples/paper_examples.py wp examples/data/w_predictivity/w_wp_prior.npz wp.npz
+python examples/paper_examples.py wm examples/data/w_predictivity/w_wm_prior.npz wm.npz
+python examples/application_demo.py ggh --output ggh_demo --plot
+python examples/application_demo.py aa --output aa_demo --plot
+python examples/application_demo.py zj --output zj_demo --plot
+```
+
+The [W fixture recipe](data/w_predictivity/README.md) and
+[Higgs/diphoton/jet examples](data/applications/README.md) record the generation,
+sampling weights and exact outputs. The latter three commands propagate the
+available integration, scale, transition and PDF inputs. Their extra-observable
+plots have no independent reference; they demonstrate predictions and input
+propagation. All original arrays and absolute event weights remain available.
+Use your own compatible positive-weight sample to increase statistics or change
+the generator; the fixed-order table's selection and observable definitions
+must remain the same.
 
 All commands below run from the repository root after `python -m pip install .`.
 Plotting is optional and uses `python -m pip install '.[plot]'`.
@@ -99,8 +116,9 @@ to apply the frozen configurations to a compatible prior with coherent scale
 and integration variations. Its `selected` option reproduces the study choice;
 it does not select a new joint degree for an arbitrary prior.
 
-These plotting commands use compact committed caches; fitting a new prior
-requires event arrays.
+These plotting commands use compact committed caches from the full productions.
+The bundled fitting fixtures have different event statistics. Fitting a new
+prior requires its compatible event arrays.
 
 ## Drell–Yan
 
@@ -213,7 +231,7 @@ the setup of the prior-coverage comparison. For the balance panel, histogram
 `ptj2 / ptj1` for events with `ptj1 > 60` GeV and use the corresponding weights.
 Normalize the selected distribution when making a unit-area comparison.
 
-The Python equivalents make the constraint choices explicit:
+The direct calls make the constraint choices explicit:
 
 ```python
 load_moments("zj", mixed=[])                           # separate jet moments

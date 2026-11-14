@@ -48,6 +48,11 @@ jobs:
           python examples/plot_w_joint.py --output w_joint_check --full-scans
           python examples/constraint_workflow.py constraint_workflow_check --stage train
           python examples/constraint_workflow.py constraint_workflow_check --stage validate
+          python examples/paper_examples.py wp examples/data/w_predictivity/w_wp_prior.npz wp_check.npz
+          python examples/paper_examples.py wm examples/data/w_predictivity/w_wm_prior.npz wm_check.npz
+          python examples/application_demo.py ggh --output ggh_check --bootstrap 2 --plot
+          python examples/application_demo.py aa --output aa_check --bootstrap 2 --plot
+          python examples/application_demo.py zj --output zj_check --bootstrap 2 --plot
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp

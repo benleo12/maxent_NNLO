@@ -208,7 +208,15 @@ def upgrade_with_uncertainties(events, process, *, sources=("scale", "stat", "wi
     if "window" in sources:
         available = released.windows(process)
         selected_recoil = table["default_constraints"]["recoil"] if selection.get("recoil") is None else selection["recoil"]
-        movable = (set(released._window(process, "down")[0]) if available else set())
+        # A moved window can be the main table itself (Higgs: the lower 37 GeV
+        # window). Determine the affected tower from every declared variant,
+        # including a separately booked nominal window, rather than indexing None.
+        movable = set()
+        if available:
+            for which in ("nominal", "down", "up"):
+                variant = released._window(process, which)
+                if variant is not None:
+                    movable.update(variant[0])
         if available and movable.intersection(selected_recoil) and not selection.get("nnlo_zj"):
             variations["window"] = (shifted(window=w) for w in ("down", "up"))
         else:
