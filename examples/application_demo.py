@@ -70,7 +70,7 @@ def plot(output, process, results, max_pull):
     with plt.rc_context(STYLE):
         fig, axes = plt.subplots(2, 2, figsize=(8.2, 5.7), sharex="col",
                                  gridspec_kw=dict(height_ratios=(2.2, 1)), constrained_layout=True)
-        fig.suptitle(f"{PROCESS_NAMES[process]} · propagated inputs, no independent reference", fontsize=10)
+        fig.suptitle(f"{PROCESS_NAMES[process]} · fitted events and propagated inputs", fontsize=10)
         for column, (_, prediction, label, title) in enumerate(results):
             top, ratio = axes[:, column]
             edges = prediction["edges"]
@@ -101,6 +101,11 @@ def plot(output, process, results, max_pull):
                 ratio.stairs(divide(prediction["pdf_high"]), edges, baseline=None,
                              color="#8871a7", ls=":", lw=1, label="PDF inputs")
             ratio.axhline(1, color=".5", lw=.7)
+            if process == "zj" and column == 0:
+                ratio.set_yscale("log")
+                ratio.yaxis.set_major_locator(FixedLocator([1, 2, 5, 10, 20, 50]))
+                ratio.yaxis.set_major_formatter(ScalarFormatter())
+                ratio.yaxis.set_minor_formatter(NullFormatter())
             ratio.set(xlabel=label, ylabel="Fit / prior")
             momentum = column == 0 or process == "ggh"
             top.set(ylabel="pb / GeV" if momentum else "pb per unit", title=title)
