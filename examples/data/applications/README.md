@@ -44,6 +44,13 @@ Its hardest bins still need a local-statistics check.
 records counts, effective counts and largest-event concentration. Inspect both
 before using a tail prediction.
 
+Moment residuals and the separate window-rate residuals are both recorded;
+the figure's scalar residual summarizes the moments. On two numerical threads
+on an Apple M6 with 24 GiB RAM, the full fit/variation steps took 3.27 s for
+Higgs, 1.65 s for diphotons and 7.86 s for the 200,000-event Z+jet fixture.
+These timings exclude event-file loading, output writing and plotting, and
+depend on hardware and numerical libraries.
+
 ## Sampling and generation provenance
 
 The Higgs and diphoton files contain 80,000 rows, and Z+jet contains 200,000,

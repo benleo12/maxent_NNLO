@@ -453,7 +453,13 @@ def upgrade(events, moments, config):
                            "inconsistent units.  Inspect result.report after a solve with fewer orders "
                            "(config['fixed_orders']).")
     ach = (q[:, None] * Phi).sum(0)
-    rel = np.abs(ach / np.where(np.abs(mu) > 1e-12, mu, 1e-12) - 1)
+    # A zero target has no relative scale. Report numerical zero as closed and
+    # retain any resolved absolute residual separately instead of inventing a
+    # denominator (which made an exactly achieved zero look like 100% error).
+    absolute_residual = ach - mu
+    rel = np.divide(np.abs(absolute_residual), np.abs(mu),
+                    out=np.full_like(mu, np.nan), where=mu != 0)
+    rel[(mu == 0) & (np.abs(absolute_residual) <= 1e-12)] = 0
     # closure and pulls are quoted for the moments; the window shares (the rate of a windowed
     # tower or joint block, the share above a blended tower's hard cut) are reported apart
     is_mom = np.ones(len(mu), bool)
@@ -488,6 +494,7 @@ def upgrade(events, moments, config):
         # response  dO = Cov_q(O, Phi) H^{-1} dmu
         lam=np.asarray(lam, float), mu=mu.copy(),
         feature_names=list(names),
+        zero_target_residuals={names[i]: float(absolute_residual[i]) for i in np.flatnonzero(mu == 0)},
         soft=dict(enabled=soft, errors=cfg["soft_errors"], sigma=sig.copy(), pulls=pulls),
         towers=towers, shares=shares, q_over_p_range=(float(qp.min()), float(qp.max())),
     )

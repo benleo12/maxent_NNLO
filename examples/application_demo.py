@@ -123,7 +123,7 @@ def plot(output, process, results, max_pull):
                 else:
                     ax.set_xlim(edges[0], edges[-1])
                 ax.grid(axis="y", alpha=.15)
-        fig.text(.5, -.015, f"Largest central input residual: {max_pull:.3g} integration MC errors. "
+        fig.text(.5, -.015, f"Largest central moment residual: {max_pull:.3g} integration MC errors. "
                  "Source bands are separate; local statistics are in report.json.",
                  ha="center", fontsize=8, color=".4")
         fig.savefig(output / "comparison.pdf", bbox_inches="tight")
@@ -140,8 +140,11 @@ def run(process, output, *, prior=None, bootstrap=20, make_plot=False):
     fit_checks = {}
 
     def check(label, fit):
+        shares = {name: {key: float(value) if np.isfinite(value) else None for key, value in values.items()}
+                  for name, values in fit.report.get("shares", {}).items()}
         fit_checks[label] = dict(maximum_moment_pull=float(fit.max_pull) if np.isfinite(fit.max_pull) else None,
                                  maximum_relative_residual=float(fit.closure) if np.isfinite(fit.closure) else None,
+                                 window_rate_constraints=shares,
                                  effective_fraction_retained=float(fit.effN_retained))
     result = upgrade_with_uncertainties(events, process, n_boot=bootstrap, seed=731132, progress=check)
     elapsed = time.perf_counter() - started
@@ -186,6 +189,7 @@ def run(process, output, *, prior=None, bootstrap=20, make_plot=False):
     if make_plot:
         plot(output, process, results, result.central.max_pull)
     print(result.central.summary())
+    print("Separate window-rate residuals: " + canonical_json(fit_checks["central"]["window_rate_constraints"]))
     print(f"{process}: {elapsed:.2f}s for the fit/variations; saved {output}")
 
 

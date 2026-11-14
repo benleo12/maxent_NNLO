@@ -29,6 +29,21 @@ def test_custom_observable_recovers_known_correction():
     assert "Weights sum to one" in result.describe()
 
 
+def test_zero_target_relative_residual_is_not_fabricated():
+    events = dict(x=np.array([-1., 1.]), weight=np.ones(2))
+    config = dict(born={"x": dict(range=(-1., 1.), map="lin")}, fixed_orders={"x": 1}, L2=.1)
+    moments = compute_fo_moments(events, config, n_max=1)
+    closed = upgrade(events, moments, config)
+    assert closed.closure == 0
+    assert max(abs(x) for x in closed.report["zero_target_residuals"].values()) < 1e-12
+    # Ridge bias on a changed prior leaves an absolute residual, whose relative
+    # size is undefined because the physical target itself is zero.
+    shifted = upgrade(dict(events, weight=np.array([1., 2.])), moments, config)
+    assert np.isnan(shifted.closure)
+    assert max(abs(x) for x in shifted.report["zero_target_residuals"].values()) > .01
+    assert np.isfinite(shifted.max_pull)
+
+
 def test_cli_preserves_events_and_uses_cross_section_weights(tmp_path, monkeypatch):
     events, moments, config = custom_problem()
     events["cross_section_pb"] = np.asarray(4.0)  # prior metadata must also survive
