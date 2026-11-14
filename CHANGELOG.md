@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0
+
+- Added a supported constraint-study workflow using the existing fit solver:
+  named physical feature blocks, complete common-run covariance, correlated
+  training diagnostics, frozen fits and independent prediction checks.
+- Propagate the fitted response to both numerical targets and prior sampling,
+  including normalization, empirical-prior regularization and declared blended
+  targets. Paired model differences retain shared fluctuations.
+- Added a small executable tutorial and standalone PDF/PNG/HTML reports, with
+  portable results, full covariance and provenance alongside the figures.
+- Kept the existing `upgrade` interface, released targets, scientific caches and
+  default fit objective unchanged. Plotting remains optional.
+
+This is an additive repository release. No new package-index publication is implied.
+
 ## 2026-11-13
 
 - A committed 112,978-event Drell–Yan fixture and complete fit with propagated

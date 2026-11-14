@@ -46,6 +46,8 @@ jobs:
           python examples/plot_zj_benchmark.py --output zj_benchmark_check
           python examples/plot_dy_portability.py --output dy_portability_check
           python examples/plot_w_joint.py --output w_joint_check --full-scans
+          python examples/constraint_workflow.py constraint_workflow_check --stage train
+          python examples/constraint_workflow.py constraint_workflow_check --stage validate
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp

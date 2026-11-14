@@ -14,6 +14,7 @@ W±, Higgs, diphoton and Z+jet production.
 [Quick start](#quick-start) · [All paper examples](examples/README.md) ·
 [Prior input schemas](docs/INPUTS.md) · [New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
 [Validation](docs/VALIDATION.md) · [Event records](docs/HEPMC.md) ·
+[Constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) ·
 [Reproduction](REPRODUCE.md)
 
 ## Install
@@ -60,6 +61,23 @@ python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz 
 Its 98,808 events include the original weights, inclusion probabilities, IDs
 and lepton four-vectors. The [Herwig recipe](examples/data/HERWIG_GENERATION.md)
 records the production settings and sampling rule.
+
+## Decide which information to add
+
+A small executable [constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) walks
+through fitting separate moments, diagnosing an omitted correlation, freezing
+the chosen physical block and predicting an independent reference:
+
+```bash
+python examples/constraint_workflow.py output/constraint_tutorial
+```
+
+It writes event weights, readable PDF/PNG figures and a local HTML report, with
+the full numerical covariance and provenance beside them. This controlled
+Born-decay illustration explains the workflow; it is not an NNLO calculation.
+The [advanced interface](docs/STUDY_API.md) accepts arbitrary declared event
+functions and common-run fixed-order integrals, using the same solver as
+`upgrade`. Paired model changes retain their shared target and event fluctuations.
 
 ## Quick start
 

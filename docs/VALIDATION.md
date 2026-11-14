@@ -5,6 +5,19 @@ For an analysis, also inspect local statistics and observables that were not
 used to determine the weights. Propagating input errors and validating the
 prediction answer different questions.
 
+## Correlated fitting and independent prediction
+
+For a supplied complete common-run covariance, the
+[constraint-study workflow](STUDY_API.md) includes the response of the fitted
+weights, raw-rate correlations and paired model changes. It separates imposed
+input agreement, remaining training correlations and frozen independent
+predictions. The [runnable tutorial](CONSTRAINT_TUTORIAL.md) writes all three
+checks to a local report.
+
+The simpler diagnostics below remain useful when only per-moment errors or
+fixed event weights are available. They do not acquire a joint significance
+interpretation without the missing common-run covariance and refit response.
+
 ## Local statistics
 
 ```python

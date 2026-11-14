@@ -21,6 +21,18 @@ tutorials [custom_observables.py](custom_observables.py) and
 new observables, joint constraints and uncertainty inputs. They also demonstrate
 [held-out joint checks and local statistics](../docs/VALIDATION.md).
 
+For a complete training, frozen-fit and independent-prediction workflow, run:
+
+```bash
+python examples/constraint_workflow.py output/constraint_tutorial
+```
+
+The [tutorial](../docs/CONSTRAINT_TUTORIAL.md) explains the resulting weights,
+PDF/PNG figures, local HTML report and complete covariance. This small controlled
+Born-decay example makes the workflow explicit without presenting it as QCD
+evidence. Its public [study interface](../docs/STUDY_API.md) also supports
+user-defined physical blocks and common-run integration inputs.
+
 The full paper configurations below require a compatible positive-weight prior
 inside the released table's selection. The authors' full event productions are
 available on request.

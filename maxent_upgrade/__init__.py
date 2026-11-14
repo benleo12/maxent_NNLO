@@ -19,8 +19,11 @@ from .uncertainty import (
 )
 from .diagnostics import bin_diagnostics, joint_moment_residuals, weight_diagnostics
 from .provenance import fit_provenance
+from .numerical import NumericalInput, bootstrap_runs
+from .study import (ConstraintBlock, ConstraintFit, Prediction, fit_constraints, load_frozen,
+                    plan_observable, residual_test, stack_predictions, validate_prediction)
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 __all__ = [
     "upgrade", "load_moments", "sigma_fid", "released",
@@ -28,6 +31,9 @@ __all__ = [
     "check_seam", "resolved_order", "combine_moments", "UpgradeResult",
     "upgrade_with_uncertainties", "upgrade_ensemble", "Variation", "EnsembleResult", "histogram_bands",
     "bin_diagnostics", "joint_moment_residuals", "weight_diagnostics", "fit_provenance",
+    "NumericalInput", "bootstrap_runs", "ConstraintBlock", "ConstraintFit", "Prediction",
+    "fit_constraints", "load_frozen", "plan_observable", "residual_test", "stack_predictions",
+    "validate_prediction",
     "upgrade_from_histograms", "moment_snr", "FOHist", "fo_from_dat", "DEFAULTS",
 ]
 

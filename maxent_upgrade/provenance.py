@@ -57,7 +57,7 @@ def array_identity(values):
         raise ValueError("object arrays cannot be fingerprinted portably")
     contiguous = np.ascontiguousarray(array)
     return dict(dtype=array.dtype.str, shape=list(array.shape),
-                sha256=hashlib.sha256(memoryview(contiguous).cast("B")).hexdigest())
+                sha256=hashlib.sha256(memoryview(contiguous).cast("B") if contiguous.size else b"").hexdigest())
 
 
 def table_identity(process, table, selection=None):
