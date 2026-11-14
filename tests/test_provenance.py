@@ -53,3 +53,13 @@ def test_ensemble_records_each_changed_target_and_normalization():
     assert shift["cross_section_pb"] == 15
     assert shift["configuration"]["fixed_orders"] == result.central.chosen_moments
     assert normalized["output_weights"] == array_identity(result.central.weights)
+
+
+def test_released_provenance_hashes_source_run_accumulators():
+    from maxent_upgrade import released
+    from maxent_upgrade.provenance import released_table_identity
+    record = released_table_identity("dy", released.table("dy"), sources=("scale", "stat", "window"))
+    names = {entry["name"] for entry in record["files"]}
+    assert "dy_nnlo_moments_runs.json.gz" in names
+    assert "dy_nnlo_moments_winvar.json" in names
+    assert all(len(entry["sha256"]) == 64 for entry in record["files"])

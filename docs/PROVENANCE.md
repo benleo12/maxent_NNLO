@@ -18,7 +18,7 @@ The record includes the full configuration and effective defaults, fitted moment
 orders, input-array identities including IDs, transformed moment hash, raw table
 identity, selected table options, normalization and central output-weight hash.
 Released inputs also identify the nominal and applicable auxiliary table files
-by SHA256. The command line adds the source NPZ's filename and SHA256. A hash of
+and their neighboring `*_runs.json.gz` accumulators by SHA256. The command line adds the source NPZ's filename and SHA256. A hash of
 the implementation modules distinguishes changed code even without a version bump.
 
 Every uncertainty variation records its configuration, moment hash, total cross

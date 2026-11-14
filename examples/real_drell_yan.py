@@ -31,7 +31,7 @@ def reference_summary(runs):
 
 def plot_result(path, references, predictions):
     import matplotlib.pyplot as plt
-    figure, axes = plt.subplots(2, 2, figsize=(9, 5.7), sharex="col",
+    figure, axes = plt.subplots(2, 2, figsize=(10, 6.6), sharex="col",
                                 gridspec_kw={"height_ratios": [3, 1]})
     for column, (name, label, _) in enumerate([
         ("recoil", r"$p_T^{\ell\ell}$ [GeV]", "pT_ll"),
@@ -41,31 +41,39 @@ def plot_result(path, references, predictions):
         edges = prediction["edges"]
         centers = (edges[:-1] + edges[1:]) / 2
         upper, lower = axes[:, column]
-        upper.stairs(prediction["prior"], edges, color="0.5", linestyle="--", label="Prior, common total rate")
-        upper.stairs(prediction["central"], edges, color="#b2182b", label="MaxEnt")
-        upper.stairs(ref["central"], edges, color="black", linestyle=":", label="Fixed order")
+        upper.stairs(prediction["prior"], edges, color="0.5", linestyle="--", baseline=None, label="Prior, common total rate")
+        upper.stairs(prediction["central"], edges, color="#b2182b", baseline=None, label="MaxEnt")
+        upper.stairs(ref["central"], edges, color="black", linestyle=":", baseline=None, label="Fixed order")
         upper.errorbar(centers, ref["central"], yerr=ref["sample_error"], fmt="none",
                        color="black", lw=.7, label="Reference integration error")
         if "scale_low" in prediction:
             upper.fill_between(edges, np.r_[prediction["scale_low"], prediction["scale_low"][-1]],
                                np.r_[prediction["scale_high"], prediction["scale_high"][-1]],
                                step="post", color="#b2182b", alpha=.15, label="Propagated scale band")
-        lower.errorbar(centers, prediction["central"] / ref["central"],
-                       yerr=prediction["sample_error"] / ref["central"],
+        reliable = np.ones(len(centers), dtype=bool)
+        if name == "angle":
+            reliable &= (edges[1:] <= .75) | (edges[:-1] >= .9)
+            for ax in (upper, lower):
+                ax.axvspan(.75, .9, color="0.85", alpha=.55, zorder=0,
+                           label="Fixed-order shoulder" if ax is upper else None)
+        lower.errorbar(centers[reliable], (prediction["central"] / ref["central"])[reliable],
+                       yerr=(prediction["sample_error"] / ref["central"])[reliable],
                        fmt="o", color="#b2182b", markersize=3)
-        lower.stairs(prediction["prior"] / ref["central"], edges, color="0.5", linestyle="--")
-        lower.fill_between(edges, np.r_[ref["scale_low"] / ref["central"], (ref["scale_low"] / ref["central"])[-1]],
-                           np.r_[ref["scale_high"] / ref["central"], (ref["scale_high"] / ref["central"])[-1]],
+        lower.stairs(np.where(reliable, prediction["prior"] / ref["central"], np.nan),
+                     edges, color="0.5", linestyle="--", baseline=None)
+        ref_low = np.where(reliable, ref["scale_low"] / ref["central"], np.nan)
+        ref_high = np.where(reliable, ref["scale_high"] / ref["central"], np.nan)
+        lower.fill_between(edges, np.r_[ref_low, ref_low[-1]], np.r_[ref_high, ref_high[-1]],
                            color="0.8", step="post", label="Reference scale band")
         lower.axhline(1, color="black", lw=.6)
         lower.set_xlabel(label)
         lower.set_ylabel("/ fixed order")
         upper.set_ylabel("pb/GeV" if column == 0 else "pb per unit angle")
-        upper.set_title("Constrained hard recoil" if column == 0 else "Unconstrained decay angle")
+        upper.set_title("Constrained hard recoil" if column == 0 else "Unconstrained decay angle", pad=64)
         if column == 0:
             upper.set_yscale("log")
             lower.set_xscale("log")
-        upper.legend(fontsize=7, loc="best", frameon=False)
+        upper.legend(fontsize=7, loc="lower left", bbox_to_anchor=(0, 1.02), ncol=2, frameon=False)
         lower.set_ylim(.5, 1.6)
     figure.tight_layout()
     figure.savefig(path)
@@ -115,6 +123,7 @@ def run(output, bootstrap=20, make_plot=False):
                   uncertainty_notes=result.notes, acceptance_both_leptons_above_35=float(acceptance["central"][1]),
                   reference_sha256=file_hash(reference_path),
                   reference_provenance=json.loads(str(reference_data["reference_provenance_json"])),
+                  angle_fixed_order_shoulder=[.75, .9],
                   interpretation="Recoil tests the fitted hard spectrum. The independent angle is not fitted; disagreement is a physics result. No band certifies missing support or correlations.")
     (output / "report.json").write_text(json.dumps(json_value(report), indent=2) + "\n")
     if make_plot:

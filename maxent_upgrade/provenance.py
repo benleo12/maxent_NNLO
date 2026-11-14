@@ -78,9 +78,12 @@ def released_table_identity(process, table, selection=None, sources=()):
     from . import released
     selection = selection or {}
     identity = table_identity(process, table, selection)
-    if process not in released.PROCESSES:
+    if process in released.PROCESSES:
+        paths = {Path(released._path(process))}
+    elif Path(str(process)).is_file():
+        paths = {Path(process)}
+    else:
         return identity
-    paths = {Path(released._path(process))}
     windows = [selection.get("window") or "nominal"]
     if "window" in sources:
         windows += ["down", "up"]
@@ -94,6 +97,13 @@ def released_table_identity(process, table, selection=None, sources=()):
                 paths.add(Path(released._path(registry[process])))
     if selection.get("nnlo_zj"):
         paths.add(Path(released._data_dir()) / released.NNLO_ZJ_FILE)
+    # Re-pooling, rate evaluation and map changes read the run accumulators.
+    # Retain their source identity as well as the transformed target hash.
+    for path in list(paths):
+        if path.suffix == ".json":
+            runs = path.with_name(path.stem + "_runs.json.gz")
+            if runs.is_file():
+                paths.add(runs)
     identity["files"] = [dict(name=p.name, sha256=file_hash(p)) for p in sorted(paths)]
     return identity
 
@@ -109,6 +119,8 @@ def effective_configuration(config):
         spec.setdefault("map", "log")
         spec.setdefault("transition", "blend")
     for spec in (configuration.get("mixed") or {}).values():
+        spec.setdefault("include_rate", True)
+        spec.setdefault("transition", "windowed")
         spec.setdefault("map", {})
         for observable in spec["observables"]:
             spec["map"].setdefault(observable, "log")

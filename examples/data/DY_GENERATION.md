@@ -81,7 +81,9 @@ and central scales muR=muF=mll, with seven scale choices. The channel sums inclu
 LO, V, R, VV, RV and RR. These runs are independent of the moment production and
 the angle is not constrained in the example. Raw densities in fb per unit angle
 are converted to pb per unit angle. The reference integration error is retained,
-including the regions with large cancellations.
+including the regions with large cancellations. The plot shades the fixed-order
+shoulder `0.75 < |cos(theta_CS)| < 0.9` and omits ratios there, as in the manuscript;
+the full reference arrays and errors remain in the saved data.
 
 The recoil reference uses 300 runs from the same production as the moment
 constraints, so it tests constraint closure rather than independent physics

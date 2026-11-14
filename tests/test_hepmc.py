@@ -15,6 +15,9 @@ def record(number, mass=91., costh=.2, mev=False):
     run.weight_names = ["nominal", "variation"]
     run.tools = [("fixture", "1", "deterministic unit-test event")]
     run.attributes["original_run_attribute"] = "retained"
+    run.attributes["original_integer"] = 17
+    run.attributes["original_real"] = 3.125
+    run.attributes["original_vector"] = [1., -2.5, 3.]
     event = hepmc.GenEvent(hepmc.Units.MEV if mev else hepmc.Units.GEV, hepmc.Units.MM)
     event.run_info = run
     event.event_number = number
@@ -91,6 +94,11 @@ def test_record_arrays_fit_and_permuted_weight_attachment(tmp_path):
             assert new.run_info.weight_names == ["nominal", "variation", "maxent_pb_per_event", *variations]
             assert str(new.attributes["original_event_attribute"]) == "retained"
             assert str(new.run_info.attributes["original_run_attribute"]) == "retained"
+            for key, kind, expected in (("original_integer", int, 17), ("original_real", float, 3.125),
+                                        ("original_vector", list[float], [1., -2.5, 3.])):
+                value = new.run_info.attributes[key]
+                actual = value.astype(kind) if hasattr(value, "astype") else value
+                assert actual == expected
             assert [(p.pid, p.status, tuple(p.momentum)) for p in old.particles] == [
                 (p.pid, p.status, tuple(p.momentum)) for p in new.particles]
     restored = extract_dy(output, qed_off=True)
