@@ -1258,6 +1258,31 @@
   "total_seconds": 2.766982458997518,
   "statistical_replicas": 32,
   "sparse_mask_min_prior_events": 50,
-  "angular_reference_status": "invalid: unreset memoized helper; independent correction running",
-  "primary_jet_quantities_status": "valid; unaffected by optional angular helper"
+  "angular_reference_status": "valid: direct-angle correction, same validation seeds and identical normalization integrals",
+  "primary_jet_quantities_status": "valid; unaffected by optional angular helper",
+  "angular_training_status": "not used; invalid initial angular training entries remain explicitly NaN",
+  "angular_correction": {
+    "job": 598213,
+    "seeds": [
+      1201,
+      1202,
+      1203,
+      1204,
+      1205,
+      1206,
+      1207,
+      1208,
+      1209,
+      1210,
+      1211,
+      1212,
+      1213,
+      1214,
+      1215,
+      1216
+    ],
+    "points_per_run": 1000000,
+    "total_core_minutes": 142.41037,
+    "max_relative_normalization_difference": 0.0
+  }
 }

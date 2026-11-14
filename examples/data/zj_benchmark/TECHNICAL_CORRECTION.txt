@@ -1,0 +1,31 @@
+2026-11-13: optional angular-reference cache defect
+
+The first angular reference is invalid. The initial eval_zb_aco wrapper called
+eval_2l_nth(npar,6). That helper memoizes six lepton observables and resets only
+when its registered eval_mem callback is called with imem=0. Calling it from an
+unregistered direct eval wrapper left the angle cached across phase-space points.
+The resulting reference consisted of one effectively fixed angle per run.
+
+All primary measurements use direct jet kinematics: the fitted moments call
+v1_pt(kin(npar)%pjets), the balance calls the same direct momenta, and the jet
+histograms/cuts use NNLOJET's registered jet observables. These are unaffected.
+Normalization/projection checks passed for all 48 production runs. The optional
+angle was never a model-selection variable, fitting constraint, or ranking
+criterion. No scientific definition, seed, cut, resolution or model is changed.
+
+The corrected angle is pi-acos(cos(phi_l1-phi_l2)), using direct eval_phi_lep calls.
+It is exactly the original pi-|wrapped delta_phi| definition. The 16 independent
+validation seeds1201..1216 are rerun with the same pilot grid, cuts and1M-point
+budgets, booking only normalization and the corrected angular histogram. The
+original source/card/run records remain in fixed_order_record.tgz. The corrected
+source and job live under angular_corrected/.
+
+Correction completed in job 598213. All 16 validation normalization integrals
+match the original values exactly at all 7 scales (maximum relative difference 0).
+The corrected reference and covariance replace only the invalid angular entries.
+Every primary prediction, bootstrap, local statistic and reference probability is
+unchanged. The corrected angular discrepancy is 30.25% for the prior and 32.03%
+for J=4. Unused initial angular training entries remain explicitly NaN; they
+never enter a fit. The original working caches are retained in
+superseded_angular_bug/ for audit only. The corrected raw records are archived
+in angular_corrected_record.tgz. Correction cost: 142.41037 core-minutes.

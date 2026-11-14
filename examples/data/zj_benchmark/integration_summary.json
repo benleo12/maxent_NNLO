@@ -1,0 +1,18 @@
+{
+  "training": {
+    "runs": 32,
+    "points_per_run": 500000,
+    "total_points": 16000000,
+    "total_cpu_minutes": 219.82040999999998,
+    "norm_fb": 7537.937569556143,
+    "norm_stat_fb": 7.501635566956252
+  },
+  "validation": {
+    "runs": 16,
+    "points_per_run": 1000000,
+    "total_points": 16000000,
+    "total_cpu_minutes": 219.9083,
+    "norm_fb": 7521.287401565436,
+    "norm_stat_fb": 6.493461689985967
+  }
+}

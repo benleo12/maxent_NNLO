@@ -108,3 +108,15 @@ The mini's Accelerate BLAS emits stale floating-point status warnings after
 finite matrix multiplies. benchmark.py suppresses only those specific matmul
 messages; positivity, normalization, finite values and solver convergence are
 still checked. The pinned package source is unchanged.
+
+Angular diagnostic technical correction
+--------------------------------------
+The first optional angular wrapper violated a memoized helper's reset contract.
+Its output is quarantined; primary jet quantities were unaffected. Job 598213
+reran the original 16 validation seeds with direct angles. The corrected
+normalization integrals match the originals exactly at every scale, and all
+primary arrays remain unchanged. The current benchmark_results.npz and
+validation_fo.npz contain the valid corrected angular reference. Unused initial
+training-angle entries are NaN with explicit metadata. See
+TECHNICAL_CORRECTION.txt and angular_corrected_record.tgz. Do not publish or
+use superseded_angular_bug/.

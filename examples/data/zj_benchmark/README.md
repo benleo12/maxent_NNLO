@@ -21,10 +21,14 @@ includes its covariance. Deterministic scale changes remain separate from the
 statistical covariance. The local table covers every cell of the 8-by-8 grid,
 including the sparse cells omitted from the displayed supported-region distance.
 
-The summary records the validity of the optional angular reference separately
-from the primary jet quantities. An invalid angular reference has NaN array
-entries and null JSON metrics, with its reason retained. Those entries are not
-used to assess the jet fits.
+The independent angular reference was corrected after a booking-cache defect
+was found. The rerun used the same validation seeds and gave bitwise-identical
+normalization integrals; all primary jet predictions remain unchanged.
+[TECHNICAL_CORRECTION.txt](TECHNICAL_CORRECTION.txt) records the audit. The final
+validation angle is valid; unused training-angle entries remain explicitly NaN.
+Unavailable fit entries use NaN arrays and null JSON metrics, with their reasons
+retained. The production artifact hash list also identifies the archived raw
+records, which are not required for the public cached comparisons.
 
 All resolutions were fixed before inspecting the independent validation sample:
 
