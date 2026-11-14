@@ -1,0 +1,77 @@
+Frozen Z+jet benchmark protocol, 2026-11-13
+
+Purpose
+Compare moment reweighting and ordinary binned reweighting at the same fixed-order
+integration budget, and test predictions for cuts and distributions never used as
+constraints. This extends Figure 8, which checked a fixed 4x4 moment fit against a
+coarse independent 2D histogram. It is a controlled LO Z+2-jet shape comparison,
+not a new claim of NNLO+PS accuracy or an estimate of all theory uncertainties.
+
+All definitions below are frozen before new integration outputs are examined.
+Changes required for software correctness will be logged separately.
+
+Common sample and phase space
+Use the current nomec10M_par prior from ref1104_zj, before hadronization and after
+shower + MPI, with the paper's lepton cuts and anti-kT R=0.4 jet definitions.
+Restrict every method and the reference to 60 <= pTj2 <= pTj1 < 1000 GeV.
+Normalize to unit area on precisely this region. Both paper jet windows equal
+one here. No mass, rapidity or angular constraint is imposed in this controlled
+comparison. The benchmark examines the two-momentum correction alone.
+
+Fixed-order inputs
+Use NNLOJET's R contribution to NLO Z+jet, which is LO in the hard two-jet region,
+with the paper's electroweak inputs, CT18NNLO and seven HT/2 scale choices.
+Book all training moments and training histograms in the same calls, so every
+method sees identical random points and the same 16 million training points.
+Training seeds 1101--1132 each have 500,000 production points. Independent
+validation seeds 1201--1216 each have 1,000,000 production points. A separate
+pilot supplies the common phase-space adaptation grid and is not pooled.
+
+Methods
+1. Unmodified prior.
+2. Separate Chebyshev moments through degree 4 of each log-mapped momentum.
+3. The same separate moments plus complete joint blocks J=1,2,3,4.
+   Maps are log on [60,1000] GeV, L2=1e-4, fixed orders, positive exponential
+   weights. Report degree sequence, numerical closure and effective statistics.
+4. A companion complete-order sequence D=1,2,3,4, with D separate degrees and
+   D-by-D joint block, to compare resolution against binned degrees of freedom.
+5. Iterative proportional fitting to the two separate marginal histograms.
+6. Direct joint histogram ratio. No smoothing, clipping or pseudo-counts.
+   Histogram methods use B=2,3,4,5,7,10 equal-log bins per axis over [60,1000].
+   The ordering pTj2<=pTj1 gives triangular occupied support. Report actual
+   independent constraints, not B^2 as if every square cell were physical.
+   Empty-prior/positive-target cells are failures, not silently regularized.
+IPF is iterated to a maximum marginal probability residual 1e-10 or 10,000
+iterations. Direct ratios retain the prior's within-cell distributions.
+
+Withheld validation
+These are never used for selecting degree, binning, regularization or cuts:
+- Three asymmetric cut efficiencies, relative to the common hard region:
+  (pTj1>125, pTj2>80), (pTj1>180, pTj2>110), (pTj1>300, pTj2>150), GeV.
+- Balance r=pTj2/pTj1 in pTj1 intervals [125,250] and [250,500] GeV,
+  with r edges [0,0.30,0.45,0.60,0.75,0.90,1]. Normalize each conditional
+  distribution to its own selected interval and also report interval rates.
+- An independent 2D grid with edges [60,80,110,155,215,300,420,600,1000] GeV.
+- Dilepton acoplanarity pi-|dphi| with edges [0,.4,.8,1.2,1.6,2,2.5,pi].
+  This angular observable is a diagnostic of information absent from jet
+  magnitudes. It is not a selection or ranking criterion for the methods.
+
+Statistics and decision reporting
+Keep statistical covariance from independent runs, including common-denominator
+normalization correlations. Do not interpret scale envelopes as Gaussian errors.
+Report deterministic seven-scale shifts separately. Main validation metrics are
+all three cut residuals, conditional balance residuals and normalized 2D total
+variation. Show every prechosen resolution, with no best-model choice on test.
+Use prior counts >=50 as the prechosen common mask for aggregate cell metrics,
+and show sparse cells separately with local effective counts and weight maxima.
+Provide 32 paired bootstrap replicas (random seed 73113) of training runs and
+Poisson-resampled prior events for statistical stability, on fixed model orders.
+The validation integration is independent and its covariance is reported
+separately. Stability concerns are retained even if central agreement improves.
+
+Resources and deliverables
+Event calculations run only on Mac mini with at most 2 BLAS/OMP threads.
+Fixed-order integration runs on Symmetry using an isolated executable/library.
+No edits to shared NNLOJET objects, manuscript, package repository or Overleaf.
+Archive protocol, source changes, runcards, jobs, raw independent-run sums,
+numerical results, timings and a portable plotting script in this directory.

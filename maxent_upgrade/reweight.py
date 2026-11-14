@@ -63,6 +63,8 @@ def _check_inputs(events, moments, config, wkey):
     # blended towers are in general inconsistent with fixed-order joint moments.  Every tower
     # a joint block couples must therefore be windowed too.
     for key, mc in mixed_cfg.items():
+        if not isinstance(mc.get("include_rate", True), (bool, np.bool_)):
+            raise ValueError(f"config['mixed'][{key!r}]['include_rate'] must be boolean")
         if mc.get("transition", "windowed") != "windowed":
             raise ValueError(f"config['mixed']['{key}']['transition'] = {mc['transition']!r}: joint blocks are "
                              f"imposed in the windowed form only (blended towers are in general inconsistent with fixed-order joint moments)")
@@ -427,7 +429,7 @@ def upgrade(events, moments, config):
             mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}")
             SIG.append(float(merr.get((mm, nn), 0.0)) * R)
-        if prof.get(ox) or prof.get(oy):
+        if (prof.get(ox) or prof.get(oy)) and mc.get("include_rate", True):
             SHARES.append(len(names))
             F.append(wxy.copy())
             mu.append(R)

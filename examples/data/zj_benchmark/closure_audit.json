@@ -1,0 +1,42 @@
+[
+  {
+    "method": "marg_D4",
+    "max_absolute_residual": 3.2417116126587375e-05,
+    "max_residual_over_fo_stat": 0.0872130559287991
+  },
+  {
+    "method": "D4_J1",
+    "max_absolute_residual": 4.5326070871681834e-05,
+    "max_residual_over_fo_stat": 0.10498778814402714
+  },
+  {
+    "method": "D4_J2",
+    "max_absolute_residual": 9.162700284595648e-05,
+    "max_residual_over_fo_stat": 0.18127341861641144
+  },
+  {
+    "method": "D4_J3",
+    "max_absolute_residual": 8.328419396330666e-05,
+    "max_residual_over_fo_stat": 0.16476813698492743
+  },
+  {
+    "method": "D4_J4",
+    "max_absolute_residual": 0.00016552188259641443,
+    "max_residual_over_fo_stat": 0.45529368752158716
+  },
+  {
+    "method": "D1_J1",
+    "max_absolute_residual": 7.501499459938721e-06,
+    "max_residual_over_fo_stat": 0.03849188798340416
+  },
+  {
+    "method": "D2_J2",
+    "max_absolute_residual": 3.5807258037479084e-05,
+    "max_residual_over_fo_stat": 0.09030170030030411
+  },
+  {
+    "method": "D3_J3",
+    "max_absolute_residual": 5.778008222839803e-05,
+    "max_residual_over_fo_stat": 0.11431120421005117
+  }
+]

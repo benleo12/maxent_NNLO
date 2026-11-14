@@ -1,0 +1,1263 @@
+{
+  "protocol_sha256": "695ef70b9dcb6a50b4693055ab5e3ac20ffdf06da13c05b5403595e0d8e03485",
+  "package_commit": "b437a68",
+  "prior": "/Users/benassi/reweighting/prior_v6/built/zj_prior_v6_nomec10M_par.npz",
+  "prior_events": 16004,
+  "prior_neff": 16003.999939010482,
+  "methods": [
+    {
+      "name": "prior",
+      "kind": "prior",
+      "constraints": 0,
+      "errors": {},
+      "closure_abs": 0,
+      "iterations": 0,
+      "neff": 16003.999939010482,
+      "neff_retained": 1.0,
+      "max_weight_factor": 1.0,
+      "central_and_scales_seconds": 0.0004819580353796482
+    },
+    {
+      "name": "marg_D4",
+      "kind": "maxent",
+      "constraints": 8,
+      "errors": {},
+      "closure_abs": 3.2417116125837975e-05,
+      "lam": [
+        1.3877787773119988e-13,
+        -0.46713031843397224,
+        -0.43577078590825924,
+        -0.14646582455986717,
+        -0.08257005395284993,
+        0.842981006658346,
+        0.6203303082866961,
+        0.10633062735785236,
+        -0.008497102760690819
+      ],
+      "feature_condition": 4245.465569911094,
+      "regularized_condition": 3919.6432602375835,
+      "neff": 12962.497105285163,
+      "neff_retained": 0.8099535837717972,
+      "max_weight_factor": 17.336426253617617,
+      "central_and_scales_seconds": 0.03779912495519966
+    },
+    {
+      "name": "D4_J1",
+      "kind": "maxent",
+      "constraints": 9,
+      "errors": {},
+      "closure_abs": 4.532607087157081e-05,
+      "lam": [
+        6.93889383451829e-14,
+        -0.7147150343890295,
+        -0.2471762686059894,
+        -0.1263035796429395,
+        -0.07683615607872507,
+        1.0147874034631177,
+        0.867354623185245,
+        0.08111423711505833,
+        -0.014672311346076381,
+        -0.4936763655002037
+      ],
+      "feature_condition": 5038.033497585349,
+      "regularized_condition": 4640.467896622204,
+      "neff": 12840.119627249118,
+      "neff_retained": 0.8023069030355804,
+      "max_weight_factor": 16.981356102610032,
+      "central_and_scales_seconds": 0.04105995805002749
+    },
+    {
+      "name": "D4_J2",
+      "kind": "maxent",
+      "constraints": 12,
+      "errors": {},
+      "closure_abs": 9.162700284659486e-05,
+      "lam": [
+        6.938893903907227e-14,
+        -0.23793753497876732,
+        -0.9752103642173908,
+        0.10053852878262931,
+        -0.0006254522107732738,
+        1.174329984536215,
+        1.7533640800073411,
+        0.7620125368092395,
+        0.14064734755153305,
+        -0.3531700248549045,
+        0.05755031636811221,
+        -1.2333370377771846,
+        -0.24799129168218126
+      ],
+      "feature_condition": 46095.78619997495,
+      "regularized_condition": 27748.250200100956,
+      "neff": 12556.026737586484,
+      "neff_retained": 0.7845555352059578,
+      "max_weight_factor": 23.193706576878032,
+      "central_and_scales_seconds": 0.04868699994403869
+    },
+    {
+      "name": "D4_J3",
+      "kind": "maxent",
+      "constraints": 17,
+      "errors": {},
+      "closure_abs": 8.32841939627238e-05,
+      "lam": [
+        -6.938893854833769e-22,
+        0.17252282165441585,
+        -1.1754830917836707,
+        -0.049489036490485645,
+        -0.09849553372825741,
+        0.9757115722914692,
+        1.5937170221681427,
+        0.9572773611926118,
+        0.10534496734330931,
+        0.28400389527852515,
+        0.05273191561743738,
+        0.17352757602954974,
+        -1.0159149209212976,
+        -0.024216201420651003,
+        0.2760818079513118,
+        -0.175982111429379,
+        -0.27287650469417346,
+        -0.004986141479517679
+      ],
+      "feature_condition": 4724215.901456761,
+      "regularized_condition": 80982.35381301207,
+      "neff": 12518.170075947806,
+      "neff_retained": 0.7821900852070234,
+      "max_weight_factor": 23.857243876825944,
+      "central_and_scales_seconds": 0.05982666602358222
+    },
+    {
+      "name": "D4_J4",
+      "kind": "maxent",
+      "constraints": 24,
+      "errors": {},
+      "closure_abs": 0.00016552188259658096,
+      "lam": [
+        6.938893869212756e-14,
+        0.5894235762554323,
+        -0.04009934047063459,
+        -1.1573404449442832,
+        -2.1880690127865092,
+        0.9672106969750344,
+        1.5868561196318522,
+        1.0181698209431487,
+        0.8094150707402639,
+        0.9991681306473845,
+        0.9775815238845167,
+        1.0378907402144184,
+        1.0108089254147368,
+        0.10349555031986013,
+        0.18422509497141742,
+        0.17336093816381146,
+        0.45341601293432954,
+        -1.5374605374641332,
+        -0.6976618220584009,
+        0.16111781263284852,
+        0.45267341920071097,
+        -3.2454301703400357,
+        -2.0002598294628746,
+        -1.3635971069020574,
+        -0.3620162523827191
+      ],
+      "feature_condition": 713184896.9492241,
+      "regularized_condition": 89465.49038762896,
+      "neff": 12310.308870219611,
+      "neff_retained": 0.7692020068190996,
+      "max_weight_factor": 28.42669741899532,
+      "central_and_scales_seconds": 0.06954416690859944
+    },
+    {
+      "name": "D1_J1",
+      "kind": "maxent",
+      "constraints": 3,
+      "errors": {},
+      "closure_abs": 7.5014994598276985e-06,
+      "lam": [
+        -6.938893854833769e-22,
+        -0.058588978466822934,
+        0.3720537883068665,
+        0.08323352848762446
+      ],
+      "feature_condition": 39.11945080890557,
+      "regularized_condition": 39.07364806472587,
+      "neff": 13785.013680655291,
+      "neff_retained": 0.8613480213189509,
+      "max_weight_factor": 11.877830255210604,
+      "central_and_scales_seconds": 0.05875429103616625
+    },
+    {
+      "name": "D2_J2",
+      "kind": "maxent",
+      "constraints": 8,
+      "errors": {},
+      "closure_abs": 3.580725803781215e-05,
+      "lam": [
+        1.0408340786471905e-13,
+        0.06303271005257617,
+        -0.7028402342729807,
+        0.5015902250360948,
+        0.49107060654015516,
+        0.32834614656553884,
+        0.37582955210984886,
+        -0.7286869119167457,
+        -0.10884573161413681
+      ],
+      "feature_condition": 8633.163388307856,
+      "regularized_condition": 7538.698681570108,
+      "neff": 12853.333270286803,
+      "neff_retained": 0.8031325493170125,
+      "max_weight_factor": 17.166157815966645,
+      "central_and_scales_seconds": 0.06147454201709479
+    },
+    {
+      "name": "D3_J3",
+      "kind": "maxent",
+      "constraints": 15,
+      "errors": {},
+      "closure_abs": 5.778008222809272e-05,
+      "lam": [
+        2.0816681642332743e-13,
+        0.1857558680851724,
+        -0.762293034458848,
+        -0.1415089648519679,
+        0.7573352614274287,
+        1.1056731920913652,
+        0.5814228558019942,
+        0.27361895701683614,
+        0.3273251115764327,
+        0.28651154114214605,
+        -0.8352604799212879,
+        0.025571411287719285,
+        0.2381162758848087,
+        -0.352795239972232,
+        -0.23156234463558234,
+        -0.002862495430963973
+      ],
+      "feature_condition": 2646035.258895388,
+      "regularized_condition": 75139.7013827045,
+      "neff": 12547.931832484526,
+      "neff_retained": 0.7840497300864372,
+      "max_weight_factor": 22.92064264816979,
+      "central_and_scales_seconds": 0.06338545796461403
+    },
+    {
+      "name": "ipf_B2",
+      "kind": "ipf",
+      "constraints": 2,
+      "errors": {},
+      "closure_abs": 2.4525048658574633e-11,
+      "iterations": 15,
+      "neff": 14563.717635787252,
+      "neff_retained": 0.9100048544918775,
+      "max_weight_factor": 5.823797082069674,
+      "central_and_scales_seconds": 0.02748333301860839
+    },
+    {
+      "name": "ipf_B3",
+      "kind": "ipf",
+      "constraints": 4,
+      "errors": {},
+      "closure_abs": 4.236588857509105e-11,
+      "iterations": 19,
+      "neff": 14337.828977555866,
+      "neff_retained": 0.895890341926755,
+      "max_weight_factor": 10.644104525024233,
+      "central_and_scales_seconds": 0.03588745801243931
+    },
+    {
+      "name": "ipf_B4",
+      "kind": "ipf",
+      "constraints": 6,
+      "errors": {},
+      "closure_abs": 6.698386290082681e-11,
+      "iterations": 23,
+      "neff": 13531.053930536107,
+      "neff_retained": 0.845479504005342,
+      "max_weight_factor": 28.122323763269463,
+      "central_and_scales_seconds": 0.03902170795481652
+    },
+    {
+      "name": "ipf_B5",
+      "kind": "ipf",
+      "constraints": 8,
+      "errors": {},
+      "closure_abs": 8.282163843631452e-11,
+      "iterations": 25,
+      "neff": 13652.187213876185,
+      "neff_retained": 0.8530484420084476,
+      "max_weight_factor": 14.626008312075117,
+      "central_and_scales_seconds": 0.039127166965045035
+    },
+    {
+      "name": "ipf_B7",
+      "kind": "ipf",
+      "constraints": 12,
+      "errors": {
+        "0": "Positive marginal target without prior support; target mass=0.000376301562; bins=[6]",
+        "1": "Positive marginal target without prior support; target mass=0.000359353161; bins=[6]",
+        "2": "Positive marginal target without prior support; target mass=0.000396153583; bins=[6]",
+        "3": "Positive marginal target without prior support; target mass=0.000361734225; bins=[6]",
+        "4": "Positive marginal target without prior support; target mass=0.000412012777; bins=[6]",
+        "5": "Positive marginal target without prior support; target mass=0.000388832112; bins=[6]",
+        "6": "Positive marginal target without prior support; target mass=0.000347718582; bins=[6]"
+      },
+      "central_and_scales_seconds": 0.0022237920202314854
+    },
+    {
+      "name": "ipf_B10",
+      "kind": "ipf",
+      "constraints": 18,
+      "errors": {
+        "0": "Positive marginal target without prior support; target mass=0.000161410061; bins=[9]",
+        "1": "Positive marginal target without prior support; target mass=0.000153892433; bins=[9]",
+        "2": "Positive marginal target without prior support; target mass=0.000170206673; bins=[9]",
+        "3": "Positive marginal target without prior support; target mass=0.000154963784; bins=[9]",
+        "4": "Positive marginal target without prior support; target mass=0.000177245576; bins=[9]",
+        "5": "Positive marginal target without prior support; target mass=0.000166963028; bins=[9]",
+        "6": "Positive marginal target without prior support; target mass=0.000148750478; bins=[9]"
+      },
+      "central_and_scales_seconds": 0.002590875024907291
+    },
+    {
+      "name": "ratio_B2",
+      "kind": "ratio",
+      "constraints": 2,
+      "errors": {},
+      "closure_abs": 4.665601238684758e-12,
+      "iterations": 1,
+      "neff": 14563.717635863868,
+      "neff_retained": 0.9100048544966649,
+      "max_weight_factor": 5.823797082087581,
+      "central_and_scales_seconds": 0.0021494580432772636
+    },
+    {
+      "name": "ratio_B3",
+      "kind": "ratio",
+      "constraints": 5,
+      "errors": {},
+      "closure_abs": 6.297629084883738e-12,
+      "iterations": 1,
+      "neff": 14340.063106616073,
+      "neff_retained": 0.8960299400940082,
+      "max_weight_factor": 10.644104525046354,
+      "central_and_scales_seconds": 0.0021326669957488775
+    },
+    {
+      "name": "ratio_B4",
+      "kind": "ratio",
+      "constraints": 9,
+      "errors": {},
+      "closure_abs": 9.067191442113653e-13,
+      "iterations": 1,
+      "neff": 13526.272566048234,
+      "neff_retained": 0.845180743413859,
+      "max_weight_factor": 28.122323763148625,
+      "central_and_scales_seconds": 0.0022931660059839487
+    },
+    {
+      "name": "ratio_B5",
+      "kind": "ratio",
+      "constraints": 14,
+      "errors": {},
+      "closure_abs": 3.615996391204135e-13,
+      "iterations": 1,
+      "neff": 13644.198659983733,
+      "neff_retained": 0.8525492821782243,
+      "max_weight_factor": 14.626008312580018,
+      "central_and_scales_seconds": 0.002048957976512611
+    },
+    {
+      "name": "ratio_B7",
+      "kind": "ratio",
+      "constraints": 27,
+      "errors": {
+        "0": "1 positive-target cells without prior support; target mass=0.000376301562; cells=[48]",
+        "1": "1 positive-target cells without prior support; target mass=0.000359353161; cells=[48]",
+        "2": "1 positive-target cells without prior support; target mass=0.000396153583; cells=[48]",
+        "3": "1 positive-target cells without prior support; target mass=0.000361734225; cells=[48]",
+        "4": "1 positive-target cells without prior support; target mass=0.000412012777; cells=[48]",
+        "5": "1 positive-target cells without prior support; target mass=0.000388832112; cells=[48]",
+        "6": "1 positive-target cells without prior support; target mass=0.000347718582; cells=[48]"
+      },
+      "central_and_scales_seconds": 0.0016324999742209911
+    },
+    {
+      "name": "ratio_B10",
+      "kind": "ratio",
+      "constraints": 54,
+      "errors": {
+        "0": "8 positive-target cells without prior support; target mass=0.00135609606; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "1": "8 positive-target cells without prior support; target mass=0.0012973025; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "2": "8 positive-target cells without prior support; target mass=0.00142502803; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "3": "8 positive-target cells without prior support; target mass=0.00130755782; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "4": "8 positive-target cells without prior support; target mass=0.00147761223; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "5": "8 positive-target cells without prior support; target mass=0.00139763927; cells=[86, 88, 90, 91, 92, 93, 95, 99]",
+        "6": "8 positive-target cells without prior support; target mass=0.00125856155; cells=[86, 88, 90, 91, 92, 93, 95, 99]"
+      },
+      "central_and_scales_seconds": 0.002045665984041989
+    }
+  ],
+  "bootstrap_errors": [
+    {
+      "replica": 0,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00172827971; bins=[3]"
+    },
+    {
+      "replica": 0,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000905414827; bins=[4]"
+    },
+    {
+      "replica": 0,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.00037007489; bins=[6]"
+    },
+    {
+      "replica": 0,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000905414827; bins=[8, 9]"
+    },
+    {
+      "replica": 0,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00172827971; cells=[15]"
+    },
+    {
+      "replica": 0,
+      "method": "ratio_B5",
+      "error": "2 positive-target cells without prior support; target mass=0.00234665995; cells=[23, 24]"
+    },
+    {
+      "replica": 0,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00116359068; cells=[46, 47, 48]"
+    },
+    {
+      "replica": 0,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00259152558; cells=[86, 87, 88, 90, 91, 92, 93, 95, 96, 97, 98, 99]"
+    },
+    {
+      "replica": 1,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000377198584; bins=[6]"
+    },
+    {
+      "replica": 1,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161492325; bins=[9]"
+    },
+    {
+      "replica": 1,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000521868162; cells=[43, 48]"
+    },
+    {
+      "replica": 1,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.00270375075; cells=[77, 86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 2,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000379837817; bins=[6]"
+    },
+    {
+      "replica": 2,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161275007; bins=[9]"
+    },
+    {
+      "replica": 2,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.00144323397; cells=[23]"
+    },
+    {
+      "replica": 2,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000612325608; cells=[46, 48]"
+    },
+    {
+      "replica": 2,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00235845934; cells=[86, 87, 88, 90, 91, 92, 93, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 3,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000381587386; bins=[6]"
+    },
+    {
+      "replica": 3,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000162148741; bins=[9]"
+    },
+    {
+      "replica": 3,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.000775677982; cells=[45, 46, 48]"
+    },
+    {
+      "replica": 3,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00185761068; cells=[85, 86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 4,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000372717779; bins=[6]"
+    },
+    {
+      "replica": 4,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000159627764; bins=[9]"
+    },
+    {
+      "replica": 4,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000372717779; cells=[48]"
+    },
+    {
+      "replica": 4,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.00279816777; cells=[77, 86, 88, 90, 91, 92, 93, 95, 97, 99]"
+    },
+    {
+      "replica": 5,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000373265783; bins=[6]"
+    },
+    {
+      "replica": 5,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161216349; bins=[9]"
+    },
+    {
+      "replica": 5,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000373265783; cells=[48]"
+    },
+    {
+      "replica": 5,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.0029762999; cells=[77, 85, 86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 6,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000377290148; bins=[6]"
+    },
+    {
+      "replica": 6,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161686236; bins=[9]"
+    },
+    {
+      "replica": 6,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000377290148; cells=[48]"
+    },
+    {
+      "replica": 6,
+      "method": "ratio_B10",
+      "error": "8 positive-target cells without prior support; target mass=0.00135561559; cells=[86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 7,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.0003741516; bins=[6]"
+    },
+    {
+      "replica": 7,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.0001615093; bins=[9]"
+    },
+    {
+      "replica": 7,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000528928174; cells=[42, 48]"
+    },
+    {
+      "replica": 7,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.00152128504; cells=[86, 88, 90, 91, 92, 93, 94, 95, 97, 99]"
+    },
+    {
+      "replica": 8,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.00037057853; bins=[6]"
+    },
+    {
+      "replica": 8,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000160796082; bins=[9]"
+    },
+    {
+      "replica": 8,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000525630649; cells=[45, 48]"
+    },
+    {
+      "replica": 8,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00301888613; cells=[77, 85, 86, 88, 90, 91, 92, 93, 94, 95, 99]"
+    },
+    {
+      "replica": 9,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000376596319; bins=[6]"
+    },
+    {
+      "replica": 9,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000162241045; bins=[9]"
+    },
+    {
+      "replica": 9,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000376596319; cells=[48]"
+    },
+    {
+      "replica": 9,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.0027740482; cells=[77, 86, 88, 90, 91, 92, 93, 95, 96, 99]"
+    },
+    {
+      "replica": 10,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375214262; bins=[6]"
+    },
+    {
+      "replica": 10,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.00244499236; bins=[7, 9]"
+    },
+    {
+      "replica": 10,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.00213666697; cells=[40, 48]"
+    },
+    {
+      "replica": 10,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00367933693; cells=[77, 86, 87, 88, 90, 91, 92, 93, 94, 95, 97, 99]"
+    },
+    {
+      "replica": 11,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000371772566; bins=[6]"
+    },
+    {
+      "replica": 11,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000159869444; bins=[9]"
+    },
+    {
+      "replica": 11,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000371772566; cells=[48]"
+    },
+    {
+      "replica": 11,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.00270561053; cells=[77, 86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 12,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000374302499; bins=[6]"
+    },
+    {
+      "replica": 12,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000159597221; bins=[9]"
+    },
+    {
+      "replica": 12,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000374302499; cells=[48]"
+    },
+    {
+      "replica": 12,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.0021933558; cells=[86, 87, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 13,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000376763299; bins=[6]"
+    },
+    {
+      "replica": 13,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000162479966; bins=[9]"
+    },
+    {
+      "replica": 13,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000617191911; cells=[46, 48]"
+    },
+    {
+      "replica": 13,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00158777798; cells=[86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 14,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00174486643; bins=[3]"
+    },
+    {
+      "replica": 14,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000911508284; bins=[4]"
+    },
+    {
+      "replica": 14,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375159057; bins=[6]"
+    },
+    {
+      "replica": 14,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000911508284; bins=[8, 9]"
+    },
+    {
+      "replica": 14,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00174486643; cells=[15]"
+    },
+    {
+      "replica": 14,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000911508284; cells=[24]"
+    },
+    {
+      "replica": 14,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00108819443; cells=[43, 47, 48]"
+    },
+    {
+      "replica": 14,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00268931735; cells=[81, 86, 87, 88, 90, 91, 92, 93, 94, 95, 98, 99]"
+    },
+    {
+      "replica": 15,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000372464374; bins=[6]"
+    },
+    {
+      "replica": 15,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.00243287369; bins=[7, 9]"
+    },
+    {
+      "replica": 15,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.00146010148; cells=[23]"
+    },
+    {
+      "replica": 15,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00236120777; cells=[40, 46, 48]"
+    },
+    {
+      "replica": 15,
+      "method": "ratio_B10",
+      "error": "13 positive-target cells without prior support; target mass=0.00374491493; cells=[77, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 16,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000377417416; bins=[6]"
+    },
+    {
+      "replica": 16,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000162527882; bins=[9]"
+    },
+    {
+      "replica": 16,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000377417416; cells=[48]"
+    },
+    {
+      "replica": 16,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.00163517011; cells=[85, 86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 17,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000380090042; bins=[6]"
+    },
+    {
+      "replica": 17,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161508513; bins=[9]"
+    },
+    {
+      "replica": 17,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000380090042; cells=[48]"
+    },
+    {
+      "replica": 17,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.00173204388; cells=[85, 86, 88, 90, 91, 92, 93, 95, 97, 99]"
+    },
+    {
+      "replica": 18,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00175118589; bins=[3]"
+    },
+    {
+      "replica": 18,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000918302939; bins=[4]"
+    },
+    {
+      "replica": 18,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375466914; bins=[6]"
+    },
+    {
+      "replica": 18,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000918302939; bins=[8, 9]"
+    },
+    {
+      "replica": 18,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00175118589; cells=[15]"
+    },
+    {
+      "replica": 18,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000918302939; cells=[24]"
+    },
+    {
+      "replica": 18,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00117812591; cells=[46, 47, 48]"
+    },
+    {
+      "replica": 18,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.0020726122; cells=[85, 86, 88, 90, 91, 92, 93, 95, 96, 97, 98, 99]"
+    },
+    {
+      "replica": 19,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00175990625; bins=[3]"
+    },
+    {
+      "replica": 19,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000915782964; bins=[4]"
+    },
+    {
+      "replica": 19,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375457923; bins=[6]"
+    },
+    {
+      "replica": 19,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000915782964; bins=[8, 9]"
+    },
+    {
+      "replica": 19,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00175990625; cells=[15]"
+    },
+    {
+      "replica": 19,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000915782964; cells=[24]"
+    },
+    {
+      "replica": 19,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000947782884; cells=[47, 48]"
+    },
+    {
+      "replica": 19,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.00159425631; cells=[86, 88, 90, 91, 92, 93, 95, 98, 99]"
+    },
+    {
+      "replica": 20,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000374613469; bins=[6]"
+    },
+    {
+      "replica": 20,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000160802321; bins=[9]"
+    },
+    {
+      "replica": 20,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.00211812529; cells=[40, 48]"
+    },
+    {
+      "replica": 20,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.00351391974; cells=[77, 86, 87, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 21,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000378192844; bins=[6]"
+    },
+    {
+      "replica": 21,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161462281; bins=[9]"
+    },
+    {
+      "replica": 21,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000616126532; cells=[46, 48]"
+    },
+    {
+      "replica": 21,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.0015807209; cells=[86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 22,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00175200341; bins=[3]"
+    },
+    {
+      "replica": 22,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000909405339; bins=[4]"
+    },
+    {
+      "replica": 22,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000376757951; bins=[6]"
+    },
+    {
+      "replica": 22,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000909405339; bins=[8, 9]"
+    },
+    {
+      "replica": 22,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00175200341; cells=[15]"
+    },
+    {
+      "replica": 22,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000909405339; cells=[24]"
+    },
+    {
+      "replica": 22,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00110547799; cells=[42, 47, 48]"
+    },
+    {
+      "replica": 22,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00306315826; cells=[77, 86, 88, 90, 91, 92, 93, 95, 97, 98, 99]"
+    },
+    {
+      "replica": 23,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000370445596; bins=[6]"
+    },
+    {
+      "replica": 23,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000159429277; bins=[9]"
+    },
+    {
+      "replica": 23,
+      "method": "ratio_B7",
+      "error": "1 positive-target cells without prior support; target mass=0.000370445596; cells=[48]"
+    },
+    {
+      "replica": 23,
+      "method": "ratio_B10",
+      "error": "8 positive-target cells without prior support; target mass=0.00134037957; cells=[86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 24,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000379981229; bins=[6]"
+    },
+    {
+      "replica": 24,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000160440872; bins=[9]"
+    },
+    {
+      "replica": 24,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.00146202585; cells=[23]"
+    },
+    {
+      "replica": 24,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000616054969; cells=[46, 48]"
+    },
+    {
+      "replica": 24,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00241451806; cells=[86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 25,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.001761264; bins=[3]"
+    },
+    {
+      "replica": 25,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000914805179; bins=[4]"
+    },
+    {
+      "replica": 25,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.0003782043; bins=[6]"
+    },
+    {
+      "replica": 25,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000914805179; bins=[8, 9]"
+    },
+    {
+      "replica": 25,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.001761264; cells=[15]"
+    },
+    {
+      "replica": 25,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000914805179; cells=[24]"
+    },
+    {
+      "replica": 25,
+      "method": "ratio_B7",
+      "error": "4 positive-target cells without prior support; target mass=0.00132441139; cells=[43, 46, 47, 48]"
+    },
+    {
+      "replica": 25,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00199316787; cells=[81, 86, 88, 90, 91, 92, 93, 95, 96, 97, 98, 99]"
+    },
+    {
+      "replica": 26,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00174144715; bins=[3]"
+    },
+    {
+      "replica": 26,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000911527916; bins=[4]"
+    },
+    {
+      "replica": 26,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000377560044; bins=[6]"
+    },
+    {
+      "replica": 26,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000911527916; bins=[8, 9]"
+    },
+    {
+      "replica": 26,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00174144715; cells=[15]"
+    },
+    {
+      "replica": 26,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000911527916; cells=[24]"
+    },
+    {
+      "replica": 26,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000940643668; cells=[47, 48]"
+    },
+    {
+      "replica": 26,
+      "method": "ratio_B10",
+      "error": "10 positive-target cells without prior support; target mass=0.00166491151; cells=[86, 88, 90, 91, 92, 93, 95, 96, 98, 99]"
+    },
+    {
+      "replica": 27,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375037764; bins=[6]"
+    },
+    {
+      "replica": 27,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000161007588; bins=[9]"
+    },
+    {
+      "replica": 27,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000613176518; cells=[46, 48]"
+    },
+    {
+      "replica": 27,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00158305152; cells=[86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 99]"
+    },
+    {
+      "replica": 28,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000375060377; bins=[6]"
+    },
+    {
+      "replica": 28,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000162376688; bins=[9]"
+    },
+    {
+      "replica": 28,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000517787811; cells=[44, 48]"
+    },
+    {
+      "replica": 28,
+      "method": "ratio_B10",
+      "error": "9 positive-target cells without prior support; target mass=0.00270818747; cells=[77, 86, 88, 90, 91, 92, 93, 95, 99]"
+    },
+    {
+      "replica": 29,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00175742563; bins=[3]"
+    },
+    {
+      "replica": 29,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000915873761; bins=[4]"
+    },
+    {
+      "replica": 29,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000379498826; bins=[6]"
+    },
+    {
+      "replica": 29,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000915873761; bins=[8, 9]"
+    },
+    {
+      "replica": 29,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00175742563; cells=[15]"
+    },
+    {
+      "replica": 29,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000915873761; cells=[24]"
+    },
+    {
+      "replica": 29,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000947640632; cells=[47, 48]"
+    },
+    {
+      "replica": 29,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00298972256; cells=[77, 86, 88, 90, 91, 92, 93, 94, 95, 98, 99]"
+    },
+    {
+      "replica": 30,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00177225795; bins=[3]"
+    },
+    {
+      "replica": 30,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000919739397; bins=[4]"
+    },
+    {
+      "replica": 30,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000378067675; bins=[6]"
+    },
+    {
+      "replica": 30,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000919739397; bins=[8, 9]"
+    },
+    {
+      "replica": 30,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00177225795; cells=[15]"
+    },
+    {
+      "replica": 30,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000919739397; cells=[24]"
+    },
+    {
+      "replica": 30,
+      "method": "ratio_B7",
+      "error": "2 positive-target cells without prior support; target mass=0.000953492746; cells=[47, 48]"
+    },
+    {
+      "replica": 30,
+      "method": "ratio_B10",
+      "error": "11 positive-target cells without prior support; target mass=0.00299696615; cells=[77, 86, 88, 90, 91, 92, 93, 94, 95, 98, 99]"
+    },
+    {
+      "replica": 31,
+      "method": "ipf_B4",
+      "error": "Positive marginal target without prior support; target mass=0.00175268334; bins=[3]"
+    },
+    {
+      "replica": 31,
+      "method": "ipf_B5",
+      "error": "Positive marginal target without prior support; target mass=0.000906723276; bins=[4]"
+    },
+    {
+      "replica": 31,
+      "method": "ipf_B7",
+      "error": "Positive marginal target without prior support; target mass=0.000372364575; bins=[6]"
+    },
+    {
+      "replica": 31,
+      "method": "ipf_B10",
+      "error": "Positive marginal target without prior support; target mass=0.000906723276; bins=[8, 9]"
+    },
+    {
+      "replica": 31,
+      "method": "ratio_B4",
+      "error": "1 positive-target cells without prior support; target mass=0.00175268334; cells=[15]"
+    },
+    {
+      "replica": 31,
+      "method": "ratio_B5",
+      "error": "1 positive-target cells without prior support; target mass=0.000906723276; cells=[24]"
+    },
+    {
+      "replica": 31,
+      "method": "ratio_B7",
+      "error": "3 positive-target cells without prior support; target mass=0.00107995365; cells=[43, 47, 48]"
+    },
+    {
+      "replica": 31,
+      "method": "ratio_B10",
+      "error": "12 positive-target cells without prior support; target mass=0.00322399759; cells=[77, 81, 86, 88, 90, 91, 92, 93, 95, 96, 98, 99]"
+    }
+  ],
+  "total_seconds": 2.766982458997518,
+  "statistical_replicas": 32,
+  "sparse_mask_min_prior_events": 50,
+  "angular_reference_status": "invalid: unreset memoized helper; independent correction running",
+  "primary_jet_quantities_status": "valid; unaffected by optional angular helper"
+}

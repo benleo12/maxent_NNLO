@@ -1,0 +1,110 @@
+Z+2-jet held-out benchmark
+=========================
+
+This directory is an isolated, reproducible study. It does not change the
+manuscript, the released package, or the shared NNLOJET build.
+
+Scientific scope
+---------------
+All methods correct the same existing shower prior inside the hard region
+60 <= pTj2 <= pTj1 < 1000 GeV. Each distribution is normalized to unit area
+there. The reference is the R contribution to NLO Z+jet, namely LO Z+2jet
+with these two resolved jets. This is a controlled shape comparison. It is
+not an NNLO+PS proof or a validation of the transition prescription.
+
+The earlier Figure 8 supplies independent coarse-grid closure for one joint
+fit. Here the train and test integrations are new and independent. The study
+adds ordinary histogram comparators at the same integration budget, a frozen
+basis/resolution sequence, and withheld asymmetric cut efficiencies and jet
+balance distributions. It retains numerical covariance and local event support.
+The angular distribution is a diagnostic of absent angular information.
+
+Protocol and implementation
+---------------------------
+PROTOCOL.txt was frozen before production or validation data were inspected.
+SHA256 695ef70b9dcb6a50b4693055ab5e3ac20ffdf06da13c05b5403595e0d8e03485
+Every model and histogram resolution is reported. No model is chosen by test
+performance. The plot highlights prior, separate D=4, joint J=2 and J=4,
+IPF B=5 and joint histogram B=5; the complete resolution scan is also shown.
+These illustrative choices were fixed while production was still running.
+
+Sources are copied into this directory. prepare.py adds private observables
+and prepares the cards. build_isolated.py compiles two private objects and
+links a private core library against the existing build's other objects.
+Shared compiled files and modules are never modified.
+
+Run cards: rc_pilot.run, rc_training.run, rc_validation.run.
+Pilot: seed 1099, 100k adaptation + 100k production points, discarded.
+Training: seeds 1101..1132, 500k points each, 16M in total.
+Validation: seeds 1201..1216, 1M points each, 16M in total.
+All training histograms and moments are booked in the same calls.
+The seven deterministic scale choices are never used as a Gaussian covariance.
+
+Cluster commands
+----------------
+Remote root: /home/bassi/jhep_zj_benchmark_20261113 on Symmetry.
+Pilot job: 598183. Production job: 598187, 16 cores.
+Use /cm/shared/apps/slurm/current/bin/sbatch pilot.sbatch, then production.sbatch.
+The pilot requires a usable original compile_commands.json and link.txt in
+/home/bassi/nnlojet-refs/build, with the existing shared NNLOJET libraries and
+LHAPDF installation. Exact source snapshots and runcards are retained here.
+
+combine.py reads complete run outputs, verifies normalization/projections,
+and retains individual-run integrals for both data sets. No inverse-variance
+combination of unequal bins is used. All runs within a set have equal budgets.
+
+Fit commands
+------------
+Remote root: /Users/benassi/reweighting/zj_benchmark_20261113 on the Mac mini.
+Unpack package_snapshot.tgz into package/. This is git archive b437a68 from
+~/maxent_NNLO, restricted to the package source. No live working-tree imports.
+Copy training_fo.npz, validation_fo.npz, definitions.json, and PROTOCOL.txt.
+Run with OPENBLAS_NUM_THREADS=2 VECLIB_MAXIMUM_THREADS=2 OMP_NUM_THREADS=2:
+  /Users/benassi/miniforge3/envs/reweight/bin/python benchmark.py > benchmark.log 2>&1
+Only this step reads events, and it must run on the mini.
+
+The benchmark uses the public upgrade API, including fixed orders and L2=1e-4.
+Ordinary histogram IPF alternates exact marginal ratios; the direct histogram
+ratio imposes the joint cell probabilities. No smoothing or clipping is added.
+An empty prior cell with positive target mass is reported as failure, with the
+missing probability stated explicitly. Such a failure can concern very little
+mass and should not be presented as a large physics error.
+
+Statistical conventions
+-----------------------
+32 paired replicas resample the 32 training runs and Poisson-resample prior
+events. Every model uses the same resampling draws. Model orders stay fixed.
+Fits normalize the ratio of aggregate numerator to aggregate denominator.
+The independent validation covariance comes from a delete-one-run jackknife,
+including conditional normalization. It is kept separate from fitting noise.
+Numerical pulls combine these two independent numerical covariances. They are
+not theory-exclusion significances. The deterministic scale curves are saved
+separately. Failed replicas are counted, never silently replaced.
+
+The two-dimensional TV on populated cells uses cells with at least 50 prior
+events, without renormalizing the surviving cells. Its reported reference mass
+specifies the fraction included. Full-grid TV and each sparse cell's count,
+local effective count and maximum weight factor are also saved. Conditional
+balance probabilities sum to one within each fixed leading-jet interval.
+
+Artifacts
+---------
+training_fo.npz, validation_fo.npz: run-level cross sections, all seven scales.
+integration_summary.json: point budgets, rates and integration timing.
+benchmark_results.npz: all central/scaled predictions, paired statistical
+replicas, validation covariance, moment gaps and local support diagnostics.
+benchmark_summary.json: fixed models, solver diagnostics, failures and timing.
+metrics.csv: all model accuracies, effective counts and cut predictions.
+analysis.json: numerical errors, deterministic scale ranges and paired changes
+as the joint block is enlarged. No test-driven selection is performed.
+benchmark_overview.pdf/png: generated from aggregate caches by analyze.py.
+
+To regenerate the tables/figure on the laptop, only aggregate caches are needed:
+  /Users/user/miniconda3/envs/env_ba/bin/python analyze.py
+
+Implementation notes
+--------------------
+The mini's Accelerate BLAS emits stale floating-point status warnings after
+finite matrix multiplies. benchmark.py suppresses only those specific matmul
+messages; positivity, normalization, finite values and solver convergence are
+still checked. The pinned package source is unchanged.

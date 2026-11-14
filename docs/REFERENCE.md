@@ -109,6 +109,22 @@ or joint block) are constraints but not moments: their closure and pull are in
 `report["shares"]`. `result.describe()` prints the per-tower table and the shares;
 `result.summary()` prints one line.
 
+## Joint blocks with a shared window rate
+
+A supplied mixed block may contain degree-zero factors, such as `(k, 0)`.
+For a window on the other observable, `w(y) T_k(x)` constrains the distribution
+of `x` inside that window; an unwindowed `x` tower does not already impose it.
+Supply these keys and their fixed-order values explicitly. The generic
+`compute_fo_moments` helper constructs the positive-degree products by default.
+
+A windowed mixed block normally adds its own window-rate constraint. Set
+`config["mixed"][block]["include_rate"] = False` when precisely the same rate
+feature is already imposed elsewhere, for example by a windowed angular tower.
+This avoids duplicating a constraint. It changes neither the supplied joint
+products nor their targets. The default remains `True` for all existing inputs.
+Do not omit a distinct joint-window rate just because its two marginal-window
+rates are known: their product is a different measurement function.
+
 ## Uncertainty bands
 
 The released inputs can be propagated in one call:

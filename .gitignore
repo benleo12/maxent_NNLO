@@ -13,3 +13,5 @@ dist/
 # Compact public QCD inputs for the end-to-end fitting example.
 !examples/data/dy_prior.npz
 !examples/data/dy_reference.npz
+!examples/data/w_joint/*.npz
+!examples/data/zj_benchmark/*.npz

@@ -137,3 +137,30 @@ if __name__ == "__main__":
     rc = main()
     test_compute_fo_moments_joint(); print("test_compute_fo_moments_joint: PASS")
     sys.exit(rc)
+
+
+def test_windowed_zero_degree_factor_without_duplicate_rate():
+    """A global y marginal cannot fix its angular-window marginal T_1(y)w(c)."""
+    y, c = np.meshgrid(np.linspace(.05, 3.95, 40), np.linspace(.025, 1.975, 40))
+    y, c = y.ravel(), c.ravel()
+    events = dict(y=y, c=c, weight=np.ones(len(y)))
+    profile = dict(a=.3, b=.4, c=1.6, d=1.7)
+    window = profile_w(c, **profile)
+    u, v = y/2-1, c-1
+    target = np.exp(.1*u + .2*window*v + .35*window*u + .15*window*u*v)
+    target /= target.sum()
+    config = dict(born={"y": dict(range=(0, 4), map="lin")},
+                  recoil={"c": dict(range=(0, 2), soft_lo=0, map="lin", profile=profile, transition="windowed")},
+                  mixed={"yc": dict(observables=("y", "c"), range={"y": (0, 4), "c": (0, 2)},
+                                    map={"y": "lin", "c": "lin"}, profile={"c": profile}, n=1,
+                                    include_rate=False)},
+                  fixed_orders={"y": 1, "c": 1}, L2=0, keep_features=True)
+    moments = compute_fo_moments(dict(events, weight=target), config, n_max=1)
+    moments["mixed"]["yc"]["values"][(1, 0)] = float(target @ (u*window)/(target @ window))
+    result = upgrade(events, moments, config)
+    np.testing.assert_allclose(result.weights, target, rtol=2e-6, atol=1e-9)
+    names = result.report["feature_names"]
+    assert "c_rate" in names and "yc_rate" not in names and "yc_T10" in names
+    from maxent_upgrade import joint_moment_residuals
+    checks = joint_moment_residuals(events, result.weights, moments, config)
+    assert max(abs(row["residual"]) for row in checks["yc"]["moments"]) < 1e-6
