@@ -1,0 +1,41 @@
+Frozen study: reuse of the released Drell--Yan moments across generators
+Date: 2026-11-13
+
+Purpose: apply unchanged published fixed-order inputs and solver prescriptions
+to an independently generated, positive-weight Sherpa prior, alongside the
+existing MG5+Pythia prior. This is a portability study, not an isolation of a
+single shower parameter and not a claim of generator-independent unconstrained
+accuracy.
+
+Sherpa 3.0.4, pp at 13 TeV, e+e- with zero/one additional parton matrix elements
+merged at 20 GeV. CT18NNLO central PDF. No lepton generation cuts, generation
+mass 50--2200 GeV. QED corrections to leptons disabled. Shower, fragmentation
+and underlying event retained. Record every explicit setting and the complete
+Sherpa settings report, version and integration/generation logs.
+
+Analysis selection matches released dy exactly: 66<mll<116 GeV, both leptons
+pT>27 GeV and |eta|<2.5, pre-QED-radiation lepton definition. Original event
+weights and event identifiers are preserved. Compare normalized predictions
+to separate shape from differences in the Born normalization.
+
+Use load_moments('dy') and upgrade without changing moment maps or orders to
+improve agreement in validation. The released order-selection prescription is
+applied to each prior; report selected orders. Repeat at fixed released-Pythia
+orders as a diagnostic if defaults select different degrees. Keep fixed-order
+and prior uncertainties distinguishable.
+
+Display constrained mll, |yll| and qT and withheld |cos(theta_CS)|, lepton pT,
+and dilepton acoplanarity. Use existing fixed-order reference predictions
+where available with compatible accuracy/phase space. No calibration to the
+withheld distributions. Report global and analysis-bin effective counts,
+largest weight contributions, fit closure and measured runtime.
+
+Pilot: 1000 generated events to verify settings, positive weights, HepMC record
+validity and extraction. Production target: at least 500000 selected events,
+with independent random seeds. Extend only to improve statistical precision,
+never to tune agreement. Avoid claims from sparsely populated tail bins.
+
+Public demonstration: deterministic subset of real events, independent
+reference histograms, generation/extraction recipe, weights and uncertainty
+workflow. Preserve a real HepMC subset for full event-record round trips.
+Full production records remain on the cluster with checksums/provenance.

@@ -1,0 +1,42 @@
+Protocol addendum, 2026-11-13, before production or any portability fit
+
+The installed Sherpa build lacks LHAPDF support. Use Herwig 7.3.0 as the
+independent-generator test, with the same analysis and validation definitions
+already frozen in PROTOCOL.txt. This substitution follows a technical pilot,
+without examining posterior agreement with any validation distribution.
+
+Generate pp -> gamma*/Z -> e+e- at 13 TeV with MEqq2gZ2ff, mass 50--2200 GeV,
+and no lepton generation cuts. Use CT18NNLO for the hard-process PDF and the
+generator's standard angular-ordered QCD shower, including its default
+hard-emission matrix-element correction. Keep hadronization and MPI with the
+default tune and its shower/MPI PDFs. Disable QED shower radiation and retain
+the empty default post-subprocess-handler list. Record the complete generator
+settings and integration statistics. This compares complete working priors,
+not an isolated shower change at identical tune parameters.
+
+The independent 1000-event technical pilot returned 365 selected events with
+unit positive nominal weights, valid prompt electron ancestry and physical
+kinematics. No posterior was fitted to the pilot. Produce 1.5 million events
+in independent seeds, targeting at least 500000 selected events. Extend only
+if required by the predeclared event-count/statistical-precision criterion.
+
+Use a bounded-memory HepMC reader with the public adapter. Preserve compact
+arrays, event number plus shard identity, nominal weights, four-vectors and
+all generated/selected counts and weight sums. Keep a small unmodified full
+HepMC subset for record round-trip checks. Full production records are streamed
+and not archived. This explicitly supersedes the full-record retention sentence
+in PROTOCOL.txt, since the pilot is 157 MB per 1000 events.
+
+Compare shapes after unit-area normalization, apply exactly the released DY
+fixed-order moments and event selection, and report selected orders and
+constrained closure. The angular reference is independent of moment training.
+Do not tune moments, maps, settings or cuts against validation agreement.
+
+Public subset rule, fixed before production finishes or any portability fit:
+use seed731131 and the same strata/caps as the released Pythia fixture,
+[0,30,60,100,200,500,infinity) GeV with caps[50000,20000,20000,15000,12000,12000].
+Uniform sampling without replacement within each stratum; retain all events
+where the population is below the cap. Divide original weights by the inclusion
+probability. Preserve unique IDs, shard/native IDs and lepton four-vectors.
+The manuscript comparison uses the full priors; public subsets are separately
+identified demonstrations with their own sampling statistics.

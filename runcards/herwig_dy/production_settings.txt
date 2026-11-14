@@ -1,0 +1,7 @@
+CT18NNLO
+CT14lo
+CT14lo
+/Herwig/Partons/ShowerLOPDF
+0 [QCD]
+1 [MECorrection]
+/Herwig/Hadronization/ClusterHadHandler

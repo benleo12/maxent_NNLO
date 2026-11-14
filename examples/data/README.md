@@ -10,6 +10,14 @@ See [DY_GENERATION.md](DY_GENERATION.md) for generator settings, selection,
 units, the frozen sampling rule and reference construction. Run the new fit
 with `python examples/real_drell_yan.py --output dy_demo --plot`.
 
+## Independent generator input
+
+`herwig_public_prior.npz` contains 98,808 selected Herwig events with generation
+weights, inclusion probabilities, native and global IDs, and lepton four-vectors.
+Pass it through the same `real_drell_yan.py --prior` workflow. The
+[Herwig recipe](HERWIG_GENERATION.md) records the generator settings, seed rule
+and the distinction between compact demonstrations and full-production plots.
+
 ## Two-jet validation histogram
 
 `zj_joint_validation.npz` accompanies the JHEP comparison of separate and joint

@@ -15,3 +15,4 @@ dist/
 !examples/data/dy_reference.npz
 !examples/data/w_joint/*.npz
 !examples/data/zj_benchmark/*.npz
+!examples/data/herwig_public_prior.npz

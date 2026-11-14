@@ -1,0 +1,111 @@
+{
+  "events": 98808,
+  "elapsed_seconds": 3.4140454579610378,
+  "target_cross_section_pb": 710.3611257116524,
+  "posterior_cross_section_pb": 710.3611257116524,
+  "weights": {
+    "events": 98808,
+    "effective_events": 69214.05417673863,
+    "largest_weight_fraction": 1.82696531774442e-05,
+    "largest_variance_fraction": 2.310228273021278e-05,
+    "effective_fraction_retained": 1.0081131459743053
+  },
+  "fitted_orders": {
+    "mll": 12,
+    "y_abs": 12,
+    "pT_ll": 16
+  },
+  "acceptance_both_leptons_above_35": 0.664913895552052,
+  "reference_sha256": "60bc0307a664be3f0a3305054496d8341f6ec243104bcb9d0dbb0b023b94152f",
+  "comparisons": {
+    "recoil": {
+      "posterior_over_reference": [
+        1.0048701655729921,
+        1.0005978635061832,
+        0.9970901348317983,
+        1.0039619480765034,
+        0.990685286333075,
+        1.0047967127006665
+      ],
+      "reference_relative_integration_error": [
+        0.0008120557590174706,
+        0.0010386533620033972,
+        0.0010580532105574324,
+        0.0009596951216002812,
+        0.0008969225693626498,
+        0.0011404085340099791
+      ]
+    },
+    "angle": {
+      "posterior_over_reference": [
+        0.9782269407291867,
+        0.9673761563061152,
+        0.9683630579835049,
+        0.9857893809084094,
+        0.9897304488860984,
+        0.9825885153837456,
+        0.9887121407971871,
+        1.0090909693534789,
+        0.9918275937121764,
+        1.0369570583718724,
+        1.0113541346950934,
+        0.9969560869432524,
+        0.9872952455475273,
+        1.0403616647722802,
+        1.0681252763852804,
+        1.1908521713869438,
+        0.68237857128933,
+        0.9854570134654486,
+        1.0844365676038512,
+        1.088526502102401
+      ],
+      "reference_relative_integration_error": [
+        0.0010318588398659791,
+        0.0012451361276040467,
+        0.0017045677324594648,
+        0.0012459170725605633,
+        0.0017631097994793637,
+        0.0015063458494162356,
+        0.0014331405649040286,
+        0.0012496538673390596,
+        0.0019368469111205133,
+        0.002376794955159866,
+        0.002862676642466984,
+        0.002776208519353642,
+        0.0028004009552651445,
+        0.0027898571386957348,
+        0.008947112429512108,
+        0.01960803674235015,
+        0.07885364158361181,
+        0.025410100743026753,
+        0.028783493057611728,
+        0.010623613005262034
+      ]
+    }
+  },
+  "angle_fixed_order_shoulder": [
+    0.75,
+    0.9
+  ],
+  "uncertainty_notes": [
+    "No PDF-member inputs are released for the selected calculation.",
+    "Shower variations require generator-supplied prior weights or separate samples."
+  ],
+  "interpretation": "Recoil tests the fitted hard spectrum. The independent angle is not fitted; disagreement is a physics result. No band certifies missing support or correlations.",
+  "command": "python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz --output herwig_demo --plot",
+  "fixture_sha256": "325ad789997dae8978e6801e43802e391aea93848dea0255604cb063ca5c67c9",
+  "runtime_context": {
+    "date": "2026-11-13",
+    "threads": 2,
+    "blas": "OpenBLAS 0.3.34",
+    "numpy": "2.4.6",
+    "timing_scope": "central and uncertainty fits; excludes loading, saving and plotting"
+  },
+  "software_checks": {
+    "unique_ids": true,
+    "original_weights_preserved_exactly": true,
+    "inclusion_probabilities_preserved_exactly": true,
+    "sampling_weight_identity": true,
+    "all_28_coherent_variations_saved": true
+  }
+}

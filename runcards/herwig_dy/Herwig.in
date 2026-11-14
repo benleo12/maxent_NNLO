@@ -1,0 +1,19 @@
+read snippets/PPCollider.in
+set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy 13000.0
+set /Herwig/Generators/EventGenerator:NumberOfEvents 1000
+set /Herwig/Generators/EventGenerator:RandomNumberGenerator:Seed 731041
+set /Herwig/Generators/EventGenerator:PrintEvent 0
+set /Herwig/Generators/EventGenerator:MaxErrors 10000
+insert /Herwig/MatrixElements/SubProcess:MatrixElements 0 /Herwig/MatrixElements/MEqq2gZ2ff
+set /Herwig/MatrixElements/MEqq2gZ2ff:Process Electron
+set /Herwig/Partons/HardLOPDF:PDFName CT18NNLO
+set /Herwig/Shower/ShowerHandler:Interactions QCD
+set /Herwig/Cuts/Cuts:MHatMin 50.0*GeV
+set /Herwig/Cuts/Cuts:MHatMax 2200.0*GeV
+set /Herwig/Cuts/LeptonKtCut:MinKT 0.0*GeV
+set /Herwig/Cuts/LeptonKtCut:MaxEta 100.0
+set /Herwig/Cuts/ChargedLeptonKtCut:MinKT 0.0*GeV
+set /Herwig/Cuts/ChargedLeptonKtCut:MaxEta 100.0
+read snippets/HepMC.in
+set /Herwig/Analysis/HepMC:PrintEvent 1000
+saverun DYHerwig /Herwig/Generators/EventGenerator

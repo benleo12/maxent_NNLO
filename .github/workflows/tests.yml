@@ -42,6 +42,8 @@ jobs:
           python examples/plot_result.py custom_bands.npz mass --label Mass --unit GeV
           python examples/plot_joint_validation.py
           python examples/real_drell_yan.py --output real_dy_check --bootstrap 2 --plot
+          python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz --output herwig_check --bootstrap 2 --plot
+          python examples/plot_zj_benchmark.py --output zj_benchmark_check
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
       - name: Installed command
         working-directory: /tmp

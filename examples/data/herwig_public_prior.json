@@ -1,0 +1,4858 @@
+{
+  "generator": "Herwig 7.3.0p1",
+  "source_events": 572823,
+  "seed": 731131,
+  "strata": [
+    {
+      "low": 0,
+      "high": 30,
+      "population": 474979,
+      "selected": 50000,
+      "inclusion_probability": 0.10526781184010241
+    },
+    {
+      "low": 30,
+      "high": 60,
+      "population": 69036,
+      "selected": 20000,
+      "inclusion_probability": 0.2897039225911119
+    },
+    {
+      "low": 60,
+      "high": 100,
+      "population": 19853,
+      "selected": 19853,
+      "inclusion_probability": 1.0
+    },
+    {
+      "low": 100,
+      "high": 200,
+      "population": 7763,
+      "selected": 7763,
+      "inclusion_probability": 1.0
+    },
+    {
+      "low": 200,
+      "high": 500,
+      "population": 1160,
+      "selected": 1160,
+      "inclusion_probability": 1.0
+    },
+    {
+      "low": 500,
+      "high": null,
+      "population": 32,
+      "selected": 32,
+      "inclusion_probability": 1.0
+    }
+  ],
+  "sampling": "uniform without replacement within recoil strata",
+  "weight": "original_weight / inclusion_probability",
+  "unique_event_id": "generator_event_number + shard_id * 10000000",
+  "generation_seeds": "731101 + shard_id",
+  "generated_events_per_shard": 10000,
+  "shards": 160,
+  "protocol": "PROTOCOL_HERWIG.txt",
+  "source_shards": [
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1728.2316317360035,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3510,
+      "selected_weight_sum": 3510.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "63d4bce4188d1ff552fe861ccd55a369a4f71c64f66727d626e581f8761c6554",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 1
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.234368550009,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.7881543191195,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3585,
+      "selected_weight_sum": 3585.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f66f2b202110f9f1335cd4533e6646c12d09359ab5ddaae81bf5f41dc703fa27",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 2
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1186.9160876919923,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.112954629449,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3602,
+      "selected_weight_sum": 3602.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "2f4e533f009409065fca298d221bd1988b9583dd31f8d5842aa88a023f656b35",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 3
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1170.3573211479816,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1737.112867100828,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3536,
+      "selected_weight_sum": 3536.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3d8fc155949bca79ccb0371368db4652f23b22c353380db18814b1cd4c63a654",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 4
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1157.4965775120072,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.6504662004959,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3550,
+      "selected_weight_sum": 3550.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "52d97a3d8edfa6b285a6acfc91401d5f0409aec922b138cc83acfc8e8438d972",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 5
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1161.3072171540116,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.2347092011487,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3499,
+      "selected_weight_sum": 3499.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6b85cc2f1a6de095b8bf48dab7be549b48a746e8cbdeceba4257c88545574a86",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 6
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.2817767160013,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.1255908569428,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3641,
+      "selected_weight_sum": 3641.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "361e71a0c8da9306d9d18c0e124deb4369408e4c06c56d75e572ee15c9369f4d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 7
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1157.7708098909934,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.715264544917,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3614,
+      "selected_weight_sum": 3614.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0acde5d3d735a22096f05dd07e3f7d9d395a566cfd61eef3469be1005f317a61",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 8
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1197.4161106560205,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1754.5390401991299,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3629,
+      "selected_weight_sum": 3629.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "7aad36346d642f1431725b7dfd58677c04d59622cdbc83322e12919c09f7e552",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 9
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1182.479273664998,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.4462892442282,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3666,
+      "selected_weight_sum": 3666.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "5b5893fa79cf1b0ab96c3e63adba39fd4dd41f836236c0911bf641f248be1ed2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 10
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1180.1946765980101,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.9795746703383,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3540,
+      "selected_weight_sum": 3540.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "cbb649538168953e1762d18075c5af38ffa05924356043c7095666ea5a8015ac",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 11
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1164.7561997610028,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.5212731650804,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3650,
+      "selected_weight_sum": 3650.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "43bce1b7ff176e07ffeaf101ac2d34d5d3f30723b20a08b08fc0a998859d9fb0",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 12
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.2017371620168,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.1308062050737,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3620,
+      "selected_weight_sum": 3620.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "714de959e2a7d2e1d3f860de98005fdd4347cae83058c3adba51ae705b080169",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 13
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.8109152000106,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.0422558513287,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3602,
+      "selected_weight_sum": 3602.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "10ce5b33eba043f880e6857111cbe9321631a73ba487456a2be4192cc53bf383",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 14
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.8248018529848,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1754.9976644364363,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3667,
+      "selected_weight_sum": 3667.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "432fef9ee0b692dbe9cdf6e8c348e72a52c1075c6eafb0a88b7add38f82dfabd",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 15
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.0948071210005,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.6243400014282,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3623,
+      "selected_weight_sum": 3623.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ebdbd1cc66d20c14e183cd46972f9f8368654a9c66b5aa07dd75a2a0e53e7a4c",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 16
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1144.545718480018,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.681545723849,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3559,
+      "selected_weight_sum": 3559.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "e01aaedb852cf9241dc46e03cc8aec0b477582a9b061d1448a174ab6ace7bf40",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 17
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1189.992150421982,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1753.0741695313682,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3612,
+      "selected_weight_sum": 3612.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c68a71c2b48e2efa60f99ae12a147085ffc189172bb3b29be84a844159d5dfd1",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 18
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1166.4210856809805,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.6531466493723,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3544,
+      "selected_weight_sum": 3544.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3f6c0f099eb1dfe99537da24ff26f251e612f7094377dbc4e62a9980218c438c",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 19
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1175.8938550960156,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1730.4028375909236,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3597,
+      "selected_weight_sum": 3597.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6cbc478155b074bd9b4bbf80a9eb0e42c452c2aeea242863c25578c8eafb2e1c",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 20
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1238.6993199620047,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1756.3568497111285,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3576,
+      "selected_weight_sum": 3576.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bd0de466333cfa3dd989c5f0b0d1a25df50808a317af313b60b2b4f210153fa6",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 21
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1181.7807097720215,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.1233187507141,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3572,
+      "selected_weight_sum": 3572.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "35234c8aabf65e461494946008e2104030a6ea9f698e013ca0f2e8dd9221e9fa",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 22
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1185.2400697999983,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1732.5615696305244,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3571,
+      "selected_weight_sum": 3571.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "d4ae0eb2378be3d72a1bcd0be23400991c959677eb8e64037f783ad184ecc4f8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 23
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.290505574987,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1757.5004075906095,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3537,
+      "selected_weight_sum": 3537.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6bcbc5e4fb23218e44ce72bf19e522d462123cc289b11e149029867470762051",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 24
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1191.3231662570033,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.7341524457468,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3655,
+      "selected_weight_sum": 3655.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "2311898773774cb12c4f16a490c976615a2ebb12d9c70b671affcb2710c7c468",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 25
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1173.3596034639922,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.6124462894713,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3542,
+      "selected_weight_sum": 3542.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ab6be81a78c76b4a4a43a706a204d323273eb380da806b23964b0b91dcadf718",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 26
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1153.4389549669868,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.2022317202666,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3542,
+      "selected_weight_sum": 3542.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "270e5e9b318732fca7832b5f7e745b5016c310be724483b59d75eb58c966b6b2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 27
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1183.731881699001,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1761.1266473237106,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3605,
+      "selected_weight_sum": 3605.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "8fac533484e2eebd13ed6718ab3ace80f712f926545f5858a43555f060574c34",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 28
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.1945331119932,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.2833944872875,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3596,
+      "selected_weight_sum": 3596.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6991ed4a8b623aa9b4a5276816476ba582a88c30590d52ea66d0b3517848cef5",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 29
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1164.7852809369797,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1731.1739039993665,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3510,
+      "selected_weight_sum": 3510.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "953bf72bb1c56a6ced4ccd30d9adf305d9a93895ced4d39e991e62cec92df0a2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 30
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1170.8704837200057,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.7454126658217,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3543,
+      "selected_weight_sum": 3543.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0d412807acfe23ff88b6c26e41063d95c40b10e5a76175fc8417129d507437e8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 31
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1198.6040838939953,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.366542385305,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3589,
+      "selected_weight_sum": 3589.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f42e70cb272c783771ece6af71bcc12104ccca52f326d6a7cc4895c84aa139b7",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 32
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1204.8083655519877,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.003908216619,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3561,
+      "selected_weight_sum": 3561.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "460c6d610c8c56dccf58860f0114dff78fed1b2386278c9de5712317fd7e119a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 33
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1152.6992942620127,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.9498570297333,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3599,
+      "selected_weight_sum": 3599.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "177cb1ba64de18e5f20c8672ad93ff1cf03f1ae71613021460c40613030be5b2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 34
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.275489881984,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.075860511712,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3601,
+      "selected_weight_sum": 3601.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "7fcd0fc0a49eddc5557c9b6dd9edf15e8f75021cf18b3491badd3fb6edaf8793",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 35
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1199.979670116998,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1749.3568237537472,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3556,
+      "selected_weight_sum": 3556.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "9c82b9e73e3a8ca452c113a8453b684f2df92ff5a7e3720a7c9a7c84bb7f4b57",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 36
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1178.0230960049958,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.644399677107,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3645,
+      "selected_weight_sum": 3645.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "69229e01843f6d999ef3b4b22a0601422fee4c64c40f3f62ac3744ce74dc114f",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 37
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1175.433299917,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1758.211378662364,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3595,
+      "selected_weight_sum": 3595.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3764d51d8907f691bd3fbb111b0295a5954a1fcc61067d63d57b2cc22f303157",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 38
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.9565192479931,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.3418220683225,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3548,
+      "selected_weight_sum": 3548.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1e8c416014147e78cef62b4e701e9caed5fc26770428d1ecef2646bb8812455d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 39
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1205.3198851199995,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.1419826349409,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3662,
+      "selected_weight_sum": 3662.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "4cf6717bff5f86f6e6c1d060291ef9e599dfa0e0bc18085e819a47207d3b8d5e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 40
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1179.3380752480007,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1733.7630073039534,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3575,
+      "selected_weight_sum": 3575.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "35c6e75a039f77783a313175efbb59cf096cbdccc631efbe004594456e048dd1",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 41
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.5465995680133,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.715190569144,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3510,
+      "selected_weight_sum": 3510.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1e236ef9f8fb54310f891e42747b49d179fff80d812fb03a3416659f3670fac8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 42
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1156.8210995499976,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.4416818319842,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3557,
+      "selected_weight_sum": 3557.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "06f9ce888faf09b6f95f05041b30d84e67089bf8b94b6031d952b1c63faf976c",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 43
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1173.9958126630227,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1751.6522710406525,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3626,
+      "selected_weight_sum": 3626.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0d4a9d42d9f6720342ee79c7bf186e6140b44a4d3405d81e67e15f27b3cb72c7",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 44
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.9330702009902,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1749.6996858743403,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3565,
+      "selected_weight_sum": 3565.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "8f544f3fa4a0b253fbf16ab94af833912c8a625fd7128b82005bfbef95bf3646",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 45
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1177.739394469012,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1734.7140949235313,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3575,
+      "selected_weight_sum": 3575.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "28678afb9d219373b039e7870eaa1fb089902eb9d5a42e13baf705c45ffcc8fd",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 46
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1173.7879831600003,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1733.1665611299345,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3605,
+      "selected_weight_sum": 3605.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "07e1ceefc0b25abe50c0dd781247441da0a6728141079670355871c36ee31522",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 47
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1153.3265256699815,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.7684010921948,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3625,
+      "selected_weight_sum": 3625.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "96a7cdcf954d198fcf69ff7b20aed1402495396132dbcb3f3a3dadd735eaa48e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 48
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1155.737377176003,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.2234017313774,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3603,
+      "selected_weight_sum": 3603.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "45f9d30b2c9509365bb7e82bde68bee90269627a0189a0a458c3cc8357734a07",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 49
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.3408116929932,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.3708919812939,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3554,
+      "selected_weight_sum": 3554.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f06f7b1600d8583e625c0405fb32aa2a28c91328b2633454f6fc85f8921fa8d8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 50
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1170.9565320429974,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1732.8771255114314,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3644,
+      "selected_weight_sum": 3644.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f0bf938b2f7581fa9e34f2ccda204bf7f2199315ce16d984e6d54717bd42f2a9",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 51
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1149.6265041340084,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1756.8228438430924,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3549,
+      "selected_weight_sum": 3549.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "85f74922510d13c7185c95c4c7722c780f8a2317e2feb33afcb7e45ac0dc7e95",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 52
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1160.3746141130105,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.6444374476835,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3525,
+      "selected_weight_sum": 3525.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "576f949d8ce6e04dce3c863f3600b8fcda53a064853be9cf84d8dd666b38a87a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 53
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.3427888499864,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1761.215763031611,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3494,
+      "selected_weight_sum": 3494.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ea7249f91f95b31e93e4ff2a4ee7eb90a6fe97922b6a96a1c898dd785c88063e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 54
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.0040820509894,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.8258703291378,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3568,
+      "selected_weight_sum": 3568.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ee9a5cdcf8377f137c2648e073bf95833e67b11692851a0096e72614a8b3df19",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 55
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.6833365389903,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.0848097760477,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3596,
+      "selected_weight_sum": 3596.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "cd5dfab2512fef8745984cccd81d13fae99a88ca8287866622abfebbf02efbd4",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 56
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.566044717998,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.6594955132996,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3596,
+      "selected_weight_sum": 3596.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "b0df55036a7501bdbab18fdabb3e21c5ece76f1deba485023404df1364646f2a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 57
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1161.4010387980088,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1756.6815144090303,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3546,
+      "selected_weight_sum": 3546.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "d1ada006b529073eb0d9506c45080200d19d90625e02fb5068d61bab6169e6ae",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 58
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.4669290789752,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.1882242922,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3619,
+      "selected_weight_sum": 3619.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c6b2745a65b6f6a94eec288d3e7f5592e3e8142718d8671b656bc9faebc98164",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 59
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1165.4770170990087,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.1339030640524,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3626,
+      "selected_weight_sum": 3626.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "508278665a52a82b5332f0dfb813779c2682bf8fac3cf5337e0a900b1ed1f2df",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 60
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.1690161300066,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.7111883018752,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3586,
+      "selected_weight_sum": 3586.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "67c1aaf6c5448162e952d2d0c34e8ae5d5ed925346981c1b08cb60a911f61358",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 61
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1181.081281634979,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.0036712953195,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3637,
+      "selected_weight_sum": 3637.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "578b781fadaaefa62670b61df84ec3804a9f029e37156bd28a84a105a2373af4",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 62
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1181.6992208720185,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.861690148211,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3627,
+      "selected_weight_sum": 3627.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "903b8db1ac4496870e3c5430ec7e9bc07bf6fc78e1499300bf82344b0e30df7b",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 63
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1151.667178912001,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.8354180337221,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3526,
+      "selected_weight_sum": 3526.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "5ad5900cc3f94e82a7a4538f358d1563e843f48315ef42babf1a350e4341c289",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 64
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1182.0376196590078,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1753.2331632278228,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3612,
+      "selected_weight_sum": 3612.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "caf6b10bd986133e5401339aeca50bb441895f46450a467390f4c29f03df4dd1",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 65
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1211.6569432440156,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.5963755565772,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3577,
+      "selected_weight_sum": 3577.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "b2bae1acaa74ecebefb97bcd9f1ea7fcb7a8b2cb9be989aa02755613cce03965",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 66
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.1817595309985,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1755.259920424312,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3572,
+      "selected_weight_sum": 3572.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "8152a0eb0671e342099b35dc9cbf5d62e1cffafb02f75adbabaae4fc96b8eb75",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 67
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.7849863689917,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.4994973284263,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3509,
+      "selected_weight_sum": 3509.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c131eccc12da3cc2c2e0d311b6ade4c3ced74d14071a8be776eb7b246d24cbf4",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 68
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1175.413856198982,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.3639729584409,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3712,
+      "selected_weight_sum": 3712.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "d8e7bfae11e9ea5e104474b8ee46caab548bee0df8c1c7499f2c8976c7703477",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 69
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1171.3403983620228,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1753.0850099749298,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3627,
+      "selected_weight_sum": 3627.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ce3db55064faeab48a1175b8d6961c096a75e07b155944438aa5e5301fed114f",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 70
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.7205238369934,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.7175241913324,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3573,
+      "selected_weight_sum": 3573.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "45173ab85533b0528f6e66e9aa8be444496fce817feec2c9bada4a2c4fc6dc11",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 71
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1171.7257057070092,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.231338232602,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3591,
+      "selected_weight_sum": 3591.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "12f22a7b951c607384039da0ba86038201bed9d9357d9acd8c8e7ee4400bd7fc",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 72
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1146.1961311119958,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.7041047753328,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3603,
+      "selected_weight_sum": 3603.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3a39f234da97ab2c348b19c90818a6a1ad7044dc77e3cc7c75c16016f35b22fa",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 73
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1165.5382651950058,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.8440766105514,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3614,
+      "selected_weight_sum": 3614.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1c0f3b3d6ab542606c6a4d9e6facbae7079cb5f73d6e7d8d2c606c38b5008dfe",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 74
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.3894289149903,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1754.507952164286,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3518,
+      "selected_weight_sum": 3518.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "34a823d6e638b497264f05297a2bb12fdfe81957a33facde79f7192be85e1948",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 75
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.2030430349987,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.088353314034,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3608,
+      "selected_weight_sum": 3608.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c5b07c95997a3d3475ce2bf546395cf139394a79f218de09380f2f029acb3845",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 76
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1179.9454471009958,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1731.4635168123903,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3606,
+      "selected_weight_sum": 3606.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "9b0bdf246e1bf4619199b5714fdcdeee133ee2feddb1d7222bf42da7c153c64d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 77
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1150.1027277359972,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1725.868570388478,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3647,
+      "selected_weight_sum": 3647.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bf48b416bd209ed20a75513f201550988a17646ec5301f869d10252d620ea056",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 78
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1184.5806429770018,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1754.4412532011327,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3572,
+      "selected_weight_sum": 3572.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "47c81f0603b1409eff3d0b04f89558f150c5838031e3e4608d44f4387b6af2b2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 79
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.4920488560165,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1732.1912662839054,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3561,
+      "selected_weight_sum": 3561.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3fd374df56c268670bdeac3c1ff8752c22f4eda4167b88047bc7de66f6eb0c9b",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 80
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1161.1275639639935,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1753.7512746051505,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3480,
+      "selected_weight_sum": 3480.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1dd91b2c8c84e98f169823879bf4b9a04e2da9342ded748b7068704514fe8b61",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 81
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.637688258983,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1749.8826297790836,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3595,
+      "selected_weight_sum": 3595.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "059775c128114792528a140bb145b521d70ca2db37493d1cd4b6bc656e8d6697",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 82
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1181.7959809409804,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.869302059254,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3584,
+      "selected_weight_sum": 3584.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bdb7b906fea372061038ecda9047a15c47964398011113f6e5ce7db2bf88b843",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 83
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1180.7061351279845,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.6759916239982,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3632,
+      "selected_weight_sum": 3632.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "7547d37c227fe87130206bb42937cafe6234efcd9b23e406a2dd63efa92a6399",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 84
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.7286342400184,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.2505499157828,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3655,
+      "selected_weight_sum": 3655.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ad686ca1b9bbc6ea8e136200d6a18f55eec57616b92a0678cc2b9b6be83a01ff",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 85
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1147.9579014370102,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.473304547644,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3566,
+      "selected_weight_sum": 3566.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "9c6d8b10f7c81a04b3732eccc708cef82743f3d8f8b5231c43bad4a97f06cec5",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 86
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1184.0322750329797,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.6050212873845,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3609,
+      "selected_weight_sum": 3609.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "a767cca3560df5f16dbf56c8526607f7d98552ad656de78b78ac33e6c7ebfa65",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 87
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.173021555005,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.4133516263933,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3604,
+      "selected_weight_sum": 3604.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ddd7ffb8f3594462260bd76f39352ea0104d3893ae1c7c2db825a586b82093de",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 88
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1160.3887789839937,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1757.2363299645465,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3528,
+      "selected_weight_sum": 3528.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "d204e3f016445f37eccdd82fbbf23814983417e985d38ff260e89e0be4a9cead",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 89
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1172.5574035360187,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.5636898322937,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3559,
+      "selected_weight_sum": 3559.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "13bfcfb1f751772e8d47de2e4a98acf287c34e9cceee4978a27f72e528748b45",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 90
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1171.330857052002,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.7869424523947,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3527,
+      "selected_weight_sum": 3527.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "aff9725de76a2239ec59051f51f14cb120ece19b9a4c6f61f383f79cb5ccf24e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 91
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1190.4081725119904,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.4705494705424,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3603,
+      "selected_weight_sum": 3603.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1ec80c205db830dc53e4d5babfd3e1215ad082652185e591a736cfc9e4cbf597",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 92
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1168.6813803120167,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1763.119962729702,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3525,
+      "selected_weight_sum": 3525.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "33a937c1ed638677ab71146071610cc0e37ea031535fd90154416deb13004740",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 93
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1175.6357184379885,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.0854454172638,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3566,
+      "selected_weight_sum": 3566.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "e7465ed29a88045b79c98ff82518ce5f313f569ebb5c7203c74a443fd91db020",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 94
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1165.5738310590095,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1751.1563992844183,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3588,
+      "selected_weight_sum": 3588.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "19adcd070bf043ab006adcead331ee6147914bb060e9e3eb7f851eb29eb05823",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 95
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.8621813250065,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1760.1609564528344,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3613,
+      "selected_weight_sum": 3613.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "44c38b752b6b15c8d073d423f231cc46ad73b65641be4426f5e466b1a2f29cef",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 96
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1178.3061760189885,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1758.4994675259998,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3522,
+      "selected_weight_sum": 3522.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c7d926022132f21eb90bb78950e2e72e9a6cfc3e09e1cdfaa346d353f6ec66ab",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 97
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.8263789049815,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.0666460459022,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3520,
+      "selected_weight_sum": 3520.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bd6c1ce8cfeb53f9d1d05637b430fdd9be17c646c4790798c263097257a6bf98",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 98
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1156.5704208149982,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1755.1034764386918,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3683,
+      "selected_weight_sum": 3683.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "99a061a85948e3760a2ba81d778decfe7aa8560093282b5231f08da6697edef1",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 99
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.830743325001,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1732.720315047606,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3548,
+      "selected_weight_sum": 3548.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bc442348ebc5b01382b20bfb340fe4a79ec2dbd98f3311ba6ee3877879eefe04",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 100
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.1420981219853,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1749.0931226811485,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3637,
+      "selected_weight_sum": 3637.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "4c86697f89cc89701edbc14d9b5899d2948ba93e3bf0ca3e8ce9df3621e0866f",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 101
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1161.3560837859986,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1734.4172234335635,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3583,
+      "selected_weight_sum": 3583.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "74bae092033f685f8073ad548fe5bfe91dd49019a42f9cf42d4a323605bdb6bd",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 102
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.8615840869898,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1742.3049773594562,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3560,
+      "selected_weight_sum": 3560.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "20c04e3599dea4fb2cafb4851d9edbc0adc9673286ce44611595a713b0881312",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 103
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1164.9972246889956,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.2414421464648,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3533,
+      "selected_weight_sum": 3533.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0c09d6f280e8338d491d25abbc1a2d28dd8805503f3fe013a79d38b2a7f7ca74",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 104
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1148.8953851350234,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.4395870572955,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3562,
+      "selected_weight_sum": 3562.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "5db9731298ad839b71528266b07efe2518df1df14a5b537201606b36e90004d7",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 105
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1155.2592379220005,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.3654128813741,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3523,
+      "selected_weight_sum": 3523.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "74d57c16798bd3dc70035704b7b61371c3072a477e57b3e76a4f756c2917892c",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 106
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1156.3666554070078,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.3426304829675,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3531,
+      "selected_weight_sum": 3531.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "9e91ee70b55600a800cacf35ec225486cb56c56cf0937e9d25232c4c78f46220",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 107
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.293542481988,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.6067388527974,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3580,
+      "selected_weight_sum": 3580.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "7c0d303b4c90d6a8901df6235715f02cd08b1e597968fb80449525ac8cade354",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 108
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.6780650420114,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.4562518936634,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3564,
+      "selected_weight_sum": 3564.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "834cd3b71c2f13f228872f30825ddf8b72230fcc3fd6cd797ab41b4e8e769682",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 109
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1137.9043836279889,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.572799781459,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3480,
+      "selected_weight_sum": 3480.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "8ab5319a47aa42c7662966dd10a3730da345a02f484771e35a9b5cd6cd5d83e6",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 110
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1165.1315325769829,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.0058025316348,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3508,
+      "selected_weight_sum": 3508.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ef822563fb5a81e156cd2bdcb45e4ff5d5484da7f13e90e44629390cf6528673",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 111
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1145.0451737740077,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1734.3592768012848,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3526,
+      "selected_weight_sum": 3526.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "bda3b99293e8c32776baabdfc1816235856afc6c9cc0db9e8aa7297da0d8c63d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 112
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1171.823672078026,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.9785133250123,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3559,
+      "selected_weight_sum": 3559.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "2958d65455b8d19082ab0626b5774f195bcbd8b821e460f887a9529d844b1b91",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 113
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.1984570569766,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.906153193118,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3500,
+      "selected_weight_sum": 3500.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0b7cc8fe989cc956e10279043ce67141bd07310ca80461c3a250bca701214b87",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 114
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1180.15621864298,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.002587784387,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3508,
+      "selected_weight_sum": 3508.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "427edafe1d8157b56e822cb8393e94969016b8ded628de899ddec088cd837bba",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 115
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1143.3021738509997,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.0863716020242,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3609,
+      "selected_weight_sum": 3609.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "7054fa389ea9d7753035c20fa71506e1fbde2d3c7deb2430441b43ce590a8795",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 116
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1160.9419983900152,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1736.634403168288,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3611,
+      "selected_weight_sum": 3611.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "40d72fd98b4ba200ebbd781be7cbf9c93b9731ac469b0f020a2ef7d0866dbb96",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 117
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1176.4744081739918,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.0508451582402,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3526,
+      "selected_weight_sum": 3526.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "685f7176aee4fb6e3f6f3cf4675f861e508e169704465bd219738f6efcf870ed",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 118
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1149.8016103299742,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1762.0982824108094,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3516,
+      "selected_weight_sum": 3516.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "13b05ea439a9631461afc6daf69dac94c77c2b222a369b7e93d7e49574b76925",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 119
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1182.0653279740072,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1772.402849250275,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3610,
+      "selected_weight_sum": 3610.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "04658af4d4cf664c5a0f07a6b6bf79c204ca807d0d603f928ca53797f1070e81",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 120
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.0620864749944,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.8334883424932,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3551,
+      "selected_weight_sum": 3551.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "98eb75672a6bf55e69fa44123b274601fba9041d5c48983ac7b4c4981b06887d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 121
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1172.216886514012,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.713511111973,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3623,
+      "selected_weight_sum": 3623.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c2a390d7d6805d2807fb058c3948faf8a94392713cb01566feb6ce7156656ec0",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 122
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1175.9214372060087,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1734.5821111813746,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3584,
+      "selected_weight_sum": 3584.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "a046c54076eedc03f2cf934a90e043831b029a887382837ffb45bfbe2a1ace89",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 123
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1167.5766971400008,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1729.4966856402646,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3558,
+      "selected_weight_sum": 3558.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "2455203d7e566773adc2c81163aeeee306cd4f828199d0fd088d92b59c48952d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 124
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1159.936234474997,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.6214007371273,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3630,
+      "selected_weight_sum": 3630.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "a02743b2484f0ec660042253b9af7c4706db186cec0cdd9e0fefe2c6c80c6e06",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 125
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1179.4596822749882,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.0412732301675,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3577,
+      "selected_weight_sum": 3577.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "c7da24beaa5c87efd84bd5915f0c88ae9364aacc3de0e373af1520be5ce35955",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 126
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1171.728887128993,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1759.3835209334702,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3582,
+      "selected_weight_sum": 3582.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f7ff7203e56ffdf85c71903f5c787052412a310a1b3d8c81e87be0e8e2eaa859",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 127
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1161.0004332659882,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1740.8632020919808,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3624,
+      "selected_weight_sum": 3624.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6d2d405632c591f88d7bbc1444241d22e669a802ed2ee2ceb913c7b948efa64e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 128
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1153.4446725610178,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1756.6950989006343,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3539,
+      "selected_weight_sum": 3539.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "2146a4ec80e6c77bd7b7ca91296a205d4ee9f59294660e5eb513e3e402367134",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 129
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1144.3899489069881,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1747.9950491304246,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3638,
+      "selected_weight_sum": 3638.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "86381d9699c9c63e2811a484040d0ea755e44cd87d5897514b17d77a3d2ec8e8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 130
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1142.8895159910026,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1731.108029006076,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3647,
+      "selected_weight_sum": 3647.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "0f30b4a3aa7c9dd7fc282fd2f299920280c151b02b27f5831af442f22d2ecca2",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 131
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1153.546512401983,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.5535480222006,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3596,
+      "selected_weight_sum": 3596.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "13f6bc20cc6b87ec7f2cbfde64a322ee430cbbc5d6d05df384b9f0692dcd6a42",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 132
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1138.8125376570097,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.2125737455513,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3614,
+      "selected_weight_sum": 3614.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "ff18f5eafb6885143168f0bf12c2b68e36ac292030d18a91801db976e01a7afd",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 133
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1162.2515476779954,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.4106070191551,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3553,
+      "selected_weight_sum": 3553.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "dcbebda8d34311e64a11301a340f5044ea724b7271b209b7a9d0b2333811f5e6",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 134
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1178.4137159839738,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1754.9654492093778,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3429,
+      "selected_weight_sum": 3429.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "f224ddae1810cc74be6b873a10f12ee0dbb346a8f4814285d671d894f13bffc4",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 135
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1138.3591015189886,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.0980671740108,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3570,
+      "selected_weight_sum": 3570.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "4e6fe55c4e2a454854b6317529a832fde57b58e30ffaf55d5c7f732945658aab",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 136
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1146.4006685690256,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1761.5812145235093,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3566,
+      "selected_weight_sum": 3566.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6e3a2b350f1020f2608dffb2a9dbf590840c07ce13b8589f290947df20f1a2b8",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 137
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1153.7588742529915,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.5935798135952,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3605,
+      "selected_weight_sum": 3605.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "cdd970b48d57febe5726f71c4bd8b428665fc517aceedbd40b73bdb9f872068b",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 138
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1164.632566788001,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1743.3723653540092,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3611,
+      "selected_weight_sum": 3611.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1bacab0d2cbeaf0107eef8e8a8559ea88fcb7c2992fde2fe841d58a865029dcf",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 139
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.744126096979,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1759.1099642277766,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3594,
+      "selected_weight_sum": 3594.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1dfc2fce902d36789b8cd806b65e87d4e8967f26f52c192d3d720b34f7426ee5",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 140
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1128.0840232189803,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1745.0837745904741,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3673,
+      "selected_weight_sum": 3673.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "29c06d1fbe488cb467d4602a91cc8a69476db53c7c11f92bd9802644ab69cc3d",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 141
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1163.4308577670017,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1735.9775299216687,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3531,
+      "selected_weight_sum": 3531.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "eb85d6160c1c63c57c876c41cdf9e4031260dc1f9c4bc5779d1ebda0d87ea568",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 142
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1149.1122551760054,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.2743400728784,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3597,
+      "selected_weight_sum": 3597.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "a79f6e127fe1c8bda51cb3537d5334876a3ec54c634db938a750f6df0ee91408",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 143
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.6491483330028,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1736.8972770108626,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3637,
+      "selected_weight_sum": 3637.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "e6ba1e4c5dc4a146a664956debb79e0726dd31d2d5a1751973e7245b377ed82e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 144
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1169.640875193989,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1728.586960833067,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3588,
+      "selected_weight_sum": 3588.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "04e10559b32b300c3570deaa187e4f7641797eda49a0ea6e446af44f9ab2f742",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 145
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1138.5114376540005,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1733.4964474098456,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3603,
+      "selected_weight_sum": 3603.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "915e1c70e9a5050921709de83fdb1f64c0ef173f95a939c865e921aec99a376a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 146
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1212.6270593740046,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1750.0310850934707,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3575,
+      "selected_weight_sum": 3575.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1da4d925f15ac44d7b248be445596f528cbf556a1330c08c9238e1119dc46c3e",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 147
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1136.679224440013,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1769.8668140970663,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3507,
+      "selected_weight_sum": 3507.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "fcb940d037187410f2a6ae3e90fcbfda5afc39121aeeea64ea1d191a7043ef8b",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 148
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1159.8967144429917,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1761.1076511550173,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3592,
+      "selected_weight_sum": 3592.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "df1b85b42908e9dc06c5a8fd47eb6122c7347fcecc7e0d44881598a8dba58c14",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 149
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.6267314260185,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1739.2901114299232,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3586,
+      "selected_weight_sum": 3586.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "d3449f7a81a2987be11861ba7dfdf57b72ac73820d4664e609ad07b76bb8ce3a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 150
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1145.6157975209935,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.2786570561711,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3646,
+      "selected_weight_sum": 3646.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "1639e359debeb50ddd59392932a3ddd18580c923463cca56f4aa5bae11c7b916",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 151
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1168.2358149990032,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.8729301859246,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3630,
+      "selected_weight_sum": 3630.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "24b554a538b889b3fcd08dda124818e8ad4d03b8d00862a5fe37db877fbdfd27",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 152
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1145.2306013839843,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1738.665050797714,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3593,
+      "selected_weight_sum": 3593.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "4d2f33e945338952bb7b168647259a569a79ef02e2f027109ee876e8d25f9525",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 153
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1168.4390441089927,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1746.9709841583576,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3625,
+      "selected_weight_sum": 3625.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "80fe9732a2b0fdf1dee6cd3f7926af9c7dac87145598c1764f5238b786340a1a",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 154
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1207.6724672339915,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1741.672543892706,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3519,
+      "selected_weight_sum": 3519.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "6fa5ea5aab404ad64a8f6e0b72a12577c91b5c9fa56e65cef60c656ee1518859",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 155
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1174.5624520540005,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1741.1187950474134,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3598,
+      "selected_weight_sum": 3598.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "343a5c7fdb2b98d3d85626464a3cabf6e908be96b8436b7460cfd41ff3dfc222",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 156
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1157.1437184819952,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1748.8528854542842,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3543,
+      "selected_weight_sum": 3543.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "640fa22d20ab9f2955214b8f56b73009b2b9867efafdcd43f733265db5367cf5",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 157
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1154.7157392959925,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1752.2340479572388,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3532,
+      "selected_weight_sum": 3532.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "3ab27b2d0c52d390046404f2fb09d031488725a2260d3e5245fcc3c9df909aad",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 158
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1159.612623783003,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1744.708772840644,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3607,
+      "selected_weight_sum": 3607.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "8bc1a63586fc8c5d3be590e9744fc46ae15c4917a12e8ba7b7236450fb41c818",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 159
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1172.8509228480107,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    },
+    {
+      "cross_section_note": "Last record metadata; confirm final generator integration before using for normalization.",
+      "last_record_cross_section_pb": 1753.8662006925595,
+      "lepton_pid": 11,
+      "lepton_qed_radiation": "disabled by caller declaration",
+      "schema": "maxent_upgrade.hepmc.dy.v1",
+      "selected_full_records_written": 0,
+      "selected_records": 3530,
+      "selected_weight_sum": 3530.0,
+      "selection": {
+        "lepton_abs_eta_max": 2.5,
+        "lepton_pt_min_GeV": 27.0,
+        "mass_GeV": [
+          66.0,
+          116.0
+        ]
+      },
+      "source": {
+        "card_sha256": "12fb09400392f1490f3059818b24bf808a09fe3d569e9f9a82c6cad3f0cff446",
+        "full_records": "streamed, with explicitly counted subset retained",
+        "generator": "Herwig 7.3.0",
+        "shard": 160
+      },
+      "source_records": 10000,
+      "source_weight_sum": 10000.0,
+      "units": "GeV",
+      "weight_index": 0,
+      "elapsed_seconds": 1158.148560259986,
+      "unique_id_rule": "generator_event_number + shard_id * 10000000"
+    }
+  ]
+}
