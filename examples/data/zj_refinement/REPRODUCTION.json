@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "central_original_predictions_reproduced": true,
+  "portable_results_bitwise_equal": true,
+  "all_models_succeed_in_all_256_replicas": true,
+  "prior_events": 16004,
+  "source_sha256": "37a7aabe5d8fc5a0007a8615cda65ba1f61836f84d7ffbdc2de84edeb5390630",
+  "protocol_sha256": "2fdba790a584513c85c6571178220438911fc492c5866f175916e4449839d6bb",
+  "scope": "Original archive predictions validated in the frozen prototype; portable public command reproduces every result and bootstrap array exactly."
+}

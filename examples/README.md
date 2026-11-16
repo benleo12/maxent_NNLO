@@ -108,6 +108,7 @@ Redraw the full-sample generator comparison, two-jet benchmark and independent W
 ```bash
 python examples/plot_dy_portability.py --output dy_portability_plots
 python examples/plot_zj_benchmark.py --output zj_benchmark_plots
+python examples/plot_zj_refinement.py --output zj_refinement_plots
 python examples/plot_w_joint.py --output w_joint_plots --full-scans
 python examples/plot_w_predictivity.py --output w_predictivity_plots
 ```
@@ -121,6 +122,21 @@ The [two-jet benchmark](data/zj_benchmark/README.md) compares moment, marginal
 histogram and joint-histogram reweighting at a common integration budget. It
 retains every resolution, failed fit, local cell count and independent prediction.
 Use `zj_benchmark.py` to refit a compatible prior.
+
+The [refinement follow-up](data/zj_refinement/RESULTS.txt) merges sparse histogram
+cells using prior counts alone and retains all six starting resolutions. It
+separates the statistical fluctuation of the learned correction from the
+uncertainty on predictions made with the refitted event sample. To reproduce it
+with a full compatible prior on a compute host:
+
+```bash
+python examples/zj_refinement.py my_zj_prior.npz refinement_run
+python examples/plot_zj_refinement.py --results refinement_run --output refinement_plots
+```
+
+The report includes PDF and PNG figures, an HTML comparison table, and the
+full-region diagnostic that exposes sensitivity to sparse tails. The default
+plotting command uses released caches and needs no event sample.
 
 The [W study](data/w_joint/README.md) releases its frozen production, angular
 and joint targets, full training covariance, original seed accumulators and

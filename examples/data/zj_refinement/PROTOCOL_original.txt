@@ -1,0 +1,54 @@
+Jet-bin refinement and statistical precision, 2026-11-15
+
+Question
+At fixed prior and fixed-order integration budget, how does resolving the
+two-jet correction more finely affect its agreement and numerical uncertainty?
+Distinguish the uncertainty of the learned correction from uncertainty of
+predictions made using the same reweighted events. Exact fitted histogram
+probabilities can be precise even when the estimated correction is noisy.
+Do not assert monotonic growth of prediction errors without observing it.
+
+Inputs
+Use the original 16,004-event hard-two-jet prior, all original training seeds,
+and the existing independent reference. No event generation or new integration.
+The reference and original coarse-grid results have already been inspected.
+This is a follow-up diagnostic, not a newly blinded validation. Freeze these
+rules before evaluating the new refined fits; report all resolutions.
+
+Models
+Separate moments D=4 and the existing joint sequence J=1,2,3,4, unchanged maps
+and L2=1e-4. Histogram starting grids B=2,3,4,5,7,10 in both log momenta.
+Keep strict-grid support failures visible as a diagnostic.
+For a usable finer-bin comparison, merge sparse physical cells before fitting.
+Merge the least-populated group (<25 original prior events) with its nearest
+edge-adjacent group in grid coordinates. Break ties by integer cell index.
+Represent group position by the arithmetic mean of original grid-cell centres.
+Continue until every group has >=25 prior events. The 25-event threshold
+corresponds approximately to 20% counting uncertainty for equal weights.
+The rule uses only prior counts and geometry, never targets or validation.
+Keep the resulting groups fixed in every bootstrap and scale choice. Sum the
+original fixed-order cell integrals into these groups, without interpolation.
+This gives histogram corrections the benefit of automatic sparse-cell merging.
+
+Resampling and diagnostics
+256 paired replicas, seed 15112026. Resample training integration runs and
+Poisson-resample original prior events, refitting all methods in each replica.
+Keep all failures and report them, never silently condition a comparison.
+Use the original reference covariance and a separately resampled reference
+(seed 15112027) for numerical spreads of distances.
+Compute original common-19-cell and all-cell 2D distances, all three cut
+acceptances, and both conditional balance distributions.
+Record fine-grid counts, empty target mass, target errors, merged groups,
+effective event counts and the spread of correction factors.
+Evaluate each learned correction on the fixed original event locations and
+normalize with the original prior to isolate uncertainty of its shape.
+Report the posterior-weighted RMS relative spread of this correction. This
+diagnostic is not an uncertainty on a physical cross section or cut acceptance.
+Also report the full refitted-sample uncertainties on the original predictions.
+
+Checks
+Reproduce archived central moment predictions and unmerged B=2 and B=3 results.
+Check normalization and exact merged-bin closure; retain original moment
+regularization and report residuals. No tuning against the outcome.
+Event work on Mac mini only, at most two BLAS/OMP threads. Plot aggregate caches
+locally. Do not publish the pending prose-only v24 before this study is read.

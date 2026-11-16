@@ -1,0 +1,71 @@
+Two-jet refinement at fixed statistics
+====================================
+
+This follow-up uses the same 16,004 prior events and fixed-order inputs as the
+original Z+2-jet benchmark. The original reference and coarse-grid results were
+already known. The new merging rule and scan were specified before computing
+the refined fits, without tuning to their outcomes. See PROTOCOL.txt, including
+the explicitly identified supplemental uncertainty diagnostic.
+
+Histogram starting grids have 2, 3, 4, 5, 7 or 10 logarithmic bins per momentum.
+Adjacent sparse cells are merged using only prior counts and geometry until
+each group contains at least 25 original events. This gives 2, 4, 6, 8, 16 and
+28 independent shape constraints. Groupings stay fixed in all resamples.
+All moment and merged-histogram fits succeed in all 256 paired resamples.
+
+The common comparison cells contain >=50 prior events and 97% of reference
+probability. The binned distance uses probabilities normalized on the entire
+hard region; it does not renormalize inside these cells. The correction-spread
+diagnostic DOES normalize the learned correction shape within these cells.
+
+Representative results (percent):
+                         constraints   distance    correction RMS, common cells
+Separate moments              8          1.72                   3.14
+Joint moments, degree 2      12          1.47                   3.40
+Merged histogram, B=5         8          4.39                   2.43
+Merged histogram, B=7        16          2.93                   3.29
+Merged histogram, B=10       28          1.04                   4.38
+
+At eight constraints, moments describe the joint distribution more closely.
+Finer histogram corrections are competitive in two dimensions. Their correction
+fluctuations increase as they gain resolution; adding higher joint-moment
+degrees also increases fluctuations. This supports a compact representation,
+not universal statistical superiority of moments or monotonic growth of errors
+on every physical prediction. Fitted bin probabilities are constrained, so
+their uncertainty differs from uncertainty of the ratio used to correct them.
+
+Numerical interpretation
+The correction is q/p. Each resampled fit is evaluated at fixed original event
+locations, normalized in the stated region, and divided by the central
+correction. Its pointwise standard deviation is squared, averaged with the
+central posterior probabilities in that region, and square-rooted. This is a
+shape diagnostic, not a cross-section uncertainty or a theory uncertainty.
+
+The originally specified FULL-region correction RMS is also retained. For
+moment fits it is dominated by extrapolation to an extreme event omitted by
+some Poisson resamples: pTj1=856.7, pTj2=660.2 GeV, in a comparison cell with one
+prior event. It is about 573% for the degree-two joint fit, versus 3.40% within
+the fixed populated region. This is not the statistical error on its accepted
+cross section. It demonstrates that agreement in the populated region does not
+validate extrapolation into sparse tails. See the HTML table and summary.json.
+The common-region shape diagnostic was added after identifying this effect;
+both diagnostics are reported, and no model or comparison-cell mask was changed.
+
+Files and reproduction
+summary.json records every model, original grid counts and probabilities,
+merged groups, numerical spreads, cut predictions, effective counts, failures
+and hashes. aggregate.npz contains predictions and 256 paired resamples, plus
+independently resampled reference values. It contains no event kinematics.
+PROTOCOL_original.txt preserves the initial protocol; PROTOCOL.txt records its
+diagnostic addendum. The original target/reference inputs are in ../zj_benchmark.
+
+Run from the repository root:
+  python examples/plot_zj_refinement.py --output zj_refinement_plots
+  python examples/zj_refinement.py full_compatible_prior.npz refinement_run
+  python examples/plot_zj_refinement.py --results refinement_run --output new_plots
+
+Use a compute host for full-event fitting. The public compact Z+jet fixture is
+not the 16,004-event benchmark prior and will not reproduce these numbers.
+The study does not add fixed-order accuracy or validate a general claim for
+arbitrarily many observables. In higher dimensions, histogram cells scale as
+b^d; the gain from moments requires a physically adequate truncated basis.

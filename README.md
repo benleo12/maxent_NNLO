@@ -223,6 +223,10 @@ python examples/paper_examples.py wp-angle my_wp_prior.npz wp_angle.npz
 The [two-jet benchmark](examples/data/zj_benchmark/README.md) includes ordinary
 histogram comparators, every tested resolution and independent cut/balance
 predictions, with a portable fitting script and compact plotting caches. The
+[bin-refinement study](examples/data/zj_refinement/RESULTS.txt) gives histograms
+automatic sparse-cell merging and compares accuracy with the numerical
+fluctuations of the correction. Both the fitting command and PDF/HTML report
+are included. The
 [full-sample generator comparison](examples/data/dy_portability/README.md) can
 also be redrawn directly from its numerical caches. The
 [independent W study](examples/data/w_joint/README.md) provides frozen angular
