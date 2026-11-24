@@ -1,0 +1,80 @@
+[
+  {
+    "method": "Shower prior",
+    "leading_pt_interval": [
+      125,
+      250
+    ],
+    "balanced_fraction": 0.21826881077134447,
+    "fraction_sd": 0.005386996365076747,
+    "reference": 0.33538290253385034,
+    "reference_sd": 0.000534218319287929,
+    "difference": -0.11711409176250587,
+    "difference_sd": 0.0053380053371715665
+  },
+  {
+    "method": "Shower prior",
+    "leading_pt_interval": [
+      250,
+      500
+    ],
+    "balanced_fraction": 0.06797135449610324,
+    "fraction_sd": 0.007875649075545568,
+    "reference": 0.2826114553087219,
+    "reference_sd": 0.0008089595713964992,
+    "difference": -0.21464010081261864,
+    "difference_sd": 0.00798007938875786
+  },
+  {
+    "method": "Two slope moments",
+    "leading_pt_interval": [
+      125,
+      250
+    ],
+    "balanced_fraction": 0.3380828812518153,
+    "fraction_sd": 0.0062937315594206455,
+    "reference": 0.33538290253385034,
+    "reference_sd": 0.000534218319287929,
+    "difference": 0.002699978717964957,
+    "difference_sd": 0.006209559688976196
+  },
+  {
+    "method": "Two slope moments",
+    "leading_pt_interval": [
+      250,
+      500
+    ],
+    "balanced_fraction": 0.1619758238087796,
+    "fraction_sd": 0.016298202508543372,
+    "reference": 0.2826114553087219,
+    "reference_sd": 0.0008089595713964992,
+    "difference": -0.1206356314999423,
+    "difference_sd": 0.01638656961013247
+  },
+  {
+    "method": "12 moments, including joint",
+    "leading_pt_interval": [
+      125,
+      250
+    ],
+    "balanced_fraction": 0.3401927621021156,
+    "fraction_sd": 0.00521642975392395,
+    "reference": 0.33538290253385034,
+    "reference_sd": 0.000534218319287929,
+    "difference": 0.00480985956826524,
+    "difference_sd": 0.0052213748273817135
+  },
+  {
+    "method": "12 moments, including joint",
+    "leading_pt_interval": [
+      250,
+      500
+    ],
+    "balanced_fraction": 0.26598122535884544,
+    "fraction_sd": 0.01668350722976796,
+    "reference": 0.2826114553087219,
+    "reference_sd": 0.0008089595713964992,
+    "difference": -0.01663022994987645,
+    "difference_sd": 0.016682065151810983
+  }
+]

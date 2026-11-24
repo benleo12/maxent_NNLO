@@ -5,6 +5,9 @@ For an analysis, also inspect local statistics and observables that were not
 used to determine the weights. Propagating input errors and validating the
 prediction answer different questions.
 
+The paper's exact selection thresholds, degree prescription and supporting
+numerical studies are collected in the [technical notes](TECHNICAL_NOTES.md).
+
 ## Correlated fitting and independent prediction
 
 For a supplied complete common-run covariance, the

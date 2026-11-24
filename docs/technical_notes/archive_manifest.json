@@ -1,0 +1,26 @@
+{
+  "source_revision": "JHEP v29",
+  "source_sha256": "41c60d39b632bbef3e9923e5f4c9f9246b68b4a3c03302d75b03a171e35d338b",
+  "software_source_commit": "3ac4bca81e7bddd87351927abcd9600a1eef1bc1",
+  "purpose": "Supporting derivations, validation protocols and existing correction diagnostics accompanying the shorter manuscript. No new fits or integrations.",
+  "files": {
+    "fig_transport_v3.pdf": "a7b8b809365ff26850b8c5c037501f75165fd92b5fd78d98b0882501389d4026",
+    "paper_details_v29.tex": "49b83b4f4a7692617843efc34f0737a8c487ffa1b6bd9870be10e92d69ca8163",
+    "fig_cost_short_v3.pdf": "9fde0b0c4bbb70c4299dc0d045c080ccb2073db1439bac39f53b55b05bb5b508",
+    "fig_conditioning_v3.pdf": "bdbdbabfb60126f5148865b29b095a56c3a273e3c16272ecd815eb20a5c5a371",
+    "correction_origin/summary.json": "3c263a295e27d432e662167601a3fbfc101247061f63c4989f73b8c12225b8e2",
+    "correction_origin/scales.py": "1269fa6c0e72fc7859ca0c0731987b76b1195986ffbec9a476753f788fba62e1",
+    "correction_origin/matrix_element_check.py": "0840ba8eb00a525295c82009b88b20ed2844b0f0ba1a7dc1ea1ce5e35d213e31",
+    "correction_origin/matrix_element_check.json": "bd67349a9c6c42fc18bd1ddf899432ded06856f86b10174e99cace79ccd2ffbc",
+    "correction_origin/diagnose.py": "abfbfb2da7d1e31521113f45275cdaa75e340c3955a53a67af5ea176db24250d",
+    "correction_origin/manifest.json": "6869a0263cebb4533c0adaf9134d890314a2a3f154631e2954f78b149b9e57ef",
+    "correction_origin/diagnostics.npz": "61b152f087502ae8910854037ed9ff9222b12287ed6cafc9414eff55bf0434ba",
+    "correction_origin/protocol.json": "8527edc0502e5e1028b1e32e5408acaf30e4a1eb86e4fa33a728d83fd1de8c31",
+    "correction_origin/correction_evidence.pdf": "400cebe08502d17a489ac617baa059d36287119cb1fbf3dd1c39470e432c7630",
+    "correction_origin/correction_evidence.png": "e2ab87de3c31397a94c314caa4d03f73bd064161f335a3c76288b6a4f891077f",
+    "correction_origin/physical_fractions.json": "8471d5acbd142c37d7c4e331fa46240082e9b07129153e0df81c32d05b2e33d0",
+    "correction_origin/scales.json": "8915857fc7dbef94dfbcd539d34ad927f276bab99b3bc9e73a41f918ee5eabd5",
+    "correction_origin/plot_diagnostics.py": "219ce18f81d359df07b357f9e2e779342dda4ad5c844e2c4c6616054df3bcd1e"
+  },
+  "source_excerpt_note": "Source wording and equations preserved; trailing whitespace normalized."
+}

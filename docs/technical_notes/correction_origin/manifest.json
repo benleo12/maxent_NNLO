@@ -1,0 +1,59 @@
+{
+  "study": "QCD origin of compact reweighting corrections",
+  "date": "2026-11-18",
+  "manuscript_modified": false,
+  "new_fixed_order_integration": false,
+  "event_fits_host": "macmini",
+  "paper_sha256": "5a9fb060c3a69ccbd1c927e73b414196dc8359020efaff8ede064c2613d56231",
+  "scope": "Follow-up analysis of an existing independent LO Z+2jet reference. Not newly blinded, not a multidimensional statistical-superiority test.",
+  "replica_count": 128,
+  "scale_choices": 7,
+  "power_exponents": {
+    "labels": [
+      "pT1 at fixed pT2",
+      "pT2 at fixed pT1; equivalently balance at fixed pT1",
+      "pT1 at fixed balance"
+    ],
+    "values": [
+      -0.2966529428862434,
+      1.287890214630415,
+      0.9912372717441715
+    ],
+    "numerical_sd": [
+      0.02198169368201425,
+      0.03475451073650611,
+      0.03202610925362138
+    ]
+  },
+  "correction_removed_by_two_moments": {
+    "fraction": 0.7220923447548455,
+    "numerical_sd": 0.03350663635202264
+  },
+  "sources": [
+    "https://arxiv.org/abs/hep-ph/9812455",
+    "https://arxiv.org/abs/hep-ph/0703012",
+    "https://arxiv.org/abs/1603.01620"
+  ],
+  "limitations": [
+    "No unique advantage established for Chebyshev over another basis spanning the same polynomial space.",
+    "Known angular density decompositions do not imply a finitely truncated log density ratio.",
+    "The one-emission algebra check does not identify the complete correction of the modern shower used in the event study.",
+    "Fine histogram refinement competes. All new fit degrees and original fine-bin outcomes are retained.",
+    "Common comparison cells cover 97.0% of reference; full-grid distances are retained in summary.json.",
+    "The previously reported rare-tail extrapolation instability of the high-degree fit is not resolved by this study."
+  ],
+  "files": {
+    "summary.json": "3c263a295e27d432e662167601a3fbfc101247061f63c4989f73b8c12225b8e2",
+    "scales.py": "1269fa6c0e72fc7859ca0c0731987b76b1195986ffbec9a476753f788fba62e1",
+    "matrix_element_check.py": "0840ba8eb00a525295c82009b88b20ed2844b0f0ba1a7dc1ea1ce5e35d213e31",
+    "matrix_element_check.json": "bd67349a9c6c42fc18bd1ddf899432ded06856f86b10174e99cace79ccd2ffbc",
+    "diagnose.py": "abfbfb2da7d1e31521113f45275cdaa75e340c3955a53a67af5ea176db24250d",
+    "diagnostics.npz": "61b152f087502ae8910854037ed9ff9222b12287ed6cafc9414eff55bf0434ba",
+    "protocol.json": "8527edc0502e5e1028b1e32e5408acaf30e4a1eb86e4fa33a728d83fd1de8c31",
+    "correction_evidence.pdf": "400cebe08502d17a489ac617baa059d36287119cb1fbf3dd1c39470e432c7630",
+    "correction_evidence.png": "e2ab87de3c31397a94c314caa4d03f73bd064161f335a3c76288b6a4f891077f",
+    "physical_fractions.json": "8471d5acbd142c37d7c4e331fa46240082e9b07129153e0df81c32d05b2e33d0",
+    "scales.json": "8915857fc7dbef94dfbcd539d34ad927f276bab99b3bc9e73a41f918ee5eabd5",
+    "plot_diagnostics.py": "219ce18f81d359df07b357f9e2e779342dda4ad5c844e2c4c6616054df3bcd1e"
+  }
+}

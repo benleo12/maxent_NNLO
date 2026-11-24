@@ -1,0 +1,297 @@
+% Archive of detailed derivations, definitions and tutorial text.
+% These are source extracts, not a standalone LaTeX document.
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\subsection{The exponential tilt}
+\label{sec:tilt}
+
+We seek new event weights $q_i$ that reproduce the target moments while remaining as close as possible to the prior. The principle of maximum entropy \cite{Kullback:1951,Jaynes:1957} selects the weights that maximize the relative entropy,
+\begin{equation}
+S[q]=-\sum_i q_i\ln\frac{q_i}{p_i},
+\qquad
+\sum_i q_i\,m_a(\Phi_i)=\mu_a,
+\qquad
+\sum_i q_i=1 .
+\label{eq:entropy}
+\end{equation}
+The solution is an exponential reweighting of the prior,\footnote{Refs.~\cite{Assi:2025ibi,Assi:2026tfh} use $q$ for the prior and $p$, or $p^\star$, for the posterior, with the opposite sign convention for the multipliers.}
+\begin{equation}
+q_i(\lambda)=
+\frac{p_i\exp\big(\sum_a\lambda_a m_a(\Phi_i)\big)}
+{\sum_j p_j\exp\big(\sum_a\lambda_a m_a(\Phi_j)\big)}.
+\label{eq:tilt}
+\end{equation}
+The resulting posterior preserves positive weights and introduces no information beyond the imposed constraints \cite{Shore:1980}. A finite solution exists when the target moments lie in the interior of the convex hull of the measurement functions evaluated on the prior events. The multipliers are unique provided the measurement functions are linearly independent up to a constant.
+
+The multipliers follow from minimizing the convex dual,
+\begin{equation}
+g(\lambda)=\ln\mathcal{Z}(\lambda)-\mu\cdot\lambda,
+\qquad
+\nabla g=\mathbb{E}_q[m]-\mu,
+\qquad
+\nabla^2g=\mathrm{Cov}_q[m],
+\label{eq:dual}
+\end{equation}
+where $\mathcal{Z}$ is the denominator of eq.~\eqref{eq:tilt}. Throughout, subscripts $p$ and $q$ denote expectations and statistical quantities evaluated with the prior and posterior weights, respectively. The gradient measures the difference between the achieved and target moments, while the Hessian is their covariance matrix. The minimization is therefore convex and typically converges in a few Newton iterations (appendix~\ref{app:solver}). The constraints are imposed to numerical precision, except for poorly resolved directions that require regularization (section~\ref{sec:chebyshev}). Fixed-order uncertainties are propagated by varying the target moments (section~\ref{sec:unc}), while their precision determines how many moments can reliably be imposed (section~\ref{sec:howmany}).
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\subsection{Changes in unconstrained observables}
+\label{sec:transport}
+
+The change in the mean of an unconstrained observable is determined by its correlation with the reweighting factor. For leading-jet transverse momentum, this lets us interpret the shift induced by the singlet-recoil correction directly from the event sample.
+
+For an observable $v$, let $\delta\langle v\rangle=\langle v\rangle_q-\langle v\rangle_p$ denote the change in its mean and $r_i=q_i/p_i$ the reweighting factor for event $i$. Since both sets of weights sum to one, $\langle r\rangle_p=1$, and
+\begin{equation}
+\delta\langle v\rangle
+=\sum_i p_i(r_i-1)\big(v_i-\langle v\rangle_p\big)
+=\mathrm{Cov}_p(v,r).
+\label{eq:meanchange}
+\end{equation}
+The mean increases when larger values of $v$ receive larger weight factors. Cauchy--Schwarz gives the exact bound
+\begin{equation}
+\frac{|\delta\langle v\rangle|}{\sigma_v}
+\leq \sigma_p(r),
+\label{eq:costbound}
+\end{equation}
+Here $\sigma_v$ and $\sigma_p(r)$ are the standard deviations of $v$ and $r$, respectively, evaluated with the prior weights. The spread of the weight factors therefore limits the mean shift in units of the observable's prior width. For an equal-weight prior, it also controls the loss of effective statistics (section~\ref{sec:support}).
+
+For a small correction, expanding the normalized exponential in eq.~\eqref{eq:tilt} to first order in the fitted multipliers identifies the contributions from individual constraints:
+\begin{equation}
+\delta\langle v\rangle
+=\sum_a\lambda_a\,\mathrm{Cov}_p(v,m_a)
++\mathcal{O}(\lambda^2).
+\label{eq:transport}
+\end{equation}
+Each constraint contributes through the prior correlation of $v$ with its measurement function $m_a$. The fitted multiplier $\lambda_a$ sets the sign and strength of that contribution. For leading-jet transverse momentum, the terms involving recoil functions give the contribution from the singlet-recoil constraints. If $v$ is one for events in a chosen bin or passing a cut and zero otherwise, its mean is the corresponding acceptance, so the same expression estimates the change in that acceptance.
+
+The linear estimate in eq.~\eqref{eq:transport} can become inaccurate when the reweighting factors differ substantially from one. The covariance relation in eq.~\eqref{eq:meanchange} and the bound in eq.~\eqref{eq:costbound} do not rely on this expansion and remain exact. Appendix~\ref{app:response} tests the accuracy of the linear estimate and gives a tighter bound on the linear response using the observable's prior correlations with the measurement functions.
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\section{Response of unconstrained observables}
+\label{sec:followers}
+
+Improving the distribution of the variables used for reweighting can worsen an unconstrained spectrum if two errors in the prior had partly canceled. Let $v$ collect all variables on which the weights depend, and let $x$ be an unconstrained observable. For prior and reference densities $p$ and $f$,
+\begin{equation}
+p(x)-f(x)=\int dv\,\big[p(v)-f(v)\big]\,p(x\,|\,v)
++\int dv\,f(v)\,\big[p(x\,|\,v)-f(x\,|\,v)\big].
+\label{eq:twoerrors}
+\end{equation}
+The first term comes from differences in the distribution of $v$, while the second comes from differences in the distribution of $x$ at fixed $v$. Reweighting leaves $p(x\,|\,v)$ unchanged because the weights depend only on $v$. If it achieves $q(v)=f(v)$, it removes the first term and leaves the second, so the discrepancy in $x$ can grow when the two had partly canceled. Reweighting using a finite set of separate moments need not remove the first term completely, since differences from the reference can remain in both the separate shapes and the correlations among the components of $v$.
+
+With one emitted parton, the leading jet balances the color singlet and has transverse momentum $q_T$. With further radiation, the singlet balances the vector sum of emissions, so the leading-jet transverse momentum can lie above or below $q_T$. A recoil constraint changes the jet spectrum through this correlation without determining it, since the same recoil can be shared among emissions in different ways. Out-of-cone radiation and hadronization modify the relation at hadron level.
+
+In this $Z$+jet sample, the shower frequently shares the dilepton recoil between two hard jets. Compared with fixed order, the prior has too few hard leading jets but too much recoil at fixed leading-jet momentum. These two discrepancies partly compensate in the recoil distribution, leaving a smaller deficit than in the hard leading-jet spectrum. Correcting the hard leading-jet deficit reduces this compensation and raises the large-acoplanarity tail above fixed order (figure~\ref{fig:zjpair}, right).
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\subsection{Two-jet comparison of moment and histogram constraints}
+\label{sec:zjbenchmark}
+
+We test the comparison in section~\ref{sec:smoothconstraints} using the same prior events and fixed-order integration for both moment and histogram constraints. The fitted region is $60\le\pT^{j_2}\le\pT^{j_1}<1000\,$GeV, where both windows equal one, and all distributions are normalized within it. The fixed-order input is the tree-level $Z$+two-jet contribution to NLO $Z$+jet production, with central scale $H_T/2$. Of approximately ten million generated Drell--Yan events, 16,004 survive the dilepton cuts and this hard two-jet selection. All fits use these events and 16 million fixed-order integration points. An independent integration of equal size supplies the reference, on a comparison grid with interior edges different from the fitted grids.
+
+The moment fits use one through four separate degrees for each logarithmically mapped jet momentum. Starting from four degrees per jet, we also add all joint products through degree one, two, three or four in each variable. The histogram corrections start from grids with two, three, four, five, seven or ten bins per axis, equally spaced in $\ln\pT$. We merge adjacent sparse cells until each group contains at least 25 prior events. This rule uses only prior counts and grid geometry, and the groups remain fixed under resampling. Each group receives the ratio of its fixed-order to prior probability, giving 2, 4, 6, 8, 16 and 28 independent shape constraints.
+
+The original four-degree moment fits, joint-degree scan, selections and starting histogram grids were specified before inspecting the independent reference. The separate-degree scan and the interpretation of its first-degree coefficients were subsequent studies using the same inputs. Numerical errors in the original comparison use 256 paired resamples of prior events and training integrations, with every method refitted on shared resampled inputs. All fits succeed in every resample. The subsequent moment study uses 128 paired resamples, including independent reference fluctuations. Figure~\ref{fig:zjbenchmark} uses this latter ensemble for its moment points and the original 256 resamples for the histograms. These two ensembles are not paired with each other.
+
+We compare the predicted joint distribution with the reference using
+\begin{equation}
+d_{\mathrm{2D}}=\frac12\sum_{b\in\mathcal B}|Q_b-F_b|,
+\label{eq:jetdistance}
+\end{equation}
+where $Q_b$ and $F_b$ are the probabilities assigned to cell $b$ by the posterior and reference. The common set $\mathcal B$ contains 19 cells with at least 50 prior events, accounting for $97\%$ of the reference probability. Neither distribution is renormalized within this set. Figure~\ref{fig:zjbenchmark} shows that the two first-degree moments remove about $72\%$ of the prior discrepancy. Their fitted correction is proportional to $(\pT^{j_1}/Q)^{-0.30}(\pT^{j_2}/Q)^{1.29}$, where the arbitrary fixed scale $Q$ cancels in normalization. At fixed leading momentum it favors a larger balance ratio, and at fixed balance it favors harder pairs. These exponents describe the fitted correction, not anomalous dimensions. The observed shape also reflects differences in shower PDFs, couplings and recoil, so it cannot be attributed to a single missing matrix-element term.
+
+At eight constraints, separate moments give a distance of $1.72\%$, compared with $4.39\%$ for the histogram. Adding joint products through degree two gives $1.47\%$ with twelve constraints, while the finest histogram reaches $1.04\%$ with 28. Including all comparison cells gives $1.76\%$ and $1.47\%$ for the latter two fits, respectively. The ordering at equal eight constraints, and between twelve moment and sixteen histogram constraints, persists at all seven common scale choices and on the full grid. The first-degree result is also stable across these scale choices. This is a comparison of how economically the methods describe this two-dimensional correction, not a general statistical advantage in many dimensions.
+
+Refinement also changes how precisely the inputs determine the weight function. We evaluate each resampled correction at the original event positions, normalize its shape within the populated cells and average its squared relative fluctuation with the central posterior weights. In the original ensemble, the resulting RMS grows from $2.4\%$ to $4.4\%$ as the histogram is refined from eight to 28 constraints. The twelve-constraint moment fit gives $3.4\%$, and higher joint degrees increase this fluctuation too. These are fluctuations of the learned correction, not uncertainties on every predicted cross section or acceptance. Extrapolation outside the populated cells is less stable: omitting a single high-momentum prior event in a resample can produce a very large moment correction at its position. The reported precision within populated cells therefore does not describe the precision of the sparse tails.
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\subsection{Bound on the linear response}
+\label{app:response}
+
+The prior correlations of an observable with the measurement functions limit its linear response to reweighting. Write $\ell=\ln(q/p)$, so that $\delta\langle v\rangle_\mathrm{lin}=\mathrm{Cov}_p(v,\ell)$. Choose $\widehat v$ as the linear combination of measurement functions, each with its prior mean subtracted, that minimizes the prior mean squared difference from $v-\langle v\rangle_p$. This least-squares fit captures the part of the observable's fluctuations correlated with those functions. Define
+\begin{equation*}
+R_v^2=\frac{\mathrm{Var}_p(\widehat v)}{\sigma_v^2}.
+\end{equation*}
+This is the fraction of the prior variance of $v$ captured by the fit, and it can be calculated from the prior alone. The remaining fluctuation is uncorrelated with every measurement function. Since $\ell$ is itself a linear combination of these functions up to a constant, $\mathrm{Cov}_p(v,\ell)=\mathrm{Cov}_p(\widehat v,\ell)$. Cauchy--Schwarz then yields
+\begin{equation}
+\frac{|\delta\langle v\rangle_\mathrm{lin}|}{\sigma_v}
+\le R_v\,\sigma_{\ln q/p}.
+\label{eq:transportbound}
+\end{equation}
+Here $\sigma_{\ln q/p}$ is the standard deviation of $\ln(q/p)$ evaluated with the prior weights. This bound applies only to the linear estimate. The exact bound in eq.~\eqref{eq:costbound} holds for the actual shift even under a large reweighting.
+
+Figure~\ref{fig:transport} compares the linear estimate, its bound and the observed shift of the mean, each in units of $\sigma_v\,\sigma_{\ln q/p}$. Dividing by $\sigma_v$ expresses a shift relative to the observable's spread in the prior, while dividing by $\sigma_{\ln q/p}$ compares the shifts per unit spread of the logarithmic weights.
+
+\begin{figure}[t]
+\centering
+\includegraphics{figs_v3/fig_transport_v3.pdf}
+\caption{Response of unconstrained observables to reweighting. Gray bars show the first-order bound $\pm R_v$ of eq.~\eqref{eq:transportbound}, open circles the linear estimate of eq.~\eqref{eq:transport}, and red or orange ticks the actual shift of the mean, all in units of $\sigma_v\,\sigma_{\ln q/p}$. Both standard deviations are evaluated in the prior. The bars bound only the linear estimate. Rows with a cut, and the acceptance, refer to fractions of events. Drell--Yan uses the MG5\_aMC+Pythia prior. The $W$ rows use the released production moments without angular constraints. Orange ticks show results for the diphoton prior with shower-generated radiation (section~\ref{sec:cost}), which requires a larger reweighting correction.}
+\label{fig:transport}
+\end{figure}
+
+For the reweightings in figure~\ref{fig:transport} retaining more than $90\%$ of their effective statistics, the linear approximation gives the correct sign of every observed shift and predicts its magnitude to within $35\%$. It is less accurate for the large diphoton correction needed when all radiation comes from the shower (section~\ref{sec:cost}), although the exact bound in eq.~\eqref{eq:costbound} still holds. Shifts in individual bin fractions or acceptances can reveal changes hidden by the mean of the underlying kinematic observable. These estimates describe shifts caused by the weights and do not assess the accuracy of the posterior relative to QCD.
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\subsection{Production and decay constraints for \texorpdfstring{$W$}{W} bosons}
+\label{app:wjoint}
+
+All expectations in this subsection use the baseline fiducial selection of section~\ref{sec:w}, with charged-lepton rapidity identified with pseudorapidity in the massless approximation. We orient the longitudinal Collins--Soper axis towards the beam hemisphere containing the $W$, reversing it for $y_W<0$. For both $W$ charges, we use the signed charged-lepton cosine $c=\cos\theta^{*}$ in this oriented frame. The transverse axis follows the recoil and defines $\phi=0$. When the longitudinal axis is reversed, the remaining transverse axis is also reversed to keep the frame right-handed. The angular window $w_c$ uses the polynomial profile of eq.~\eqref{eq:profile} in $\ln(1+c)$: it rises from zero to one between $c=-0.7$ and $-0.6$, remains one through $c=0.6$, and falls to zero at $c=0.7$, vanishing outside this window.
+
+The six separate polar-angle moments use $w_cT_n(c)$, $n=1,\ldots,6$, and the additional function $w_c$ fixes the window probability. To constrain how the angular distribution varies with $|y_W|$, we add products
+\begin{equation}
+w_c(c)\,T_k(u_y)T_n(c),
+\qquad 1\le k\le D,\quad 0\le n\le D,
+\label{eq:wjoint}
+\end{equation}
+where $u_y=\mathrm{clip}(|y_W|/2-1,-1,1)$. Taking $k\ge1$ avoids duplicating the separate angular functions. The $n=0$ terms constrain rapidity weighted by the angular window, which is not determined by the full fiducial rapidity spectrum. The window probability itself is imposed only once. After each candidate fit, we compare the averages of all remaining products through degree four with their fixed-order targets. We test these products together and retain the smallest joint degree for which their combined discrepancy no longer meets the criterion for adding constraints. As detailed below, that criterion must hold at all seven scale choices. This selects the six functions with $D=2$ for $W^{-}$ and no additional rapidity--angle functions for $W^{+}$. These choices fix the production and polar constraints before the separate sequence of decay tests below.
+
+To constrain the decay orientation and its dependence on absolute rapidity at nonzero recoil, define $s_x=\sqrt{1-c^2}\cos\phi$, $s_y=\sqrt{1-c^2}\sin\phi$ and $\rho=q_T/\sqrt{m_{\ell\nu}^2+q_T^2}$. The five angular functions and their recoil-suppressed counterparts are
+\begin{equation}
+\begin{aligned}
+\boldsymbol h&=\left(\frac{1-3c^2}{2},c,2cs_x,s_x^2-s_y^2,s_x\right),\\
+\boldsymbol h_\rho&=\left(\rho^2\frac{1-3c^2}{2},\rho^2c,
+2\rho cs_x,\rho^2(s_x^2-s_y^2),\rho s_x\right).
+\end{aligned}
+\label{eq:wspin}
+\end{equation}
+The hard-recoil block combines each component of $w_H(q_T)\boldsymbol h$ with $T_k(u_y)$, $k=0,1,2$, giving fifteen functions. Its window follows eq.~\eqref{eq:profile}, turning on between $25$ and $50\,$GeV and vanishing above $500\,$GeV. The recoil-suppressed block contains the fifteen components of $\boldsymbol h_\rho T_k(u_y)$, again with $k=0,1,2$, over the full recoil range. The powers of $\rho$ make these functions vanish continuously at Born recoil, $q_T=0$, while retaining information below the hard-recoil window. In both blocks, the products with $T_1(u_y)$ and $T_2(u_y)$ constrain how these decay combinations vary with $|y_W|$. Our selections are even under $\phi\to-\phi$, so sine harmonics do not contribute. Observables that break this reflection require the corresponding sine terms. Fiducial cuts spoil the orthogonality of the angular harmonics, so their averages do not directly give the uncut angular coefficients.
+
+With $E_T^W=\sqrt{m_{\ell\nu}^2+q_T^2}$, massless two-body decay in the Collins--Soper frame defined above gives
+\begin{equation}
+\frac{4(\pT^\ell)^2}{(E_T^W)^2}
+=1-c^2+2\rho s_x+\frac{\rho^2}{2}
+\big(1+c^2+s_x^2-s_y^2\big).
+\label{eq:wptkinematics}
+\end{equation}
+The boost term $2\rho s_x$ changes sign in the neutrino expression, so $\rho s_x$ measures the normalized difference of their squared transverse momenta in eq.~\eqref{eq:wimbalance}. The boost also introduces quadratic polar and azimuthal dependence represented in $\boldsymbol h_\rho$. In the angular functions, the $c$ structure retains parity-odd polar dependence, while $cs_x$ correlates the polar and transverse decay directions. Finite averages of these functions do not determine how events populate either side of a threshold, so they do not fix every cut acceptance.
+
+All spin fits use direct fixed-order targets for $w(q_T)$ and $w(q_T)T_n$, $n\ge1$. We also retain a fit with these recoil targets and only the production and polar constraints. Comparing this fit with the spin fits tests the added decay information with the recoil prescription held fixed. Starting from this fit, we first test four higher angular functions $w_cT_n(c)$, $n=7,\ldots,10$, then six mass--angle products $w_cT_i(u_m)T_j(c)$, $i=1,2$ and $j=0,1,2$, with the mass map in table~\ref{tab:cfg}. We then test the hard-recoil block followed by the recoil-suppressed block. At each step, we compare the moments of the entire candidate block in the current fitted sample with their fixed-order targets, before imposing that block. The comparison includes the response of the fitted weights and the common covariance from numerical integration and the finite prior sample. If the discrepancy meets the criterion below, we add the full block and refit all constraints before testing the next one.
+
+For this comparison, we express the moment differences in units of their numerical standard errors and diagonalize the resulting covariance. The eigenmodes are linear combinations of these differences, and we retain only those with eigenvalues above $10^{-6}$ of the largest eigenvalue. Differences in discarded modes are reported separately. If they exceed the numerical tolerance, we cannot declare the block compatible, although a discrepancy already resolved by the retained modes can still justify adding it. A block is added only if the retained differences give an approximate chi-squared probability below $0.01$ at all seven scale choices. Each choice is applied to all fixed-order inputs, while the comparison uses the central statistical covariance throughout. Both fixed halves of the independent input integration runs must select the same additional blocks. Every imposed moment must also agree with its target within the central input numerical error at all scales. Scale choices are not statistical samples, so their variation is not assigned a probability of covering the true result. The constraints and observables to be predicted are fixed before examining the independent reference integration. All comparison fits, including angular-window controls, are publicly available.
+
+To separate the acceptance into a projected population and recoil migration, define $b=m_{\ell\nu}\sqrt{1-c^2}/2$, the lepton transverse momentum at zero transverse recoil with mass and polar angle held fixed. The indicators $I=\mathbf 1[\pT^\ell>p_{T,\mathrm{cut}}]$ and $I_0=\mathbf 1[b>p_{T,\mathrm{cut}}]$ test the actual and projected lepton thresholds. Both are evaluated on the original baseline events, so only the additional threshold is projected and every baseline cut is unchanged:
+\begin{equation}
+\langle I\rangle=\langle I_0\rangle+\langle I-I_0\rangle.
+\label{eq:wmigration}
+\end{equation}
+The projected fraction $\langle I_0\rangle$ measures the population selected by mass and polar angle. The migration term $\langle I-I_0\rangle$ adds events that recoil moves above the threshold and subtracts those it moves below. We apply the identity separately to posterior and fixed order, normalizing each to its own original baseline. Comparing the corresponding terms shows how much of their acceptance difference comes from the projected population and how much from net migration, with their common numerical covariance retained. This decomposition does not isolate a shower error, since both recoil and recoil--decay correlations enter.
+
+Figure~\ref{fig:wjoint} compares the posterior and fixed-order contributions to the exploratory $30\,$GeV acceptance in recoil and polar-angle regions. Adding the selected spin moments reduces most regional differences, but the remaining posterior deficit at low recoil is concentrated outside the angular window, at $|c|>0.7$. Near the $W$ pole, the projected momentum in this region satisfies $b<29\,$GeV, so events pass the $30\,$GeV threshold only if recoil moves them above it. Off-shell masses can also give accepted events in this region at Born level. The acceptance correction from adding the spin moments comes almost entirely from the net-migration term in eq.~\eqref{eq:wmigration}, with little change in the projected population. The remaining posterior--fixed-order difference in net migration has the opposite sign at $27\,$GeV to that at $30\,$GeV, showing that a finite set of decay moments does not fix the acceptance at every lepton threshold.
+
+Numerical uncertainties include the scatter between independent integrations. The independent NNLO reference meets the specified precision targets for every acceptance and all but three bins of the $32\,$GeV charge asymmetry. One valid run, which we retain, dominates the reference variance in the first bin of this asymmetry, so we do not assign a Gaussian significance to the discrepancy between the posterior and reference there. The released records give the achieved numerical errors, full scale variations, regional decompositions and every comparison fit.
+
+\begin{figure}[t]
+\centering
+\includegraphics{figs_v3/fig_w_recoil_polar_v20.pdf}
+\caption{Exploratory decomposition of the $\pT^\ell>30\,$GeV acceptance in recoil and polar-angle regions, for $W^{+}$ (top) and $W^{-}$ (bottom). Each cell shows the posterior contribution to the acceptance minus the NNLO contribution, in percentage points. The posterior and NNLO contributions are each normalized to their own original baseline cross section, so the cell differences sum to the total acceptance difference. All panels share the same color scale. The left fits impose the production and polar constraints and use direct fixed-order targets for the windowed recoil moments. The right fits add the selected recoil--spin moments built from eq.~\eqref{eq:wspin}. Hatching marks differences within one numerical standard error, including the response of the fitted weights.}
+\label{fig:wjoint}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Numerical solution}
+\label{app:solver}
+
+To put the measurement functions on a common numerical scale, we subtract their prior means and divide by their prior standard deviations. We then minimize eq.~\eqref{eq:dual} with damped Newton iterations~\cite{NocedalWright:2006}, using the local slope and curvature to update the coefficients and reducing the step when needed. The added term $\epsilon\|\lambda\|^2/2$, with $\epsilon=10^{-4}$, penalizes large coefficients, stabilizing combinations of measurement functions that are poorly determined by the prior. This regularization can prevent exact agreement with the target moments, so even after convergence we compare the remaining differences with the target integration errors. The largest residual in the independent jet benchmark (appendix~\ref{sec:zjbenchmark}) is $0.46$ times its target statistical error across central-scale moment fits. For the selected $W$ fits, every residual is below $0.05$ times its central input integration error at all seven scales.
+
+When the fixed-order recoil moments were accumulated using a different map interval, we obtain the moments for the fit as linear combinations of them, using the intervals in table~\ref{tab:cfg}. We apply this transformation separately to each run and scale choice, so the central targets, their statistical integration errors and scale variations all refer to the same measurement functions. The independent $W$ and jet studies calculate the moments directly using the maps chosen for their fits. The acoplanarity moments of section~\ref{sec:zj} come from integrating the binned NLO distribution.
+
+\begin{figure}[t]
+\centering
+\includegraphics{figs_v3/fig_conditioning_v3.pdf}
+\caption{Mapped prior densities and polynomial conditioning for the Drell--Yan mass (top) and transverse momentum (bottom). The left panels (a) show the prior density in the mapped variable $u$. Black solid curves use the adopted maps of table~\ref{tab:cfg}, gray dash-dotted curves use linear maps, and dotted curves use the logarithmic $q_T$ map extending to $2500\,$GeV. Triangles mark the $500\,$GeV recoil cutoff. The right panels (b) show the condition number of the prior correlation matrix $\mathcal{C}$, the ratio of its largest to smallest eigenvalue, for $D$ Chebyshev polynomials (filled symbols) or monomials (open symbols). The shaded band spans $1/\epsilon$ to $K/\epsilon$, where $\epsilon$ is the regularization scale and $K$ the number of measurement functions. Above this band, regularization suppresses at least one combination of measurement functions.}
+\label{fig:conditioning}
+\end{figure}
+
+\subsection{Polynomial conditioning}
+\label{app:conditioning}
+
+Figure~\ref{fig:conditioning}b quantifies the numerical distinction between bases discussed in section~\ref{sec:basis}. For twelve mapped Drell--Yan mass moments, the ratio of the largest to the smallest eigenvalue of the prior correlation matrix (the condition number) is near ten for Chebyshev polynomials and above $10^7$ for monomials. The small monomial eigenvalues correspond to combinations that vary little over the prior, making their coefficients difficult to determine numerically. This is a conditioning problem, rather than an increase in physical integration uncertainty from changing basis. With exact constraints and consistently transformed covariances, both complete bases give the same posterior and propagated uncertainty.
+
+Our implementation standardizes each measurement function and penalizes the sum of squared fitted coefficients (appendix~\ref{app:solver}). Applying the same coefficient penalty after changing basis is generally a different regularization prescription. It can suppress different combinations of constraints and hence change the posterior. The Chebyshev basis gives a better-conditioned problem in these samples, while the residuals relative to the target errors indicate how much regularization changes the imposed moments.
+
+
+
+Matching the map interval to the recoil range used in the fit can make the polynomial constraints easier to distinguish numerically. For twenty Drell--Yan recoil moments, the logarithmic map on $[\vmatch,500\,\mathrm{GeV}]$ keeps every eigenvalue of the prior correlation matrix above the regularization scale. Extending the map to the $2500\,$GeV limit used to accumulate the fixed-order moments compresses the fitted range in the mapped variable and puts seven eigenvalues below that scale, so regularization reduces the influence of those combinations on the fit. The shorter-interval moments are exact linear combinations of the existing moments and need no new fixed-order integration.
+
+\FloatBarrier
+
+
+% Original JHEP v29 source excerpt. Labels refer to that revision.
+\section{A practical tutorial}
+\label{app:tutorial}
+
+The examples below use supplied data to fit event weights and evaluate further selections. From the main directory of a local copy of the public repository, install the package with its plotting option:
+\nopagebreak[4]
+\begin{verbatim}
+python -m pip install '.[plot]'
+\end{verbatim}
+Run the example commands from the same directory. The fits write their results to new output directories. The online documentation describes the event data formats, measurement definitions and available functions.
+
+\subsection{A first fit and a new selection}
+
+Start with the supplied compact MG5\_aMC+Pythia Drell--Yan event sample from section~\ref{sec:dy}. It contains the observables used to fit the weights and those needed for further lepton selections:
+\begin{verbatim}
+python examples/real_drell_yan.py --output dy_demo --plot
+\end{verbatim}
+The command reweights the sample using mass, rapidity and recoil moments. It repeats the fit for the supplied input variations to propagate their effects to the weights and predictions. These variations cover scales, the recoil-transition window and numerical integration errors, together with shower variations where available, as described in appendix~\ref{app:samples}. The recoil comparison checks a distribution constrained by the fit, while the decay-angle comparison tests a prediction not used in the fit against an independent NNLO integration.
+
+The weights are saved in \texttt{posterior.npz}, the recoil and decay-angle predictions in separate files, and the plots in \texttt{comparison.pdf}. Diagnostics show how far the fitted moments remain from their targets because of regularization, including the separate window-rate constraints. The default run takes three to five seconds using two threads on an Apple M6. Input identities, fitted orders, timing and local event statistics are recorded in \texttt{report.json}.
+
+Reweighting the compact sample preserves the original event identifiers and sampling probabilities, and the output weights already include the corresponding sampling correction. In \texttt{posterior.npz}, \texttt{weight\_upgraded} gives the absolute weight in pb for each event, so its sum is a cross section. Use these weights in place of the original event weights, without applying either the sampling correction or the original normalization again. The observable arrays remain available for further analysis.
+
+The example raises both lepton transverse-momentum thresholds to $35\,$GeV and saves the resulting acceptance in \texttt{acceptance.npz}, using the same central and varied weights without refitting. The same event weights can be used for later selections on the corresponding detector-simulated events. The accuracy of these predictions depends on how well the weighted events describe the distributions probed by the new cuts.
+
+To reweight the supplied Herwig events using the same fixed-order input, run
+\begin{verbatim}
+python examples/real_drell_yan.py --output herwig_demo --plot \
+    --prior examples/data/herwig_public_prior.npz
+\end{verbatim}
+To use events from another generator, replace the file passed to \texttt{--prior} with a positive-weight sample that covers the required phase space. The command
+\begin{verbatim}
+maxent-upgrade inspect dy
+\end{verbatim}
+lists the required observable columns and fiducial selection. Match these definitions and cuts when preparing the new sample, and keep additional analysis observables with the required arrays so that later selections do not require extracting the events again.
+
+\subsection{Spin correlations and a new lepton selection}
+
+Run the $W^{+}$ and $W^{-}$ examples with the supplied samples and the physical functions of section~\ref{sec:w}:
+\begin{verbatim}
+python examples/w_constraint_workflow.py wp --output w_plus
+python examples/w_constraint_workflow.py wm --output w_minus
+\end{verbatim}
+Each command fits the event weights using production and polar-angle moments, then tests complete sets of additional functions by comparing their predicted moments with the fixed-order target moments. Both halves of the input integration runs must select the same additional constraints. The fits are saved before predictions for the preselected lepton observables are compared with independent NNLO integrations. Neither lepton bins nor additional cut indicators enter the fit. The constraint choice is made for each compact sample and can change with the prior.
+
+Open \path{w_plus/report/report.html} or \path{w_minus/report/report.html}. The figures used to choose the constraints compare imposed moments with their targets and show discrepancies in moments not imposed in that fit. The prediction figure then tests the chosen fit by comparing the lepton pseudorapidity spectrum after the $32\,$GeV cut with an independent NNLO reference. The fits with and without the additional spin functions share the production and polar constraints and the direct windowed recoil prescription, so their comparison shows the effect of the selected decay constraints. All acceptance results, including the hard-recoil conditional acceptance, are in \texttt{acceptances.json}, and event weights are in \texttt{weights.npz}.
+
+The prediction error bars show numerical uncertainties from the fixed-order moments and finite prior sample. They include changes in the fitted weights to first order in these numerical fluctuations. The independent reference has its own integration errors, shown separately. Filled bands show scale variations, with the same scale choice used for all fits and the reference in a comparison. For the difference between two fits in the lower panel, numerical errors retain the correlations from their shared events and integration runs. The common fluctuations can partly cancel, so the difference is often known more precisely than it would be if the fits were treated as independent.
+
+Add \texttt{--stage train} to either command above to determine and save the fits, then use \texttt{--stage validate} instead to compare their predictions with the independent NNLO reference. The saved records contain the fitted state, input and event identities, and the choices of constraints and prediction functions. They allow the fits to be reloaded for further analysis without rebuilding the constraints or repeating the minimization. For a new choice of constraints or prediction functions, use a new output directory to retain the original comparison.
+
+For a smaller two-body decay example with a known analytic target, run
+\begin{verbatim}
+python examples/constraint_workflow.py output/constraint_tutorial
+\end{verbatim}
+The model isolates a $y\cos\theta$ correlation, which is odd in either variable separately. At zero recoil, $\eta_\ell=y+\operatorname{atanh}(\cos\theta)$, so a cut on lepton pseudorapidity probes this correlation even after the separate rapidity and decay-angle distributions have been corrected. The analytic target provides a controlled setting for interpreting the diagnostic and prediction plots. The $W$ examples above use QCD inputs.
+
+\subsection{Other processes and observables}
+
+\begin{samepage}
+Run the supplied Higgs, diphoton and $Z$+jet examples with
+\begin{verbatim}
+python examples/application_demo.py ggh --output higgs_demo --plot
+python examples/application_demo.py aa --output diphoton_demo --plot
+python examples/application_demo.py zj --output jet_demo --plot
+\end{verbatim}
+\end{samepage}
+Each command fits the event weights, propagates the available input variations and applies an additional selection. The reports compare the fitted moments with their targets and show how reweighting changes the analysis distributions. Independent physics comparisons appear in section~\ref{sec:class}. The Higgs demonstration uses the NNLO cross section supplied in the input table, whereas the paper normalizes all predictions in the Higgs comparison to the N$^3$LO cross section to compare shapes.
+
+\texttt{python examples/paper\_examples.py --list} lists all available configurations, including those for both $W$ charges and those with additional joint constraints. For each configuration, an inspection command lists the required observable arrays. The Higgs prior is inclusive, and photon cuts are applied afterward using the fitted weights. The diphoton sample must already satisfy the specified isolation, and the jet sample must use the specified jet definition. These choices must match those of the fixed-order input calculation.
+
+A new observable can be evaluated on the events and histogrammed using the already fitted weights. To constrain its moments, one also needs fixed-order integrals evaluated with the same measurement functions, maps and windows used for the events. \texttt{examples/custom\_observables.py} shows how to add constraints for two observables and their products by changing the configuration and input arrays without changing the solver.
+
+To supply a set of measurement functions, use \texttt{ConstraintBlock.from\_input} to associate their values on the events with the corresponding fixed-order integrals. Accumulate fitted and diagnostic functions together and supply their integrals with the full covariance matrix, so that diagnostic checks retain correlations from the common integration runs. \texttt{fit\_constraints} determines the weights. The returned object's \texttt{diagnose} method compares additional moments with their fixed-order targets, while \texttt{predict} evaluates analysis observables. The advanced reference in \path{docs/STUDY_API.md} covers normalized predictions, comparisons between fits that retain shared fluctuations, and input variations applied consistently across the fits being compared. Choosing useful measurement functions remains part of the physics analysis, as in the $W$ and jet examples.

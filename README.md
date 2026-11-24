@@ -15,7 +15,7 @@ W±, Higgs, diphoton and Z+jet production.
 [Prior input schemas](docs/INPUTS.md) · [New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
 [Validation](docs/VALIDATION.md) · [Event records](docs/HEPMC.md) ·
 [Constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) ·
-[Reproduction](REPRODUCE.md)
+[Reproduction](REPRODUCE.md) · [Technical notes](docs/TECHNICAL_NOTES.md)
 
 ## Install
 

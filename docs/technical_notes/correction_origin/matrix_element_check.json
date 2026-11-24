@@ -1,0 +1,149 @@
+{
+  "source": "https://arxiv.org/abs/hep-ph/9812455",
+  "equations": [
+    8,
+    13
+  ],
+  "scope": "Algebra check of a published QCD matrix-element/shower ratio.\n\nThis is not a simulation of the paper's shower. Equations (8) and (13) of\nMiu and Sjostrand, hep-ph/9812455, concern the single-emission expansion of\nthe shower specified there, with fixed couplings/PDF conventions. Their\ncommon collinear poles cancel. Hadronic averaging, multiple emissions,\nfiducial cuts, and higher orders are not represented by this calculation.\n",
+  "variables": {
+    "z": "M^2/s_hat in [0,1]",
+    "c": "partonic scattering cosine in [-1,1]"
+  },
+  "two_dimensional_log_ratio_truncations": [
+    {
+      "channel": "qqbar",
+      "degree": 1,
+      "nonconstant_terms": 1,
+      "maximum_relative_error_on_grid": 0.5464267502052946
+    },
+    {
+      "channel": "qqbar",
+      "degree": 2,
+      "nonconstant_terms": 5,
+      "maximum_relative_error_on_grid": 0.05038861124781158
+    },
+    {
+      "channel": "qqbar",
+      "degree": 3,
+      "nonconstant_terms": 7,
+      "maximum_relative_error_on_grid": 0.03343472285337734
+    },
+    {
+      "channel": "qqbar",
+      "degree": 4,
+      "nonconstant_terms": 14,
+      "maximum_relative_error_on_grid": 0.0040505952749606555
+    },
+    {
+      "channel": "qqbar",
+      "degree": 5,
+      "nonconstant_terms": 17,
+      "maximum_relative_error_on_grid": 0.003812875236059332
+    },
+    {
+      "channel": "qqbar",
+      "degree": 6,
+      "nonconstant_terms": 27,
+      "maximum_relative_error_on_grid": 0.0005071039140260858
+    },
+    {
+      "channel": "qqbar",
+      "degree": 8,
+      "nonconstant_terms": 44,
+      "maximum_relative_error_on_grid": 6.967028567950173e-05
+    },
+    {
+      "channel": "qqbar",
+      "degree": 10,
+      "nonconstant_terms": 65,
+      "maximum_relative_error_on_grid": 9.955127982408385e-06
+    },
+    {
+      "channel": "qqbar",
+      "degree": 12,
+      "nonconstant_terms": 90,
+      "maximum_relative_error_on_grid": 1.47264833305627e-06
+    },
+    {
+      "channel": "qg",
+      "degree": 1,
+      "nonconstant_terms": 3,
+      "maximum_relative_error_on_grid": 0.2919235247997267
+    },
+    {
+      "channel": "qg",
+      "degree": 2,
+      "nonconstant_terms": 8,
+      "maximum_relative_error_on_grid": 0.040961054709954814
+    },
+    {
+      "channel": "qg",
+      "degree": 3,
+      "nonconstant_terms": 15,
+      "maximum_relative_error_on_grid": 0.03354578862488444
+    },
+    {
+      "channel": "qg",
+      "degree": 4,
+      "nonconstant_terms": 24,
+      "maximum_relative_error_on_grid": 0.003987208068829684
+    },
+    {
+      "channel": "qg",
+      "degree": 5,
+      "nonconstant_terms": 35,
+      "maximum_relative_error_on_grid": 0.00392798186980392
+    },
+    {
+      "channel": "qg",
+      "degree": 6,
+      "nonconstant_terms": 48,
+      "maximum_relative_error_on_grid": 0.0005059876646984485
+    },
+    {
+      "channel": "qg",
+      "degree": 8,
+      "nonconstant_terms": 80,
+      "maximum_relative_error_on_grid": 6.967331506924079e-05
+    },
+    {
+      "channel": "qg",
+      "degree": 10,
+      "nonconstant_terms": 120,
+      "maximum_relative_error_on_grid": 9.993415619025114e-06
+    },
+    {
+      "channel": "qg",
+      "degree": 12,
+      "nonconstant_terms": 168,
+      "maximum_relative_error_on_grid": 1.4736521388725166e-06
+    }
+  ],
+  "qqbar_hard_limit_angular_log_expansion": [
+    {
+      "nonconstant_even_modes": 1,
+      "maximum_degree": 2,
+      "maximum_relative_error_on_grid": 0.0338679524927159,
+      "uniform_relative_error_bound": 0.03617277993705404
+    },
+    {
+      "nonconstant_even_modes": 2,
+      "maximum_degree": 4,
+      "maximum_relative_error_on_grid": 0.003877308274909952,
+      "uniform_relative_error_bound": 0.00407270729624732
+    },
+    {
+      "nonconstant_even_modes": 3,
+      "maximum_degree": 6,
+      "maximum_relative_error_on_grid": 0.0005028480188504769,
+      "uniform_relative_error_bound": 0.0005231470569806829
+    },
+    {
+      "nonconstant_even_modes": 4,
+      "maximum_degree": 8,
+      "maximum_relative_error_on_grid": 6.94481559537774e-05,
+      "uniform_relative_error_bound": 7.179007650883181e-05
+    }
+  ],
+  "caveat": "An approximation check of an exact partonic ratio, not a finite-statistics moment fit or a universal NNLO claim."
+}
