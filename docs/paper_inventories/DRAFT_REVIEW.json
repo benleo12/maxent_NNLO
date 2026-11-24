@@ -1,0 +1,13 @@
+{
+  "manuscript_unchanged": true,
+  "w_source_cells_matched": 40,
+  "statistics_cells_matched": 9,
+  "visual_review": "Both rendered PDF/PNG drafts inspected: legible labels, no text/marker overlap or clipping, shared W axes and explicit zero-reference, percent retention axis starts at zero. Drafts not inserted into manuscript.",
+  "uncertainty": "W residual errors include each model numerical/prior variance plus independent reference variance. Stored paired-change covariance used for paired-change record. Scale variations not included in central-scale draft and explicitly stated in caption.",
+  "artifacts": {
+    "statistics_retained_draft.png": "006422c2138a857cb94da7ce5bbafc0efa1cf6a72a25357cb62f3178844f6cfb",
+    "statistics_retained_draft.pdf": "68a40ee4d69e5c454324093fd2c59e8152f20bad1eb8ea9e2cb883e81fedac96",
+    "w_acceptance_draft.png": "b88d0e7c217848be37c88dad18dbca9b59f1984372312b38a60490412c39ca69",
+    "w_acceptance_draft.pdf": "ec285df797391c920f3fac0273a8596d6a7f8a18b223c187efb3252dca5e40f2"
+  }
+}

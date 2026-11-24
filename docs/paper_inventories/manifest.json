@@ -1,0 +1,10 @@
+{
+  "source_revision": "v30",
+  "source_sha256": "464ee3c7b9f9b6f96f403442530babefed77c9d8b97563c747749b4c2d3947d5",
+  "purpose": "Exact inventories underlying the v31 table-to-plot change; no new fits.",
+  "files": {
+    "DRAFT_REVIEW.json": "e9e50387aab323e886aa18852d71478eed46722673e18a161145a6aade62a16c",
+    "plot_inputs_and_checks.json": "41e44bf116d52c32cc926f5b9c3fae6be7fc50c824e70838b1090b5e14c71e5b",
+    "tables_v30.tex": "8b5a684f1e4ff398676f3df31348e9ec57197e21beafa667a66357274c27ba44"
+  }
+}

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-24 documentation
+
+- Preserved the full paper sample inventory and original numerical tables,
+  with the inputs and uncertainty checks for the acceptance and retained-statistics plots.
+- Distinguished full-study sample counts from the compact runnable fixtures.
+  Numerical code, fits and examples are unchanged.
+
 ## 1.2.0
 
 - Added a supported constraint-study workflow using the existing fit solver:

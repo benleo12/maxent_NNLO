@@ -5,6 +5,9 @@ the numerical studies supporting them. The shorter paper keeps the physical
 argument and its predictions. The solver, inputs and reported results are
 unchanged by this documentation release.
 
+The full-study [sample inventory and original numerical tables](PAPER_SAMPLES.md)
+are preserved separately from the compact example fixtures.
+
 For running an analysis, start with the [example catalogue](../examples/README.md),
 [W tutorial](W_CONSTRAINT_TUTORIAL.md) or [study interface](STUDY_API.md).
 The sections below specify the numerical choices and point to the underlying
