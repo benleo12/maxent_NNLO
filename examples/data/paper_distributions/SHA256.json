@@ -1,0 +1,13 @@
+{
+  "diphoton/distributions.npz": "4807284dc29a3b72121d17684423cdb128a102c3e64d160ad8f1cd4cdc104922",
+  "diphoton/figure.pdf": "f0e5a1ac0151362d80b632d1e608cc986690d1fc609626f9f1e8d836285016fb",
+  "drell_yan/distributions.csv": "1e0a646f2112e7cec011d01c8858f2658bd7ecde7cd71dd143a225b40a7d644a",
+  "drell_yan/figure.pdf": "9ea0a3d2b6633ca65825bf30b9d2b6679aed6409c72b0cabedb0d5b7a7bb87d7",
+  "higgs/fiducial.npz": "274d983edf643324af02a80ee546693b153394eb365fc00a834d2a371b806248",
+  "higgs/jets.pdf": "ecba262fb59d87e7960675cc7736d9d2ccbe220dea89e967cc1ea52eabb71f7b",
+  "higgs/photons.pdf": "16ff040f051eaef93e5545b198221de187d00506ed2b6fe013142dfcef576bd3",
+  "w/baseline.csv": "c3162c83309bea868c2cbf31a2c019f0431711edc6ac9f542cdf92da34ac8c60",
+  "w/charge_asymmetry.npz": "3acdbc0ce287a53fb46c09308ae3de2ac99d9ef38d223bdc9c411b5af0e6af1b",
+  "w/figure.pdf": "8697a8f39c84300b7dd4f56f9d500b8291f43f4f62b85c78f5b9ad08b2b53279",
+  "w/predictions.csv": "8ed647e3a99d5cfd88c292c0c9303401ecdb7872d7023742c2341fe066f60501"
+}

@@ -103,6 +103,10 @@ Full fiducial definitions, jet and isolation settings are in
 
 ## Independent comparisons
 
+The [full-sample differential distributions](data/paper_distributions/README.md)
+include the paper figures, their bin contents and the experimental references
+for dileptons, charged-current Drell–Yan, Higgs decays and continuum diphotons.
+
 Redraw the full-sample generator comparison, two-jet benchmark and independent W study:
 
 ```bash
