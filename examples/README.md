@@ -2,6 +2,7 @@
 
 To fit your own events, start with the [user-supplied Chebyshev targets](../docs/NEW_PROCESSES.md).
 A [complete absolute-rapidity table](own_prior/targets.json) runs on either Drell–Yan prior.
+The [two-shower recoil example](own_prior/README.md) fits the same fixed-order table to both samples and checks the resulting cut cross sections.
 The examples below document the collider studies in the paper.
 
 Start with the committed real Drell–Yan fitting example:

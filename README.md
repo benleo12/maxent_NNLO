@@ -44,8 +44,17 @@ omit `error`. [Maps, windows and joint moments](docs/NEW_PROCESSES.md)
 
 **The result** preserves the event order and original arrays. Use `weight_upgraded`
 directly in your analysis. It already includes the event's prior weight and sums to
-`cross_section_pb`. Omit the cross section for unit-area weights. The fit prints the
-resolved moment orders, agreement with their targets and retained effective statistics.
+`cross_section_pb`. Omit the cross section for unit-area weights. The fit reports the resolved degrees and retained effective statistics.
+Compare every imposed moment with its target, including a window fraction or
+joint moment, from the saved event file:
+
+```sh
+maxent-upgrade check upgraded.npz
+```
+
+The columns give the prior mean, the target used in the fit, the achieved mean,
+their signed difference and the quoted input error where supplied. A hard target
+demonstrably outside the prior's support stops the fit before it writes weights.
 
 **Uncertainties.** Include varied targets under `variations`, with their labels and
 corresponding rates. The same command refits them at the central moment orders.
@@ -81,6 +90,8 @@ the fiducial selection and the rate attached to each scale.
 ```sh
 maxent-upgrade fit examples/data/dy_prior.npz examples/own_prior/targets.json dy_weights.npz
 ```
+
+To see what the fit changes, [apply the same two recoil moments to MG5+Pythia and Herwig](examples/own_prior/README.md) and compare two cross sections with fixed order.
 
 For the full released Drell–Yan constraint set, use `maxent-upgrade inspect dy` to see
 its inputs and `maxent-upgrade reweight dy prior.npz upgraded.npz --uncertainties`.

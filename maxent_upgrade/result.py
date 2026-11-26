@@ -41,7 +41,8 @@ class UpgradeResult:
         describe(); `kind` is 'born', 'blend', 'windowed' or 'joint'), `moment_selection`,
         `windows` ({recoil observable: x_match, x_hi, rate, transition, profile}),
         `shares` ({constraint: {closure, pull}} for the window shares), `q_over_p_range`,
-        the soft-constraint block, and with `keep_features=True` the feature matrix `Phi`
+        the soft-constraint block, optional `constraints` and `support` from a verified fit,
+        and with `keep_features=True` the feature matrix `Phi`
         and prior `p`.
     band : None
         Reserved; bands are re-solves of upgrade() (see README, "Uncertainty bands").

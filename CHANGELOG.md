@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1
+
+- Save the prior average, fitted target and achieved value for each imposed
+  constraint. Read the central or varied fit with `maxent-upgrade check`.
+- Reject hard targets when the supplied events prove that their values are
+  incompatible. Signed fixed-order inputs and fits with soft constraints remain supported.
+- Add a reusable Drell–Yan recoil target with all seven scale choices. The
+  [worked example](examples/own_prior/README.md) uses it with two shower generators.
+
 ## 1.3.0
 
 - Match a user's positive-weight LO+PS events with a table of Chebyshev moments.

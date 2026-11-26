@@ -11,6 +11,7 @@ from .basis import cheb as _cheb, umap as _umap
 from .constraints import chebyshev_moment, profile_w, resolved_order, _window_fn, _window_edges
 from .result import UpgradeResult
 from .solver import _newton_maxent as _newton
+from .support import verify_support
 
 DEFAULTS = dict(
     weight_key="weight",
@@ -139,7 +140,7 @@ def _check_inputs(events, moments, config, wkey):
                           f"check the units (GeV)", stacklevel=3)
 
 
-def upgrade(events, moments, config):
+def upgrade(events, moments, config, *, check_support=False):
     r"""Reweight a positive-weight prior so that it reproduces event-level fixed-order moments.
 
     Parameters
@@ -201,6 +202,10 @@ def upgrade(events, moments, config):
         soft_constraints=False and soft_errors='stat' (Gaussian soft constraints),
         weight_key='weight'.  Unknown keys raise a warning.
 
+    check_support : bool
+        Check imposed hard targets against the input events and retain per-feature
+        means, errors and residuals. The portable fit_targets workflow enables this.
+
     Returns
     -------
     UpgradeResult (see its docstring): weights, effN, effN_retained, closure, max_pull,
@@ -227,6 +232,7 @@ def upgrade(events, moments, config):
     F = [np.ones(len(w))]
     mu = [1.0]
     names = ["norm"]
+    measurements = [(None, None, "normalization", 0.0)]
     SIG = [0.0]      # per-constraint target error (feature units); used only in soft mode
     # indices of the window-share constraints (a window rate, the share above a cut)
     SHARES = []
@@ -249,14 +255,25 @@ def upgrade(events, moments, config):
             st = float(np.hypot(st, float(d.get("rate_scale", 0.0) or 0.0)))
         return st
 
+    def rate_error(d):
+        if "rate_stat" in d or "rate_scale" in d:
+            return float(np.hypot(d.get("rate_stat", 0.) or 0., d.get("rate_scale", 0.) or 0.))
+        return None
+
+    def effective_error(coefficient, error, rate_coefficient, rate_uncertainty):
+        if (coefficient and error is None) or (rate_coefficient and rate_uncertainty is None):
+            return None
+        return float(np.hypot(coefficient * (error or 0.), rate_coefficient * (rate_uncertainty or 0.)))
+
     # ---- ONE rule for every tower -----------------------------------------
     # A Born tower imposes the fixed-order moments over the full fiducial range.  A recoil
     # tower imposes them through its window w: blended with the prior across the window's
     # rise (transition 'blend', the default) or with the features masked by w ('windowed').
     def _impose(obs, lo_map, hi_map, mp, vals, errs, floor, sig=None, wprof=None, rate=1.0,
-                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None, degrees=None):
+                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None, degrees=None, rate_uncertainty=None):
         XL = np.asarray(events[obs], float)
         count = len(vals)
+        errs = np.broadcast_to(errs, (count,)) if len(errs) else errs
         degrees = np.arange(1, count + 1, dtype=int) if degrees is None else np.asarray(degrees)
         if (degrees.shape != (count,) or degrees.dtype.kind not in "iu"
                 or (degrees < 1).any() or (np.diff(degrees.astype(int)) <= 0).any()):
@@ -308,6 +325,7 @@ def upgrade(events, moments, config):
                 mu.append(float(vals[i]))
                 names.append(f"{obs}_T{n}")
                 SIG.append(float(sigv[i]))
+                measurements.append((obs, int(n), "born", float(errs[i]) if len(errs) else None))
         elif transition == "blend":
             # -------- blend: the target density on this axis is the smooth mixture --------
             #     b(x) = (1 - w(x)) * cs * p(x) + w(x) * f(x),   cs = (1 - R) / (1 - R_p),
@@ -341,6 +359,8 @@ def upgrade(events, moments, config):
                 # d mu_n / dR = mu_n^{FO,w} - <(1-w) T_n>_p / (1 - R_p)
                 dR = float(vals[i]) - prior_part / (1.0 - R_p)
                 SIG.append(float(np.hypot(float(sigv[i]) * R, dR * float(rate_sig))))
+                error = effective_error(R, errs[i] if len(errs) else None, dR, rate_uncertainty)
+                measurements.append((obs, int(n), "blend", error))
             above = 1.0 - inside
             if above.any():
                 P_above = float((p * above).sum())
@@ -349,6 +369,8 @@ def upgrade(events, moments, config):
                 mu.append(cs * P_above)
                 names.append(f"{obs}_above")
                 SIG.append(float(P_above / (1.0 - R_p) * float(rate_sig)))
+                error = effective_error(0., None, P_above / (1.0 - R_p), rate_uncertainty)
+                measurements.append((obs, None, "tail fraction", error))
         else:
             # -------- windowed: features masked by the window --------
             # feature C[:,n]*w with target <T_n>_FO(w-weighted) * R, plus an explicit rate
@@ -364,11 +386,14 @@ def upgrade(events, moments, config):
                 names.append(f"{obs}_T{n}")
                 SIG.append(float(np.hypot(float(sigv[i]) * R,
                            float(vals[i]) * float(rate_sig))))
+                error = effective_error(R, errs[i] if len(errs) else None, vals[i], rate_uncertainty)
+                measurements.append((obs, int(n), "windowed", error))
             SHARES.append(len(names))
             F.append(wprof.copy())
             mu.append(R)
             names.append(f"{obs}_rate")
             SIG.append(float(rate_sig))
+            measurements.append((obs, None, "window fraction", rate_uncertainty))
 
     # Born observables: validity is the full fiducial range.
     for o in born_cfg:
@@ -402,7 +427,7 @@ def upgrade(events, moments, config):
         _impose(recoil_obs, soft_lo, XHI, rcfg.get("map", "log"), vals,
                 np.asarray(rc.get("window_errors", []), float), floor=1,
                 sig=_soft_err(rc, "window_errors"), wprof=wprof, rate=R, rate_sig=_rate_err(rc),
-                transition=trans, degrees=rc.get("degrees"),
+                transition=trans, degrees=rc.get("degrees"), rate_uncertainty=rate_error(rc),
                 lo_feat=(max(soft_lo, a) if blend else None),
                 hi_feat=(min(XHI, d) if (blend and smooth_top) else None),
                 hi_cut=(None if (not blend or c is None or smooth_top) else c))
@@ -436,12 +461,17 @@ def upgrade(events, moments, config):
             mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}")
             SIG.append(float(merr.get((mm, nn), 0.0)) * R)
+            total = (rc.get("errors") or {}).get((mm, nn))
+            fraction_error = rate_error(rc) if prof.get(ox) or prof.get(oy) else 0.
+            kind = "windowed joint" if prof.get(ox) or prof.get(oy) else "joint"
+            measurements.append((key, [mm, nn], kind, effective_error(R, total, v, fraction_error)))
         if (prof.get(ox) or prof.get(oy)) and mc.get("include_rate", True):
             SHARES.append(len(names))
             F.append(wxy.copy())
             mu.append(R)
             names.append(f"{key}_rate")
             SIG.append(_rate_err(rc))
+            measurements.append((key, None, "window fraction", rate_error(rc)))
         towers.append(dict(name=key, kind="joint", map="-", supplied=len(rc["values"]),
                            imposed=len(rc["values"]), fitted_degrees=[list(pair) for pair in rc["values"]], below=[]))
 
@@ -451,6 +481,16 @@ def upgrade(events, moments, config):
     # warm start for band variants: re-solving from the central multipliers
     # reaches the (unique) optimum of a nearby target in a fraction of a second
     sig = np.asarray(SIG, float)
+    if check_support:
+        prior_means = p @ Phi
+        prior_means[0] = p.sum()
+        hard = sig == 0 if soft else np.ones_like(sig, dtype=bool)
+        hard[0] = False  # all trial distributions are normalized by construction
+        columns = slice(1, None) if np.all(hard[1:]) else np.flatnonzero(hard)
+        support = verify_support(Phi[:, columns], mu[columns], prior_means[columns], np.asarray(names)[columns])
+        if support.endswith("unresolved"):
+            warnings.warn("Hard-target convex-hull membership is unresolved. Inspect the achieved moments.",
+                          stacklevel=2)
     q, lam, ok = _newton(Phi, p, mu, l2=cfg["L2"], lam0=config.get("lam0"),
                          sigma=(sig if soft else None))
     if not ok or q is None:
@@ -459,7 +499,11 @@ def upgrade(events, moments, config):
                            "a map or window that differs from the one compiled into the fixed-order run, or "
                            "inconsistent units.  Inspect result.report after a solve with fewer orders "
                            "(config['fixed_orders']).")
-    ach = (q[:, None] * Phi).sum(0)
+    if check_support:
+        ach = q @ Phi
+        ach[0] = q.sum()
+    else:
+        ach = (q[:, None] * Phi).sum(0)
     # A zero target has no relative scale. Report numerical zero as closed and
     # retain any resolved absolute residual separately instead of inventing a
     # denominator (which made an exactly achieved zero look like 100% error).
@@ -506,6 +550,15 @@ def upgrade(events, moments, config):
         soft=dict(enabled=soft, errors=cfg["soft_errors"], sigma=sig.copy(), pulls=pulls),
         towers=towers, shares=shares, q_over_p_range=(float(qp.min()), float(qp.max())),
     )
+    if check_support:
+        report["support"] = support
+        report["constraints"] = [
+            dict(name=name, observable=observable, degree=degree, kind=kind,
+                 mode="soft" if soft and sig[i] > 0 else "hard", prior=float(prior_means[i]),
+                 target=float(mu[i]), achieved=float(ach[i]), residual=float(absolute_residual[i]),
+                 input_error=error)
+            for i, (name, (observable, degree, kind, error)) in enumerate(zip(names, measurements))
+        ]
     if config.get("keep_features"):
         report["Phi"] = Phi
         report["p"] = p

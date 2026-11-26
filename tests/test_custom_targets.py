@@ -81,7 +81,7 @@ def test_fixed_degrees_without_synthetic_error_or_cross_section():
     (lambda t: t["moments"][0].update(observable="unknown"), "undefined observable"),
     (lambda t: t["moments"].append(t["moments"][0]), "duplicate moment"),
     (lambda t: t["moments"][0].update(degree=0), "positive integer"),
-    (lambda t: t["moments"][0].update(value=2), "positive-weight sample"),
+    (lambda t: t["moments"][0].update(value=2), "outside prior support"),
     (lambda t: t["moments"][0].update(error=-1), "out of range"),
     (lambda t: t["config"]["born"]["x"].update(map="bw"), "pole mass"),
     (lambda t: t["config"]["born"]["x"].update(units_typo=True), "unrecognized"),

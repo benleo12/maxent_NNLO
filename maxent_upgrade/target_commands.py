@@ -71,6 +71,53 @@ def _fit(args):
         print(f"  weight_{source}: {len(weights)} variations, labels in labels_{source}")
 
 
+def _check(args):
+    with np.load(args.sample, allow_pickle=False) as sample:
+        if "constraint_checks_json" not in sample:
+            raise ValueError("this file has no stored per-constraint checks; run fit again with your original prior and targets")
+        checks = json.loads(str(sample["constraint_checks_json"]))
+    if args.source is None:
+        if args.member is not None:
+            raise ValueError("--member requires --source")
+        title, rows, support = "central", checks["central"], checks["support"]
+    else:
+        members = checks["variations"].get(args.source)
+        if members is None:
+            raise ValueError(f"unknown source {args.source!r}; available: {list(checks['variations'])}")
+        choices = {m["label"]: m for m in members}
+        if args.member not in choices:
+            raise ValueError(f"choose --member for {args.source}: {list(choices)}")
+        item = choices[args.member]
+        title, rows, support = f"{args.source} / {args.member}", item["constraints"], item["support"]
+    print(f"{title} | hard targets: {support}")
+    identifiers = []
+    for row in rows:
+        kind, degree = row["kind"], row["degree"]
+        if degree is None:
+            name = row["name"] if kind == "normalization" else f"{row['observable']} {kind}"
+        else:
+            tag = ",".join(map(str, degree)) if isinstance(degree, list) else str(degree)
+            polynomial = f"T[{tag}]"
+            if kind in ("windowed", "windowed joint"):
+                polynomial = f"<w {polynomial}>"
+            elif kind == "blend":
+                polynomial += " (blend)"
+            name = f"{row['observable']} {polynomial}"
+        identifiers.append(name)
+    width = max(10, max(map(len, identifiers)))
+    show_mode = any(row["mode"] == "soft" for row in rows)
+    mode_column = " Mode" if show_mode else ""
+    print(f"{'Constraint':<{width}}{mode_column}  {'Prior':>12} {'Target':>12} {'Achieved':>12} {'Residual':>12} {'Input error':>12}")
+    for name, row in zip(identifiers, rows):
+        error = "—" if row["input_error"] is None else f"{row['input_error']:.6g}"
+        mode = f" {row['mode']:4}" if show_mode else ""
+        print(f"{name:<{width}}{mode}  {row['prior']:12.6g} {row['target']:12.6g} {row['achieved']:12.6g} "
+              f"{row['residual']:+12.4g} {error:>12}")
+    if any(row["kind"] in ("windowed", "windowed joint", "blend") for row in rows):
+        print("Window moments are fiducial averages. Their errors propagate the supplied "
+              "marginal errors in quadrature at fixed prior.")
+
+
 def add_target_commands(commands):
     fit = commands.add_parser(
         "fit", help="reweight your LO+PS prior using named Chebyshev moment targets",
@@ -93,6 +140,11 @@ refitted at the central orders. Its label identifies its row of output weights."
     fit.add_argument("targets", help="JSON with config and identified moment rows; add a rate in pb for absolute weights")
     fit.add_argument("output", help="new NPZ with the input event arrays and aligned replacement weights")
     fit.set_defaults(run=_fit)
+    check = commands.add_parser("check", help="show the per-constraint checks saved by fit")
+    check.add_argument("sample", help="upgraded NPZ from the fit command")
+    check.add_argument("--source", help="uncertainty source (default: central)")
+    check.add_argument("--member", help="exact member label within that source")
+    check.set_defaults(run=_check)
     book = commands.add_parser(
         "moments", help="compute named Chebyshev targets from your fixed-order integration records")
     book.add_argument("config", help="JSON defining each observable ID, map, interval and any recoil window")

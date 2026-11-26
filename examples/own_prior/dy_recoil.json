@@ -1,0 +1,162 @@
+{
+  "selection": "66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5, Born-level leptons (ATLAS 13 TeV)",
+  "config": {
+    "recoil": {
+      "pT_ll": {
+        "range": [
+          30.0,
+          500.0
+        ],
+        "map": "log",
+        "soft_lo": 30.0,
+        "profile": {
+          "a": 30.0,
+          "b": 60.0,
+          "c": 500.0
+        },
+        "transition": "windowed"
+      }
+    }
+  },
+  "cross_section_pb": 710.3611257116524,
+  "moments": [
+    {
+      "observable": "pT_ll",
+      "degree": 1,
+      "value": -0.4077194594855287,
+      "error": 0.004950196907640176,
+      "stat_error": 5.5813289487670186e-05
+    }
+  ],
+  "rates": {
+    "pT_ll": {
+      "value": 0.10300664589632957,
+      "error": 0.006912061202351517,
+      "stat_error": 3.273778789392894e-05
+    }
+  },
+  "variations": {
+    "scale": [
+      {
+        "label": "muR = 2 m_ll, muF = 2 m_ll",
+        "cross_section_pb": 713.1350413715745,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.41237754961164796,
+            "error": 0.004950137542387149,
+            "stat_error": 5.027312824718162e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.09823184276283785,
+            "error": 0.006912038682557512,
+            "stat_error": 2.7576201233415685e-05
+          }
+        }
+      },
+      {
+        "label": "muR = 0.5 m_ll, muF = 0.5 m_ll",
+        "cross_section_pb": 710.2288539455443,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.40247778510917,
+            "error": 0.004950277504494047,
+            "stat_error": 6.255453918680362e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.10865072560200381,
+            "error": 0.006912096677400609,
+            "stat_error": 3.95243650881797e-05
+          }
+        }
+      },
+      {
+        "label": "muR = 2 m_ll, muF = m_ll",
+        "cross_section_pb": 710.2571936504289,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.4085227649418506,
+            "error": 0.004950138794225265,
+            "stat_error": 5.039623961199343e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.09647722725580289,
+            "error": 0.006912035386561727,
+            "stat_error": 2.6737292020664233e-05
+          }
+        }
+      },
+      {
+        "label": "muR = m_ll, muF = 2 m_ll",
+        "cross_section_pb": 709.483942262129,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.4111468783815815,
+            "error": 0.004950198161473978,
+            "stat_error": 5.592438406826575e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.10502448430059409,
+            "error": 0.006912067344690738,
+            "stat_error": 3.400992859669275e-05
+          }
+        }
+      },
+      {
+        "label": "muR = 0.5 m_ll, muF = m_ll",
+        "cross_section_pb": 709.979816878679,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.40664681649245915,
+            "error": 0.004950288845117864,
+            "stat_error": 6.344563792279385e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.11030119460274022,
+            "error": 0.00691210743471184,
+            "stat_error": 4.136286621812847e-05
+          }
+        }
+      },
+      {
+        "label": "muR = m_ll, muF = 0.5 m_ll",
+        "cross_section_pb": 705.1706235548811,
+        "moments": [
+          {
+            "observable": "pT_ll",
+            "degree": 1,
+            "value": -0.40298981507753995,
+            "error": 0.00495019346865317,
+            "stat_error": 5.550744066859065e-05
+          }
+        ],
+        "rates": {
+          "pT_ll": {
+            "value": 0.10149340907683643,
+            "error": 0.006912055792892572,
+            "stat_error": 3.1575018018237207e-05
+          }
+        }
+      }
+    ]
+  }
+}

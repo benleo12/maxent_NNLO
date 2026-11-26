@@ -59,6 +59,12 @@ jobs:
           python examples/application_demo.py aa --output aa_check --bootstrap 2 --plot
           python examples/application_demo.py zj --output zj_check --bootstrap 2 --plot
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
+      - name: Same recoil moments on two shower samples
+        run: |
+          maxent-upgrade fit examples/data/dy_prior.npz examples/own_prior/dy_recoil.json pythia_recoil.npz
+          maxent-upgrade fit examples/data/herwig_public_prior.npz examples/own_prior/dy_recoil.json herwig_recoil.npz
+          maxent-upgrade check herwig_recoil.npz
+          python examples/own_prior/recoil_check.py pythia_recoil.npz herwig_recoil.npz
       - name: Installed command
         working-directory: /tmp
         run: |

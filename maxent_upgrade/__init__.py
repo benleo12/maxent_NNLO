@@ -24,7 +24,7 @@ from .numerical import NumericalInput, bootstrap_runs
 from .study import (ConstraintBlock, ConstraintFit, Prediction, fit_constraints, load_frozen,
                     plan_observable, residual_test, stack_predictions, validate_prediction)
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 __all__ = [
     "book_targets", "fit_targets", "upgrade", "load_moments", "sigma_fid", "released",

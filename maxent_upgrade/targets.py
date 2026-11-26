@@ -159,8 +159,6 @@ def _targets(config, payload, *, varied=False):
                       (not varied and roles[name] != "mixed" and config.get("moment_selection", True)
                        and name not in config.get("fixed_orders", {})))
         entry = _read_values(row, need_error=need_error)
-        if abs(entry[0]) > 1.0 + 1e-12:
-            raise ValueError(f"{name} degree {degree}: a positive-weight sample cannot realize this Chebyshev target outside [-1, 1]")
         by_name[name][degree] = entry
 
     packed = {"born": {}, "recoil": {}, "mixed": {}}
@@ -306,7 +304,7 @@ def fit_targets(events, table):
     if "cross_section_pb" in table:
         if _number(table["cross_section_pb"], "cross_section_pb") <= 0:
             raise ValueError("cross_section_pb must be positive")
-    result = upgrade_ensemble(events, central, config, variations, methods=methods,
+    result = upgrade_ensemble(events, central, config, variations, methods=methods, check_support=True,
                               cross_section=table.get("cross_section_pb", 1.0))
     result.unit_area_only = "cross_section_pb" not in table
     if "selection" in table:

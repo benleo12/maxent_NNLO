@@ -106,6 +106,40 @@ selected rows for the corresponding fiducial cross section. Without a supplied
 central cross section the outputs sum to one. No second fit is needed when the
 analysis selection changes.
 
+## Check the moments returned by the fit
+
+```sh
+maxent-upgrade check dy_weights.npz
+maxent-upgrade check dy_weights.npz --source scale --member "muR = 2 m_ll, muF = 2 m_ll"
+```
+
+The second command uses a scale label from the absolute-rapidity example. Each
+report compares the prior and fitted averages of the **same measurement function**
+with its target. A windowed row shows the mean of the window times the polynomial
+over the full fiducial sample. A blended row includes the complementary prior
+contribution. Window fractions appear as separate rows when imposed. The signed
+residual is the achieved mean minus the target. These dimensionless quantities
+also apply to an output normalized in pb.
+
+The NPZ field `constraint_checks_json` stores the central rows and each source's
+labeled variation rows. Each row identifies its observable, degree, measurement
+kind and hard or soft treatment. `input_error` gives the supplied total error
+in feature units. For a target depending on both a window moment and its fraction,
+the report propagates their marginal errors in quadrature at fixed prior. An
+unavailable error appears as `null` in the file and a dash in the display.
+A joint significance test needs the integration covariance.
+
+For hard constraints the package checks whether a weighted average of the actual
+prior events could give the requested values. A contradiction may involve a
+linear combination of moments even when each target lies inside its own range.
+A separating bound is checked on every event before rejecting a target. A
+nonconstant feature exactly at its minimum or maximum would require zeroing
+events away from that endpoint. The numerical convex-hull check can also be
+inconclusive, in which case the package reports that status. A feasible target
+can retain a residual from the regularized fit. Inspect the achieved values in
+the saved check. Gaussian soft targets with positive widths can trade agreement
+for a smaller change to the prior.
+
 The same workflow is available in memory:
 
 ```python

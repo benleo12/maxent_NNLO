@@ -11,6 +11,7 @@ import numpy as np
 
 from . import released
 from .reweight import upgrade
+from .support import InfeasibleTarget
 from .provenance import array_identity, canonical_json, content_hash, fit_provenance, effective_configuration, released_table_identity
 
 
@@ -41,6 +42,7 @@ class EnsembleResult:
     notes: list = field(default_factory=list)
     provenance: dict = field(default_factory=dict)
     unit_area_only: bool = False
+    constraint_checks: dict = field(default_factory=dict)
 
     def arrays(self, unit_area=False):
         """NPZ-ready arrays. By default all event weights are in pb.
@@ -57,6 +59,8 @@ class EnsembleResult:
                    uncertainty_sources=np.asarray(list(self.weights), dtype=str),
                    uncertainty_methods=np.asarray(list(self.methods.values()), dtype=str),
                    uncertainty_notes=np.asarray(self.notes, dtype=str))
+        if self.constraint_checks:
+            out["constraint_checks_json"] = np.asarray(canonical_json(self.constraint_checks))
         if "fitted_degrees" in self.central.report:
             out["moment_degrees_json"] = np.asarray(canonical_json(self.central.report["fitted_degrees"]))
         if not unit_area:
@@ -95,7 +99,7 @@ def _positive_rate(rate):
 
 
 def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
-                     methods=None, progress=None):
+                     methods=None, progress=None, check_support=False):
     """Upgrade any process and its input variations, keeping the central orders.
 
     `variations` maps source names to iterables of Variation objects. Use `scale`,
@@ -116,7 +120,9 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
         if method not in {"envelope", "std", "hessian68"}:
             raise ValueError(f"unknown uncertainty method {method!r}")
         chosen_methods[source] = method
-    central = upgrade(events, moments, config)
+    central = upgrade(events, moments, config, check_support=True) if check_support else upgrade(events, moments, config)
+    checks = ({"central": central.report["constraints"], "support": central.report["support"], "variations": {}}
+              if check_support else {})
     provenance = fit_provenance(events, moments, config, central, cross_section=rate)
     provenance["variations"] = {}
     if progress:
@@ -126,6 +132,8 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
     for source, shifts in variations.items():
         ws, rs, names = [], [], []
         provenance["variations"][source] = []
+        if check_support:
+            checks["variations"][source] = []
         for i, shift in enumerate(shifts):
             shifted_config = dict(config if shift.config is None else shift.config)
             shifted_events = events if shift.prior_weight is None else {
@@ -137,10 +145,21 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
                 shifted_config["lam0"] = central.report["lam"]
             shifted_rate = _positive_rate(rate if shift.cross_section is None else shift.cross_section)
             shifted_moments = moments if shift.moments is None else shift.moments
-            result = upgrade(shifted_events, shifted_moments, shifted_config)
+            label = shift.label or f"{source} {i + 1}"
+            if check_support:
+                if shift.moments is None and shift.config is None and shift.prior_weight is None:
+                    result = central  # a pure rate variation has the same unit-normalized fit
+                else:
+                    try:
+                        result = upgrade(shifted_events, shifted_moments, shifted_config, check_support=True)
+                    except InfeasibleTarget as error:
+                        raise InfeasibleTarget(f"{source} member {label!r}: {error}") from error
+                checks["variations"][source].append(dict(label=label, constraints=result.report["constraints"],
+                                                         support=result.report["support"]))
+            else:
+                result = upgrade(shifted_events, shifted_moments, shifted_config)
             if result.report["fitted_degrees"] != central.report["fitted_degrees"]:
                 raise ValueError(f"{source}: a variation changed the constrained moment degrees")
-            label = shift.label or f"{source} {i + 1}"
             ws.append(result.weights)
             rs.append(shifted_rate)
             names.append(label)
@@ -153,7 +172,8 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
                 progress(label, result)
         _check_count(source, chosen_methods[source], len(ws))
         weights[source], rates[source], labels[source] = np.asarray(ws), np.asarray(rs), names
-    return EnsembleResult(central, rate, weights, rates, chosen_methods, labels, provenance=provenance)
+    return EnsembleResult(central, rate, weights, rates, chosen_methods, labels, provenance=provenance,
+                          constraint_checks=checks)
 
 
 def _check_count(source, method, n):
