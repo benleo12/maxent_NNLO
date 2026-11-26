@@ -40,6 +40,7 @@ class EnsembleResult:
     labels: dict
     notes: list = field(default_factory=list)
     provenance: dict = field(default_factory=dict)
+    unit_area_only: bool = False
 
     def arrays(self, unit_area=False):
         """NPZ-ready arrays. By default all event weights are in pb.
@@ -48,6 +49,7 @@ class EnsembleResult:
         members 1..58; `weight_upgraded` supplies member 0 to the Hessian formula.
         Original event arrays can be saved alongside this dictionary.
         """
+        unit_area = unit_area or self.unit_area_only
         out = dict(weight_upgraded=self.central.weights * (1 if unit_area else self.cross_section),
                    weight_normalization=np.asarray("unit_area" if unit_area else "pb"),
                    moment_names=np.asarray(list(self.central.chosen_moments), dtype=str),
@@ -55,6 +57,8 @@ class EnsembleResult:
                    uncertainty_sources=np.asarray(list(self.weights), dtype=str),
                    uncertainty_methods=np.asarray(list(self.methods.values()), dtype=str),
                    uncertainty_notes=np.asarray(self.notes, dtype=str))
+        if "fitted_degrees" in self.central.report:
+            out["moment_degrees_json"] = np.asarray(canonical_json(self.central.report["fitted_degrees"]))
         if not unit_area:
             out["cross_section_upgraded_pb"] = np.asarray(self.cross_section)
         for source, w in self.weights.items():
@@ -70,6 +74,7 @@ class EnsembleResult:
 
     def histogram(self, values, bins, *, unit_area=False, density=True):
         """Central histogram and separate lower/upper bands; see histogram_bands."""
+        unit_area = unit_area or self.unit_area_only
         values, bins = _validate_histogram(values, bins)
         # Histogram one member at a time; do not allocate a second ensemble in pb.
         h = lambda w, rate: np.histogram(values, bins, weights=w * (1 if unit_area else rate))[0]
@@ -122,8 +127,9 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
         ws, rs, names = [], [], []
         provenance["variations"][source] = []
         for i, shift in enumerate(shifts):
-            shifted_events = events if shift.prior_weight is None else dict(events, weight=shift.prior_weight)
             shifted_config = dict(config if shift.config is None else shift.config)
+            shifted_events = events if shift.prior_weight is None else {
+                **events, shifted_config.get("weight_key", "weight"): shift.prior_weight}
             shifted_config.update(fixed_orders=orders, keep_features=False)
             # A moved measurement function must not inherit multipliers in the old basis.
             shifted_config.pop("lam0", None)
@@ -132,8 +138,8 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
             shifted_rate = _positive_rate(rate if shift.cross_section is None else shift.cross_section)
             shifted_moments = moments if shift.moments is None else shift.moments
             result = upgrade(shifted_events, shifted_moments, shifted_config)
-            if result.chosen_moments != orders:
-                raise ValueError(f"{source}: a variation changed the constrained moment orders")
+            if result.report["fitted_degrees"] != central.report["fitted_degrees"]:
+                raise ValueError(f"{source}: a variation changed the constrained moment degrees")
             label = shift.label or f"{source} {i + 1}"
             ws.append(result.weights)
             rs.append(shifted_rate)

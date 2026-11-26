@@ -32,7 +32,7 @@ class UpgradeResult:
     x_match : float
         Matching scale of the first recoil window (nan without one).
     moment_snr : dict {observable: array}
-        Resolution spectrum SNR_n = |mu_n(target) - mu_n(prior)| / sigma_n, orders 1..N.
+        Resolution spectrum in supplied degree order. Each tower lists its supplied_degrees.
     chosen_moments : dict {observable or joint key: int}
         Number of moments imposed per tower (towers are imposed up to their highest
         resolved order) and per joint block.
@@ -66,24 +66,28 @@ class UpgradeResult:
         retained = (f"retained statistics {100 * self.effN_retained:.2f}%"
                     if np.isfinite(self.effN_retained)
                     else f"effective fraction {100 * self.effN:.2f}%")
-        residual = (f"largest moment residual {self.max_pull:.3g} MC errors"
+        residual = (f"largest moment residual {self.max_pull:.3g} input errors"
                     if np.isfinite(self.max_pull) else f"relative moment residual {self.closure:.2g}")
         if (not np.isfinite(self.max_pull)
                 and np.any(np.abs(self.report.get("zero_error_residuals", [])) > 1e-12)):
             residual = "nonzero residual for an input with zero MC error"
         return f"{len(self.weights):,} events | {retained} | {residual} | positive weights: {bool((self.weights > 0).all())}"
 
-    def describe(self) -> str:
+    def describe(self, *, cross_section_pb=None) -> str:
         """Readable diagnostics; detailed numerical arrays remain in report."""
         towers = self.report.get("towers") or []
         width = max([len(t["name"]) for t in towers] + [10])
         out = ["MaxEnt reweighting", self.summary(), "",
-               f"{'Observable':<{width}}  {'Constraint':<10}  {'Map':<4}  {'Moments':>9}  {'Residual / MC error':>19}"]
+               f"{'Observable':<{width}}  {'Constraint':<10}  {'Map':<4}  {'Moments':>9}  {'Residual / input error':>19}"]
         for tower in towers:
             pull = tower.get("max_pull", float("nan"))
             residual = f"{pull:.3g}" if np.isfinite(pull) else "not supplied"
             out.append(f"{tower['name']:<{width}}  {tower['kind']:<10}  {str(tower.get('map', '-')):<4}  "
                        f"{tower['imposed']:>3} / {tower['supplied']:<3}  {residual:>19}")
+        for tower in towers:
+            degrees = tower.get("supplied_degrees")
+            if degrees is not None and degrees != list(range(1, len(degrees) + 1)):
+                out.append(f"{tower['name']} fitted degrees: {tower['fitted_degrees']} (supplied: {degrees})")
         if towers:
             out.append(
                 "Moments: imposed / available. Residuals use the input Monte Carlo errors when supplied.")
@@ -92,9 +96,11 @@ class UpgradeResult:
             out.extend(["", "Additional rate constraints:"])
             for name, values in shares.items():
                 pull = values['pull']
-                residual = f"{pull:.3g} MC errors" if np.isfinite(pull) else "MC error not supplied"
+                residual = f"{pull:.3g} input errors" if np.isfinite(pull) else "input error not supplied"
                 out.append(f"  {name}: {values['closure']:.2g} relative residual, {residual}")
-        out.extend(["", "Weights sum to one. Multiply by the target cross section for absolute predictions.",
+        normalization = ("Weights sum to one. Multiply by the target cross section for absolute predictions."
+                         if cross_section_pb is None else f"Output weights sum to {cross_section_pb:g} pb.")
+        out.extend(["", normalization,
                     f"Effective events: {len(self.weights) * self.effN:,.1f}",
                     f"Largest relative moment residual: {self.closure:.3g}"])
         if "q_over_p_range" in self.report:

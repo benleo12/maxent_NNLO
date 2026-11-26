@@ -1,218 +1,123 @@
-# New processes and observables
+# Supply your own prior and moments
 
-The solver has no process-specific branches. It needs a positive prior, a set of
-measurement functions, and their target expectation values. The released process
-names belong to the table loader, not to the reweighting algorithm.
+`maxent-upgrade fit prior.npz targets.json upgraded.npz` accepts any process with
+a positive LO+PS prior covering the target phase space. Each target names an observable,
+its polynomial degree, its normalized fixed-order average and its absolute numerical
+or combined error. Include `stat_error` separately when the quoted total also contains
+scale variation. Use the same event definitions, units and cuts in both calculations.
+The optional `selection` string records the fiducial cuts. Apply them upstream.
 
-[Run the complete synthetic example](../examples/custom_observables.py) first.
-It shows two custom observables, their separate moments and their joint moments.
-For an existing released process, you can instead select additional constraints
-already present in its table. See [the paper examples](../examples/README.md).
+The [Drell–Yan target file](../examples/own_prior/targets.json) is a complete
+example. It takes two absolute-rapidity moments from the released NNLO table, including
+its seven scale choices and corresponding cross sections. It can be fitted to either
+of the two generators in the checkout. Replace the column names, maps and target
+rows for another physical process.
 
-## 1. Define the event arrays
+## Identify the measurement function
 
-Choose observables that your prior and fixed-order calculation can evaluate with
-the same definitions, cuts and units. Each dictionary holds one value per event:
+Define each ID once in `config`. A Born or recoil ID is the input event column.
+For a joint ID, supply the two column names in the same order as the degree pair.
+The joint block inherits their maps. For an axis that appears only in a joint block,
+declare its interval and map under the block's `range` and `map` objects.
 
-```python
-prior = {
-    "mass": prior_mass,
-    "cos_theta": prior_angle,
-    "weight": prior_weights,
-}
-fixed_order = {
-    "mass": fo_mass,
-    "cos_theta": fo_angle,
-    "weight": fo_weights,
-}
-```
-
-The two samples may have different sizes. Prior weights must be strictly positive.
-Fixed-order phase-space weights may have either sign. The prior must populate the
-phase space needed by the target, including configurations that can cross analysis
-cuts during showering. Names such as `mass` are ordinary dictionary keys. Rename
-or add them freely, and use the same names in `config`.
-
-Extra prior arrays are carried along for your analysis. They receive the same
-weights but supply no constraints. For example, keeping `jet_multiplicity` in
-`prior` does not request a fixed-order calculation of it.
-
-## 2. Choose where fixed order is reliable
-
-For a Born observable with a reliable fixed-order distribution over its selected
-range, give an interval and a map:
-
-```python
-config = {
-    "born": {
-        "mass": {"range": (60.0, 140.0), "map": "lin"},
-        "cos_theta": {"range": (-1.0, 1.0), "map": "lin"},
-    }
-}
-```
-
-The available maps are `lin`, `log` and `("bw", mass, width)`. The logarithmic map
-requires a positive interval. Values outside the interval are clipped, identically
-on the prior and fixed-order sides. Their detailed distribution there is not
-resolved by that set of moments.
-
-For a recoil observable, use fixed order only in a suitable window. This example
-turns it on between 20 and 40 GeV and ends the constrained range at 500 GeV:
-
-```python
-config["recoil"] = {
-    "recoil_pt": {
-        "range": (20.0, 500.0),
-        "map": "log",
-        "soft_lo": 20.0,
-        "profile": {"a": 20.0, "b": 40.0, "c": 500.0},
-    }
-}
-```
-
-Add `recoil_pt` arrays to both samples. The default `blend` transition combines
-fixed-order moments in the window with complementary moments from the prior.
-Above the hard cutoff, the implemented target is the **rescaled prior share**,
-not a separately supplied fixed-order tail rate. The recoil measurement functions
-are constant below the lower edge. Constraints on other correlated observables
-can still affect the marginal distribution there.
-
-The window is a physics choice made when computing the input moments. It is not
-inferred from a variable name or freely adjustable afterwards. The color-singlet
-matching-scale criterion in `matching_scale` is a guide for the applications in
-the paper, not a universal prescription for arbitrary observables. Born observables
-can also need restricted windows near acceptance edges, as in the W example.
-
-## 3. Supply the moments
-
-If the fixed-order points are available as arrays:
-
-```python
-from maxent_upgrade import compute_fo_moments, upgrade
-
-moments = compute_fo_moments(fixed_order, config, n_max=8)
-result = upgrade(prior, moments, config)
-print(result.describe())
-```
-
-Otherwise accumulate the same weighted sums inside the fixed-order integrator.
-For each observable, map its value to `u` and accumulate
-`sum(weight * T_n(u)) / sum(weight)`. Recoil and joint constraints include their
-specified window factors. The [fixed-order recipe](../MOMENT_CONSTRUCTION.md)
-and [NNLOJET patch](../nnlojet_patch/README.md) give the exact definitions.
-
-The solver accepts the resulting plain dictionary. For example, a Born block is:
-
-```python
-moments = {
-    "born": {
-        "mass": {
-            "values": mass_moments,
-            "stat_errors": mass_mc_errors,
-            "scale_errors": mass_scale_errors,
-            "errors": np.hypot(mass_mc_errors, mass_scale_errors),
-        },
-        "cos_theta": {
-            "values": angle_moments,
-            "stat_errors": angle_mc_errors,
-            "scale_errors": angle_scale_errors,
-            "errors": np.hypot(angle_mc_errors, angle_scale_errors),
-        },
-    }
-}
-```
-
-Lists start at degree one. The normalization is separate. Errors determine how
-many moments are resolved for the user's prior, so production inputs must include
-reliable uncertainty estimates. `compute_fo_moments` uses the weighted-point error
-estimate. For correlated real-emission and subtraction points, estimate statistical
-errors using the integrator's independent runs, as in the released tables.
-
-## 4. Add correlations when needed
-
-Separate moments constrain separate distributions. To supply information about
-an angular distribution at different masses, add products of their polynomials:
-
-```python
-config["mixed"] = {
+```json
+{
+  "born": {
+    "mass": {"map": "lin", "range": [60, 140]},
+    "angle": {"map": "lin", "range": [-1, 1]}
+  },
+  "mixed": {
     "mass_angle": {
-        "observables": ("mass", "cos_theta"),
-        "range": {"mass": (60.0, 140.0), "cos_theta": (-1.0, 1.0)},
-        "map": {"mass": "lin", "cos_theta": "lin"},
-        "n": 2,
+      "observables": ["mass", "angle"], "n": 2
     }
+  }
 }
 ```
 
-This requests four products with degrees `(1, 1)`, `(1, 2)`, `(2, 1)` and `(2, 2)`.
-Recompute the moments with this configuration before reweighting.
+The target row
+`{"observable":"mass_angle","degree":[1,2],"value":0.03,"error":0.002}`
+specifies ⟨T₁(u_mass)T₂(u_angle)⟩. Supply the desired product degrees up to the
+declared maximum. Individual observables can also supply a sparse set of degrees.
+For an even correction, give degrees 2 and 4 alone. The fit then has no odd-degree
+constraint. Supply target rows in any order. Automatic selection keeps the supplied
+degrees up to the highest one it resolves against the prior. It needs an
+`error` per central tower moment. To impose every supplied degree yourself, set
+`"moment_selection":false` inside `config`. You may then omit the errors for a
+whole tower. Input variations are refitted at the same degrees and can omit their
+errors. A windowed or joint target may also require its fixed-order window fraction. Use `lin`, `log` or
+`["bw", pole_mass, width]`. The coordinates clip to the declared interval.
+`T_n(cos θ) = cos(nθ)` defines the Chebyshev convention.
 
-When a joint block involves recoil windows, give the same profiles in its
-`profile` dictionary and set each coupled recoil constraint's `transition` to
-`"windowed"`. The joint measurement functions then contain the product of both
-windows, and the corresponding targets come from fixed order. The solver rejects
-a joint block coupled to a blended recoil constraint. The Z+jet tables already
-supply a consistent configuration.
+For recoil, a smooth window can turn on fixed order above the singular region.
+For example, declare `"recoil":{"pt":{"range":[20,500],"map":"log","profile":{"a":20,"b":40,"c":500}}}`
+alongside the Born definitions. For this tower, each supplied moment is
+⟨w T_n⟩/⟨w⟩. Provide the window fraction ⟨w⟩ separately under
+`"rates":{"pt":{"value":0.31,"error":0.002}}` in the target file. The same rule
+holds for a joint block carrying a window on either axis. Fixed-order booking and
+reweighting use the same map, window and endpoints. The paper documents the physics
+choice of transition for each process.
 
-## 5. Use the weights in an analysis
+## Book targets or supply the numbers
 
-```python
-weights_pb = result.weights * target_cross_section_pb
-counts_pb, edges = np.histogram(prior["mass"], bins=mass_edges, weights=weights_pb)
+Write the observable definitions in `observables.json`. With a signed fixed-order
+sample, book all requested averages and their errors once:
+
+```sh
+maxent-upgrade moments observables.json fixed_order.npz targets.json --orders 6 --cross-section 12.4
+maxent-upgrade fit prior.npz targets.json upgraded.npz
 ```
 
-Every returned weight belongs to the input event at the same index. Apply it to
-that event's complete record, including its detector response if available.
-`result.weights` sums to one and already includes the prior's relative weights.
-The ratio to the normalized prior is useful when an analysis accepts multiplicative
-factors, but absolute predictions also require the target cross section.
+The two samples need one finite value per constrained observable per record,
+and a `weight` column. Only the shower prior requires strictly positive individual
+weights. Signed contributions in the integration sample must give a positive fiducial
+total and positive window integrals. The fixed-order record ordering is independent
+of that of the prior. If the records carry common scale choices, supply their absolute
+integration weights in `weight_scales[choice, record]`, with row zero equal to
+`weight`, and string `scale_labels[choice]` if available. These weights must have a
+common overall normalization across choices. Member cross sections are the central
+rate times the ratio of signed sums. An integrator with separately normalized samples
+can instead supply each varied rate directly.
 
-A cut applied afterwards selects a subset of these weights. Do not renormalize the
-subset unless a shape-only result is intended. Accurate acceptance also depends on
-the relevant joint distributions and on any unconstrained decay or radiation
-variables. Correct individual marginals alone do not guarantee it.
+An integrator can write the target rows without exporting its records. The values
+are ratios of the signed weighted sums, normalized by the fiducial integral (or the
+window integral for windowed moments). Use independent-run errors when the integrator
+pairs real and subtraction records. [Fixed-order definitions](../MOMENT_CONSTRUCTION.md)
 
-## 6. Automate repeated use
+## Return variations to your analysis
 
-Once the observable definitions and target moments are fixed, the same call can
-process samples from different generators, tunes or production batches:
+The optional `variations` object groups member inputs by source. Each member gives
+a `label`, its own `moments` and, for absolute predictions, its `cross_section_pb`.
+The central map definitions apply to every row. Each varied input must identify
+exactly the same degrees. Include all window fractions for that member. To vary
+only a normalization, supply a label and a cross section. For shower variations on
+the same events, supply the name of the positive replacement prior column as
+`prior_weight_column`. Statistical replicas from independent integrations use the
+source `stat` (at least two members). For a covariance-based calculation using
+common-run integrals see the [correlated-input interface](STUDY_API.md).
+
+The output records the number of fitted moments per ID in `moment_orders` and their
+actual degrees in `moment_degrees_json`, for example `{"angle":[2,4]}`. For the
+optional `fixed_orders` setting, give a count of supplied tower degrees in ascending
+order. A count of one in this example imposes degree two.
+
+The output contains all input fields plus `weight_upgraded` and, per source,
+`weight_<source>[member,event]` and `labels_<source>`. Sum a weight array over
+selected rows for the corresponding fiducial cross section. Without a supplied
+central cross section the outputs sum to one. No second fit is needed when the
+analysis selection changes.
+
+The same workflow is available in memory:
 
 ```python
-def reweight_sample(events, moments, config, sigma_pb):
-    result = upgrade(events, moments, config)
-    print(result.describe())
-    return result.weights * sigma_pb
+from maxent_upgrade import book_targets, fit_targets
+
+targets = book_targets(fixed_order, config, orders=6, cross_section_pb=12.4)
+ensemble = fit_targets(prior, targets)
+weights = ensemble.arrays()["weight_upgraded"]
 ```
 
-Retain the exact configuration with the moments. Save the event ordering and the
-solver's diagnostic output with each result. The selected moment count can differ
-between priors because the correction required by each prior differs.
-
-For uncertainty propagation on one prior, supply the varied moments and rates
-to `upgrade_ensemble`. It keeps the central moment orders fixed:
-
-```python
-from maxent_upgrade import Variation, upgrade_ensemble
-
-variations = {
-    "scale": [Variation(moments_up, cross_section=sigma_up_pb),
-              Variation(moments_down, cross_section=sigma_down_pb)],
-}
-ensemble = upgrade_ensemble(prior, moments, config, variations,
-                            cross_section=sigma_pb)
-hist = ensemble.histogram(prior["mass"], np.linspace(60, 140, 21))
-```
-
-Pass `config=shifted_config` in a `Variation` when a map or window changes. The
-solver then uses a cold start. A `stat` source takes independent-run bootstrap
-replicas and reports their standard deviation. Other custom sources default to
-an envelope including the central result. Histograms retain each source separately,
-and `ensemble.arrays()` saves coherent event weights in pb for any later observable.
-The complete [custom uncertainty example](../examples/custom_uncertainties.py)
-runs without external data. For released processes, `upgrade_with_uncertainties`
-builds the variations automatically, including available PDF and window inputs.
-
-Automation covers the numerical reweighting. The user specifies the physics input:
-which observables to constrain, where fixed order is reliable, and whether the
-prior describes the remaining correlations adequately. A converged solve verifies
-the constraints, not the accuracy of every observable in the event.
+For arbitrary event functions, covariance from common integration runs or variations
+that deliberately change the measurement map, use the [direct API](REFERENCE.md) and
+[correlated-input interface](STUDY_API.md). The package also supplies a [joint-moment
+example](../examples/custom_observables.py) and an [uncertainty
+example](../examples/custom_uncertainties.py).

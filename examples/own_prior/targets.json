@@ -1,0 +1,61 @@
+{
+  "selection": "66 < m_ll < 116 GeV, pT_l > 27 GeV, |eta_l| < 2.5, Born-level leptons (ATLAS 13 TeV)",
+  "config": {"born": {"y_abs": {"range": [0.0, 2.4], "map": "lin"}}},
+  "cross_section_pb": 710.3611257116524,
+  "moments": [
+    {"observable": "y_abs", "degree": 1, "value": -0.14580443163568368, "error": 0.0010214653810291605, "stat_error": 0.00013177108979127593},
+    {"observable": "y_abs", "degree": 2, "value": -0.423930515839027, "error": 0.0004159950182436871, "stat_error": 0.00011453671706628939}
+  ],
+  "variations": {
+    "scale": [
+      {
+        "label": "muR = 2 m_ll, muF = 2 m_ll",
+        "cross_section_pb": 713.1350413715745,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.14479953038286011, "error": 0.0010192586507431307, "stat_error": 0.00011340323001766573},
+          {"observable": "y_abs", "degree": 2, "value": -0.42423767475361024, "error": 0.00041162467884112543, "stat_error": 9.747656427991972e-05}
+        ]
+      },
+      {
+        "label": "muR = 0.5 m_ll, muF = 0.5 m_ll",
+        "cross_section_pb": 710.2288539455443,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.14682539109331014, "error": 0.0010247080288522676, "stat_error": 0.0001549149439467738},
+          {"observable": "y_abs", "degree": 2, "value": -0.4236195768722286, "error": 0.00042253964802630643, "stat_error": 0.00013640585950373466}
+        ]
+      },
+      {
+        "label": "muR = 2 m_ll, muF = m_ll",
+        "cross_section_pb": 710.2571936504289,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.14589974064210212, "error": 0.0010188066099937878, "stat_error": 0.00010926574957765325},
+          {"observable": "y_abs", "degree": 2, "value": -0.4242993553767113, "error": 0.0004109688515270088, "stat_error": 9.466890343817382e-05}
+        ]
+      },
+      {
+        "label": "muR = m_ll, muF = 2 m_ll",
+        "cross_section_pb": 709.483942262129,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.1448002058601287, "error": 0.001022208489998871, "stat_error": 0.00013741285416402863},
+          {"observable": "y_abs", "degree": 2, "value": -0.42385503722885487, "error": 0.0004170968661498139, "stat_error": 0.00011847615838114198}
+        ]
+      },
+      {
+        "label": "muR = 0.5 m_ll, muF = m_ll",
+        "cross_section_pb": 709.979816878679,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.1463002163764499, "error": 0.0010259126919878547, "stat_error": 0.0001626927996117207},
+          {"observable": "y_abs", "degree": 2, "value": -0.42349952240502975, "error": 0.0004243713111567979, "stat_error": 0.00014197821694083025}
+        ]
+      },
+      {
+        "label": "muR = m_ll, muF = 0.5 m_ll",
+        "cross_section_pb": 705.1706235548811,
+        "moments": [
+          {"observable": "y_abs", "degree": 1, "value": -0.14657022903996006, "error": 0.0010207866196965628, "stat_error": 0.000126401813338526},
+          {"observable": "y_abs", "degree": 2, "value": -0.42404158795735886, "error": 0.00041500371346037926, "stat_error": 0.0001108823094035394}
+        ]
+      }
+    ]
+  }
+}

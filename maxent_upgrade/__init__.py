@@ -1,7 +1,7 @@
 """Reweight a positive-weight sample using fixed-order moments.
 
-    moments, config = load_moments("dy")
-    result = upgrade(events, moments, config)
+    targets = book_targets(fixed_order, config, cross_section_pb=sigma)
+    result = fit_targets(prior, targets)
 
 For a new process, define the observable maps in config and construct the same
 moments in your fixed-order calculation. No process registration is required.
@@ -17,16 +17,17 @@ from .reweight import upgrade
 from .uncertainty import (
     EnsembleResult, Variation, histogram_bands, upgrade_ensemble, upgrade_with_uncertainties,
 )
+from .targets import book_targets, fit_targets
 from .diagnostics import bin_diagnostics, joint_moment_residuals, weight_diagnostics
 from .provenance import fit_provenance
 from .numerical import NumericalInput, bootstrap_runs
 from .study import (ConstraintBlock, ConstraintFit, Prediction, fit_constraints, load_frozen,
                     plan_observable, residual_test, stack_predictions, validate_prediction)
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 __all__ = [
-    "upgrade", "load_moments", "sigma_fid", "released",
+    "book_targets", "fit_targets", "upgrade", "load_moments", "sigma_fid", "released",
     "compute_fo_moments", "chebyshev_moment", "profile_w", "matching_scale",
     "check_seam", "resolved_order", "combine_moments", "UpgradeResult",
     "upgrade_with_uncertainties", "upgrade_ensemble", "Variation", "EnsembleResult", "histogram_bands",

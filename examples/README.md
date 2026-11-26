@@ -1,5 +1,9 @@
 # Examples
 
+To fit your own events, start with the [user-supplied Chebyshev targets](../docs/NEW_PROCESSES.md).
+A [complete absolute-rapidity table](own_prior/targets.json) runs on either Drell–Yan prior.
+The examples below document the collider studies in the paper.
+
 Start with the committed real Drell–Yan fitting example:
 
 ```bash
@@ -376,7 +380,7 @@ linear_result = upgrade(events, linear_moments, linear_config)
 ```
 
 Estimate production uncertainties with independent integrator runs, as described in
-the [new-process guide](../docs/NEW_PROCESSES.md#3-supply-the-moments). Relabeling
+the [new-process guide](../docs/NEW_PROCESSES.md#book-targets-or-supply-the-numbers). Relabeling
 existing moments with a different map is not a valid map comparison. These
 optional controls require target moments for the chosen order and map, together
 with a compatible prior.

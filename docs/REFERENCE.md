@@ -1,5 +1,13 @@
 # API reference
 
+For a new process, `book_targets(fixed_order, config, orders=..., cross_section_pb=...)`
+constructs a JSON-ready table of identified Chebyshev moments. Supply that table
+or your own equivalent numbers to `fit_targets(prior, table)`. The returned
+ensemble exposes `central.describe()` and `arrays()` with positive central
+and varied event weights. Each single-variable target may list explicit positive,
+unique degrees. Its fitted degree list is in `central.report["fitted_degrees"]`. [Input contract and runnable example](NEW_PROCESSES.md)
+
+
 For a first run, start with the [quick start](../README.md) or the [examples](../examples/README.md).
 
 ## The inputs in detail

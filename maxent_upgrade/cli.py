@@ -1,10 +1,11 @@
-"""Command-line access to the released moments and positive event weights."""
+"""Match user-supplied and released fixed-order moments to shower events."""
 import argparse
 from pathlib import Path
 
 import numpy as np
 
 from . import released
+from .target_commands import add_target_commands
 from .reweight import upgrade
 from .uncertainty import histogram_bands, upgrade_with_uncertainties
 from .provenance import canonical_json, file_hash, fit_provenance, released_table_identity
@@ -106,7 +107,7 @@ def reweight(args):
             normalization="unit_area" if args.unit_area else "pb", input_path=prior,
             table=released_table_identity(args.process, released.table(args.process), selection))
         additions["provenance_json"] = np.asarray(canonical_json(provenance))
-    print(result.describe())
+    print(result.describe(cross_section_pb=None if args.unit_area else total))
     collisions = set(events).intersection(additions)
     if collisions:
         raise ValueError(f"input already contains output fields: {sorted(collisions)}")
@@ -145,6 +146,7 @@ def main(argv=None):
         prog="maxent-upgrade", description="Positive event weights from fixed-order moments."
     )
     commands = parser.add_subparsers(dest="command", required=True)
+    add_target_commands(commands)
     show = commands.add_parser(
         "inspect", help="show the required arrays, selection and selected constraints")
     show.add_argument("process", help="dy, wp, wm, ggh, aa, zj, or a released-format JSON table")

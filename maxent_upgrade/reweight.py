@@ -254,38 +254,45 @@ def upgrade(events, moments, config):
     # tower imposes them through its window w: blended with the prior across the window's
     # rise (transition 'blend', the default) or with the features masked by w ('windowed').
     def _impose(obs, lo_map, hi_map, mp, vals, errs, floor, sig=None, wprof=None, rate=1.0,
-                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None):
+                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None, degrees=None):
         XL = np.asarray(events[obs], float)
-        Nmax = len(vals)
-        sigv = np.zeros(Nmax) if sig is None or not len(sig) else np.asarray(sig, float)[:Nmax]
-        if len(sigv) < Nmax:
-            sigv = np.concatenate([sigv, np.zeros(Nmax - len(sigv))])
+        count = len(vals)
+        degrees = np.arange(1, count + 1, dtype=int) if degrees is None else np.asarray(degrees)
+        if (degrees.shape != (count,) or degrees.dtype.kind not in "iu"
+                or (degrees < 1).any() or (np.diff(degrees.astype(int)) <= 0).any()):
+            raise ValueError(f"{obs}: degrees must be increasing positive integers, one per target")
+        highest = int(degrees[-1]) if count else 0
+        sigv = np.zeros(count) if sig is None or not len(sig) else np.asarray(sig, float)[:count]
+        if len(sigv) < count:
+            sigv = np.concatenate([sigv, np.zeros(count - len(sigv))])
         # The prior's moment in the resolution criterion is the same quantity as the booked
         # target: for a window tower the window-weighted <w T_n>/<w>, for a Born tower the
         # plain average over the full range.
         if wprof is not None:
             wpr = np.asarray(wprof, float)
             win = wpr > 0
-            mu_prior = (chebyshev_moment(XL[win], (w * wpr)[win], Nmax, lo_map, hi_map, mp)
-                        if win.any() else np.zeros(Nmax))
+            mu_prior = (chebyshev_moment(XL[win], (w * wpr)[win], highest, lo_map, hi_map, mp)
+                        if win.any() else np.zeros(highest))
         else:
-            mu_prior = chebyshev_moment(XL, w, Nmax, lo_map, hi_map, mp)
+            mu_prior = chebyshev_moment(XL, w, highest, lo_map, hi_map, mp)
+        mu_prior = mu_prior[degrees - 1]
         snr = (np.abs(vals - mu_prior) / np.maximum(errs, 1e-30)
-               if np.asarray(errs).any() else np.full(Nmax, np.inf))
+               if np.asarray(errs).any() else np.full(count, np.inf))
         snr_spectra[obs] = snr
-        N = max(resolved_order(snr, thr) if do_sel else Nmax, floor)
+        n_imposed = max(resolved_order(snr, thr) if do_sel else count, floor)
         # a band variant (scale choice, bootstrap replica) must impose the SAME
         # constraint set as the central solve: near the SNR threshold the rule can
         # flip an order in or out between variants, which would change the number
         # of multipliers and make the variant a different problem, not a shifted one
         fixed = (cfg.get("fixed_orders") or {}).get(obs)
         if fixed is not None:
-            N = min(max(int(fixed), floor), Nmax)
-        chosen[obs] = N
+            n_imposed = min(max(int(fixed), floor), count)
+        chosen[obs] = n_imposed
         towers.append(dict(name=obs, kind="born" if wprof is None else transition,
                            map=mp if isinstance(mp, str) else mp[0],
-                           supplied=int(Nmax), imposed=int(N),
-                           below=[(n, float(snr[n - 1])) for n in range(1, N + 1) if snr[n - 1] <= thr]))
+                           supplied=int(count), imposed=int(n_imposed), supplied_degrees=degrees.tolist(),
+                           fitted_degrees=degrees[:n_imposed].tolist(),
+                           below=[(int(n), float(s)) for n, s in zip(degrees[:n_imposed], snr[:n_imposed]) if s <= thr]))
         # Under the blend the features are clipped at the window's lower edge (and at d for a
         # smooth upper edge): every event below it carries the same T_n, so the tilt is flat
         # there and the shower's shape is kept exactly.  The booked moments are unaffected,
@@ -293,14 +300,14 @@ def upgrade(events, moments, config):
         lo_c = lo_map if lo_feat is None else lo_feat
         hi_c = hi_map if hi_feat is None else hi_feat
         u = _umap(np.clip(XL, lo_c, hi_c), lo_map, hi_map, mp)
-        C = _cheb(u, max(Nmax, 1))
+        C = _cheb(u, int(degrees[n_imposed - 1]) if n_imposed else 0)
         if wprof is None:
             # -------- Born tower: the fixed-order moment over the full range --------
-            for n in range(1, N + 1):
+            for i, n in enumerate(degrees[:n_imposed]):
                 F.append(C[:, n])
-                mu.append(float(vals[n - 1]))
+                mu.append(float(vals[i]))
                 names.append(f"{obs}_T{n}")
-                SIG.append(float(sigv[n - 1]))
+                SIG.append(float(sigv[i]))
         elif transition == "blend":
             # -------- blend: the target density on this axis is the smooth mixture --------
             #     b(x) = (1 - w(x)) * cs * p(x) + w(x) * f(x),   cs = (1 - R) / (1 - R_p),
@@ -325,15 +332,15 @@ def upgrade(events, moments, config):
                 raise ValueError(f"the '{obs}' window holds every prior event (<w>_p = 1), so the blend has no "
                                  f"prior part to keep: use transition='windowed' for this tower")
             cs = (1.0 - R) / (1.0 - R_p)
-            for n in range(1, N + 1):
+            for i, n in enumerate(degrees[:n_imposed]):
                 # <(1-w) T_n>_p below x_c
                 prior_part = float((p * (1.0 - wprof) * inside * C[:, n]).sum())
                 F.append(C[:, n] * inside)
-                mu.append(cs * prior_part + R * float(vals[n - 1]))
+                mu.append(cs * prior_part + R * float(vals[i]))
                 names.append(f"{obs}_T{n}")
                 # d mu_n / dR = mu_n^{FO,w} - <(1-w) T_n>_p / (1 - R_p)
-                dR = float(vals[n - 1]) - prior_part / (1.0 - R_p)
-                SIG.append(float(np.hypot(float(sigv[n - 1]) * R, dR * float(rate_sig))))
+                dR = float(vals[i]) - prior_part / (1.0 - R_p)
+                SIG.append(float(np.hypot(float(sigv[i]) * R, dR * float(rate_sig))))
             above = 1.0 - inside
             if above.any():
                 P_above = float((p * above).sum())
@@ -351,12 +358,12 @@ def upgrade(events, moments, config):
             # wherever prior and fixed order disagree there.
             R = float(rate)
             wprof = np.asarray(wprof, float)
-            for n in range(1, N + 1):
+            for i, n in enumerate(degrees[:n_imposed]):
                 F.append(C[:, n] * wprof)
-                mu.append(float(vals[n - 1]) * R)
+                mu.append(float(vals[i]) * R)
                 names.append(f"{obs}_T{n}")
-                SIG.append(float(np.hypot(float(sigv[n - 1]) * R,
-                           float(vals[n - 1]) * float(rate_sig))))
+                SIG.append(float(np.hypot(float(sigv[i]) * R,
+                           float(vals[i]) * float(rate_sig))))
             SHARES.append(len(names))
             F.append(wprof.copy())
             mu.append(R)
@@ -370,7 +377,7 @@ def upgrade(events, moments, config):
         _impose(o, a, b, mp,
                 np.asarray(moments["born"][o]["values"], float),
                 np.asarray(moments["born"][o].get("errors", []), float),
-                floor=0, sig=_soft_err(moments["born"][o], "errors"))
+                floor=0, sig=_soft_err(moments["born"][o], "errors"), degrees=moments["born"][o].get("degrees"))
     # Recoil observables, each through its own window (there may be more than one, e.g. the
     # two jet spectra of Z+jet, or a recoil and a decay-angle window).  Each carries its own
     # profile, rate and transition; their features add to the same feature matrix.
@@ -395,7 +402,7 @@ def upgrade(events, moments, config):
         _impose(recoil_obs, soft_lo, XHI, rcfg.get("map", "log"), vals,
                 np.asarray(rc.get("window_errors", []), float), floor=1,
                 sig=_soft_err(rc, "window_errors"), wprof=wprof, rate=R, rate_sig=_rate_err(rc),
-                transition=trans,
+                transition=trans, degrees=rc.get("degrees"),
                 lo_feat=(max(soft_lo, a) if blend else None),
                 hi_feat=(min(XHI, d) if (blend and smooth_top) else None),
                 hi_cut=(None if (not blend or c is None or smooth_top) else c))
@@ -436,7 +443,7 @@ def upgrade(events, moments, config):
             names.append(f"{key}_rate")
             SIG.append(_rate_err(rc))
         towers.append(dict(name=key, kind="joint", map="-", supplied=len(rc["values"]),
-                           imposed=len(rc["values"]), below=[]))
+                           imposed=len(rc["values"]), fitted_degrees=[list(pair) for pair in rc["values"]], below=[]))
 
     Phi = np.column_stack(F)
     mu = np.asarray(mu, float)
@@ -485,6 +492,7 @@ def upgrade(events, moments, config):
     primary = next(iter(recoil_cfg), None)
     x_match = float(windows[primary]["x_match"]) if primary else float("nan")
     report = dict(
+        fitted_degrees={t["name"]: t["fitted_degrees"] for t in towers},
         moment_selection=dict(enabled=bool(do_sel), threshold=thr, chosen=dict(chosen),
                               snr={o: [float(s) for s in snr_spectra[o]] for o in snr_spectra}),
         window=(dict(windows[primary]) if primary else {}), windows=windows,

@@ -11,6 +11,8 @@ Read the current calculation in this order:
 4. `solver.py`: damped Newton minimization of the convex dual.
 5. `result.py`: weights and diagnostics.
 
+`targets.py` converts the user’s named observable and degree rows to solver inputs.
+`target_commands.py` reads a prior and writes aligned central and varied weights.
 `released.py` loads the shipped tables and their variations. `cli.py` provides the
 installed command, while `__init__.py` keeps the public Python imports short.
 

@@ -157,13 +157,38 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
 
     Errors: `stat_errors` is the weighted Monte Carlo error, `scale_errors` the half-range
     over the scale rows, `errors` (and `window_errors`) their quadrature sum.
+    The pointwise statistical estimate assumes independent integration records.
+    Use independent-run errors for correlated real and subtraction contributions.
+    Individual weights may be signed. Each normalization sum must be positive.
     """
     born_cfg = config.get("born", {}) or {}
     recoil_cfg = config.get("recoil", {}) or {}
     mixed_cfg = config.get("mixed", {}) or {}
     w = np.asarray(fo_events[weight_key], float)
+    if w.ndim != 1 or not len(w) or not np.isfinite(w).all():
+        raise ValueError("fixed-order weights must be a nonempty, finite 1D array")
+    fields = set(born_cfg) | set(recoil_cfg)
+    for spec in mixed_cfg.values():
+        fields.update(spec["observables"])
+    for name in fields:
+        values = np.asarray(fo_events[name], float)
+        if values.shape != w.shape or not np.isfinite(values).all():
+            raise ValueError(f"fixed-order {name!r} must have one finite value per weight")
+    if n_max is not None and (not isinstance(n_max, (int, np.integer)) or n_max < 1):
+        raise ValueError("n_max must be a positive integer")
     wsc = fo_events.get(scale_key)
-    wsc = None if wsc is None else np.atleast_2d(np.asarray(wsc, float))
+    if wsc is not None:
+        wsc = np.atleast_2d(np.asarray(wsc, float))
+        if (wsc.ndim != 2 or wsc.shape[1] != len(w) or not len(wsc) or not np.isfinite(wsc).all()
+                or not np.array_equal(wsc[0], w)):
+            raise ValueError("weight_scales must be finite (choices, records) with central weight in row zero")
+
+    def check_sums(central_sum, scale_sums, label):
+        sums = np.r_[central_sum, scale_sums]
+        if not np.isfinite(sums).all() or (sums <= 0).any():
+            raise ValueError(f"{label}: the signed weight sum must be finite and positive at every scale")
+
+    check_sums(w.sum(), [] if wsc is None else wsc.sum(axis=1), "fiducial sample")
     Nb = n_max if n_max is not None else 12      # MOMENT_CONSTRUCTION.md, section 4
     Nr = n_max if n_max is not None else 20
 
@@ -223,13 +248,11 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
                            None if d is None else float(d))
             xm = a
         else:
-            if x_match is None:
-                raise ValueError(
-                    f"compute_fo_moments: {obs} has no 'profile' in config, so x_match is needed")
-            wf = ((xr >= x_match) & (xr < xhi)).astype(float)
-            xm = float(x_match)
+            xm = float(rc["range"][0] if x_match is None else x_match)
+            wf = ((xr >= xm) & (xr < xhi)).astype(float)
         sel = wf > 0
         ww = w * wf
+        check_sums(ww.sum(), [] if wsc is None else wsc @ wf, obs + " window")
         muw = chebyshev_moment(xr[sel], ww[sel], Nr, soft_lo, xhi, mp)
         sc = (None if wsc is None else
               0.5 * np.ptp([chebyshev_moment(xr[sel], wsc[r][sel] * wf[sel], Nr, soft_lo, xhi, mp)
@@ -259,6 +282,7 @@ def compute_fo_moments(fo_events, config, x_match=None, x_hi=None, n_max=None,
         Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), nmx)
         ww = w * wxy
         S = ww.sum()
+        check_sums(S, [] if wsc is None else wsc @ wxy, key + " window")
         vals, st, sc = {}, {}, {}
         for m in range(1, nmx + 1):
             for n in range(1, nmx + 1):

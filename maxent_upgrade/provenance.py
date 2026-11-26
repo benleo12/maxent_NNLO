@@ -149,6 +149,8 @@ def fit_provenance(events, moments, config, result, *, cross_section=1.0,
                   fitted_orders=json_value(result.chosen_moments),
                   normalization=normalization, target_cross_section_pb=float(cross_section),
                   output_weights=array_identity(result.weights * (cross_section if normalization == "pb" else 1)))
+    if "fitted_degrees" in result.report:
+        record["fitted_degrees"] = result.report["fitted_degrees"]
     if input_path is not None:
         record["input_file"] = dict(name=Path(input_path).name, sha256=file_hash(input_path))
     return record

@@ -17,6 +17,12 @@ reproduce the full-production fit event by event.
 
 ## Running the examples
 
+For a sample of your own, the two inputs to the fit are your event file and your
+identified moments. Run `maxent-upgrade fit prior.npz targets.json upgraded.npz`.
+The [new-process guide](docs/NEW_PROCESSES.md) gives the input format and explains
+how to book the same moments directly from fixed-order contributions. The examples
+below reproduce applications from the paper.
+
 From a clean checkout, `python -m pip install '.[plot]'` followed by
 `python examples/real_drell_yan.py --output dy_demo --plot` performs a real DY
 fit without downloads. It saves `posterior.npz`, `recoil.npz`, `angle.npz`,

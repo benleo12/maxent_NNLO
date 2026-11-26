@@ -1,314 +1,96 @@
 # maxent_upgrade
 
-**Fixed-order QCD information in the shower events you already have.**
+Reweight your existing LO+PS events with Chebyshev moments from a fixed-order calculation.
+You supply the positive event weights, the observables you measured and their NLO or NNLO
+moments. The package fits one replacement weight per original event. Supply scale choices
+or numerical replicas to get a set of event weights for each variation as well.
 
-Reweight a positive-weight LO+PS sample using fixed-order moments of selected
-observables. The package selects the resolved moments, solves for positive event
-weights and reports their agreement with the input. Event kinematics stay intact.
+## Fit your own sample
 
-The same solver works with any compatible prior and user-defined observables.
-A new process needs its observable definitions and fixed-order moments, with no
-changes to the solver. Ready-to-use inputs accompany the paper for Drell–Yan,
-W±, Higgs, diphoton and Z+jet production.
+Install from a checkout with `pip install .`. The fit requires only NumPy.
 
-[Quick start](#quick-start) · [All paper examples](examples/README.md) ·
-[Prior input schemas](docs/INPUTS.md) · [New processes](docs/NEW_PROCESSES.md) · [API reference](docs/REFERENCE.md) ·
-[Validation](docs/VALIDATION.md) · [Event records](docs/HEPMC.md) ·
-[Constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) ·
-[Reproduction](REPRODUCE.md) · [Technical notes](docs/TECHNICAL_NOTES.md)
-
-## Install
-
-Python 3.9 or newer and NumPy are sufficient. From a checkout:
-
-```bash
-python -m pip install .
+```sh
+maxent-upgrade fit prior.npz targets.json upgraded.npz
 ```
 
-Optional plotting support: `python -m pip install '.[plot]'`.
+**The prior** contains one array per observable and a strictly positive `weight` per event.
+Keep event IDs and any other quantities you will use for analysis in the same file.
 
-## Run a real QCD example
+**The targets** identify each Chebyshev moment by its observable and degree. Here is a
+complete illustrative table for the absolute rapidity of a boson. Replace the rates,
+moments and errors with your fixed-order inputs for the same fiducial cuts.
 
-A compact Drell–Yan sample and fixed-order references are included in the checkout:
-
-```bash
-git clone https://github.com/benleo12/maxent_NNLO.git
-cd maxent_NNLO
-python -m pip install '.[plot]'
-python examples/real_drell_yan.py --output dy_demo --plot
-```
-
-This performs a new fit to the released NNLO moments on 112,978 real shower
-events. It saves event weights, separate uncertainty sources, a constrained
-hard-recoil comparison, an unconstrained decay-angle comparison against an
-independent NNLO integration, and the acceptance of a tighter lepton cut.
-`dy_demo/comparison.pdf` shows both comparisons; `report.json` records local
-effective statistics, ratios and input provenance. The fit needs no network
-access or external event sample after installation.
-
-[![Actual Drell–Yan example: constrained recoil and independent angular comparison](docs/images/dy_example.png)](examples/README.md)
-
-The example's generated figure shows the supplied hard-recoil information and
-the separate angular prediction. The shaded angular shoulder is marked explicitly.
-
-The example distinguishes propagated input errors from physics validation.
-The independent angle is allowed to disagree: it was not fitted. The
-[sample recipe](examples/data/DY_GENERATION.md) explains the sampling weights,
-generator settings and which reference is independent. Omit `--plot` if only
-NumPy is installed.
-
-Repeat the same workflow on the independent Herwig input:
-
-```bash
-python examples/real_drell_yan.py --prior examples/data/herwig_public_prior.npz --output herwig_demo --plot
-```
-
-Its 98,808 events include the original weights, inclusion probabilities, IDs
-and lepton four-vectors. The [Herwig recipe](examples/data/HERWIG_GENERATION.md)
-records the production settings and sampling rule.
-
-Compact real event samples also accompany W±, Higgs, diphoton and Z+jet
-production. Every application can be fitted from the checkout alone:
-
-```bash
-python examples/paper_examples.py wp examples/data/w_predictivity/w_wp_prior.npz wp.npz
-python examples/application_demo.py ggh --output ggh_demo --plot
-python examples/application_demo.py aa --output aa_demo --plot
-python examples/application_demo.py zj --output zj_demo --plot
-```
-
-The [example catalogue](examples/README.md) gives both charges, extended physical
-constraints and independent comparisons. The compact samples preserve original
-weights, event identities and documented sampling corrections. Their statistics
-differ from the full paper productions.
-
-## Quick start
-
-Inspect the required arrays and selection, then reweight your sample:
-
-```bash
-maxent-upgrade inspect dy
-maxent-upgrade reweight dy my_prior.npz posterior.npz
-```
-
-`my_prior.npz` contains one array per event for `mll`, `y_abs`, `pT_ll` and a
-strictly positive `weight`. Values use GeV. Apply the table's fiducial selection
-before reweighting. Other event arrays are preserved in the output.
-
-`posterior.npz` adds **`weight_upgraded`, in pb**, summing to the table's fiducial
-cross section. Use these as replacement event weights. Pass `--unit-area` for
-weights summing to one, or `--cross-section PB` to set another normalization.
-The command also works as `python -m maxent_upgrade`.
-
-The direct interface is equally short:
-
-```python
-import numpy as np
-from maxent_upgrade import load_moments, sigma_fid, upgrade
-
-with np.load("my_prior.npz") as sample:
-    events = dict(sample)
-
-moments, config = load_moments("dy")
-result = upgrade(events, moments, config)
-print(result.describe())
-
-shape_weights = result.weights                          # sum = 1
-weights_pb = shape_weights * sigma_fid("dy")["value"]   # sum = cross section in pb
-```
-
-`result.weights` already contains the prior weights. Do **not** multiply it by
-`events["weight"]` again. For a relative reweighting factor, use
-`result.weights / (events["weight"] / events["weight"].sum())`.
-
-## Predictions with uncertainties
-
-Add `--uncertainties` to re-solve the available scale choices, independent-run
-bootstrap replicas, moved transition windows and PDF members:
-
-```bash
-maxent-upgrade reweight dy my_prior.npz posterior.npz --uncertainties
-maxent-upgrade histogram posterior.npz pT_ll recoil.npz --bins 30 --range 0 300
-python examples/plot_result.py posterior.npz pT_ll --range 1 300 --log-x --band scale
-```
-
-Every variation carries its own total cross section and positive replacement
-event weights. The central moment orders stay fixed. Histogram bands keep the
-sources separate: scale/window envelopes, integration-statistical standard
-deviation and the CT18 68% Hessian band where available. The file also includes
-the usual weighted-sample statistical error. Unavailable inputs are reported.
-Shower variations can be supplied as generator weights through the direct interface.
-
-```python
-from maxent_upgrade import upgrade_with_uncertainties
-
-result = upgrade_with_uncertainties(events, "dy", n_boot=20)
-hist = result.histogram(events["pT_ll"], np.linspace(0, 300, 31))
-# hist["central"], hist["scale_low"], hist["scale_high"], ... are in pb/GeV
-np.savez_compressed("posterior.npz", **events, **result.arrays())
-```
-
-Use `--sources scale window` to request fewer sources, or `--bootstrap 100` for
-more integration replicas. Storing weights costs 8 bytes per event per variation.
-The same workflow supports new processes through `upgrade_ensemble`; the complete
-[custom uncertainty example](examples/custom_uncertainties.py) runs without any
-external data. See the [uncertainty reference](docs/REFERENCE.md#uncertainty-bands)
-for normalization, shower inputs and the saved-array format.
-
-## Decide which information to add
-
-The [real W tutorial](docs/W_CONSTRAINT_TUTORIAL.md) tests declared spin and
-production–decay constraints using their common integration covariance. It saves
-the chosen fits before comparing new lepton selections with an independent NNLO
-calculation:
-
-```bash
-python examples/w_constraint_workflow.py wm --output w_minus
-```
-
-Open `w_minus/report/report.html` for training diagnostics, the independent
-lepton spectrum and paired model changes. Absolute event weights and complete
-covariance accompany the figures. The 80,000-event fixture makes its own training
-choice; it does not inherit the full paper sample's result. Saved fits can be
-reused in another numerical environment without a new solve.
-
-A small controlled [constraint-study tutorial](docs/CONSTRAINT_TUTORIAL.md) walks
-through fitting separate moments, diagnosing an omitted correlation, freezing
-the chosen physical block and predicting an independent reference:
-
-```bash
-python examples/constraint_workflow.py output/constraint_tutorial
-```
-
-It writes event weights, readable PDF/PNG figures and a local HTML report, with
-the full numerical covariance and provenance beside them. This controlled
-Born-decay illustration explains the workflow; it is not an NNLO calculation.
-The [advanced interface](docs/STUDY_API.md) accepts arbitrary declared event
-functions and common-run fixed-order integrals, using the same solver as
-`upgrade`. Paired model changes retain their shared target and event fluctuations.
-
-## Try it without an event sample
-
-```bash
-python examples/custom_observables.py
-python examples/plot_result.py custom_result.npz mass --label Mass --unit GeV
-```
-
-This short, self-contained example builds synthetic prior and target samples,
-constrains two distributions and adds their joint moments. It prints the change
-in their correlation and saves the weights. The optional plot shows the prior,
-posterior and known target. The data are illustrative, not a QCD prediction.
-
-## The paper examples
-
-| Input | Process | Default constrained observables |
-|---|---|---|
-| `dy` | Drell–Yan, 13 TeV, NNLO | dilepton mass, absolute rapidity, recoil |
-| `wp`, `wm` | W±, 7 TeV, NNLO | lepton–neutrino mass, absolute W rapidity, recoil |
-| `ggh` | gluon-fusion Higgs, 13 TeV, NNLO | absolute Higgs rapidity, recoil |
-| `aa` | diphotons, 8 TeV, NNLO | diphoton mass, Collins–Soper angle, recoil |
-| `zj` | Z+jet, 13 TeV, NLO | dilepton mass and rapidity, two jet momenta and their joint moments |
-
-[The example guide](examples/README.md) includes all five applications, both W
-charges, the added decay-angle and acoplanarity constraints, separate and joint
-jet constraints, the prior comparisons, uncertainty re-solves, and the letter's
-NNLO Z+jet input. A single script makes the choices explicit:
-
-```bash
-python examples/paper_examples.py --list
-python examples/paper_examples.py wp-angle --inspect
-python examples/paper_examples.py wp-angle my_wp_prior.npz wp_angle.npz
-```
-
-The [two-jet benchmark](examples/data/zj_benchmark/README.md) includes ordinary
-histogram comparators, every tested resolution and independent cut/balance
-predictions, with a portable fitting script and compact plotting caches. The
-[bin-refinement study](examples/data/zj_refinement/RESULTS.txt) gives histograms
-automatic sparse-cell merging and compares accuracy with the numerical
-fluctuations of the correction. Both the fitting command and PDF/HTML report
-are included. The
-[full-sample generator comparison](examples/data/dy_portability/README.md) can
-also be redrawn directly from its numerical caches. The
-[independent W study](examples/data/w_joint/README.md) provides frozen angular
-and joint configurations, correlated training inputs and independent predictions,
-with a public fitting command and complete comparison caches.
-
-The tables include their fixed-order definitions and provenance. The compact DY fitting inputs and independent joint-validation histograms are
-distributed here. The authors' full event productions are not. You can use
-your own compatible prior, or request the authors' samples for numerical
-reproduction. See [REPRODUCE.md](REPRODUCE.md).
-
-## A new process or observable
-
-The solver accepts arrays and moment constraints. Observable names are chosen by
-you, and the prior can come from any generator that supplies positive weights
-and adequate phase-space coverage.
-
-```python
-from maxent_upgrade import compute_fo_moments, upgrade
-
-config = {
-    "born": {
-        "mass": {"range": (60.0, 140.0), "map": "lin"},
-        "cos_theta": {"range": (-1.0, 1.0), "map": "lin"},
-    }
+```json
+{
+  "config": {"born": {"y_abs": {"range": [0, 2.4], "map": "lin"}}},
+  "cross_section_pb": 12.4,
+  "moments": [
+    {"observable": "y_abs", "degree": 1, "value": -0.12, "error": 0.004},
+    {"observable": "y_abs", "degree": 2, "value": -0.31, "error": 0.006}
+  ]
 }
-moments = compute_fo_moments(fixed_order_events, config, n_max=8)
-result = upgrade(prior_events, moments, config)
 ```
 
-Here `prior_events` and `fixed_order_events` each contain `mass`, `cos_theta` and
-`weight` arrays. Their event counts may differ. Fixed-order weights may be signed.
-You can also accumulate the moment sums directly in your fixed-order code and
-pass the resulting dictionary, without exporting its phase-space points.
+Here `y_abs` names the prior column. Both calculations use the same map
+`u = 2(y_abs − lo)/(hi − lo) − 1`, clip it to
+`[-1,1]`, and evaluate `T_n(cos θ) = cos(nθ)`. Each value is the normalized
+fixed-order average of that polynomial. A window and its fixed-order fraction can be
+supplied for an observable such as boson recoil. A pair of degrees identifies a joint
+moment of two named observables. Supply the degrees your integration
+measured, for example only 2 and 4 for an even angular correction. Automatic
+selection compares those inputs with the prior using their errors. To fit all supplied degrees with
+no numerical errors available, set `"moment_selection": false` in `config` and
+omit `error`. [Maps, windows and joint moments](docs/NEW_PROCESSES.md)
 
-The [new-process guide](docs/NEW_PROCESSES.md) gives the full path, including
-recoil windows, correlations, uncertainty inputs and automation. The
-[fixed-order recipe](MOMENT_CONSTRUCTION.md) gives the precise measurement functions.
+**The result** preserves the event order and original arrays. Use `weight_upgraded`
+directly in your analysis. It already includes the event's prior weight and sums to
+`cross_section_pb`. Omit the cross section for unit-area weights. The fit prints the
+resolved moment orders, agreement with their targets and retained effective statistics.
 
-## Reading the result
+**Uncertainties.** Include varied targets under `variations`, with their labels and
+corresponding rates. The same command refits them at the central moment orders.
+For example, `weight_scale[i]` contains one scale choice on the entire event sample,
+identified by `labels_scale[i]`. Apply the same observable or cut to every member.
 
-Saved fits include a [provenance record](docs/PROVENANCE.md) with configuration,
-input and moment-table hashes, selected orders and weight normalization.
-[Local statistics and joint checks](docs/VALIDATION.md) help decide whether an
-analysis needs more events or additional correlation constraints. An optional
-[HepMC adapter](docs/HEPMC.md) extracts the DY selection and attaches central
-and named coherent variation weights to selected full records by event ID.
+## Compute the targets from fixed-order records
 
+If your integrator already exports the table above, go straight to the fit. If it
+exports weighted phase-space records, put the map definitions (the contents of
+`config` above) in `observables.json`. Use the same column names and cuts on the two
+samples. Their event counts and row order can differ.
 
-- **Moment agreement:** achieved moments compared with the input Monte Carlo
-  uncertainties. A successful minimization alone does not establish that a prior
-  is physically adequate.
-- **Retained statistics:** `result.effN_retained` compares the effective event
-  count with that of the prior. It is the useful measure for weighted or sliced samples.
-- **Weight spread:** the range of the normalized weight ratio `q/p`. Inspect
-  sparsely populated regions of observables important to your analysis as well.
+```sh
+maxent-upgrade moments observables.json fixed_order.npz targets.json --orders 6 --cross-section 12.4
+maxent-upgrade fit prior.npz targets.json upgraded.npz
+```
 
-Accuracy belongs to the constrained distributions and their stated kinematic
-regions, up to moment truncation. Inclusive NNLO input supplies NNLO Born moments
-and NLO hard-recoil moments. The low-recoil region relies on the shower.
-Unconstrained distributions inherit the prior's conditional distributions, and
-missing phase space cannot be generated by reweighting. Both sides must use the
-same cuts, units, maps, windows and observable definitions.
+Fixed-order `weight` may be signed. Optional `weight_scales` rows (central first)
+and `scale_labels` produce all scale targets and rates together. The pointwise
+numerical errors assume independent records. For correlated subtraction terms,
+supply errors or replicas from independent integration runs. Reuse a target file
+for another generator with the same observable definitions and fiducial cuts.
+[Input conventions and worked examples](docs/NEW_PROCESSES.md)
 
-## Code and reference material
+## Try it on collider events
 
-| File | Purpose |
-|---|---|
-| [`reweight.py`](maxent_upgrade/reweight.py) | build constraints, select moments, solve and report |
-| [`constraints.py`](maxent_upgrade/constraints.py) | fixed-order moments and transition functions |
-| [`basis.py`](maxent_upgrade/basis.py) | variable maps and Chebyshev polynomials |
-| [`solver.py`](maxent_upgrade/solver.py) | the convex-dual Newton solver |
-| [`result.py`](maxent_upgrade/result.py) | weights and readable diagnostics |
-| [`released.py`](maxent_upgrade/released.py) | released tables and their variations |
-| [`cli.py`](maxent_upgrade/cli.py) | inspect inputs and reweight NPZ files |
+From the checkout, this fits the first two absolute-rapidity moments to 112,978
+Drell–Yan events, including all six noncentral scale choices. You can open the
+[supplied target file](examples/own_prior/targets.json) to see the measured degrees,
+the fiducial selection and the rate attached to each scale.
 
-[Moment definitions and provenance](moments/README.md) ·
-[NNLOJET patches](nnlojet_patch/README.md) · [Run cards](runcards/README.md) ·
-[Changelog](CHANGELOG.md)
+```sh
+maxent-upgrade fit examples/data/dy_prior.npz examples/own_prior/targets.json dy_weights.npz
+```
 
-The earlier histogram interface remains available for existing scripts, documented
-in the [API reference](docs/REFERENCE.md#legacy-histogram-input).
+For the full released Drell–Yan constraint set, use `maxent-upgrade inspect dy` to see
+its inputs and `maxent-upgrade reweight dy prior.npz upgraded.npz --uncertainties`.
+The other released tables cover charged-current Drell–Yan (`wp`, `wm`), gluon-fusion
+Higgs (`ggh`), diphotons (`aa`) and Z+jet (`zj`).
+
+[All paper examples](examples/README.md) · [Event records and HepMC](docs/HEPMC.md) ·
+[API reference](docs/REFERENCE.md) · [Fixed-order booking](MOMENT_CONSTRUCTION.md) ·
+[Correlated integration inputs](docs/STUDY_API.md) · [Validation](docs/VALIDATION.md) ·
+[Paper reproduction](REPRODUCE.md)
 
 ## Citation
 

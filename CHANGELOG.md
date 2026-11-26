@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Match a user's positive-weight LO+PS events with a table of Chebyshev moments.
+  Each input identifies the observable, its map and interval, and the polynomial
+  degree. Joint moments identify both degrees in the declared order of the axes.
+- Book the same table from signed fixed-order contributions or supply it directly
+  from an integrator. Refitted variation weights carry their own cross sections
+  and stay aligned with the original shower events.
+
 ## 2026-11-24 documentation
 
 - Preserved the full paper sample inventory and original numerical tables,
