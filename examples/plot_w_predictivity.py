@@ -56,19 +56,21 @@ def plot_asymmetry(cache, output):
     mids = (EDGES[1:] + EDGES[:-1]) / 2
     for col, cut in enumerate((28, 32)):
         ix = [meta["labels"].index(f"eta{cut}_{i:02d}") for i in range(11)]
-        top, diff, change = axes[:, col]
+        top, ratio, change = axes[:, col]
         ref = data["reference"][:, ix]
         referr = np.sqrt(np.maximum(np.diag(data["reference_covariance"])[ix], 0))
+        if not np.all(np.isfinite(ref) & (ref > 0)):
+            raise ValueError(f"Invalid NNLO asymmetry for {cut} GeV")
         band(top, ref, "#777777", alpha=0.22)
-        band(diff, ref - ref[0], "#777777", alpha=0.22)
+        band(ratio, ref / ref[0], "#777777", alpha=0.22)
         top.errorbar(mids, ref[0], yerr=referr, fmt="o", ms=2.2, lw=0.6, color="black", zorder=5)
-        diff.errorbar(
-            mids, np.zeros(11), yerr=referr, fmt="o", ms=2.2, lw=0.6, color="black", zorder=5
+        ratio.errorbar(
+            mids, np.ones_like(referr), yerr=referr / ref[0], fmt="o", ms=2.2, lw=0.6, color="black", zorder=5
         )
         for name, k in model_index.items():
             ys = data["means"][k][:, ix]
             err = np.sqrt(np.maximum(np.diag(cov[k])[ix], 0))
-            for ax, values in ((top, ys), (diff, ys - ref)):
+            for ax, values, bar in ((top, ys, err), (ratio, ys / ref, err / ref[0])):
                 ax.stairs(
                     values[0],
                     EDGES,
@@ -83,7 +85,7 @@ def plot_asymmetry(cache, output):
                     ax.errorbar(
                         mids + 0.012,
                         values[0],
-                        yerr=err,
+                        yerr=bar,
                         fmt="none",
                         lw=0.55,
                         color=COLORS[name],
@@ -115,9 +117,9 @@ def plot_asymmetry(cache, output):
                 zorder=4,
             )
         top.set_title(r"$p_{\mathrm{T}}^\ell>%d\,\mathrm{GeV}$" % cut, pad=5)
-        for ax in (diff, change):
-            ax.axhline(0, color="#777777", lw=0.5, zorder=0)
-        for ax in (top, diff, change):
+        ratio.axhline(1, color="#777777", lw=0.5, zorder=0)
+        change.axhline(0, color="#777777", lw=0.5, zorder=0)
+        for ax in (top, ratio, change):
             ax.set_xlim(0, 2.5)
             ax.margins(y=0.15)
             ax.tick_params(axis="y", pad=2)
@@ -126,7 +128,7 @@ def plot_asymmetry(cache, output):
         change.set_xlabel(r"$|\eta_\ell|$")
         if col == 0:
             top.set_ylabel(r"$A_\ell$")
-            diff.set_ylabel(r"$A_\ell-A_\ell^{\mathrm{NNLO}}$")
+            ratio.set_ylabel("Ratio to NNLO")
             change.set_ylabel(r"paired $\Delta A_\ell$")
     # Equal tier ranges make the threshold comparison readable without clipping.
     for row in range(3):
@@ -161,8 +163,9 @@ def plot_asymmetry(cache, output):
     fig.text(
         0.10,
         0.025,
-        "Paired changes: windowed − blended recoil (orange); recoil–spin − windowed recoil (red).\n"
-        "Bands: coherent scales. Bars: numerical target/prior errors; independent reference errors are separate.",
+        "The ATLAS asymmetry measurement uses the 20 GeV selection.\n"
+        "Paired changes show the effect of windowed recoil (orange) and of adding spin moments (red).\n"
+        "Bands show scale variations. Bars give the numerical errors on each prediction.",
         fontsize=8.5,
         va="bottom",
     )

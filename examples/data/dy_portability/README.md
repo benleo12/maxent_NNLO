@@ -15,9 +15,14 @@ Every distribution is divided by its own full fiducial cross section, including
 probability outside the displayed bins. No distribution is renormalized within
 the plot range. Each scale member is normalized with its own fiducial rate.
 
-The upper panels show both showers before and after reweighting. The lower panels
-divide by fixed order in its native bins. Both rows draw the fixed-order central
-curve and its scale envelope over the same intervals.
+The upper panels show both showers before and after reweighting. Each lower
+fixed-order comparison uses the same reference bins as the upper spectrum.
+The third recoil panel divides the reweighted shapes by the ATLAS measurement.
+MG5+Pythia uses the native ATLAS bins. The released Herwig spectrum and the
+measurement share eight complete intervals between 2 and 300 GeV. The gray
+experimental band gives the pointwise errors on the original ATLAS bins.
+The two model bands vary the fitted scales. MG5+Pythia also has finite-event
+error bars. [Measured recoil and binned predictions](../paper_distributions/README.md)
 
 The full recoil spectrum uses a linear 0–500 GeV axis, with an inset below 30 GeV. Its low-recoil shower bins
 end at 60 GeV. The six fixed-order bins start at 60.615 GeV. The lower recoil panel
@@ -25,13 +30,14 @@ enlarges those six bins. The fixed-order spectrum and the recoil moments share 2
 integration seeds, so this comparison tests how closely the reweighting reproduces
 its input. Seeds 226 and 235 lack matching normalization inputs and were excluded.
 
-The decay-angle reference combines 64 independent NNLO integrations. Its comparison
-uses the bins below 0.75 and above 0.90 in the absolute Collins–Soper cosine. The
-axis break separates those intervals. Near the intervening lepton acceptance edge,
-small recoil changes which events satisfy the lepton cut. Both shower spectra cover
-the full angular range in the upper panel.
+The decay-angle reference combines 64 independent NNLO integrations. Both rows
+show all 20 bins of the absolute Collins–Soper cosine. The transverse-momentum
+cut on each lepton produces an acceptance edge near 0.8 at the Z pole. The
+fixed-order scale and integration errors grow there. The angular measurement
+published alongside the ATLAS recoil spectrum concerns dilepton acoplanarity.
+The paper compares that observable to data separately.
 
-Each colored scale band in the ratio uses the same scale choice in numerator and
+Each colored scale band in the fixed-order ratios uses the same scale choice in numerator and
 denominator. The colored error bars combine event sampling at fixed weights with
 the scatter of twenty target-integration bootstrap fits. The reference integration
 errors and its scale envelope are shown separately around one. The caches also

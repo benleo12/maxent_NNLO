@@ -17,6 +17,14 @@ machine-readable and a TeX acceptance table, a W− rapidity-angle redistributio
 map, and optional model/cut scans. The map is the same-event ratio `J2/A`, with
 sparse cells masked; it is not closure against an independent two-dimensional
 NNLO reference. Run `examples/plot_w_joint_map.py` for the map alone.
+The asymmetry panels compare each prediction with independent NNLO at both
+lepton thresholds and with ATLAS for the measured 20 GeV selection. The optional
+charge-separated pseudorapidity scans use the same NNLO and ATLAS comparisons
+at 20 GeV. The experimental band includes the 3.4% luminosity uncertainty in
+quadrature with the published bin errors. The experimental values in
+`atlas_charge_eta20.csv` are per unit signed pseudorapidity. Each bin in absolute
+pseudorapidity contains both hemispheres. [ATLAS, Tables XXIV–XXVI](https://arxiv.org/abs/1109.5141)
+
 Training covariance, prior-sample covariance and deterministic scale variations
 are retained separately. Neither a successful fit nor an uncertainty envelope
 replaces the independent prediction comparison.

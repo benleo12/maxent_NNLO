@@ -21,12 +21,9 @@ def style():
                          'xtick.top': True, 'ytick.right': True, 'mathtext.fontset': 'stix', 'savefig.bbox': 'tight'})
 
 
-def envelope(ax, edges, scales, color, alpha=.15, offset=None):
-    x = np.asarray(scales)
-    if offset is not None:
-        x = x - np.asarray(offset)[None, :]
-    lo = x.min(0)
-    hi = x.max(0)
+def envelope(ax, edges, scales, color, alpha=.15):
+    lo = scales.min(0)
+    hi = scales.max(0)
     ax.fill_between(edges, np.r_[lo, lo[-1]], np.r_[hi, hi[-1]], step='post', color=color, alpha=alpha, linewidth=0)
 
 
@@ -34,37 +31,63 @@ def main_figure(data, out):
     asym = json.loads((data / 'charge_asymmetry.json').read_text())
     selected = {ch: json.loads((data / ('w_%s_validation.json' % ch)).read_text())['selected'] for ch in ['wp', 'wm']}
     names = ['P', 'B', 'A', 'selected'] if any(x != 'A' for x in selected.values()) else ['P', 'B', 'selected']
-    fig, axs = plt.subplots(2, 2, figsize=(6.35, 3.5), sharex='col', gridspec_kw={'height_ratios': [2.05, 1.]})
+    source = Path(__file__).resolve().parent / 'data/paper_distributions/w/charge_asymmetry.npz'
+    with np.load(source, allow_pickle=False) as archive:
+        np.testing.assert_array_equal(archive['eta_edges'], EDGES)
+        measured = archive['atlas_born_asymmetry']
+        measured_error = np.vstack((archive['atlas_total_error_low'], archive['atlas_total_error_high']))
+
+    fig, axs = plt.subplots(3, 2, figsize=(7.1, 5.8), sharex='col',
+                            gridspec_kw={'height_ratios': [1.7, 1., 1.]})
     mids = .5 * (EDGES[1:] + EDGES[:-1])
-    for col, cut in enumerate([20, 30]):
-        tag = 'eta%d' % cut
-        top, bottom = axs[:, col]
-        ref = np.array(asym['reference'][tag]['coherent_scales'])
-        rs = np.array(asym['reference'][tag]['stat'])
-        for ax in [top, bottom]:
+    for col, cut in enumerate((20, 30)):
+        tag = f'eta{cut}'
+        top, fo, atlas = axs[:, col]
+        ref = np.asarray(asym['reference'][tag]['coherent_scales'])
+        rs = np.asarray(asym['reference'][tag]['stat'])
+        if not np.all(np.isfinite(ref) & (ref > 0)):
+            raise ValueError(f'Invalid NNLO asymmetry for {cut} GeV')
+        envelope(top, EDGES, ref, '#777777', .22)
+        envelope(fo, EDGES, ref / ref[0], '#777777', .22)
+        for ax, values, error in ((top, ref[0], rs), (fo, np.ones_like(rs), rs / ref[0])):
+            ax.errorbar(mids, values, yerr=error, fmt='s', mfc='white', ms=2.8,
+                        lw=.65, color='black', zorder=5)
+        panels = [(top, 1.), (fo, ref)]
+        if cut == 20:
+            panels.append((atlas, measured))
+            top.errorbar(mids, measured, yerr=measured_error, fmt='o', ms=2.5,
+                         lw=.65, color='black', zorder=6)
+            low, high = measured_error / measured
+            atlas.stairs(1 + high, EDGES, baseline=1 - low, fill=True, color='.88', zorder=0)
+            atlas.axhline(1, color='.45', lw=.55)
+            atlas.set(xlabel=r'$|\eta_\ell|$', ylabel='Ratio to ATLAS')
+        else:
+            atlas.axis('off')
+            atlas.text(.5, .5, 'ATLAS measured the 20 GeV selection.',
+                       ha='center', va='center', transform=atlas.transAxes)
+            fo.tick_params(labelbottom=True)
+            fo.set_xlabel(r'$|\eta_\ell|$')
+        for name in names:
+            ys = np.asarray(asym[name][tag]['coherent_scales'])
+            stat = np.asarray(asym[name][tag]['stat'])
+            for ax, denominator in panels:
+                values = ys / denominator
+                ax.stairs(values[0], EDGES, baseline=None, color=COLORS[name],
+                          linestyle=STYLES[name], lw=1.15, zorder=3)
+                if name == 'selected':
+                    envelope(ax, EDGES, values, COLORS[name], .16)
+                    central_denominator = ref[0] if ax is fo else denominator
+                    ax.errorbar(mids + .012, values[0], yerr=stat / central_denominator,
+                                fmt='none', lw=.55, color=COLORS[name], zorder=4)
+        for ax, _ in panels:
             ax.set_xlim(0, 2.5)
             ax.tick_params(which='both', length=3)
-        envelope(top, EDGES, ref, '#777777', .22)
-        envelope(bottom, EDGES, ref, '#777777', .22, ref[0])
-        top.errorbar(mids, ref[0], yerr=rs, fmt='o', ms=2.2, lw=.65, color='black', zorder=5)
-        bottom.errorbar(mids, np.zeros(len(mids)), yerr=rs, fmt='o', ms=2.2, lw=.65, color='black', zorder=5)
-        for name in names:
-            ys = np.array(asym[name][tag]['coherent_scales'])
-            stat = np.array(asym[name][tag]['stat'])
-            if name == 'selected':
-                envelope(top, EDGES, ys, COLORS[name], .16)
-                envelope(bottom, EDGES, ys, COLORS[name], .16, ref[0])
-                top.errorbar(mids + .012, ys[0], yerr=stat, fmt='none', lw=.55, color=COLORS[name], zorder=4)
-                bottom.errorbar(mids + .012, ys[0] - ref[0], yerr=stat, fmt='none', lw=.55, color=COLORS[name], zorder=4)
-            top.stairs(ys[0], EDGES, baseline=None, color=COLORS[name], linestyle=STYLES[name], lw=1.15, zorder=3)
-            bottom.stairs(ys[0] - ref[0], EDGES, baseline=None, color=COLORS[name], linestyle=STYLES[name], lw=1.15, zorder=3)
+            ax.margins(y=.12)
+        fo.axhline(1, color='#777777', lw=.5, zorder=0)
         top.set_title(r'$p_T^\ell>%d\,\mathrm{GeV}$' % cut, pad=5)
-        top.set_ylabel(r'$A_\ell=(\sigma^+-\sigma^-)/(\sigma^++\sigma^-)$' if col == 0 else '')
-        bottom.set_ylabel(r'$A_\ell-A_\ell^{\rm NNLO}$' if col == 0 else '')
-        bottom.set_xlabel(r'$|\eta_\ell|$')
-        bottom.axhline(0, color='#777777', lw=.5, zorder=0)
-        top.margins(y=.16)
-        bottom.margins(y=.17)
+        if col == 0:
+            top.set_ylabel(r'$A_\ell$')
+            fo.set_ylabel('Ratio to NNLO')
     labels = {'P': 'LO+PS shape with NNLO rates', 'B': 'Production moments',
               'A': '+ decay-angle moments', 'selected': 'Training-selected constraints'}
     joint_charges = [ch for ch in ['wp', 'wm'] if selected[ch] != 'A']
@@ -77,21 +100,23 @@ def main_figure(data, out):
     else:
         labels['selected'] = labels['A']
     handles = [Line2D([0], [0], color=COLORS[x], ls=STYLES[x], lw=1.2, label=labels[x]) for x in names]
-    handles += [Line2D([0], [0], color='black', marker='o', ms=2.3, lw=0, label='Independent NNLO(W), MC errors'),
-                Patch(facecolor='#777777', alpha=.22, label='Coherent seven-scale envelopes')]
-    fig.legend(handles=handles, loc='upper center', bbox_to_anchor=(.5, 1.015), ncol=2, frameon=False, columnspacing=2., handlelength=2.5)
-    fig.subplots_adjust(top=.78, bottom=.12, left=.1, right=.985, hspace=.08, wspace=.25)
+    handles += [Line2D([], [], color='black', marker='s', mfc='white', ms=2.8, lw=0, label='Independent NNLO'),
+                Line2D([], [], color='black', marker='o', ms=2.5, lw=0, label='ATLAS 7 TeV'),
+                Patch(facecolor='#777777', alpha=.22, label='Seven-point scale variation')]
+    fig.legend(handles=handles, loc='upper center', ncol=3, frameon=False,
+               columnspacing=1.5, handlelength=2.)
+    fig.subplots_adjust(top=.845, bottom=.09, left=.11, right=.98, hspace=.25, wspace=.25)
     for ext in ['pdf', 'png']:
         fig.savefig(out / ('w_independent_predictions.' + ext), dpi=220)
     plt.close(fig)
-    caption = ('Independent predictions for the lepton charge asymmetry before and after tightening the lepton transverse-momentum cut. '
-               'All other cuts remain pT_nu>25 GeV, mT>40 GeV and |eta_l|<2.5. No lepton distribution or tighter-cut rate entered constraint selection. '
-               'Black points are a disjoint NNLO(W) integration; bars show channel-wise resampled Monte Carlo statistics. The separate red statistical bars combine training-integration and finite-prior statistics propagated through the constrained fit by linear response. '
-               'Each prior charge is normalized to its training NNLO baseline rate, so the prior curve tests the shape information supplied by the shower. '
-               'Grey and red shading show coherent seven-point scale envelopes for the reference and selected prediction, respectively; they are not combined with the statistical errors. '
-               'Production moments constrain m_W, |y_W| and the resolved-recoil window; the angular candidate adds its fixed bulk window. '
-               'The training rule selected W+: %s and W-: %s. Recoil information in the NNLO W input is NLO for W+jet. '
-               'Lower panels show differences from the central independent reference. The same weights are used for both cuts.' % (selected['wp'], selected['wm']))
+    caption = ('Lepton charge asymmetry at 7 TeV for two lepton transverse-momentum cuts. '
+               'All curves use the same event weights. The missing transverse momentum exceeds '
+               '25 GeV and the transverse mass exceeds 40 GeV. Open squares show an independent '
+               'NNLO calculation. The middle panels compare each prediction with NNLO at the same '
+               'renormalization and factorization scales. The bands span seven scale choices. '
+               'Bars on the NNLO and selected predictions give their separate numerical errors. '
+               'Filled circles and the lower panel compare with the ATLAS measurement at 20 GeV '
+               '(arXiv:1109.5141, Table XXVI). The grey band there gives the experimental uncertainty.')
     (out / 'w_independent_predictions_caption.txt').write_text(caption + '\n')
 
 
@@ -126,6 +151,9 @@ def acceptance_table(data, out):
 
 
 def all_scans(data, out):
+    path = Path(__file__).resolve().parent / "data/w_joint/atlas_charge_eta20.csv"
+    measured = np.genfromtxt(path, names=True, delimiter=",")
+    np.testing.assert_array_equal(np.r_[measured["abs_eta_low"], measured["abs_eta_high"][-1]], EDGES)
     # Full model/cut scans are public supplementary plots, not automatic paper panels.
     for ch in ['wp', 'wm']:
         z = np.load(str(data / ('w_%s_validation.npz' % ch)), allow_pickle=False)
@@ -135,18 +163,33 @@ def all_scans(data, out):
             ix = np.arange(lo, hi)
             edges = np.array(meta['edges'][tag])
             ref = z['reference'][ix, 0]
-            fig, ax = plt.subplots(figsize=(4.35, 2.8))
+            if tag == 'eta20':
+                fig, (ax, atlas) = plt.subplots(2, 1, sharex=True, figsize=(5.5, 4.6))
+                # The paper tabulates dσ/dη per signed hemisphere. Our bins sum both signs.
+                rate = 2 * np.diff(edges) * measured[ch + '_pb_per_signed_eta']
+                error = np.hypot(measured[ch + '_error_percent'] / 100, .034)
+                atlas.stairs(1 + error, edges, baseline=1 - error, fill=True, color='.88')
+                atlas.axhline(1, color='.45', lw=.55)
+                atlas.set_ylabel('Prediction / ATLAS')
+                xlabel_axis = atlas
+            else:
+                fig, ax = plt.subplots(figsize=(5.5, 2.8))
+                xlabel_axis = ax
             mids = .5 * (edges[:-1] + edges[1:])
             err = np.sqrt(np.maximum(np.diag(z['reference_cov'])[ix], 0)) / np.abs(ref)
             ax.errorbar(mids, np.ones(len(ix)), yerr=err, fmt='o', ms=2, lw=.6, color='black', label='Independent NNLO(W)')
             labels = {'P': 'LO+PS (NNLO rate)', 'B': 'Production moments', 'A': '+ decay angle', 'J2': '+ joint degree 2', 'J4': '+ joint degree 4'}
             for model in ['P', 'B', 'A', 'J2', 'J4']:
-                values = z[model + '_mean'][0, ix] / ref
-                ax.stairs(values, edges, baseline=None, color=COLORS[model], ls=STYLES[model], lw=1., label=labels[model])
-            ax.set_xlabel(r'$|\eta_\ell|$' if tag.startswith('eta') else (r'$p_T^\ell$ [GeV]' if tag == 'ptl' else r'$m_T$ [GeV]'))
+                prediction = z[model + '_mean'][0, ix]
+                ax.stairs(prediction / ref, edges, baseline=None, color=COLORS[model],
+                          ls=STYLES[model], lw=1., label=labels[model])
+                if tag == 'eta20':
+                    atlas.stairs(prediction / rate, edges, baseline=None,
+                                 color=COLORS[model], ls=STYLES[model], lw=1.)
+            xlabel_axis.set_xlabel(r'$|\eta_\ell|$' if tag.startswith('eta') else (r'$p_T^\ell$ [GeV]' if tag == 'ptl' else r'$m_T$ [GeV]'))
             ax.set_ylabel('Prediction / independent NNLO')
             ax.set_title(ch.upper() + '  ' + tag)
-            fig.legend(loc='upper center', bbox_to_anchor=(.5, 1.04), ncol=3, frameon=False)
+            fig.legend(*ax.get_legend_handles_labels(), loc='upper center', ncol=3, frameon=False)
             fig.subplots_adjust(top=.74, bottom=.17, left=.15, right=.98)
             fig.savefig(out / ('%s_%s_full_scan.pdf' % (ch, tag)))
             plt.close(fig)

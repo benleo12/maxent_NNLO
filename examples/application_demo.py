@@ -4,9 +4,9 @@
     python examples/application_demo.py aa --output aa_demo --plot
     python examples/application_demo.py zj --output zj_demo --plot
 
-These are fresh fits to the public fixed-order tables. The extra observable is
-an unconstrained prediction; the plot has no independent reference and is not
-a validation of its perturbative accuracy.
+These fresh fits use the public fixed-order tables. The plots show how the input
+uncertainties propagate to the constrained and unconstrained spectra. The
+full-sample reference comparisons are in data/paper_distributions.
 """
 import argparse
 from pathlib import Path
@@ -134,7 +134,7 @@ def run(process, output, *, prior=None, bootstrap=20, make_plot=False):
     result = upgrade_with_uncertainties(events, process, n_boot=bootstrap, seed=731132, progress=check)
     elapsed = time.perf_counter() - started
     result.provenance["input_file"] = dict(name=prior.name, sha256=file_hash(prior))
-    result.notes.append("These histograms have no independent reference; input propagation is not physics validation.")
+    result.notes.append("These compact-sample histograms show absolute predictions and the propagated input uncertainties.")
     result.notes.append("Event histogram sample errors condition on the fitted weights; use the constraint-study interface for full refit response.")
     np.savez_compressed(output / "posterior.npz", **events, **result.arrays())
     results, local, selections = [], {}, {}

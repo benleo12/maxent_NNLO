@@ -13,6 +13,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+from dy_recoil_data import measured_shape, read_bins
 
 
 COLORS = {"pythia": "#b13c35", "herwig": "#285f96", "reference": "#373737"}
@@ -44,23 +47,19 @@ def draw(ax, edges, values, color, *, dashed=False, valid=None, band=None, error
                     color=color, fmt=".", ms=2.7, lw=.7, capsize=0)
 
 
-def plot_distribution(top, comparisons, directory, name):
+def plot_distribution(top, comparison, directory, name):
     """Use the same native fixed-order bins for the spectrum and its ratios."""
     ref = load(directory, name + "_reference")
     edges = ref["edges"]
-    centers = (edges[:-1] + edges[1:]) / 2
-    # The angular acceptance edge interrupts the fixed-order comparison.
-    regions = [np.full(len(centers), True)] if name == "recoil" else [centers < .75, centers > .90]
-    valid = np.logical_or.reduce(regions)
     reference = ref["central"]
+    valid = np.isfinite(reference) & (reference > 0)
     draw(top, edges, reference, COLORS["reference"], valid=valid, band=(ref["scale_low"], ref["scale_high"]))
     ref_band = (ratio(ref["scale_low"], reference), ratio(ref["scale_high"], reference))
     ref_error = ratio(ref["sample_error"], reference)
     extent = [ref_band[0][valid], ref_band[1][valid], 1 - ref_error[valid], 1 + ref_error[valid]]
-    for ax, selected in zip(comparisons, regions):
-        draw(ax, edges, np.ones_like(reference), COLORS["reference"], valid=selected,
-             error=ref_error, band=ref_band)
-        ax.axhline(1, color=".6", lw=.6, zorder=0)
+    draw(comparison, edges, np.ones_like(reference), COLORS["reference"], valid=valid,
+         error=ref_error, band=ref_band)
+    comparison.axhline(1, color=".6", lw=.6, zorder=0)
     peak = None
     if name == "recoil":
         peak = top.inset_axes([.49, .57, .46, .37])
@@ -91,29 +90,61 @@ def plot_distribution(top, comparisons, directory, name):
         central_ratio = ratio(h["central"], reference)
         extent.extend([prior_ratio[valid], (central_ratio - error)[valid], (central_ratio + error)[valid],
                        scales[:, valid].ravel()])
-        for ax, selected in zip(comparisons, regions):
-            draw(ax, edges, prior_ratio, color, dashed=True, valid=selected)
-            draw(ax, edges, central_ratio, color, valid=selected,
-                 band=(scales.min(axis=0), scales.max(axis=0)), error=error,
-                 offset=(-.08 if slot == 0 else .08))
+        draw(comparison, edges, prior_ratio, color, dashed=True, valid=valid)
+        draw(comparison, edges, central_ratio, color, valid=valid,
+             band=(scales.min(axis=0), scales.max(axis=0)), error=error,
+             offset=(-.08 if slot == 0 else .08))
     finite = np.concatenate(extent)
     low, high = np.nanmin(finite), np.nanmax(finite)
     margin = max(.03, .10 * (high - low))
-    comparisons[0].set_ylim(low - margin, high + margin)
-    comparisons[0].set_ylabel("Ratio to fixed order")
+    comparison.set_ylim(low - margin, high + margin)
+    comparison.set_ylabel("Ratio to fixed order")
+    return peak
+
+
+def plot_measured_recoil(spectrum, peak, comparison, directory):
+    edges, rows, data, error = measured_shape(directory)
+    keep = (edges[1:] <= 500) & (data > 0)
+    centers = (edges[:-1] + edges[1:]) / 2
+    for ax, selected in [(spectrum, keep), (peak, keep & (edges[1:] <= 30))]:
+        ax.errorbar(centers[selected], data[selected], xerr=np.diff(edges)[selected] / 2,
+                    yerr=error[selected], fmt="o", color=".15", ms=2.8, lw=.6)
+    relative = ratio(error, data)
+    comparison.stairs(np.where(keep, 1 + relative, np.nan), edges,
+                      baseline=np.where(keep, 1 - relative, np.nan), fill=True, color=".90")
+    comparison.axhline(1, color=".5", lw=.6)
+    draw(comparison, edges, rows["rew_over_data"], COLORS["pythia"], valid=keep,
+         error=ratio(rows["rew_event_error_GeV_inv"], data),
+         band=(ratio(rows["rew_scale_low_GeV_inv"], data), ratio(rows["rew_scale_high_GeV_inv"], data)))
+    common_edges, common = read_bins(Path(directory) / "atlas_recoil_common_integrals.csv")
+    members = np.array([common[f"herwig_scale_{i}_probability"] for i in range(7)])
+    ratios = members / common["data_probability"]
+    draw(comparison, common_edges, ratios[0], COLORS["herwig"], band=(ratios.min(axis=0), ratios.max(axis=0)))
+    comparison.set(xlim=(0, 500), xlabel=r"$q_T$ [GeV]", ylabel="Ratio to ATLAS")
+    limits = [rows["rew_over_data"] - ratio(rows["rew_event_error_GeV_inv"], data),
+              rows["rew_over_data"] + ratio(rows["rew_event_error_GeV_inv"], data),
+              ratio(rows["rew_scale_low_GeV_inv"], data), ratio(rows["rew_scale_high_GeV_inv"], data),
+              1 - relative, 1 + relative]
+    shown = np.r_[np.asarray(limits)[:, keep].ravel(), ratios.ravel()]
+    margin = (shown.max() - shown.min()) * .1
+    comparison.set_ylim(shown.min() - margin, shown.max() + margin)
 
 
 def plot(directory):
-    fig = plt.figure(figsize=(9.6, 5.4))
-    grid = fig.add_gridspec(2, 2, height_ratios=(1.7, 1), hspace=.41, wspace=.30)
+    fig = plt.figure(figsize=(9.6, 7.0))
+    grid = fig.add_gridspec(3, 2, height_ratios=(1.8, 1, 1), hspace=.48, wspace=.30)
     recoil = fig.add_subplot(grid[0, 0])
     angle = fig.add_subplot(grid[0, 1])
     hard = fig.add_subplot(grid[1, 0])
-    split = grid[1, 1].subgridspec(1, 2, width_ratios=(3, 1), wspace=.18)
-    low = fig.add_subplot(split[0])
-    high = fig.add_subplot(split[1], sharey=low)
-    plot_distribution(recoil, [hard], directory, "recoil")
-    plot_distribution(angle, [low, high], directory, "angle")
+    measured = fig.add_subplot(grid[2, 0])
+    angular = fig.add_subplot(grid[1, 1], sharex=angle)
+    missing = fig.add_subplot(grid[2, 1])
+    missing.axis("off")
+    missing.text(.5, .5, r"No fiducial $|\cos\theta^*|$ measurement",
+                 ha="center", va="center", transform=missing.transAxes)
+    peak = plot_distribution(recoil, hard, directory, "recoil")
+    plot_distribution(angle, angular, directory, "angle")
+    plot_measured_recoil(recoil, peak, measured, Path(directory).parent / "paper_distributions/drell_yan")
 
     recoil.set(xlim=(0, 500), yscale="log", ylim=(1e-6, .2),
                ylabel=r"$\sigma^{-1}d\sigma/dq_T$ [GeV$^{-1}$]", xlabel=r"$q_T$ [GeV]")
@@ -122,26 +153,15 @@ def plot(directory):
     angle.set_ylim(bottom=0)
     hard.set(xlim=(60, 500), xlabel=r"$q_T$ [GeV]")
     hard.set_xticks([60, 150, 250, 350, 500])
-    low.set_xlim(0, .75)
-    low.set_xticks([0, .25, .50, .75], labels=["0", "0.25", "0.5", "0.75"])
-    high.set_xlim(.90, 1)
-    high.set_xticks([.90, 1], labels=["0.9", "1"])
-    low.set_xlabel(r"$|\cos\theta^{*}|$", x=.68)
+    angular.set_xlabel(r"$|\cos\theta^{*}|$")
     for ax in fig.axes:
         ax.tick_params(direction="in", top=True, right=True)
-    # Both angular intervals use the same ratio scale. A break marks the
-    # intervening three angular bins omitted from the fixed-order comparison.
-    low.spines["right"].set_visible(False)
-    high.spines["left"].set_visible(False)
-    low.tick_params(axis="y", right=False)
-    high.tick_params(axis="y", left=False, labelleft=False)
-    for ax, end in [(low, 1), (high, 0)]:
-        ax.plot([end, end], [0, 1], color=".2", lw=0, marker=[(-.65, -1), (.65, 1)],
-                markersize=6, markeredgewidth=.8, transform=ax.transAxes, clip_on=False)
     handles = [Line2D([], [], color=COLORS[label], linestyle=style, label=text)
                for label, style, text in [("pythia", "--", "MG5+Pythia prior"), ("herwig", "--", "Herwig prior"),
                                           ("reference", ":", "Fixed order"), ("pythia", "-", "MaxEnt, MG5+Pythia"),
                                           ("herwig", "-", "MaxEnt, Herwig")]]
+    handles.extend([Line2D([], [], marker="o", linestyle="none", color=".15", label="ATLAS 13 TeV"),
+                    Patch(facecolor=".9", label="ATLAS error in measured bins")])
     fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False)
     fig.subplots_adjust(top=.87, bottom=.10, left=.09, right=.98)
     return fig

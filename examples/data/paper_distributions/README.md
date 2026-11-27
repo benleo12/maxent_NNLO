@@ -5,12 +5,11 @@ examples fit compact event samples. These figures use the full production sample
 
 | Application | Figure | Binned predictions |
 |---|---|---|
-| Neutral-current Drell–Yan | [Recoil and decay angle](drell_yan/recoil_and_angle.pdf), [dilepton mass, absolute rapidity and angular recoil](drell_yan/figure.pdf) | [Recoil in the ATLAS bins](drell_yan/atlas_recoil.csv), [angular recoil in the ATLAS bins](drell_yan/atlas_phistar.csv), [generator spectra and NNLO references](drell_yan/distributions.csv) |
+| Neutral-current Drell–Yan | [Recoil and decay angle](drell_yan/recoil_and_angle.pdf), [dilepton mass, absolute rapidity and angular recoil](drell_yan/figure.pdf) | [Recoil in the ATLAS bins](drell_yan/atlas_recoil.csv), [both generators on common intervals](drell_yan/atlas_recoil_common_integrals.csv), [angular recoil in the ATLAS bins](drell_yan/atlas_phistar.csv), [generator spectra and NNLO references](drell_yan/distributions.csv), [acoplanarity against fixed order](drell_yan/phistar_fixed_order.md), [Herwig in the ATLAS acoplanarity bins](drell_yan/herwig_atlas_groups.md) |
 | Charged-current Drell–Yan | [Lepton charge asymmetry](w/figure.pdf), [hard-recoil acceptance check](w/acceptance.pdf) | [CSV](w/predictions.csv), [baseline data and residuals](w/baseline.csv), [scale members and covariances](w/charge_asymmetry.npz), [conditional acceptances](w/acceptance.csv) |
-| Gluon-fusion Higgs | [Recoil and jets](higgs/jets.pdf), [diphoton recoil and rapidity after photon cuts](higgs/photons.pdf) | [Fiducial spectra, variations, inclusive recoil and jet counts](higgs/fiducial.npz) |
-| Continuum diphotons | [Recoil and azimuthal separation](diphoton/recoil_and_angle.pdf), [photon-pair mass and pseudorapidity separation](diphoton/figure.pdf) | [Recoil and azimuth in the ATLAS bins](diphoton/atlas_recoil_azimuth.md), [mass and angular densities](diphoton/distributions.npz) |
-
-The resolved-jet application has a [separate benchmark and refinement study](../zj_refinement/RESULTS.txt).
+| Gluon-fusion Higgs | [Recoil and jets](higgs/jets.pdf), [diphoton recoil and rapidity after photon cuts](higgs/photons.pdf) | [Fiducial spectra, variations, inclusive recoil and jet counts](higgs/fiducial.npz), [fiducial fixed-order references](higgs/higgs_fixed_order.md), [inclusive recoil in the combined ATLAS bins](higgs/inclusive/production_recoil.md) |
+| Continuum diphotons | [Recoil and azimuthal separation](diphoton/recoil_and_angle.pdf), [photon-pair mass and pseudorapidity separation](diphoton/figure.pdf) | [Recoil and azimuth in the ATLAS bins](diphoton/atlas_recoil_azimuth.md), [mass and angular densities](diphoton/distributions.npz), [mass and angular fixed-order bins](diphoton/mass_angle_reference.npz), [azimuth against fixed order](diphoton/diphoton_azimuth_fixed_order.md) |
+| $Z$+jet production | [Leading jet, jet balance and dilepton acoplanarity](zj/distributions.pdf) | [Independent two-jet benchmark and refinement study](../zj_refinement/RESULTS.txt) |
 
 The [example catalogue](../../README.md) gives the event samples and fit inputs for each application.
 
@@ -28,6 +27,8 @@ The [example catalogue](../../README.md) gives the event samples and fit inputs 
   combine the published correlated and uncorrelated magnitudes in quadrature
   for each bin. The earlier generator-binned angular spectra remain in
   `distributions.csv`. [ATLAS Table 4b](https://doi.org/10.17182/hepdata.92377.v3/t5)
+  The full Herwig sample contributes [four acoplanarity groups](drell_yan/herwig_atlas_groups.md)
+  that compare with integrals of complete ATLAS bins.
   In `atlas_recoil.csv`, the same full event sample gives the recoil distribution
   before and after reweighting. The table lists the fiducial shape in GeV⁻¹ and
   the reweighted cross section at each scale in pb/GeV. The scale pairs
@@ -37,9 +38,12 @@ The [example catalogue](../../README.md) gives the event samples and fit inputs 
   reported correlated and uncorrelated magnitudes in each bin. Only the
   prediction is supplied for 900–2500 GeV, where the HEPData table and the
   article differ by a factor equal to the bin width. [ATLAS Table 4a](https://doi.org/10.17182/hepdata.92377.v3/t4)
-- **W.** The cuts in the three columns are 20, 28 and 32 GeV. The first comparison
-  uses the combined ATLAS Born-lepton measurement. The other two use an independent NNLO
-  integration. The NPZ includes the seven scale members, the separate covariances
+  The common-interval table gives fiducial event fractions for both showers
+  and ATLAS on eight intervals with boundaries in all three original binnings.
+  ATLAS supplies pointwise errors on its native intervals.
+- **W.** The cuts in the three columns are 20, 28 and 32 GeV. Each cut has an independent NNLO comparison. The baseline
+  also uses the combined ATLAS Born-lepton measurement. Its NNLO reference
+  is in the [independent W validation archive](../w_joint/charge_asymmetry.json). The NPZ includes the seven scale members, the separate covariances
   for integration and prior statistics, and differences between fits evaluated on
   the same events. The `models`, `pairs` and `scale_names` arrays give their
   order. The acceptance table supplies numerical errors on the paired change at fixed recoil. Both W plots have [editable TeX sources](w/source/README.md). [ATLAS Table XXVI](https://arxiv.org/pdf/1109.5141)
@@ -51,7 +55,7 @@ The [example catalogue](../../README.md) gives the event samples and fit inputs 
   (`v6`) and shower-only (`v4`) events, before (`p`) and after (`q`) reweighting.
   The `m` arrays use photon-pair mass in GeV. The `eta` arrays use the
   hyperbolic tangent of half the absolute photon pseudorapidity difference.
-  Ratio panels compare both reweighted samples to ATLAS in its published bins.
+  The middle rows compare with fixed order and the lower rows use ATLAS in its published bins. The [mass and angle reference](diphoton/mass_angle_reference.md) gives the orders, binning and normalization of the calculations.
   Both samples and the fixed-order mass spectrum use smooth-cone isolation,
   with different radial profiles. ATLAS uses a fixed cone. [ATLAS mass spectrum](https://doi.org/10.17182/hepdata.77381.v1/t2) · [ATLAS angular spectrum](https://doi.org/10.17182/hepdata.77381.v1/t6)
 

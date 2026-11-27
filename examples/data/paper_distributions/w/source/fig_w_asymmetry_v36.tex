@@ -27,45 +27,51 @@
   \envelope{#1}{basic#2}{basic}\envelope{#1}{spin#2}{spin}
   \addplot[const plot,basic,densely dashed,line width=.9pt] table[x=edge,y=basic#2]{w_asymmetry_#1.dat};
   \addplot[const plot,spin,line width=.95pt] table[x=edge,y=spin#2]{w_asymmetry_#1.dat};}
-\newcommand{\points}[3]{%
-  \addplot[black,error,#3]
-   table[x=center,y=#2,y error minus=refminus,y error plus=refplus]{w_asymmetry_#1.dat};}
-\newcommand{\residuals}[2]{%
-  \draw[black!50,line width=.45pt] (axis cs:0,0)--(axis cs:2.5,0);
-  \predictions{#1}{d}
-  \addplot[basic,error,mark=none] table[x expr=\thisrow{center}-.014,y=basicd,y error=basicerr]{w_asymmetry_#1.dat};
-  \addplot[spin,error,mark=none] table[x expr=\thisrow{center}+.014,y=spind,y error=spinerr]{w_asymmetry_#1.dat};
-  \points{#1}{zero}{#2}}
+\newcommand{\reference}[1]{%
+  \addplot[black,error,nnlopoint]
+    table[x expr=\thisrow{center}+.014,y=reference,y error=referr]{w_asymmetry_#1.dat};}
+\newcommand{\ratios}[2]{%
+  \draw[black!50,line width=.45pt] (axis cs:0,1)--(axis cs:2.5,1);
+  \predictions{#1}{#2}
+  \addplot[basic,error,mark=none] table[x expr=\thisrow{center}-.025,y=basic#2,y error=basic#2err]{w_asymmetry_#1.dat};
+  \addplot[spin,error,mark=none] table[x expr=\thisrow{center}+.025,y=spin#2,y error=spin#2err]{w_asymmetry_#1.dat};}
+\newcommand{\foratio}[1]{%
+  \ratios{#1}{fo}
+  \addplot[black,error,mark=none] table[x=center,y=unit,y error=ferr]{w_asymmetry_#1.dat};}
 \begin{document}
 \begin{tikzpicture}
 \pgfplotsset{
- upper/.style={height=39mm,ymin=.095,ymax=.31,ytick={.12,.18,.24,.30},
+ upper/.style={height=35mm,ymin=.09,ymax=.31,ytick={.12,.18,.24,.30},
                xticklabels=\empty,title style={align=center,yshift=0pt}},
- lower/.style={height=17mm,ymin=-.026,ymax=.022,ytick={-.02,0,.02},
+ lower/.style={height=15.5mm,ymin=.86,ymax=1.12,ytick={.9,1,1.1},
                yticklabel style={/pgf/number format/precision=2},xlabel={$|\eta_\ell|$}}}
-\begin{groupplot}[group style={group size=3 by 2,horizontal sep=5mm,vertical sep=2.5mm}]
-\nextgroupplot[upper,title={ATLAS\\$p_T^\ell>20\,\mathrm{GeV}$},ylabel={$A_\ell$}]
-\predictions{20}{}\points{20}{ref}{atlaspoint}
-\nextgroupplot[upper,title={Independent NNLO\\$p_T^\ell>28\,\mathrm{GeV}$},yticklabels=\empty]
-\predictions{28}{}\points{28}{ref}{nnlopoint}
-\nextgroupplot[upper,title={Independent NNLO\\$p_T^\ell>32\,\mathrm{GeV}$},yticklabels=\empty]
-\predictions{32}{}\points{32}{ref}{nnlopoint}
-\nextgroupplot[lower,ylabel={$A_\ell-A_\ell^{\rm ref}$}]
-\residuals{20}{atlaspoint}
-\nextgroupplot[lower,yticklabels=\empty]
-\residuals{28}{nnlopoint}
-\nextgroupplot[lower,yticklabels=\empty]
-\residuals{32}{nnlopoint}
+\begin{groupplot}[group style={group size=3 by 3,horizontal sep=5mm,vertical sep=3mm}]
+\nextgroupplot[upper,title={$p_T^\ell>20\,\mathrm{GeV}$},ylabel={$A_\ell$}]
+\predictions{20}{}\reference{20}
+\addplot[black,error,atlaspoint]
+ table[x expr=\thisrow{center}-.014,y=data,y error minus=dlo,y error plus=dhi]{w_asymmetry_20.dat};
+\nextgroupplot[upper,title={$p_T^\ell>28\,\mathrm{GeV}$},yticklabels=\empty]
+\predictions{28}{}\reference{28}
+\nextgroupplot[upper,title={$p_T^\ell>32\,\mathrm{GeV}$},yticklabels=\empty]
+\predictions{32}{}\reference{32}
+\nextgroupplot[lower,ylabel={\shortstack{ratio to\\NNLO}},xlabel={},xticklabels=\empty]\foratio{20}
+\nextgroupplot[lower,yticklabels=\empty]\foratio{28}
+\nextgroupplot[lower,yticklabels=\empty]\foratio{32}
+\nextgroupplot[lower,ylabel={\shortstack{ratio to\\ATLAS}}]
+\envelope{20}{dexp}{black}\ratios{20}{data}
+\nextgroupplot[group/empty plot]
+\nextgroupplot[group/empty plot]
 \end{groupplot}
-\coordinate (mainleft) at (group c1r1.north west);
-\coordinate (mainright) at (group c3r1.north east);
-\node[anchor=south,inner sep=0pt,font=\fontsize{8}{10}\selectfont] at
-  ($(mainleft)!.5!(mainright)+(0,14mm)$)
- {\begin{tabular}{@{}l@{\hspace{7mm}}l@{}}
+\node[anchor=center,inner sep=0pt,font=\fontsize{8}{10}\selectfont] at
+  ($(group c2r2.south west)!.5!(group c3r2.south east)+(0,-12mm)$)
+ {\begin{tabular}{@{}l@{\hspace{4mm}}l@{}}
   \tikz[baseline=-.55ex]\draw[basic,densely dashed,line width=.95pt](-8pt,0)--(8pt,0);\enspace Production and polar angle &
-  \tikz[baseline=-.55ex]\fill[black](0,0)circle(1.6pt);\enspace ATLAS, $7\,\mathrm{TeV}$\\[1pt]
+  \tikz[baseline=-.55ex]\fill[black](0,0)circle(1.45pt);\enspace ATLAS, $7\,\mathrm{TeV}$\\[2pt]
   \tikz[baseline=-.55ex]\draw[spin,line width=.95pt](-8pt,0)--(8pt,0);\enspace Adding recoil--spin moments &
-  \tikz[baseline=-.55ex]\draw[black,fill=white,line width=.55pt](-1.55pt,-1.55pt)rectangle(1.55pt,1.55pt);\enspace Independent NNLO
+  \tikz[baseline=-.55ex]\draw[black,fill=white,line width=.55pt](-1.45pt,-1.45pt)rectangle(1.45pt,1.45pt);\enspace Independent NNLO
   \end{tabular}};
+\node[anchor=north,font=\fontsize{8}{10}\selectfont,text=black!80]
+  at ($(group c2r2.south west)!.5!(group c3r2.south east)+(0,-17mm)$)
+  {ATLAS measured the $20\,\mathrm{GeV}$ selection.};
 \end{tikzpicture}
 \end{document}

@@ -11,7 +11,7 @@ Start with the committed real Drell–Yan fitting example:
 python examples/real_drell_yan.py --output dy_demo --plot
 ```
 
-It creates `posterior.npz`, `recoil.npz`, `angle.npz`, `acceptance.npz`,
+It creates `posterior.npz`, `recoil.npz`, `recoil_data.npz`, `angle.npz`, `acceptance.npz`,
 `report.json` and, with `--plot`, `comparison.pdf`. The report contains local
 statistics, comparison ratios and source provenance. The [data recipe](data/DY_GENERATION.md)
 documents the generator sample, inverse-inclusion weights and independent angle
@@ -73,9 +73,9 @@ python examples/application_demo.py zj --output zj_demo --plot
 The [W fixture recipe](data/w_predictivity/README.md) and
 [Higgs/diphoton/jet examples](data/applications/README.md) record the generation,
 sampling weights and exact outputs. The latter three commands propagate the
-available integration, scale, transition and PDF inputs. Their extra-observable
-plots have no independent reference; they demonstrate predictions and input
-propagation. All original arrays and absolute event weights remain available.
+available integration, scale, transition and PDF inputs. The compact plots show absolute predictions and their input
+uncertainties. The [full-sample figures](data/paper_distributions/README.md)
+compare the predictions with fixed order and measurements. All original arrays and absolute event weights remain available.
 Use your own compatible positive-weight sample to increase statistics or change
 the generator; the fixed-order table's selection and observable definitions
 must remain the same.
@@ -132,8 +132,8 @@ python examples/plot_w_predictivity.py --output w_predictivity_plots
 ```
 
 The [generator comparison](data/dy_portability/README.md) uses the full Pythia
-and Herwig productions, with matched hard-recoil bins and the independent angular
-reference. These curves have different event statistics from the compact public
+and Herwig productions, with separate recoil comparisons to fixed order and ATLAS
+and an independent fixed-order angular reference. These curves have different event statistics from the compact public
 fitting examples.
 
 The [two-jet benchmark](data/zj_benchmark/README.md) compares moment, marginal
