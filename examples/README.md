@@ -11,11 +11,7 @@ Start with the committed real Drell–Yan fitting example:
 python examples/real_drell_yan.py --output dy_demo --plot
 ```
 
-It creates `posterior.npz`, `recoil.npz`, `recoil_data.npz`, `angle.npz`, `acceptance.npz`,
-`report.json` and, with `--plot`, `comparison.pdf`. The report contains local
-statistics, comparison ratios and source provenance. The [data recipe](data/DY_GENERATION.md)
-documents the generator sample, inverse-inclusion weights and independent angle
-reference. This is a fresh fit, not a plot of precomputed posterior weights. Repeat it
+The fit writes `posterior.npz` with one weight per event. The comparison shows dilepton recoil and lepton acoplanarity against fixed order and ATLAS. The four `*_shape.npz` and `*_data.npz` files contain the normalized predictions, both denominators and numerical uncertainties. The report records the fit, the finite event statistics and an acceptance with a tighter lepton cut. Additional `recoil.npz` and `angle.npz` files retain the absolute cross-section checks. The [data recipe](data/DY_GENERATION.md) documents the generator sample and reference calculations. Repeat the fit
 on the [independent Herwig sample](data/HERWIG_GENERATION.md) with
 `--prior examples/data/herwig_public_prior.npz --output herwig_demo`.
 
@@ -132,8 +128,7 @@ python examples/plot_w_predictivity.py --output w_predictivity_plots
 ```
 
 The [generator comparison](data/dy_portability/README.md) uses the full Pythia
-and Herwig productions, with separate recoil comparisons to fixed order and ATLAS
-and an independent fixed-order angular reference. These curves have different event statistics from the compact public
+and Herwig productions, with separate ratios to fixed order and ATLAS for both dilepton recoil and lepton acoplanarity. These curves have different event statistics from the compact public
 fitting examples.
 
 The [two-jet benchmark](data/zj_benchmark/README.md) compares moment, marginal
@@ -178,12 +173,12 @@ prior requires its compatible event arrays.
 
 The required arrays are `mll`, `y_abs`, `pT_ll` and `weight`. They describe Born-level
 leptons before QED radiation in the 13 TeV selection. Keep any additional analysis
-observables in the file, for example `abs_costh` for the decay-angle distribution.
+observables in the file, for example `phistar` for lepton acoplanarity.
 
 ```bash
 python examples/paper_examples.py dy dy_prior.npz dy.npz
 python examples/plot_result.py dy.npz pT_ll --label 'Dilepton transverse momentum' --unit GeV --log-x --range 2 500
-python examples/plot_result.py dy.npz abs_costh --label '|cos(theta*)|'
+python examples/plot_result.py dy.npz phistar --label 'Lepton acoplanarity' --log-x --range 0.001 10
 ```
 
 For the letter's input or its joint moments, replace `dy` with `dy-nnlo-zj` or

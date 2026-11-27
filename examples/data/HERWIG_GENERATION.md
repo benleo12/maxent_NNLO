@@ -51,7 +51,7 @@ with global IDs, or attach weights separately within each shard.
 
 The supplied archive SHA256 is
 `325ad789997dae8978e6801e43802e391aea93848dea0255604cb063ca5c67c9`.
-The fixed-order moments and independent angular reference are exactly those
+The fixed-order moments and Collins–Soper validation histograms are exactly those
 used by the default Pythia demonstration. No generator settings, moments, maps
 or analysis cuts were tuned using its validation agreement.
 
@@ -60,8 +60,7 @@ or analysis cuts were tuned using its validation agreement.
 [herwig_demo_check.json](herwig_demo_check.json) records a fresh central fit, six
 scale members, twenty correlated integration replicas and two window variations.
 The saved output preserves the input IDs, original weights and sampling
-probabilities exactly; its central weights sum to 710.3611257 pb. The report
-retains disagreement with the independent angular reference as a physics result.
+probabilities exactly; its central weights sum to 710.3611257 pb. The figure compares the fitted recoil and predicted lepton acoplanarity with fixed order and ATLAS.
 Runtime is an observed fit-only measurement on two OpenBLAS threads, not a
 performance guarantee.
 

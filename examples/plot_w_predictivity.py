@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
+
+from w_prior import TABLE, prior_asymmetry
 from matplotlib.ticker import MaxNLocator
 
 from maxent_upgrade.provenance import canonical_json, file_hash
@@ -68,6 +70,11 @@ def plot_asymmetry(cache, output):
             mids, np.ones_like(referr), yerr=referr / ref[0], fmt="o", ms=2.2, lw=0.6, color="black", zorder=5
         )
         for name, k in model_index.items():
+            if name == "P":
+                raw = prior_asymmetry(cut, EDGES)
+                for ax, values in [(top, raw), (ratio, raw / ref[0])]:
+                    ax.stairs(values, EDGES, baseline=None, color=COLORS[name], ls=STYLES[name], lw=1.05)
+                continue
             ys = data["means"][k][:, ix]
             err = np.sqrt(np.maximum(np.diag(cov[k])[ix], 0))
             for ax, values, bar in ((top, ys, err), (ratio, ys / ref, err / ref[0])):
@@ -137,7 +144,7 @@ def plot_asymmetry(cache, output):
         for ax in axes[row]:
             ax.set_ylim(lo, hi)
     labels = {
-        "P": "LO+PS shapes, NNLO rates",
+        "P": "LO+PS prior",
         "anchor": "MaxEnt: blended recoil",
         "R": "MaxEnt: windowed recoil",
         "R+H+S": "MaxEnt: recoil–spin moments",
@@ -159,18 +166,13 @@ def plot_asymmetry(cache, output):
         columnspacing=2.0,
         handlelength=2.5,
     )
-    fig.subplots_adjust(top=0.83, bottom=0.15, left=0.10, right=0.975, hspace=0.09, wspace=0.30)
-    fig.text(
-        0.10,
-        0.025,
-        "The ATLAS asymmetry measurement uses the 20 GeV selection.\n"
-        "Paired changes show the effect of windowed recoil (orange) and of adding spin moments (red).\n"
-        "Bands show scale variations. Bars give the numerical errors on each prediction.",
-        fontsize=8.5,
-        va="bottom",
-    )
-    fig.canvas.draw()
+    fig.subplots_adjust(top=0.83, bottom=0.10, left=0.10, right=0.975, hspace=0.09, wspace=0.30)
     output.parent.mkdir(parents=True, exist_ok=True)
+    output.with_name(output.stem + "_caption.txt").write_text(
+        "The ATLAS asymmetry measurement uses the 20 GeV selection. "
+        "The paired changes show the effect of the recoil window and the spin moments. "
+        "Bands span the scale variations and bars give numerical uncertainties.\n")
+    fig.canvas.draw()
     fig.savefig(output.with_suffix(".pdf"))
     fig.savefig(output.with_suffix(".png"), dpi=200)
     plt.close(fig)
@@ -180,7 +182,7 @@ def read_metrics(path):
     with np.load(path, allow_pickle=False) as z:
         meta = json.loads(str(z["metadata"]))
         indices = [meta["labels"].index(label) for label in LEDGER_LABELS]
-        model_indices = [meta["models"].index(name) for name in ("R", "R+H+S")]
+        model_indices = [meta["models"].index(name) for name in ("P", "R", "R+H+S")]
         ref = z["reference"][0, indices]
         ref_cov = z["reference_covariance"][np.ix_(indices, indices)]
         cells, errors = [], []
@@ -201,12 +203,12 @@ def plot_old_cut_ledger(cache, output):
     # Common symmetric range for both charges and both fits, with no clipped cells.
     scale = 10 ** np.floor(np.log10(extent))
     limit = np.ceil(extent / scale * 2) * scale / 2
-    fig = plt.figure(figsize=(10.2, 6.5))
-    axes = np.empty((2, 2), dtype=object)
-    titles = ("Windowed recoil", "With recoil–spin moments")
+    fig = plt.figure(figsize=(10.7, 6.0))
+    axes = np.empty((2, 3), dtype=object)
+    titles = ("LO+PS prior", "Windowed recoil", "With recoil–spin moments")
     for row, ((value, error), charge) in enumerate(zip(data, (r"W^{+}", r"W^{-}"))):
-        for col in range(2):
-            ax = fig.add_axes([0.14 + col * 0.43, 0.57 - row * 0.36, 0.36, 0.27])
+        for col in range(3):
+            ax = fig.add_axes([0.117 + col * 0.296, 0.57 - row * 0.36, 0.253, 0.27])
             axes[row, col] = ax
             mesh = ax.pcolormesh(
                 np.arange(4),
@@ -242,7 +244,7 @@ def plot_old_cut_ledger(cache, output):
                 ax.set_xlabel(r"$|\cos\theta^{*}|$ interval")
     cax = fig.add_axes([0.25, 0.09, 0.61, 0.028])
     bar = fig.colorbar(mesh, cax=cax, orientation="horizontal")
-    bar.set_label(r"MaxEnt $-$ NNLO accepted fraction [percentage points]", labelpad=3)
+    bar.set_label(r"Predicted $-$ NNLO accepted fraction [percentage points]", labelpad=3)
     fig.legend(
         [Patch(facecolor="white", edgecolor="#666666", hatch="///")],
         [r"Difference within one numerical standard error"],
@@ -250,7 +252,7 @@ def plot_old_cut_ledger(cache, output):
         bbox_to_anchor=(0.53, 0.96),
         frameon=False,
     )
-    fig.suptitle("Old 30 GeV lepton cut: an exploratory acceptance ledger", y=1.0, fontsize=12)
+    fig.suptitle(r"$p_{\mathrm{T}}^\ell>30\,\mathrm{GeV}$", y=1.0, fontsize=12)
     fig.canvas.draw()
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output.with_suffix(".pdf"))
@@ -316,6 +318,7 @@ def main():
             name: file_hash(args.data / name)
             for name in ("asymmetry.npz", "WP_metrics.npz", "WM_metrics.npz")
         },
+        prior_sha256=file_hash(TABLE),
         uncertainties="central target/refitted-prior covariance; independent reference error separate; seven scales are coherent alternatives",
         ledger="exploratory old30GeV cut, never a selection constraint",
         coordinate="charged-lepton rapidity, displayed as eta in the massless convention",

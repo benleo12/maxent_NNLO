@@ -2,7 +2,7 @@
 \usepackage{amsmath}
 \usepackage{pgfplots}
 \usepgfplotslibrary{groupplots}
-\usetikzlibrary{calc}
+\usetikzlibrary{calc,matrix}
 \pgfplotsset{compat=1.18}
 \definecolor{withspin}{HTML}{B52230}
 \definecolor{common}{HTML}{C77C0D}
@@ -13,19 +13,22 @@
 }
 \newcommand{\estimates}[1]{%
   \addplot[black,densely dashed,line width=.5pt] coordinates {(.5,0) (2.5,0)};
+  \addplot[estimate,color=black!65,mark=diamond*,mark options={fill=black!65},
+    restrict expr to domain={\thisrow{hard_subset}}{#1:#1}]
+    table[col sep=comma,x expr=\thisrow{charge_number}-.11,y=prior_minus_ref,y error=prior_minus_ref_error]{w_acceptance_32.csv};
   \addplot[estimate,color=common,mark=square,mark options={fill=white,line width=.8pt},
     restrict expr to domain={\thisrow{hard_subset}}{#1:#1}]
-    table[col sep=comma,x expr=\thisrow{charge_number}-.045,y=without_minus_ref,y error=without_minus_ref_error]{w_acceptance_32.csv};
+    table[col sep=comma,x expr=\thisrow{charge_number},y=without_minus_ref,y error=without_minus_ref_error]{w_acceptance_32.csv};
   \addplot[estimate,color=withspin,mark=*,
     restrict expr to domain={\thisrow{hard_subset}}{#1:#1}]
-    table[col sep=comma,x expr=\thisrow{charge_number}+.045,y=with_minus_ref,y error=with_minus_ref_error]{w_acceptance_32.csv};
+    table[col sep=comma,x expr=\thisrow{charge_number}+.11,y=with_minus_ref,y error=with_minus_ref_error]{w_acceptance_32.csv};
 }
 \begin{document}
 \begin{tikzpicture}
 \begin{groupplot}[
   group style={group size=2 by 1,horizontal sep=5mm},
   width=61mm,height=43mm,scale only axis,
-  xmin=.5,xmax=2.5,ymin=-1.55,ymax=3.55,
+  xmin=.5,xmax=2.5,ymin=-1.98,ymax=3.55,
   xtick={1,2},xticklabels={$W^+$,$W^-$},ytick={-1,0,1,2,3},
   tick align=inside,tick pos=both,major tick length=2.4pt,
   axis line style={line width=.45pt},tick style={line width=.4pt},
@@ -39,10 +42,13 @@
 \nextgroupplot[title={Hard recoil, $q_T>50\,\mathrm{GeV}$},yticklabels=\empty]
 \estimates{1}
 \end{groupplot}
-\node[inner sep=0pt,anchor=south,font=\fontsize{9}{11}\selectfont] at
- ($(group c1r1.north west)!.5!(group c2r1.north east)+(0,8.5mm)$)
- {\tikz[baseline=-.55ex]\draw[common,fill=white,line width=.8pt] (-2.2pt,-2.2pt) rectangle (2.2pt,2.2pt);\enspace Production and polar angle
- \hspace{5mm}\tikz[baseline=-.55ex]\fill[withspin](0,0)circle(2.45pt);\enspace With recoil--spin moments
- \hspace{5mm}\tikz[baseline=-.55ex]\draw[black,densely dashed,line width=.5pt](-5pt,0)--(5pt,0);\enspace Fixed order};
+\matrix[matrix of nodes,inner sep=0pt,anchor=south,column sep=2mm,row sep=.2mm,
+ nodes={anchor=west,inner sep=1pt,font=\fontsize{9}{10.5}\selectfont}]
+ at ($(group c1r1.north west)!.5!(group c2r1.north east)+(0,8.5mm)$) {
+ \tikz[baseline=-.55ex]\fill[black!65](0,2.8pt)--(2.8pt,0)--(0,-2.8pt)--(-2.8pt,0)--cycle; & LO+PS prior &
+ \tikz[baseline=-.55ex]\draw[common,fill=white,line width=.8pt](-2.2pt,-2.2pt) rectangle(2.2pt,2.2pt); & Production and polar angle \\
+ \tikz[baseline=-.55ex]\draw[black,densely dashed,line width=.5pt](-5pt,0)--(5pt,0); & Fixed order &
+ \tikz[baseline=-.55ex]\fill[withspin](0,0)circle(2.45pt); & With recoil--spin moments \\
+ };
 \end{tikzpicture}
 \end{document}

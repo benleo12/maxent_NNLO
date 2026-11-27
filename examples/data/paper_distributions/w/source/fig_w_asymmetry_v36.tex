@@ -14,6 +14,7 @@
     title style={font=\fontsize{9}{10}\selectfont},
     unbounded coords=discard,filter discard warning=false,scaled y ticks=false,
     /pgf/number format/fixed,
+    priorline/.style={black!70,dash pattern=on 4pt off 2pt,line width=.85pt},
     atlaspoint/.style={mark=*,mark options={fill=black}},
     nnlopoint/.style={mark=square*,mark options={fill=white}},
     error/.style={only marks,mark size=1.55pt,line width=.5pt,
@@ -25,6 +26,7 @@
   \addplot[fill=#3!16,draw=none] fill between[of=bandlo and bandhi];}
 \newcommand{\predictions}[2]{%
   \envelope{#1}{basic#2}{basic}\envelope{#1}{spin#2}{spin}
+  \addplot[const plot,priorline] table[x=edge,y=prior#2]{w_asymmetry_#1.dat};
   \addplot[const plot,basic,densely dashed,line width=.9pt] table[x=edge,y=basic#2]{w_asymmetry_#1.dat};
   \addplot[const plot,spin,line width=.95pt] table[x=edge,y=spin#2]{w_asymmetry_#1.dat};}
 \newcommand{\reference}[1]{%
@@ -63,15 +65,13 @@
 \nextgroupplot[group/empty plot]
 \end{groupplot}
 \node[anchor=center,inner sep=0pt,font=\fontsize{8}{10}\selectfont] at
-  ($(group c2r2.south west)!.5!(group c3r2.south east)+(0,-12mm)$)
+  ($(group c2r2.south west)!.5!(group c3r2.south east)+(0,-17mm)$)
  {\begin{tabular}{@{}l@{\hspace{4mm}}l@{}}
-  \tikz[baseline=-.55ex]\draw[basic,densely dashed,line width=.95pt](-8pt,0)--(8pt,0);\enspace Production and polar angle &
+  \tikz[baseline=-.55ex]\draw[black!70,dash pattern=on 4pt off 2pt,line width=.85pt](-8pt,0)--(8pt,0);\enspace LO+PS prior &
   \tikz[baseline=-.55ex]\fill[black](0,0)circle(1.45pt);\enspace ATLAS, $7\,\mathrm{TeV}$\\[2pt]
+  \tikz[baseline=-.55ex]\draw[basic,densely dashed,line width=.95pt](-8pt,0)--(8pt,0);\enspace Production and polar angle &
+  \tikz[baseline=-.55ex]\draw[black,fill=white,line width=.55pt](-1.45pt,-1.45pt)rectangle(1.45pt,1.45pt);\enspace Independent NNLO\\[2pt]
   \tikz[baseline=-.55ex]\draw[spin,line width=.95pt](-8pt,0)--(8pt,0);\enspace Adding recoil--spin moments &
-  \tikz[baseline=-.55ex]\draw[black,fill=white,line width=.55pt](-1.45pt,-1.45pt)rectangle(1.45pt,1.45pt);\enspace Independent NNLO
   \end{tabular}};
-\node[anchor=north,font=\fontsize{8}{10}\selectfont,text=black!80]
-  at ($(group c2r2.south west)!.5!(group c3r2.south east)+(0,-17mm)$)
-  {ATLAS measured the $20\,\mathrm{GeV}$ selection.};
 \end{tikzpicture}
 \end{document}

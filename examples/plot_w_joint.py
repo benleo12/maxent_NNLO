@@ -9,9 +9,11 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
+from w_prior import prior_bins, prior_asymmetry
+
 EDGES = np.array([0, .21, .42, .63, .84, 1.05, 1.37, 1.52, 1.74, 1.95, 2.18, 2.5])
 COLORS = {'P': '#777777', 'B': '#28649b', 'A': '#d48a16', 'selected': '#b52230', 'J2': '#8f3c8f', 'J4': '#b52230'}
-STYLES = {'P': ':', 'B': '--', 'A': '-.', 'selected': '-', 'J2': '--', 'J4': '-'}
+STYLES = {'P': '--', 'B': ':', 'A': '-.', 'selected': '-', 'J2': '--', 'J4': '-'}
 
 
 def style():
@@ -63,11 +65,15 @@ def main_figure(data, out):
             atlas.set(xlabel=r'$|\eta_\ell|$', ylabel='Ratio to ATLAS')
         else:
             atlas.axis('off')
-            atlas.text(.5, .5, 'ATLAS measured the 20 GeV selection.',
-                       ha='center', va='center', transform=atlas.transAxes)
             fo.tick_params(labelbottom=True)
             fo.set_xlabel(r'$|\eta_\ell|$')
         for name in names:
+            if name == 'P':
+                raw = prior_asymmetry(cut, EDGES)
+                for ax, denominator in panels:
+                    nominal = ref[0] if ax is fo else denominator
+                    ax.stairs(raw / nominal, EDGES, baseline=None, color=COLORS['P'], linestyle='--', lw=1.1)
+                continue
             ys = np.asarray(asym[name][tag]['coherent_scales'])
             stat = np.asarray(asym[name][tag]['stat'])
             for ax, denominator in panels:
@@ -88,7 +94,7 @@ def main_figure(data, out):
         if col == 0:
             top.set_ylabel(r'$A_\ell$')
             fo.set_ylabel('Ratio to NNLO')
-    labels = {'P': 'LO+PS shape with NNLO rates', 'B': 'Production moments',
+    labels = {'P': 'LO+PS prior', 'B': 'Production moments',
               'A': '+ decay-angle moments', 'selected': 'Training-selected constraints'}
     joint_charges = [ch for ch in ['wp', 'wm'] if selected[ch] != 'A']
     if joint_charges == ['wm']:
@@ -110,7 +116,7 @@ def main_figure(data, out):
         fig.savefig(out / ('w_independent_predictions.' + ext), dpi=220)
     plt.close(fig)
     caption = ('Lepton charge asymmetry at 7 TeV for two lepton transverse-momentum cuts. '
-               'All curves use the same event weights. The missing transverse momentum exceeds '
+               'The original LO+PS curve uses the generator cross section for each charge. The missing transverse momentum exceeds '
                '25 GeV and the transverse mass exceeds 40 GeV. Open squares show an independent '
                'NNLO calculation. The middle panels compare each prediction with NNLO at the same '
                'renormalization and factorization scales. The bands span seven scale choices. '
@@ -158,6 +164,7 @@ def all_scans(data, out):
     for ch in ['wp', 'wm']:
         z = np.load(str(data / ('w_%s_validation.npz' % ch)), allow_pickle=False)
         meta = json.loads(str(z['metadata']))
+        prior = prior_bins(z, ch)
         for tag in ['eta20', 'eta27', 'eta30', 'ptl', 'mt']:
             lo, hi = meta['slices'][tag]
             ix = np.arange(lo, hi)
@@ -178,9 +185,10 @@ def all_scans(data, out):
             mids = .5 * (edges[:-1] + edges[1:])
             err = np.sqrt(np.maximum(np.diag(z['reference_cov'])[ix], 0)) / np.abs(ref)
             ax.errorbar(mids, np.ones(len(ix)), yerr=err, fmt='o', ms=2, lw=.6, color='black', label='Independent NNLO(W)')
-            labels = {'P': 'LO+PS (NNLO rate)', 'B': 'Production moments', 'A': '+ decay angle', 'J2': '+ joint degree 2', 'J4': '+ joint degree 4'}
+            labels = {'P': 'LO+PS prior', 'B': 'Production moments', 'A': '+ decay angle', 'J2': '+ joint degree 2', 'J4': '+ joint degree 4'}
             for model in ['P', 'B', 'A', 'J2', 'J4']:
-                prediction = z[model + '_mean'][0, ix]
+                prediction = (np.array([prior[meta['labels'][i]] for i in ix]) if model == 'P'
+                              else z[model + '_mean'][0, ix])
                 ax.stairs(prediction / ref, edges, baseline=None, color=COLORS[model],
                           ls=STYLES[model], lw=1., label=labels[model])
                 if tag == 'eta20':

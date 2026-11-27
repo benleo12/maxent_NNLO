@@ -21,6 +21,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     source = args.baseline or args.archive.resolve().parents[2] / "w_joint/charge_asymmetry.json"
     baseline = json.loads(source.read_text())["reference"]["eta20"]
+    prior = np.genfromtxt(args.archive.with_name("lo_ps_prior.csv"), delimiter=",", names=True)
 
     with np.load(args.archive, allow_pickle=False) as data:
         edges = data["eta_edges"]
@@ -38,7 +39,13 @@ def main():
             columns = dict(edge=edges, center=np.r_[(edges[1:] + edges[:-1]) / 2, np.nan],
                            reference=fixed_order[0], referr=integration_error,
                            unit=np.ones_like(measurements), ferr=integration_error / fixed_order[0])
+            unweighted = prior[prior["cut_GeV"] == cut]
+            np.testing.assert_array_equal(unweighted["eta_low"], edges[:-1])
+            np.testing.assert_array_equal(unweighted["eta_high"], edges[1:])
+            columns["prior"] = unweighted["asymmetry"]
+            columns["priorfo"] = unweighted["asymmetry"] / fixed_order[0]
             if cut == 20:
+                columns["priordata"] = unweighted["asymmetry"] / measurements
                 columns.update(data=measurements, dlo=data["atlas_total_error_low"],
                                dhi=data["atlas_total_error_high"],
                                dexplo=1 - data["atlas_total_error_low"] / measurements,

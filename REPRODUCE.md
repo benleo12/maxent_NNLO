@@ -25,8 +25,7 @@ below reproduce applications from the paper.
 
 From a clean checkout, `python -m pip install '.[plot]'` followed by
 `python examples/real_drell_yan.py --output dy_demo --plot` performs a real DY
-fit without downloads. It saves `posterior.npz`, `recoil.npz`, `angle.npz`,
-`acceptance.npz`, `report.json` and `comparison.pdf`. The fixed sampling seed and
+fit without downloads. It saves the event weights, binned predictions, acceptance, report and a figure comparing recoil and lepton acoplanarity with fixed order and ATLAS. The [catalogue](examples/README.md) lists the outputs. The fixed sampling seed and
 input hashes are recorded in `examples/data/dy_prior.json`; the bootstrap seed
 is 1 and the default count is 20. Elapsed time is machine-dependent; event IDs,
 inputs, configuration, normalization and comparison definitions are fixed.

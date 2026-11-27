@@ -91,6 +91,4 @@ include resampling and refitting the prior.
 
 The [real Drell–Yan example](../examples/real_drell_yan.py) makes this distinction
 visible. Hard recoil tests the fitted spectrum using histograms from the moment
-production. Its unconstrained decay-angle reference comes from a separate NNLO
-integration. Differences there are reported as physics results, not converted
-into software test failures or tuned away.
+production. Lepton acoplanarity, held out of the fit, tests how the shower distributes the recoil between the two leptons. The example compares both observables with fixed order and measured ATLAS spectra.

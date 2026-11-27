@@ -5,24 +5,26 @@
       "command": "python examples/real_drell_yan.py --output dy_demo --plot",
       "events": 112978,
       "integration_replicas": 20,
-      "scope": "Actual compact Pythia example; hard-recoil closure and independent angular prediction",
+      "scope": "Compact MG5+Pythia prior and reweighted fit compared with fixed order and ATLAS in dilepton recoil and lepton acoplanarity.",
       "cached_plot_input_sha256": {
-        "recoil.npz": "2e65a1147e2702b5599de44b3e4eda27cd2c1ae9712acf8d4fe210aeb46a01aa",
-        "angle.npz": "58a7114a366c031f4190409342b0b01a664d5b399438d909c19e5bcf4efefd85",
-        "comparison.png": "18b99c71fbe76d2b528ef658e38a22fa743d9403edd6512e384c5b0919e12318"
-      }
+        "recoil_shape.npz": "69bd2d36d7a943dd8263601c30b22987f7278ee6e17152091c54169e4502f857",
+        "recoil_data.npz": "7ea2548231d9586d1f484e4187a0b6828c0fb03f5508139dcebd770ad3934bf1",
+        "phistar_shape.npz": "45f8de8373f0faf72107e635e4bcb4c7089ddf805ea776734ae25f91a16f1514",
+        "phistar_data.npz": "a2b6879a811a54eb52918d3f43104da1c33805dec2027fb10fa1ae7bcd08be5a"
+      },
+      "png_sha256": "8dcafefcd7abeef4ff71c5b5326793ea373363bf9c3f33058841f8c0942a4ea0"
     },
     "w_predictions.png": {
       "command": "python examples/w_constraint_workflow.py wm --output w_minus",
       "events": 80000,
-      "scope": "Actual compact W-minus fit; independent32GeV lepton spectrum and paired change from the windowed recoil anchor",
+      "scope": "Compact W-minus fit with the original LO+PS spectrum at its generator fiducial rate, independent prediction at the 32 GeV cut and paired change from the windowed recoil fit.",
       "training_threads": 2,
-      "validation_threads": 4,
+      "validation_threads": 2,
       "reference_sha256": "e7afc5fcb45a93e7fd02f85c3d61e54f7f8a40ac4c4360f7fcfec582528555a4",
-      "cached_report_sha256": "e7373cb463d64b2f05e7741e350e5211d1fdf0ba9df804186192f25618246604",
-      "rendering": "Current report renderer applied to the checked saved numerical arrays; charge label and subtraction title are presentation-only updates.",
+      "cached_report_sha256": "464e7a43d1d704e09bebd6d618958b266bdecbea9eb7d5d2a50ef74ec2862d46",
+      "rendering": "Normal compact W study command and its saved predictions.png.",
       "renderer_sha256": "ece5e4b245b3aa7facadec8f27201605040a477de19153f8000cc99644a9eadc",
-      "png_sha256": "ab3578bb97e6d864404e030052d33fe7b2b5b9ac41839673d804d07cbd217b9e"
+      "png_sha256": "3a6485b0e6daedb67fab8fdce40a5359f52d096f8562207e4bd6de45e304feb4"
     }
   }
 }

@@ -11,37 +11,13 @@ demonstrations use 112,978 and 98,808 events, respectively.
 
 ## What the panels compare
 
-Every distribution is divided by its own full fiducial cross section, including
-probability outside the displayed bins. No distribution is renormalized within
-the plot range. Each scale member is normalized with its own fiducial rate.
+Both columns use the full fiducial normalization at each scale. The upper panels show the original LO+PS samples, their reweighted distributions and the ATLAS measurements. The middle row divides each shower by fixed order in the hard region. The lower row divides it by data across the measured range.
 
-The upper panels show both showers before and after reweighting. Each lower
-fixed-order comparison uses the same reference bins as the upper spectrum.
-The third recoil panel divides the reweighted shapes by the ATLAS measurement.
-MG5+Pythia uses the native ATLAS bins. The released Herwig spectrum and the
-measurement share eight complete intervals between 2 and 300 GeV. The gray
-experimental band gives the pointwise errors on the original ATLAS bins.
-The two model bands vary the fitted scales. MG5+Pythia also has finite-event
-error bars. [Measured recoil and binned predictions](../paper_distributions/README.md)
+The dilepton recoil was fitted. The six hard bins above 60.6 GeV test how closely reweighting reproduces that input. The inset resolves the recoil peak below 30 GeV. For the data comparison MG5+Pythia uses the ATLAS bins, and Herwig integrates eight intervals whose edges coincide with both histograms. [ATLAS recoil and comparison tables](../paper_distributions/README.md)
 
-The full recoil spectrum uses a linear 0–500 GeV axis, with an inset below 30 GeV. Its low-recoil shower bins
-end at 60 GeV. The six fixed-order bins start at 60.615 GeV. The lower recoil panel
-enlarges those six bins. The fixed-order spectrum and the recoil moments share 298
-integration seeds, so this comparison tests how closely the reweighting reproduces
-its input. Seeds 226 and 235 lack matching normalization inputs and were excluded.
+Lepton acoplanarity depends on the directions of both leptons and was held out of the fit. The fixed-order comparison uses four intervals in the hard region above 0.107. For the ratio to ATLAS, MG5+Pythia uses all 36 measured bins. Herwig uses four groups of complete ATLAS bins, with the uncertainty from splitting the generator bins included in its reweighted band. [Fixed-order calculation](../paper_distributions/drell_yan/phistar_fixed_order.md) · [Herwig in the measured bins](../paper_distributions/drell_yan/herwig_atlas_groups.md)
 
-The decay-angle reference combines 64 independent NNLO integrations. Both rows
-show all 20 bins of the absolute Collins–Soper cosine. The transverse-momentum
-cut on each lepton produces an acceptance edge near 0.8 at the Z pole. The
-fixed-order scale and integration errors grow there. The angular measurement
-published alongside the ATLAS recoil spectrum concerns dilepton acoplanarity.
-The paper compares that observable to data separately.
-
-Each colored scale band in the fixed-order ratios uses the same scale choice in numerator and
-denominator. The colored error bars combine event sampling at fixed weights with
-the scatter of twenty target-integration bootstrap fits. The reference integration
-errors and its scale envelope are shown separately around one. The caches also
-contain the transition variations.
+The reweighted-to-fixed-order ratios use the same scale choice in numerator and denominator. Their numerical bars combine finite event statistics with the spread from 20 target-integration replicas. The gray experimental band gives the uncertainty in each native ATLAS bin.
 
 ## Numerical and production record
 

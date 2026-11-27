@@ -273,11 +273,30 @@ def validate(charge, output, prior, training, reference_path):
     eta_group = groups["eta32"]
     eta_indices = [labels.index(label) for label in eta_group["labels"]]
     selected_raw = anchor_raw = None
+    try:
+        prior_metadata = json.loads(str(events.get("metadata", "{}")))
+    except (TypeError, ValueError):
+        prior_metadata = {}
+    prior_rate = (prior_metadata.get("source_selected_cross_section_pb")
+                  if isinstance(prior_metadata, dict) else None)
+    if prior_rate is not None and (not np.isfinite(prior_rate) or prior_rate <= 0):
+        raise ValueError("The generator's selected cross section must be finite and positive")
     for i, (name, fit) in enumerate(fits.items()):
         prediction = fit.predict(values, labels=labels, definition=definition, validation_key="all")
         validation = validate_prediction(
             prediction, reference, independent_of=[data.sample_id], definition=definition
         )
+        if name == "Prior" and prior_rate is not None:
+            # Remove the common fitted rate, including its numerical uncertainty.
+            # Absolute prior bins then use the generator's own fiducial rate.
+            norm = labels.index("norm_born")
+            central = prediction.mean[0]
+            jacobian = np.eye(len(labels)) * (prior_rate / central[norm])
+            jacobian[:, norm] -= prior_rate * central / central[norm] ** 2
+            raw = prediction.transform(lambda y: prior_rate * y / y[:, [norm]], jacobian,
+                                       labels=labels, definition="LO+PS shape at the generator fiducial rate")
+            validation["prediction"] = raw
+            validation["difference"] = raw.difference(validation["reference"])
         comparisons[name] = {
             kind: projection(
                 validation[kind], eta_indices, eta_group["labels"], eta_group["definition"]
@@ -345,7 +364,7 @@ def validate(charge, output, prior, training, reference_path):
     }
     display = {
         name: {
-            "Prior": "Prior",
+            "Prior": "LO+PS prior" if prior_rate is not None else "Prior shape, target rate",
             "anchor": "Blended recoil",
             "R": "Windowed recoil",
             "R+H": "Hard-recoil spin",
@@ -382,9 +401,9 @@ def validate(charge, output, prior, training, reference_path):
             dict.fromkeys([display[k] for k in ("Prior", "anchor", "R", selection["selected"])])
         ),
         provenance=dict(
-            display_note=f"Real W{'+' if charge == 'wp' else '−'} compact demonstration · "
-            + selection["choice_status"].replace("_", " "),
+            display_note=f"W{'+' if charge == 'wp' else '−'}, 7 TeV",
             selection=selection,
+            generator_fiducial_cross_section_pb=prior_rate,
             local_statistics=local_statistics,
             local_statistics_scope="Counts and concentration among events passing pT_l>32 GeV; these do not certify unobserved phase-space support.",
             lepton_convention="The displayed eta uses the massless-lepton convention; booked and shower values are both charged-lepton rapidity y_l.",

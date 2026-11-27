@@ -82,10 +82,9 @@ LO, V, R, VV, RV and RR. These runs are independent of the moment production and
 the angle is not constrained in the example. Raw densities in fb per unit angle
 are converted to pb per unit angle. The reference integration error is retained,
 including the acceptance edge from the lepton transverse-momentum cut near
-`|cos(theta_CS)| = 0.8` at the Z pole. The angular plots compare all 20 bins
-to NNLO with the quoted reference uncertainties. The recoil plot also compares the
-fitted sample with the ATLAS normalized recoil spectrum in the measured
-bins. [ATLAS Table 4a](https://doi.org/10.17182/hepdata.92377.v3/t4)
+`|cos(theta_CS)| = 0.8` at the Z pole. The compact example retains this independent check in `angle.npz`.
+
+The figure compares both the dilepton recoil and lepton acoplanarity with the ATLAS Born-lepton measurement in the same selection. Both observables use the full fiducial rate. The fixed-order acoplanarity calculation combines 298 NNLOJET integrations and provides four hard bins for the ratios. [ATLAS recoil](https://doi.org/10.17182/hepdata.92377.v3/t4) · [ATLAS acoplanarity](https://doi.org/10.17182/hepdata.92377.v3/t5) · [Fixed-order acoplanarity](paper_distributions/drell_yan/phistar_fixed_order.md)
 
 The recoil reference uses 300 runs from the same production as the moment
 constraints, so it tests constraint closure rather than independent physics
@@ -101,5 +100,4 @@ access to the original large archives.
 
 To repeat the identical fit and reference comparisons on another compatible
 selected DY sample, pass `--prior my_prior.npz` to `examples/real_drell_yan.py`.
-The comparison uses `weight`, `mll`, `y_abs`, `pT_ll`, `abs_costh` and `pT_sub`;
-all other arrays, event IDs and supplied metadata are retained in its output.
+The comparison uses `weight`, `mll`, `y_abs`, `pT_ll`, `pT_sub` and `phistar`. The latter is required for the figure. If supplied, `abs_costh` also gives an independent angular check. All original arrays and event IDs are retained.

@@ -23,7 +23,8 @@ def summarize(data, metric):
     reference_variance = data["reference_covariance"][column, column]
     row = {"reference": reference, "reference_error": np.sqrt(reference_variance)}
     means = data["means"][:, central, column]
-    for name, index in [("without", selected), ("with", augmented)]:
+    prior = meta["models"].index("P")
+    for name, index in [("without", selected), ("with", augmented), ("prior", prior)]:
         var = (data["covariance_numerical"][index, column, column]
                + data["covariance_prior"][index, column, column])
         row[name] = means[index]

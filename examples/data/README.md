@@ -6,6 +6,7 @@
 inverse-inclusion sampling weights. `dy_reference.npz` contains per-run
 fixed-order histograms, including a decay-angle integration independent of the
 moment constraints. Both files and their JSON provenance are committed.
+The figure compares the dilepton recoil and lepton acoplanarity with the [binned fixed-order and ATLAS spectra](paper_distributions/README.md).
 See [DY_GENERATION.md](DY_GENERATION.md) for generator settings, selection,
 units, the frozen sampling rule and reference construction. Run the new fit
 with `python examples/real_drell_yan.py --output dy_demo --plot`.

@@ -49,3 +49,5 @@ with `python examples/w_constraint_workflow.py wm --output w_minus` (or `wp`).
 Its [initial training vector](initial160/README.md) retains all fitted/diagnostic
 cross-covariance. The [portable-record benchmark](portable_benchmark.json) gives
 measured runtime, memory, archive size and a change-of-thread-count reload check.
+
+The LO+PS curve in the charge-asymmetry figures uses the original fiducial cross section for each charge. For the compact sample the absolute lepton spectrum uses the charge-specific generator rate in the event metadata. [Original charge-bin counts and cross sections](../paper_distributions/w/lo_ps_prior.csv)

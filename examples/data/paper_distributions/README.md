@@ -5,20 +5,21 @@ examples fit compact event samples. These figures use the full production sample
 
 | Application | Figure | Binned predictions |
 |---|---|---|
-| Neutral-current Drell–Yan | [Recoil and decay angle](drell_yan/recoil_and_angle.pdf), [dilepton mass, absolute rapidity and angular recoil](drell_yan/figure.pdf) | [Recoil in the ATLAS bins](drell_yan/atlas_recoil.csv), [both generators on common intervals](drell_yan/atlas_recoil_common_integrals.csv), [angular recoil in the ATLAS bins](drell_yan/atlas_phistar.csv), [generator spectra and NNLO references](drell_yan/distributions.csv), [acoplanarity against fixed order](drell_yan/phistar_fixed_order.md), [Herwig in the ATLAS acoplanarity bins](drell_yan/herwig_atlas_groups.md) |
-| Charged-current Drell–Yan | [Lepton charge asymmetry](w/figure.pdf), [hard-recoil acceptance check](w/acceptance.pdf) | [CSV](w/predictions.csv), [baseline data and residuals](w/baseline.csv), [scale members and covariances](w/charge_asymmetry.npz), [conditional acceptances](w/acceptance.csv) |
+| Neutral-current Drell–Yan | [Dilepton recoil and lepton acoplanarity](drell_yan/recoil_and_phistar.pdf) | [Recoil in the ATLAS bins](drell_yan/atlas_recoil.csv), [both generators on common intervals](drell_yan/atlas_recoil_common_integrals.csv), [angular recoil in the ATLAS bins](drell_yan/atlas_phistar.csv), [generator spectra and NNLO references](drell_yan/distributions.csv), [acoplanarity against fixed order](drell_yan/phistar_fixed_order.md), [prior against fixed order](drell_yan/prior_phistar_fo.csv), [prior against data](drell_yan/prior_phistar_atlas.csv), [Herwig in the ATLAS acoplanarity bins](drell_yan/herwig_atlas_groups.md) |
+| Charged-current Drell–Yan | [Lepton charge asymmetry](w/figure.pdf), [hard-recoil acceptance check](w/acceptance.pdf), [acceptance in recoil and polar angle bins](w/regional_acceptance.pdf) | [CSV](w/predictions.csv), [baseline data and residuals](w/baseline.csv), [original LO+PS charge rates](w/lo_ps_prior.csv), [regional acceptance differences](w/regional_acceptance.json), [scale members and covariances](w/charge_asymmetry.npz), [conditional acceptances](w/acceptance.csv) |
 | Gluon-fusion Higgs | [Recoil and jets](higgs/jets.pdf), [diphoton recoil and rapidity after photon cuts](higgs/photons.pdf) | [Fiducial spectra, variations, inclusive recoil and jet counts](higgs/fiducial.npz), [fiducial fixed-order references](higgs/higgs_fixed_order.md), [inclusive recoil in the combined ATLAS bins](higgs/inclusive/production_recoil.md) |
-| Continuum diphotons | [Recoil and azimuthal separation](diphoton/recoil_and_angle.pdf), [photon-pair mass and pseudorapidity separation](diphoton/figure.pdf) | [Recoil and azimuth in the ATLAS bins](diphoton/atlas_recoil_azimuth.md), [mass and angular densities](diphoton/distributions.npz), [mass and angular fixed-order bins](diphoton/mass_angle_reference.npz), [azimuth against fixed order](diphoton/diphoton_azimuth_fixed_order.md) |
-| $Z$+jet production | [Leading jet, jet balance and dilepton acoplanarity](zj/distributions.pdf) | [Independent two-jet benchmark and refinement study](../zj_refinement/RESULTS.txt) |
+| Continuum diphotons | [Recoil and azimuthal separation](diphoton/recoil_and_angle.pdf), [photon-pair mass and pseudorapidity separation](diphoton/figure.pdf) | [Recoil and azimuth in the ATLAS bins](diphoton/atlas_recoil_azimuth.md), [mass and angular densities](diphoton/distributions.npz), [mass and angular fixed-order bins](diphoton/mass_angle_reference.npz), [azimuth against fixed order](diphoton/diphoton_azimuth_fixed_order.md), [original priors](diphoton/recoil_angle_priors.csv), [measured-bin and grouped fitted ratios](diphoton/grouped_fit_ratios.csv) |
+| $Z$+jet production | [Leading jet, jet balance and dilepton acoplanarity](zj/distributions.pdf), [two-jet momentum densities](zj/joint_jets.pdf) | [Independent two-jet benchmark and refinement study](../zj_refinement/RESULTS.txt), [two-dimensional bin probabilities](zj/joint_jets.csv) |
 
 The [example catalogue](../../README.md) gives the event samples and fit inputs for each application.
 
 ## Reading the numbers
 
-- **Drell–Yan.** The mass and rapidity panels compare the full MG5+Pythia and
+- **Drell–Yan.** The [supplementary mass and rapidity checks](drell_yan/mass_and_rapidity.pdf) compare the full MG5+Pythia and
   Herwig predictions with central NNLO. Mass uses the fiducial rate. Each
   rapidity shape has unit area for absolute dilepton rapidity below 2.4.
-  The angular panel uses all 3,583,332 MG5+Pythia events and all 36 ATLAS
+  The [earlier recoil and Collins–Soper angle comparison](drell_yan/recoil_and_angle.pdf) remains available.
+  The acoplanarity comparison uses all 3,583,332 MG5+Pythia events and all 36 ATLAS
   bins. Their edges, measured Born-level densities, uncertainties, predictions,
   ratios and seven scale members are in `atlas_phistar.csv`. The two scale factors
   in each column heading multiply the dilepton mass. Each member includes the
