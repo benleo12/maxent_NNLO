@@ -34,7 +34,7 @@
     "rivet": "3.1.10"
   },
   "code_sha256": {
-    "run.py": "69ed3f16585db2f0936dc68a9c84ed39ed9d5e7aca0f6f3ca3829664c2879345",
+    "run.py": "a8bdc4ee9674edb2d62f2bf0d14805f9d2ad91e518f3f61dbf2473f446063fa4",
     "generate_higgs.cc": "75ab685382cdb0a44c29772655fb7cdc97642a7425a631254832b3c9d16a78f6",
     "rivet_runner.cc": "d2f88b0c0db8caff58c3c1131e70869c9516849c0836b8a6206dca8279c82940",
     "MC_MAXENT_HGG.cc": "debf97640c5da389e405cfcc277a0175f38f0fb76261607024dfde400faeda47",
