@@ -64,67 +64,52 @@ def plot(output, process, results, max_pull):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import FixedLocator, NullFormatter, ScalarFormatter
+    from matplotlib.ticker import ScalarFormatter
     from maxent_upgrade.study_report import STYLE
 
     with plt.rc_context(STYLE):
-        fig, axes = plt.subplots(2, 2, figsize=(8.2, 5.7), sharex="col",
-                                 gridspec_kw=dict(height_ratios=(2.2, 1)), constrained_layout=True)
-        fig.suptitle(f"{PROCESS_NAMES[process]} · fitted events and propagated inputs", fontsize=10)
-        for column, (_, prediction, label, title) in enumerate(results):
-            top, ratio = axes[:, column]
+        fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.8))
+        fig.suptitle(PROCESS_NAMES[process], fontsize=12, y=.98)
+        legend = {}
+        for column, (name, prediction, label, title) in enumerate(results):
+            ax = axes[column]
             edges = prediction["edges"]
             centers = (edges[1:] + edges[:-1]) / 2
-            prior, central = prediction["prior"], prediction["central"]
-            top.stairs(prior, edges, baseline=None, color="#87939d", label="Prior shape at target rate")
-            top.stairs(central, edges, baseline=None, color="#bd3c3c", label="Moment fit")
+            central = prediction["central"]
+            ax.stairs(prediction["prior"], edges, baseline=None, color="#65727c",
+                      linestyle="--", label="Prior at target rate")
             if "scale_low" in prediction:
-                top.stairs(prediction["scale_high"], edges, baseline=prediction["scale_low"],
-                           fill=True, color="#bd3c3c", alpha=.16, label="Scale inputs")
-            if "stat_low" in prediction:
-                error = (prediction["stat_high"] - prediction["stat_low"]) / 2
-                top.errorbar(centers, central, yerr=error, fmt="none", color="#bd3c3c",
-                             capsize=2, lw=1, label="Target integration")
-            valid = prior > 0
-            divide = lambda x: np.divide(x, prior, out=np.full_like(prior, np.nan), where=valid)
-            ratio.stairs(divide(central), edges, baseline=None, color="#bd3c3c")
+                ax.stairs(prediction["scale_high"], edges, baseline=prediction["scale_low"],
+                          fill=True, color="#bd3c3c", alpha=.16, label="Scale inputs")
             if "window_low" in prediction:
-                ratio.stairs(divide(prediction["window_high"]), edges,
-                             baseline=divide(prediction["window_low"]), fill=True,
-                             color="#cf7a2b", alpha=.22, label="Transition inputs")
-            ratio.errorbar(centers[valid], divide(central)[valid],
-                           yerr=divide(prediction["sample_error"])[valid], fmt="none",
-                           color="#bd3c3c", capsize=2, lw=1, label="Fixed-weight event error")
+                ax.stairs(prediction["window_high"], edges, baseline=prediction["window_low"],
+                          fill=True, color="#d9903c", alpha=.23, label="Transition inputs")
             if "pdf_low" in prediction:
-                ratio.stairs(divide(prediction["pdf_low"]), edges, baseline=None,
-                             color="#8871a7", ls=":", lw=1)
-                ratio.stairs(divide(prediction["pdf_high"]), edges, baseline=None,
-                             color="#8871a7", ls=":", lw=1, label="PDF inputs")
-            ratio.axhline(1, color=".5", lw=.7)
-            if process == "zj" and column == 0:
-                ratio.set_yscale("log")
-                ratio.yaxis.set_major_locator(FixedLocator([1, 2, 5, 10, 20, 50]))
-                ratio.yaxis.set_major_formatter(ScalarFormatter())
-                ratio.yaxis.set_minor_formatter(NullFormatter())
-            ratio.set(xlabel=label, ylabel="Fit / prior")
-            momentum = column == 0 or process == "ggh"
-            top.set(ylabel="pb / GeV" if momentum else "pb per unit", title=title)
-            top.title.set_fontsize(10)
-            top.set_yscale("log")
-            top.legend(loc="lower left", bbox_to_anchor=(0, 1.06), frameon=False, fontsize=7, ncol=2)
-            ratio.legend(loc="best", frameon=False, fontsize=6.5)
-            for ax in (top, ratio):
-                if momentum:
-                    ax.set_xscale("log")
-                    ax.set_xlim(20 if process == "zj" or (process == "ggh" and column == 1) else 2, edges[-1])
-                    ax.xaxis.set_major_locator(FixedLocator([2, 5, 10, 20, 50, 100, 200, 500]))
-                    ax.xaxis.set_major_formatter(ScalarFormatter())
-                    ax.xaxis.set_minor_formatter(NullFormatter())
-                else:
-                    ax.set_xlim(edges[0], edges[-1])
-                ax.grid(axis="y", alpha=.15)
-        fig.text(.5, -.015, f"Largest central moment residual: {max_pull:.3g} integration MC errors. "
-                 "Source bands are separate; local statistics are in report.json.",
+                for k in ("low", "high"):
+                    ax.stairs(prediction[f"pdf_{k}"], edges, baseline=None, color="#715a95", ls=":",
+                              lw=1, label="PDF inputs" if k == "high" else None)
+            ax.stairs(central, edges, baseline=None, color="#bd3c3c", label="Moment fit")
+            if "stat_low" in prediction:
+                stat = (prediction["stat_high"] - prediction["stat_low"]) / 2
+                ax.errorbar(centers - .07 * np.diff(edges), central, yerr=stat, fmt="none",
+                            color="#a42626", capsize=1.5, lw=.9, label="Target integration")
+            ax.errorbar(centers + .07 * np.diff(edges), central, yerr=prediction["sample_error"],
+                        fmt="none", color="#43494c", capsize=1.5, lw=.9, label="Finite sample")
+            momentum = name in ("recoil", "jet", "second_jet")
+            ax.set(xlabel=label, ylabel="pb / GeV" if momentum else "pb per unit",
+                   xlim=(edges[0], edges[-1]), yscale="log", title=title)
+            if momentum and edges[0] > 0:
+                ax.set_xscale("log")
+                ax.set_xticks([tick for tick in (20, 50, 100, 200, 500) if edges[0] <= tick <= edges[-1]])
+                ax.xaxis.set_major_formatter(ScalarFormatter())
+            ax.title.set_fontsize(10)
+            ax.grid(axis="y", alpha=.15)
+            handles, labels = ax.get_legend_handles_labels()
+            legend.update(zip(labels, handles))
+        fig.legend(legend.values(), legend.keys(), loc="upper center", bbox_to_anchor=(.5, .92),
+                   frameon=False, fontsize=8, ncol=4)
+        fig.subplots_adjust(top=.72, bottom=.19, left=.09, right=.98, wspace=.28)
+        fig.text(.5, .025, f"Largest central moment residual {max_pull:.3g} integration MC errors.",
                  ha="center", fontsize=8, color=".4")
         fig.savefig(output / "comparison.pdf", bbox_inches="tight")
         fig.savefig(output / "comparison.png", dpi=180, bbox_inches="tight")

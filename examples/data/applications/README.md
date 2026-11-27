@@ -26,12 +26,12 @@ two histogram files, `acceptance.npz`, `report.json` and, with `--plot`,
 | Diphotons | Pair transverse momentum | Photon separation and a subleading-photon threshold of 40 GeV |
 | Z+jet | Second-jet momentum | Jet balance and a second-jet threshold of 60 GeV |
 
-The extra distributions/cuts are predictions. **These plots have no independent
-reference**, so they show the effect of reweighting and propagated inputs, not a
-physics validation. Scale bands and target-integration errors appear in the
-upper panels; transition/PDF inputs and fixed-weight event errors appear below.
-The full refitted-prior covariance is available through the separate
-[constraint-study workflow](../../../docs/STUDY_API.md), not this short interface.
+The plots show differential cross sections before and after reweighting. For
+each observable, the scale and transition bands, PDF variations, target-integration
+errors and finite-sample errors appear directly on the distribution whenever
+available. The selected event weights keep their original normalization. The
+[constraint-study workflow](../../../docs/STUDY_API.md) also evaluates the covariance
+from refitting the prior.
 
 The Higgs example uses the released NNLO rate, about 39.47 pb. The paper's Higgs
 plots use a separate N3LO normalization of 48.58 pb; the compact example does not

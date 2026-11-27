@@ -32,24 +32,119 @@ def draw(ax, edges, values, color, *, dashed=False, valid=None, band=None, error
     """Draw native bins without connecting gaps or inventing interpolated values."""
     values = np.asarray(values, dtype=float)
     valid = np.isfinite(values) if valid is None else np.asarray(valid) & np.isfinite(values)
-    style = "--" if dashed else "-"
+    style = ":" if color == COLORS["reference"] else ("--" if dashed else "-")
     ax.stairs(np.where(valid, values, np.nan), edges, baseline=None, color=color, lw=1.3, linestyle=style)
     if band is not None:
         low, high = (np.where(valid, np.asarray(v), np.nan) for v in band)
-        ax.fill_between(edges, np.r_[low, low[-1]], np.r_[high, high[-1]],
-                        step="post", color=color, alpha=.13, linewidth=0)
+        x = np.repeat(edges, 2)[1:-1]
+        ax.fill_between(x, np.repeat(low, 2), np.repeat(high, 2), color=color, alpha=.16, linewidth=0)
     if error is not None:
         centers = (edges[:-1] + edges[1:]) / 2 + offset * np.diff(edges)
         ax.errorbar(centers[valid], values[valid], yerr=np.asarray(error)[valid],
                     color=color, fmt=".", ms=2.7, lw=.7, capsize=0)
 
 
-def limits(arrays, low, high):
-    values = np.concatenate([np.asarray(a).ravel() for a in arrays])
-    values = values[np.isfinite(values)]
-    if len(values):
-        return min(low, float(values.min()) * .95), max(high, float(values.max()) * 1.05)
-    return low, high
+def plot_distribution(top, comparisons, directory, name):
+    """Use the same native fixed-order bins for the spectrum and its ratios."""
+    ref = load(directory, name + "_reference")
+    edges = ref["edges"]
+    centers = (edges[:-1] + edges[1:]) / 2
+    # The angular acceptance edge interrupts the fixed-order comparison.
+    regions = [np.full(len(centers), True)] if name == "recoil" else [centers < .75, centers > .90]
+    valid = np.logical_or.reduce(regions)
+    reference = ref["central"]
+    draw(top, edges, reference, COLORS["reference"], valid=valid, band=(ref["scale_low"], ref["scale_high"]))
+    ref_band = (ratio(ref["scale_low"], reference), ratio(ref["scale_high"], reference))
+    ref_error = ratio(ref["sample_error"], reference)
+    extent = [ref_band[0][valid], ref_band[1][valid], 1 - ref_error[valid], 1 + ref_error[valid]]
+    for ax, selected in zip(comparisons, regions):
+        draw(ax, edges, np.ones_like(reference), COLORS["reference"], valid=selected,
+             error=ref_error, band=ref_band)
+        ax.axhline(1, color=".6", lw=.6, zorder=0)
+    peak = None
+    if name == "recoil":
+        peak = top.inset_axes([.49, .57, .46, .37])
+        peak.set(xlim=(0, 30), xlabel=r"$q_T$ [GeV]")
+        peak.tick_params(direction="in", top=True, right=True, labelsize=8)
+        peak.xaxis.label.set_size(8)
+    for slot, label in enumerate(("pythia", "herwig")):
+        h = load(directory, f"{label}_{name}")
+        np.testing.assert_array_equal(edges, h["edges"])
+        color = COLORS[label]
+        if name == "recoil":
+            # The low and hard histograms have separate native edges. Drawing
+            # them in two pieces preserves the gap from 60 to 60.615 GeV.
+            full = load(directory, label + "_full_recoil")
+            keep = np.count_nonzero(full["edges"][1:] <= edges[0])
+            for key in ("prior", "central"):
+                draw(top, full["edges"][:keep + 1], full[key][:keep], color, dashed=key == "prior")
+                soft = np.count_nonzero(full["edges"][1:] <= 30)
+                draw(peak, full["edges"][:soft + 1], full[key][:soft], color, dashed=key == "prior")
+        draw(top, edges, h["prior"], color, dashed=True)
+        draw(top, edges, h["central"], color)
+        members = np.vstack([h["central"], h["scale_members"]])
+        if members.shape != ref["scale_members"].shape:
+            raise ValueError("posterior and reference need the same seven ordered scale members")
+        scales = ratio(members, ref["scale_members"])
+        error = ratio(np.hypot(h["sample_error"], h["stat_members"].std(axis=0, ddof=1)), reference)
+        prior_ratio = ratio(h["prior"], reference)
+        central_ratio = ratio(h["central"], reference)
+        extent.extend([prior_ratio[valid], (central_ratio - error)[valid], (central_ratio + error)[valid],
+                       scales[:, valid].ravel()])
+        for ax, selected in zip(comparisons, regions):
+            draw(ax, edges, prior_ratio, color, dashed=True, valid=selected)
+            draw(ax, edges, central_ratio, color, valid=selected,
+                 band=(scales.min(axis=0), scales.max(axis=0)), error=error,
+                 offset=(-.08 if slot == 0 else .08))
+    finite = np.concatenate(extent)
+    low, high = np.nanmin(finite), np.nanmax(finite)
+    margin = max(.03, .10 * (high - low))
+    comparisons[0].set_ylim(low - margin, high + margin)
+    comparisons[0].set_ylabel("Ratio to fixed order")
+
+
+def plot(directory):
+    fig = plt.figure(figsize=(9.6, 5.4))
+    grid = fig.add_gridspec(2, 2, height_ratios=(1.7, 1), hspace=.41, wspace=.30)
+    recoil = fig.add_subplot(grid[0, 0])
+    angle = fig.add_subplot(grid[0, 1])
+    hard = fig.add_subplot(grid[1, 0])
+    split = grid[1, 1].subgridspec(1, 2, width_ratios=(3, 1), wspace=.18)
+    low = fig.add_subplot(split[0])
+    high = fig.add_subplot(split[1], sharey=low)
+    plot_distribution(recoil, [hard], directory, "recoil")
+    plot_distribution(angle, [low, high], directory, "angle")
+
+    recoil.set(xlim=(0, 500), yscale="log", ylim=(1e-6, .2),
+               ylabel=r"$\sigma^{-1}d\sigma/dq_T$ [GeV$^{-1}$]", xlabel=r"$q_T$ [GeV]")
+    angle.set(xlim=(0, 1), ylabel=r"$\sigma^{-1}d\sigma/d|\cos\theta^{*}|$",
+              xlabel=r"$|\cos\theta^{*}|$")
+    angle.set_ylim(bottom=0)
+    hard.set(xlim=(60, 500), xlabel=r"$q_T$ [GeV]")
+    hard.set_xticks([60, 150, 250, 350, 500])
+    low.set_xlim(0, .75)
+    low.set_xticks([0, .25, .50, .75], labels=["0", "0.25", "0.5", "0.75"])
+    high.set_xlim(.90, 1)
+    high.set_xticks([.90, 1], labels=["0.9", "1"])
+    low.set_xlabel(r"$|\cos\theta^{*}|$", x=.68)
+    for ax in fig.axes:
+        ax.tick_params(direction="in", top=True, right=True)
+    # Both angular intervals use the same ratio scale. A break marks the
+    # intervening three angular bins omitted from the fixed-order comparison.
+    low.spines["right"].set_visible(False)
+    high.spines["left"].set_visible(False)
+    low.tick_params(axis="y", right=False)
+    high.tick_params(axis="y", left=False, labelleft=False)
+    for ax, end in [(low, 1), (high, 0)]:
+        ax.plot([end, end], [0, 1], color=".2", lw=0, marker=[(-.65, -1), (.65, 1)],
+                markersize=6, markeredgewidth=.8, transform=ax.transAxes, clip_on=False)
+    handles = [Line2D([], [], color=COLORS[label], linestyle=style, label=text)
+               for label, style, text in [("pythia", "--", "MG5+Pythia prior"), ("herwig", "--", "Herwig prior"),
+                                          ("reference", ":", "Fixed order"), ("pythia", "-", "MaxEnt, MG5+Pythia"),
+                                          ("herwig", "-", "MaxEnt, Herwig")]]
+    fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False)
+    fig.subplots_adjust(top=.87, bottom=.10, left=.09, right=.98)
+    return fig
 
 
 def main(argv=None):
@@ -60,86 +155,11 @@ def main(argv=None):
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=False)
     with plt.rc_context({"text.usetex": False, "font.family": "DejaVu Sans", "font.size": 10}):
-        fig, axes = plt.subplots(3, 2, figsize=(11.2, 7.6), sharex="col",
-                                 gridspec_kw={"height_ratios": [2.2, 1.2, 1], "hspace": .07, "wspace": .32})
-        for column, name in enumerate(("recoil", "angle")):
-            top, middle, bottom = axes[:, column]
-            ref = load(args.data, name + "_reference")
-            edges = ref["edges"]
-            centers = (edges[:-1] + edges[1:]) / 2
-            valid = np.ones(len(centers), dtype=bool) if name == "recoil" else ((centers < .75) | (centers > .9))
-            shade = (30, 60) if name == "recoil" else (.75, .9)
-            for ax in axes[:, column]:
-                ax.axvspan(*shade, color=".92", zorder=0)
-                ax.tick_params(direction="in", top=True, right=True)
-            draw(top, edges, ref["central"], COLORS["reference"], valid=valid)
-            draw(middle, edges, np.ones(len(centers)), COLORS["reference"], valid=valid,
-                 error=ratio(ref["sample_error"], ref["central"]),
-                 band=(ratio(ref["scale_low"], ref["central"]), ratio(ref["scale_high"], ref["central"])))
-            middle.axhline(1, color=".6", lw=.6)
-            bottom.axhline(1, color=".6", lw=.6)
-            ratios, changes = [], []
-            for slot, label in enumerate(("pythia", "herwig")):
-                hist = load(args.data, label + "_" + name)
-                full = load(args.data, label + "_full_recoil") if name == "recoil" else hist
-                np.testing.assert_array_equal(edges, hist["edges"])
-                if name == "recoil":
-                    # Every hard curve uses the reference's exact native bins.
-                    # The low cache ends at 60 GeV; the hard cache begins at
-                    # 60.615 GeV. Leave their uncomputed interval empty.
-                    count = int(np.count_nonzero(full["edges"][1:] <= edges[0]))
-                    display = {"edges": np.r_[full["edges"][:count + 1], edges]}
-                    for key in ("prior", "central", "scale_low", "scale_high"):
-                        display[key] = np.r_[full[key][:count], np.nan, hist[key]]
-                    full = display
-                color = COLORS[label]
-                draw(top, full["edges"], full["prior"], color, dashed=True)
-                draw(top, full["edges"], full["central"], color)
-                central_ratio = ratio(hist["central"], ref["central"])
-                prior_ratio = ratio(hist["prior"], ref["central"])
-                # A scale member is a complete normalized prediction. Pair its
-                # numerator and reference at that same scale.
-                members = np.vstack([hist["central"], hist["scale_members"]])
-                if members.shape != ref["scale_members"].shape:
-                    raise ValueError("posterior and reference need the same seven ordered scale members")
-                scale_ratios = ratio(members, ref["scale_members"])
-                integration_error = hist["stat_members"].std(axis=0, ddof=1)
-                error = np.hypot(hist["sample_error"], integration_error)
-                draw(middle, edges, prior_ratio, color, dashed=True, valid=valid)
-                draw(middle, edges, central_ratio, color, valid=valid, offset=(-.08 if slot == 0 else .08),
-                     error=ratio(error, ref["central"]), band=(scale_ratios.min(axis=0), scale_ratios.max(axis=0)))
-                change = ratio(full["central"], full["prior"])
-                draw(bottom, full["edges"], change, color,
-                     band=(ratio(full["scale_low"], full["prior"]), ratio(full["scale_high"], full["prior"])))
-                ratios.extend([central_ratio[valid], prior_ratio[valid]])
-                changes.append(change)
-            middle.set_ylim(*limits(ratios, .7, 1.3))
-            bottom.set_ylim(*limits(changes, .8, 1.2))
-            middle.set_ylabel("Ratio to fixed order")
-            bottom.set_ylabel("Ratio to own prior")
-        for ax in axes[:, 0]:
-            ax.set_xscale("log")
-            ax.set_xlim(.5, 500)
-        axes[0, 0].set_yscale("log")
-        axes[0, 0].set_ylim(1e-6, .2)
-        axes[0, 0].set_ylabel(r"$\sigma^{-1}d\sigma/dq_T$ [GeV$^{-1}$]")
-        axes[2, 0].set_xlabel(r"$q_T$ [GeV]")
-        axes[0, 1].set_ylim(bottom=0)
-        axes[0, 1].set_ylabel(r"$\sigma^{-1}d\sigma/d|\cos\theta^{*}|$")
-        axes[2, 1].set_xlabel(r"$|\cos\theta^{*}|$")
-        axes[2, 1].set_xlim(0, 1)
-        handles = [Line2D([], [], color=COLORS[label], linestyle=style, label=text)
-                   for label, style, text in [("pythia", "--", "MG5+Pythia prior"),
-                                              ("herwig", "--", "Herwig prior"),
-                                              ("reference", "-", "Fixed order"),
-                                              ("pythia", "-", "MaxEnt, MG5+Pythia"),
-                                              ("herwig", "-", "MaxEnt, Herwig")]]
-        fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(.5, .99), ncol=3, frameon=False)
-        fig.subplots_adjust(top=.87, bottom=.09, left=.09, right=.98)
+        fig = plot(args.data)
         for suffix in ("pdf", "png"):
             fig.savefig(output / ("dy_portability." + suffix), dpi=180)
         plt.close(fig)
-    print(f"Saved {output}. This redraw uses full-sample caches, not the compact example fits.")
+    print(f"Saved {output}.")
 
 
 if __name__ == "__main__":
