@@ -34,18 +34,10 @@ The [example catalogue](../../README.md) gives the event samples and fit inputs 
   for integration and prior statistics, and differences between fits evaluated on
   the same events. The `models`, `pairs` and `scale_names` arrays give their
   order. The acceptance table supplies numerical errors on the paired change at fixed recoil. Both W plots have [editable TeX sources](w/source/README.md). [ATLAS Table XXVI](https://arxiv.org/pdf/1109.5141)
-- **Higgs.** The fiducial spectra use absolute units, fb/GeV for transverse
-  momenta and fb per unit rapidity. Only gluon fusion is reweighted. Each total
-  includes the same VBF, WH, ZH and ttH contributions. The first leading-jet bin
-  represents events without a selected jet above 30 GeV. The `metadata_json`
-  field specifies the rate, scale, transition and finite-event uncertainties.
-  The simulation applies isolation using the transverse energy of the summed track
-  four-vector. The ATLAS paper specifies a scalar sum of track transverse momenta.
-  The stored jets use visible final-state particles. The ATLAS particle-level
-  definition treats prompt leptons and invisible decay products differently and
-  removes jets close to selected electrons. These differences also enter the
-  comparisons with matched generators.
-  [ATLAS measurement](https://arxiv.org/abs/2202.00487) · [HEPData record](https://doi.org/10.17182/hepdata.137886.v1)
+- **Higgs.** Rates include gluon fusion, VBF, WH, ZH and ttH. Only gluon fusion is reweighted.
+  The fiducial predictions use isolated prompt photons and particle-level jets. The first leading-jet bin contains the zero-jet cross section. Scale, transition, PDF and shower variations are supplied separately. Shower members use independent events with the nominal generator settings and each member is refitted.
+  For a given spectrum and model, `_original_selection` gives the earlier result, `_selection_shift` gives the revised selection minus the original, and `_selection_shift_mc_error` is the Monte Carlo error on that difference, evaluated on the same events. Units, cuts and band definitions are in `metadata_json`.
+  [ATLAS measurement](https://arxiv.org/abs/2202.00487) · [HEPData record](https://doi.org/10.17182/hepdata.137886.v2)
 - **Continuum diphotons.** The file contains normalized densities for merged
   (`v6`) and shower-only (`v4`) events, before (`p`) and after (`q`) reweighting.
   The `m` arrays use photon-pair mass in GeV. The `eta` arrays use the
