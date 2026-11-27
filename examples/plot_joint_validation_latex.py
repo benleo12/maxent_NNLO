@@ -28,15 +28,15 @@ def heatmap(data, model, reference, palette):
             raise ValueError("reference contains an unordered jet pair")
         sparse = effective < 10
         rgb = palette(np.clip((ratio - .6) / .8, 0., 1.))[:3]
-        color = "eeeeee" if sparse else "".join(f"{round(255*c):02x}" for c in rgb)
+        color = "eeeeee" if sparse else "".join(f"{round(255 * c):02x}" for c in rgb)
         cell = "diagonal" if i == j else "cell"
         commands.append(rf"\{cell}{{{color}}}{{{left:g}}}{{{right:g}}}{{{bottom:g}}}{{{top:g}}}{{{int(sparse)}}}")
         if (left, right, bottom, top) == (220, 400, 90, 140):
             if sparse:
                 raise ValueError("the annotated cell is below the effective-statistics requirement")
             ink = "white" if np.dot(rgb, [.2126, .7152, .0722]) < .5 else "black"
-            commands.append(rf"\node[text={ink},font=\small] at (axis cs:{np.sqrt(left*right):g},"
-                            rf"{np.sqrt(bottom*top):g}) {{{ratio:.2f}}};")
+            commands.append(rf"\node[text={ink},font=\small] at (axis cs:{np.sqrt(left * right):g},"
+                            rf"{np.sqrt(bottom * top):g}) {{{ratio:.2f}}};")
     return "\n".join(commands)
 
 

@@ -187,7 +187,7 @@ def _raw_integrals(folder, seed, count, to_pb, scales, single_file=None):
         names = header("labels").split()
         expected = []
         for i in range(1, scales + 1):
-            expected.extend([f"tot_scale{i:02d}[{2*i-1}]", f"tot_scale{i:02d}_Err[{2*i}]"])
+            expected.extend([f"tot_scale{i:02d}[{2 * i - 1}]", f"tot_scale{i:02d}_Err[{2 * i}]"])
         if names != expected:
             raise ValueError(f"{path}: native scale columns differ from the {scales} declared scale choices")
         numeric = [line.split() for line in lines if line and not line.startswith("#")]
