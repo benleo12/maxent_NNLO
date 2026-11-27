@@ -1,6 +1,6 @@
 # Examples
 
-To fit your own events, start with the [user-supplied Chebyshev targets](../docs/NEW_PROCESSES.md).
+For a new process, start with [your prior and your calculation](../docs/NEW_PROCESSES.md). The [NNLOJET example](nnlojet_moments/README.md) books the requested moments and fits the original events in one command. The [HepMC and Rivet example](own_analysis/README.md) carries the weights into a fiducial analysis.
 A [complete absolute-rapidity table](own_prior/targets.json) runs on either Drell–Yan prior.
 The [two-shower recoil example](own_prior/README.md) fits the same fixed-order table to both samples and checks the resulting cut cross sections.
 The examples below document the collider studies in the paper.
@@ -25,6 +25,15 @@ tutorials [custom_observables.py](custom_observables.py) and
 [custom_uncertainties.py](custom_uncertainties.py) use synthetic data to explain
 new observables, joint constraints and uncertainty inputs. They also demonstrate
 [held-out joint checks and local statistics](../docs/VALIDATION.md).
+
+For a production-only fit on the compact charged-current samples, use
+
+```sh
+maxent-upgrade match examples/data/w_predictivity/w_wp_prior.npz wp wp_compact.npz --max-degree pt_w 8
+maxent-upgrade match examples/data/w_predictivity/w_wm_prior.npz wm wm_compact.npz
+```
+
+The compact positive-charge sample has no events in part of the hard recoil tail. Its events cannot reproduce the full set of requested recoil moments with positive weights. The explicit cap reduces the information requested from this sample. The production and decay study below tests lepton cuts against independent NNLO predictions.
 
 For a complete real-QCD training, frozen-fit and independent-prediction workflow:
 

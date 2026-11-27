@@ -133,3 +133,108 @@ def test_selected_records_only_and_stream_subset_limit(tmp_path):
     with hepmc.open(output) as reader:
         records = list(reader)
     assert len(records) == 1 and records[0].weights[-1] == 7
+
+
+def photon_event(number, pt, *, mev=False, weights=()):
+    event = hepmc.GenEvent(hepmc.Units.MEV if mev else hepmc.Units.GEV, hepmc.Units.MM)
+    event.event_number = number
+    event.weights = list(weights)
+    v = hepmc.GenVertex()
+    unit = 1000. if mev else 1.
+    v.add_particle_in(hepmc.GenParticle((0, 0, 0, 2*pt*unit), 25, 2))
+    for sign in (-1, 1):
+        v.add_particle_out(hepmc.GenParticle((sign*pt*unit, 0, 0, pt*unit), 22, 1))
+    event.add_vertex(v)
+    return event
+
+
+def photon_selection(event, to_GeV):
+    photons = [p for p in event.particles if p.pid == 22 and p.status == 1]
+    leading_pt = max(p.momentum.pt() for p in photons) * to_GeV
+    return {"photon_pt": leading_pt, "n_photons": len(photons)} if leading_pt > 25 else None
+
+
+def test_custom_fiducial_in_native_gev_and_mev_keeps_generator_identity(tmp_path):
+    from maxent_upgrade.hepmc import extract_events
+
+    source = tmp_path/"photons.hepmc"
+    records = [photon_event(45, 60, mev=True, weights=(3., 6.)),
+               photon_event(22, 15, weights=(5., 10.)),
+               photon_event(17, 40, weights=(7., 14.))]
+    write_records(source, records)
+    arrays = extract_events(source, photon_selection, weight_index=1, selection="leading photon pT > 25 GeV")
+    assert arrays["event_id"].tolist() == [45, 17]
+    assert arrays["event_id"].dtype.kind == "i"
+    np.testing.assert_allclose(arrays["photon_pt"], [60, 40])
+    np.testing.assert_array_equal(arrays["n_photons"], [2, 2])
+    np.testing.assert_array_equal(arrays["weight"], [6, 14])
+    np.testing.assert_array_equal(arrays["original_weight"], [6, 14])
+    metadata = json.loads(str(arrays["record_provenance_json"]))
+    assert metadata["source"]["sha256"] == file_hash(source)
+    assert metadata["weight_index"] == 1 and metadata["source_weight_sum"] == 30
+    assert metadata["source_records"] == 3 and metadata["selected_records"] == 2
+    output = tmp_path/"photons_weighted.hepmc"
+    attach_weights(source, output, arrays["event_id"][::-1], [2., 3.], expected_source_sha256=file_hash(source))
+    with hepmc.open(output) as reader:
+        selected = list(reader)
+    assert [(e.event_number, e.momentum_unit, list(e.weights)) for e in selected] == [
+        (45, hepmc.Units.MEV, [3., 6., 3.]), (17, hepmc.Units.GEV, [7., 14., 2.])]
+
+
+def test_unweighted_record_keeps_unit_nominal_when_attaching(tmp_path):
+    from maxent_upgrade.hepmc import extract_events
+
+    source, output = tmp_path/"unweighted.hepmc", tmp_path/"weighted.hepmc"
+    write_records(source, [photon_event(39, 60)])
+    arrays = extract_events(source, photon_selection)
+    assert list(arrays["weight"]) == [1.]
+    with pytest.raises(ValueError, match="generator weight index"):
+        extract_events(source, photon_selection, weight_index=1)
+    attach_weights(source, output, arrays["event_id"], [2.75])
+    with hepmc.open(output) as reader:
+        event = next(iter(reader))
+        assert list(event.weights) == [1., 2.75]
+        assert event.run_info.weight_names == ["nominal", "maxent_pb_per_event"]
+
+
+@pytest.mark.parametrize("second,error", [({"different": 1.}, "columns differ"),
+                                           ({"x": float("nan")}, "finite real scalar"),
+                                           ({"x": [1., 2.]}, "finite real scalar")])
+def test_custom_measurement_rejects_inconsistent_rows(second, error):
+    from maxent_upgrade.hepmc import collect_events
+
+    with pytest.raises(ValueError, match=error):
+        collect_events([photon_event(1, 60), photon_event(2, 60)],
+                       lambda event, to_GeV: {"x": 1.} if event.event_number == 1 else second)
+
+
+def test_custom_callback_cannot_overwrite_weights_or_duplicate_rejected_ids():
+    from maxent_upgrade.hepmc import collect_events
+
+    with pytest.raises(ValueError, match="observable names"):
+        collect_events([photon_event(1, 60)], lambda event, to_GeV: {"weight": 9.})
+    with pytest.raises(ValueError, match="duplicate event number"):
+        collect_events([photon_event(1, 15), photon_event(1, 60)], photon_selection)
+
+
+def test_attach_fit_reads_rate_members_labels_and_source_hash(tmp_path):
+    from maxent_upgrade.hepmc import attach_fit, extract_events
+
+    source, fitted, output = [tmp_path/n for n in ("photons.hepmc", "fit.npz", "weighted.hepmc")]
+    write_records(source, [photon_event(19, 60), photon_event(7, 40)])
+    events = extract_events(source, photon_selection)
+    arrays = dict(**events, weight_normalization="pb", weight_upgraded=[3., 2.],
+                  uncertainty_sources=["scale"], labels_scale=["scale up", "scale down"],
+                  weight_scale=[[4., 2.1], [2., 1.9]])
+    np.savez(fitted, **arrays)
+    receipt = attach_fit(source, fitted, output)
+    assert receipt["variation_cross_sections_pb"] == {
+        "maxent_scale_001_pb_per_event": 6.1, "maxent_scale_002_pb_per_event": 3.9}
+    assert receipt["fit"]["hepmc_weight_labels"]["maxent_scale_001_pb_per_event"] == "scale up"
+    with hepmc.open(output) as reader:
+        assert [(e.event_number, e.weights) for e in reader] == [(19, [1., 3., 4., 2.]), (7, [1., 2., 2.1, 1.9])]
+    with pytest.raises(ValueError, match="hash"):
+        attach_fit(output, fitted, tmp_path/"wrong-source.hepmc")
+    np.savez(fitted, **dict(arrays, weight_normalization="unit_area"))
+    with pytest.raises(ValueError, match="pb"):
+        attach_fit(source, fitted, tmp_path/"unit-area.hepmc")

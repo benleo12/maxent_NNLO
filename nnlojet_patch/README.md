@@ -1,4 +1,8 @@
-# NNLOJET patch: event-level Chebyshev moments
+# NNLOJET moment measurements
+
+For new calculations use the [run-time moment patch](generic/README.md) and the [calculation and run-card example](../examples/nnlojet_moments/README.md). The remaining instructions reproduce the inputs distributed with the paper.
+
+## Reproduce the released tables
 
 These patches teach NNLOJET to accumulate **event-level moments** — the
 literal per-phase-space-point weighted sum

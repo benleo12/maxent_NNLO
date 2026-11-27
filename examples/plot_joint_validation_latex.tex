@@ -1,0 +1,50 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{amsmath,pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc,patterns}
+\pgfplotsset{compat=1.18}
+\pgfdeclarehorizontalshading{jetpalette}{100bp}{% SHADING STOPS}
+\definecolor{low}{HTML}{053061}
+\definecolor{high}{HTML}{67001f}
+\newcommand{\cell}[6]{\definecolor{jet#1}{HTML}{#1}%
+  \path[fill=jet#1] (axis cs:#2,#4) rectangle (axis cs:#3,#5);
+  \ifnum#6=1 \path[pattern=north east lines,pattern color=black!49]
+    (axis cs:#2,#4) rectangle (axis cs:#3,#5);\fi}
+\newcommand{\diagonal}[6]{\definecolor{jet#1}{HTML}{#1}%
+  \path[fill=jet#1] (axis cs:#2,#4)--(axis cs:#3,#4)--(axis cs:#3,#5)--cycle;
+  \ifnum#6=1 \path[pattern=north east lines,pattern color=black!49]
+    (axis cs:#2,#4)--(axis cs:#3,#4)--(axis cs:#3,#5)--cycle;\fi}
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[
+ group style={group size=2 by 1,horizontal sep=8mm},
+ width=61.4mm,height=61.4mm,scale only axis,axis on top,
+ xmode=log,ymode=log,xmin=60,xmax=1000,ymin=60,ymax=1000,
+ xtick={60,100,200,400,1000},xticklabels={60,100,200,400,1000},
+ ytick={60,100,200,400,1000},yticklabels={60,100,200,400,1000},
+ minor xtick={70,80,90,300,500,600,700,800,900},minor ytick={70,80,90,300,500,600,700,800,900},
+ tick align=inside,tick pos=both,tick label style={font=\fontsize{8}{9.5}\selectfont},
+ major tick length=2.5pt,minor tick length=1.5pt,
+ title style={font=\fontsize{9}{10.5}\selectfont},
+ label style={font=\fontsize{9}{10.5}\selectfont},axis line style={line width=.45pt},
+ xlabel={$p_{\mathrm T}^{j_1}$ [GeV]}]
+\nextgroupplot[title={Separate jet moments},ylabel={$p_{\mathrm T}^{j_2}$ [GeV]}]
+% CELLS marg
+\draw[black!55,line width=.45pt](axis cs:60,60)--(axis cs:1000,1000);
+\nextgroupplot[title={With joint jet moments},yticklabels=\empty]
+% CELLS joint
+\draw[black!55,line width=.45pt](axis cs:60,60)--(axis cs:1000,1000);
+\end{groupplot}
+\coordinate (barcenter) at ($(group c1r1.north west)!.5!(group c2r1.north east)+(0,13mm)$);
+\begin{scope}[shift={(barcenter)},font=\fontsize{8}{9}\selectfont]
+\shade[shading=jetpalette](-38mm,0)rectangle(38mm,2mm);
+\fill[low](-38mm,0)--(-40mm,1mm)--(-38mm,2mm)--cycle;
+\fill[high](38mm,0)--(40mm,1mm)--(38mm,2mm)--cycle;
+\draw[line width=.4pt](-40mm,1mm)--(-38mm,0)--(38mm,0)--(40mm,1mm)--(38mm,2mm)--(-38mm,2mm)--cycle;
+\foreach \x/\lab in {-38/0.6,-19/0.8,0/1.0,19/1.2,38/1.4}{
+ \draw[line width=.35pt](\x mm,0)--(\x mm,0.65mm);
+ \node[anchor=north,inner sep=1pt] at (\x mm,0){\lab};}
+\node[anchor=south,inner sep=2pt,font=\fontsize{9}{10}\selectfont] at (0,2mm){Fit / LO $Z+2$ jets};
+\end{scope}
+\end{tikzpicture}
+\end{document}

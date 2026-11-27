@@ -2,6 +2,9 @@
 
     python examples/plot_joint_validation.py
 
+For the annotated, native-TeX version in the paper, run
+    python examples/plot_joint_validation_latex.py
+
 The supplied bins are independent validation histograms, not inputs to the fit.
 See data/README.md for their selection, normalization and integration provenance.
 For a new process, histogram your separate/joint posterior weights with

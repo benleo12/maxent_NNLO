@@ -1,0 +1,9 @@
+{
+  "runcard": "higgs.run",
+  "selection": "Inclusive Higgs production in gluon fusion at 13 TeV, mH = 125 GeV",
+  "config": {"born": {"y_abs": {"map": "lin", "range": [0, 4]}}},
+  "axes": {"y_abs": "abs_yh"},
+  "degrees": {"y_abs": [1, 2]},
+  "seeds": [101, 102, 103, 104],
+  "scale_labels": ["muF=1 muR=1", "muF=2 muR=2", "muF=0.5 muR=0.5", "muF=1 muR=0.5", "muF=0.5 muR=1", "muF=1 muR=2", "muF=2 muR=1"]
+}

@@ -1,11 +1,60 @@
 # From an event record to fitted weights
 
-The optional Drell–Yan adapter reads HepMC2 or HepMC3 records, extracts the released
-13 TeV fiducial selection, and attaches fitted weights by unique event number.
-The core fitting workflow still needs only NumPy.
+Install the HepMC2/3 reader alongside the core package with `pip install '.[hepmc]'`.
+
+## Extract observables for your process
+
+Pass a measurement function to `extract_events`. It receives one original HepMC record
+and a conversion factor from that record's momentum units to GeV. Return a dictionary
+of named scalar observables for each event in your fiducial region, or `None` for an
+event outside it. The same callback works with inputs in GeV or MeV.
+
+For example, if your generator retains the Higgs resonance, its last copy supplies
+the Higgs transverse momentum and rapidity. The following selection requires one
+such resonance. It includes every decay channel in the input sample.
+
+```python
+import numpy as np
+from maxent_upgrade.hepmc import extract_events
+
+def measure(event, to_GeV):
+    higgs = [p for p in event.particles if p.pid == 25
+             and all(child.pid != 25 for child in p.children)]
+    if len(higgs) != 1:
+        return None
+    momentum = higgs[0].momentum
+    return {"higgs_pt": momentum.pt() * to_GeV, "higgs_abs_y": abs(momentum.rap())}
+
+events = extract_events("higgs.hepmc", measure, selection="one final-copy Higgs")
+np.savez_compressed("prior.npz", **events)
+```
+
+Use these column names when booking your fixed-order moments for the same process
+and cuts. Fit your table with `maxent-upgrade fit prior.npz targets.json fitted.npz`.
+The helper records the input file hash and writes one exact `event_id` and the
+selected nominal generator `weight` per accepted record, in file order. The raw
+generator weights may have an arbitrary common normalization. An unweighted HepMC
+record with an empty weight list contributes one. Use `weight_index=` to select a
+different positive generator weight by its index.
+
+Attach the central and every varied fit weight to the selected full records.
+The fit must have a fiducial cross section in pb.
+
+```python
+from maxent_upgrade.hepmc import attach_fit
+
+attach_fit("higgs.hepmc", "fitted.npz", "fitted.hepmc")
+```
+
+`attach_fit` joins by event number, verifies the source hash recorded during
+file extraction, and preserves each member's physical label in the run metadata.
+The appended weights are absolute pb per selected event. For a new selection, sum
+its event weights separately for every member. Attaching weights to an originally
+weightless record makes its unit nominal explicit in the first slot.
+
+## Use the released Drell–Yan selection
 
 ```bash
-python -m pip install '.[hepmc]'
 python examples/hepmc_drell_yan.py my_events.hepmc dy_records --qed-off
 ```
 
@@ -31,13 +80,25 @@ The output directory contains:
 - `statistics.json`: global effective statistics and concentration.
 
 The new HepMC weight **`maxent_pb_per_event` is already an absolute contribution
-in pb**. Its sum is the fitted fiducial cross section. Do not multiply it by the
-generator cross section again. Configure downstream analyses to sum these absolute
-weights directly: automatic normalization to the original cross-section metadata
-would change the intended fiducial rate. Original event weights, particle momenta, vertex
-connections and metadata remain in the selected records. The original generator
-cross-section metadata is preserved; the new rate and units are separately
-recorded in the `maxent_upgrade` run attribute. Every available variation is also attached as a named weight, for example
+in pb**. Its sum is the fitted cross section for the records written. Do not
+multiply it by the generator cross section again. Original event weights,
+particle momenta and vertex connections remain in the selected records.
+`GenCrossSection` retains the original weight streams' cross-section entries and
+adds each fitted stream's own rate. If only a subset of fitted events is attached,
+that new entry is the sum over the subset, not the full parent rate. The original
+serialized cross-section attribute is also retained as
+`maxent_original_GenCrossSection`. Scalar original metadata is broadcast to original
+slots; an absent original rate is marked `-1` (unknown). New cross-section error
+fields are zero placeholders, not estimates of the fit uncertainty.
+
+Downstream analyses can sum the absolute weights directly. A conventional Rivet
+analysis using `crossSection()/picobarn/sumOfWeights()` also preserves their rates
+when it uses these **per-member, per-file** cross sections. An override to the
+original generator rate, or a full-sample rate on filtered records, would change
+the intended prediction. The [executed Higgs/Rivet example](../examples/own_analysis/README.md)
+checks both modes for every member, on complete and filtered records, against
+direct event sums. Rates and units are also recorded in the `maxent_upgrade`
+run attribute. Every available variation is also attached as a named weight, for example
 `maxent_scale_001_pb_per_event`, `maxent_stat_001_pb_per_event` and
 `maxent_window_001_pb_per_event`; PDF members appear when supplied. Index 001 is
 the first entry of that source in `posterior.npz`. Each weight vector carries
@@ -54,8 +115,9 @@ them and retain that mapping.
 
 ## Stream directly from a generator
 
-`collect_dy` accepts a record iterator, retaining compact numeric columns instead
-of full event records. A nonseekable pipe needs an explicit input format:
+`collect_events(records, measure, ...)` accepts the same callback for a streaming
+source and keeps the observable columns in memory. `collect_dy` supplies the
+Drell–Yan measurements. A nonseekable pipe needs an explicit input format.
 
 ```python
 import numpy as np

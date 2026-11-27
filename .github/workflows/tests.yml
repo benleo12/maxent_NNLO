@@ -59,6 +59,10 @@ jobs:
           python examples/application_demo.py aa --output aa_check --bootstrap 2 --plot
           python examples/application_demo.py zj --output zj_check --bootstrap 2 --plot
           maxent-upgrade histogram custom_bands.npz mass custom_cli_histogram.npz --bins 20 --range 60 140
+      - name: Match a prior using installed fixed-order moments
+        run: |
+          maxent-upgrade match examples/data/dy_prior.npz dy matched.npz
+          maxent-upgrade check matched.npz --selection
       - name: Same recoil moments on two shower samples
         run: |
           maxent-upgrade fit examples/data/dy_prior.npz examples/own_prior/dy_recoil.json pythia_recoil.npz

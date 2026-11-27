@@ -1,17 +1,29 @@
-# Supply your own prior and moments
+# Reweight a sample for your process
 
-`maxent-upgrade fit prior.npz targets.json upgraded.npz` accepts any process with
-a positive LO+PS prior covering the target phase space. Each target names an observable,
-its polynomial degree, its normalized fixed-order average and its absolute numerical
-or combined error. Include `stat_error` separately when the quoted total also contains
-scale variation. Use the same event definitions, units and cuts in both calculations.
-The optional `selection` string records the fiducial cuts. Apply them upstream.
+Measure each observable on your prior and store the values in an NPZ file alongside a strictly positive `weight` per event. Keep the event ID when returning weights to the original event records. For HepMC input, your measurement function defines the fiducial cuts and event columns. [HepMC guide](HEPMC.md)
 
-The [Drell–Yan target file](../examples/own_prior/targets.json) is a complete
-example. It takes two absolute-rapidity moments from the released NNLO table, including
-its seven scale choices and corresponding cross sections. It can be fitted to either
-of the two generators in the checkout. Replace the column names, maps and target
-rows for another physical process.
+Choose a fixed-order calculation of the same process with the same observable definitions, fiducial region and units. A calculation file pairs each event column with an observable registered in NNLOJET. Supply the run card and define the Chebyshev maps and degrees as below. This command computes the cross section, the moments and their scale variations, then reweights the events:
+
+```sh
+maxent-upgrade match prior.npz calculation.json upgraded.npz
+maxent-upgrade check upgraded.npz --selection
+maxent-upgrade check upgraded.npz
+```
+
+For a jet transverse momentum defined to vanish when that jet is absent, the axis can declare that value explicitly. Use the identical definition on the prior. A [complete calculation and run card](../examples/nnlojet_moments/README.md) show how to change the process, add measurements and reuse the integration. For the same physics setup as a released calculation, replace `calculation.json` with its identifier. For a table you have already computed, use `maxent-upgrade fit prior.npz targets.json upgraded.npz`. Here is a complete illustrative table for an absolute rapidity. Replace the numbers with your calculation.
+
+```json
+{
+  "config": {"born": {"y_abs": {"range": [0, 2.4], "map": "lin"}}},
+  "cross_section_pb": 12.4,
+  "moments": [
+    {"observable": "y_abs", "degree": 1, "value": -0.12, "error": 0.004},
+    {"observable": "y_abs", "degree": 2, "value": -0.31, "error": 0.006}
+  ]
+}
+```
+
+Each `value` is the normalized average of the polynomial. Give its absolute numerical or combined error. Include `stat_error` separately when `error` also contains a scale uncertainty. The optional `selection` string records the cuts applied upstream. A [table from an NNLO integration](../examples/own_prior/targets.json) shows how each scale choice carries its own moments and rate.
 
 ## Identify the measurement function
 
@@ -78,10 +90,28 @@ common overall normalization across choices. Member cross sections are the centr
 rate times the ratio of signed sums. An integrator with separately normalized samples
 can instead supply each varied rate directly.
 
-An integrator can write the target rows without exporting its records. The values
-are ratios of the signed weighted sums, normalized by the fiducial integral (or the
-window integral for windowed moments). Use independent-run errors when the integrator
-pairs real and subtraction records. [Fixed-order definitions](../MOMENT_CONSTRUCTION.md)
+## Correlated subtraction terms and independent runs
+
+Local subtraction terms share a phase-space point with the real contribution. Keep their signed contributions together when estimating a numerical error. If your integrator exposes independent trials, the accumulator takes the observable values for each trial and a matrix of signed weights, one row per scale and one column per contribution:
+
+```python
+from maxent_upgrade import MomentAccumulator
+
+job = MomentAccumulator(config, degrees={"y_abs": [1, 2]}, job_id="real-001",
+                        channel="real", scale_labels=["central", "up", "down"])
+for trial_id, observables, weights_pb in trials:
+    job.fill_group(trial_id, observables, weights_pb)
+job.save("real-001.npz")
+```
+
+An independent trial contributes in pb **before** division by the number of trials. Include rejected trials with no contributions. Trial IDs increase within each job. Use independent streams and distinct job IDs. Split additive contributions by `channel`. If the integrator already returns complete equal-statistics run estimates in pb, use `unit="run"` and pass each run to `add_integrals` in the accumulator's `raw_labels` order. The first entry is always the fiducial cross section. Combine the saved jobs and fit the table:
+
+```sh
+maxent-upgrade merge-moments jobs/*.npz -o targets.json --replicas 100
+maxent-upgrade fit prior.npz targets.json upgraded.npz
+```
+
+The merge averages independent trials within each channel and adds the channel estimates. It propagates the full central covariance of the raw integrals into the rates and normalized moments. By default numerical replicas draw the raw integrals together using that covariance. Set `keep_groups=True` on all jobs to resample complete trial vectors instead. Scale variations are evaluated separately with their own rate. [Measurement definitions](../MOMENT_CONSTRUCTION.md)
 
 ## Return variations to your analysis
 
@@ -109,11 +139,12 @@ analysis selection changes.
 ## Check the moments returned by the fit
 
 ```sh
+maxent-upgrade check dy_weights.npz --selection
 maxent-upgrade check dy_weights.npz
 maxent-upgrade check dy_weights.npz --source scale --member "muR = 2 m_ll, muF = 2 m_ll"
 ```
 
-The second command uses a scale label from the absolute-rapidity example. Each
+The first command gives the prior mean, fixed-order mean, assigned error, their difference in units of that error (SNR), and the decision for every supplied degree. For individual spectra the default retains all supplied degrees through the highest with SNR above one, with at least one degree for recoil. Explicitly supplied products are imposed as a set. Their individual SNR values do not test a correlated set of moments. The last command uses a scale label from the absolute-rapidity example. Each
 report compares the prior and fitted averages of the **same measurement function**
 with its target. A windowed row shows the mean of the window times the polynomial
 over the full fiducial sample. A blended row includes the complementary prior
@@ -125,7 +156,7 @@ The NPZ field `constraint_checks_json` stores the central rows and each source's
 labeled variation rows. Each row identifies its observable, degree, measurement
 kind and hard or soft treatment. `input_error` gives the supplied total error
 in feature units. For a target depending on both a window moment and its fraction,
-the report propagates their marginal errors in quadrature at fixed prior. An
+the report includes the covariance between the moment and its window fraction when supplied by the integration, and evaluates scale changes coherently. With only marginal errors available it combines them in quadrature at fixed prior. An
 unavailable error appears as `null` in the file and a dash in the display.
 A joint significance test needs the integration covariance.
 
@@ -135,8 +166,7 @@ linear combination of moments even when each target lies inside its own range.
 A separating bound is checked on every event before rejecting a target. A
 nonconstant feature exactly at its minimum or maximum would require zeroing
 events away from that endpoint. The numerical convex-hull check can also be
-inconclusive, in which case the package reports that status. A feasible target
-can retain a residual from the regularized fit. Inspect the achieved values in
+inconclusive, in which case the package reports that status. A larger shower sample may fill a missing region. To fit fewer moments, change `degrees` for a new calculation or supply `--max-degree OBS N` for a released calculation. This changes the constraints and is recorded with the weights. A feasible target can retain a residual from the regularized fit. Inspect the achieved values in
 the saved check. Gaussian soft targets with positive widths can trade agreement
 for a smaller change to the prior.
 

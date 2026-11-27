@@ -42,6 +42,47 @@ def _transition(rcfg, obs):
     return tr
 
 
+def _moment_snr(difference, error):
+    """Absolute moment shift in units of the quoted error, including zero-error inputs."""
+    difference, error = np.broadcast_arrays(np.abs(difference), error)
+    # All Chebyshev averages lie in [-1, 1]. Allow for roundoff on this scale.
+    zero_error = np.where(difference <= 32 * np.finfo(float).eps, 0., np.inf)
+    return np.divide(difference, error, out=zero_error, where=error > 0)
+
+
+def _check_event_columns(events, need, wkey):
+    """Validate the prior before a fit or a new fixed-order integration."""
+    need = list(dict.fromkeys(need))
+    missing = [k for k in need + [wkey] if k not in events]
+    if missing:
+        raise KeyError(f"events lacks {missing}. This config needs one array per constrained observable "
+                       f"{need} plus the prior weights '{wkey}'; events has {sorted(events)}")
+    for key in [wkey] + need:
+        values = np.asarray(events[key])
+        if values.ndim != 1:
+            raise ValueError(
+                f"events['{key}'] must be a one-dimensional array, got shape {values.shape}")
+        if values.size == 0:
+            raise ValueError(
+                f"events['{key}'] is empty: provide events inside the target's fiducial selection")
+    n = len(np.asarray(events[wkey]))
+    bad = {k: len(np.asarray(events[k])) for k in need if len(np.asarray(events[k])) != n}
+    if bad:
+        raise ValueError(f"events arrays differ in length: '{wkey}' has {n}, but {bad}")
+    for k in need + [wkey]:
+        nf = int((~np.isfinite(np.asarray(events[k], float))).sum())
+        if nf:
+            raise ValueError(
+                f"events['{k}'] has {nf} non-finite entries; remove those events first")
+    w = np.asarray(events[wkey], float)
+    if not np.all(w > 0):
+        raise ValueError(f"prior weights must be strictly positive: {int((w <= 0).sum())} of {len(w)} are not "
+                         f"(provide a positive-weight prior; signed fixed-order weights belong in the moment calculation)")
+    if not np.isfinite(w.sum()):
+        raise ValueError(
+            "the sum of prior weights is not finite: rescale the input weights before reweighting")
+
+
 def _check_inputs(events, moments, config, wkey):
     """Fail early, with a message that says what to fix, on inconsistent inputs."""
     for k in config:
@@ -79,28 +120,7 @@ def _check_inputs(events, moments, config, wkey):
                     f"blocks)")
     need = list(born_cfg) + list(recoil_cfg) + \
         [o for m in mixed_cfg.values() for o in m["observables"]]
-    need = list(dict.fromkeys(need))
-    missing = [k for k in need + [wkey] if k not in events]
-    if missing:
-        raise KeyError(f"events lacks {missing}. This config needs one array per constrained observable "
-                       f"{need} plus the prior weights '{wkey}'; events has {sorted(events)}")
-    for key in [wkey] + need:
-        values = np.asarray(events[key])
-        if values.ndim != 1:
-            raise ValueError(
-                f"events['{key}'] must be a one-dimensional array, got shape {values.shape}")
-        if values.size == 0:
-            raise ValueError(
-                f"events['{key}'] is empty: provide events inside the target's fiducial selection")
-    n = len(np.asarray(events[wkey]))
-    bad = {k: len(np.asarray(events[k])) for k in need if len(np.asarray(events[k])) != n}
-    if bad:
-        raise ValueError(f"events arrays differ in length: '{wkey}' has {n}, but {bad}")
-    for k in need + [wkey]:
-        nf = int((~np.isfinite(np.asarray(events[k], float))).sum())
-        if nf:
-            raise ValueError(
-                f"events['{k}'] has {nf} non-finite entries; remove those events first")
+    _check_event_columns(events, need, wkey)
     for role, keys in (("born", born_cfg), ("recoil", recoil_cfg), ("mixed", mixed_cfg)):
         for k in keys:
             if k not in (moments.get(role) or {}):
@@ -219,12 +239,6 @@ def upgrade(events, moments, config, *, check_support=False):
         raise KeyError(f"events lacks the prior weights '{wkey}' (events has {sorted(events)})")
     w = np.asarray(events[wkey], float)
     _check_inputs(events, moments, config, wkey)
-    if not np.all(w > 0):
-        raise ValueError(f"prior weights must be strictly positive: {int((w <= 0).sum())} of {len(w)} are not "
-                         f"(provide a positive-weight prior; signed fixed-order weights belong in the moment calculation)")
-    if not np.isfinite(w.sum()):
-        raise ValueError(
-            "the sum of prior weights is not finite: rescale the input weights before reweighting")
     p = w / w.sum()
     thr = cfg["snr_threshold"]
     do_sel = cfg["moment_selection"]
@@ -233,13 +247,24 @@ def upgrade(events, moments, config, *, check_support=False):
     mu = [1.0]
     names = ["norm"]
     measurements = [(None, None, "normalization", 0.0)]
+    correlated_errors = {}
     SIG = [0.0]      # per-constraint target error (feature units); used only in soft mode
     # indices of the window-share constraints (a window rate, the share above a cut)
     SHARES = []
     snr_spectra = {}
+    prefit = []
     chosen = {}
     towers = []     # towers: one row per tower for describe()
     soft = bool(cfg["soft_constraints"])
+
+    def record_prefit(name, degree, prior, target, error, used, rule):
+        # Conditional window moments use their own denominator, as in the input table.
+        snr = None
+        if prior is not None and error is not None:
+            value = float(_moment_snr(target - prior, error))
+            snr = value if np.isfinite(value) else None
+        prefit.append(dict(observable=name, degree=degree, prior=prior, target=float(target),
+                           error=error, snr=snr, retained=bool(used), rule=rule))
 
     def _soft_err(d, total_key):
         """Per-order width for the soft penalty: the Monte Carlo error by default."""
@@ -265,12 +290,25 @@ def upgrade(events, moments, config, *, check_support=False):
             return None
         return float(np.hypot(coefficient * (error or 0.), rate_coefficient * (rate_uncertainty or 0.)))
 
+    def grouped_error(info, rate, moment, prior_part):
+        # Effective target = (1 - r) * prior_part + r * moment. The shared run
+        # covariance supplies the cross term that separate marginal errors lack.
+        dr = moment - prior_part
+        variance = (rate * info["moment_stat"])**2 + (dr * info["rate_stat"])**2 + 2 * rate * dr * info["cov"]
+        stat = float(np.sqrt(max(0., variance)))
+        rates = np.asarray(info["scale_rates"])
+        varied = (1 - rates) * prior_part + rates * np.asarray(info["scale_moments"])
+        total = float(np.hypot(stat, np.ptp(varied) / 2))
+        SIG[-1] = stat if cfg["soft_errors"] == "stat" else total
+        correlated_errors[len(SIG) - 1] = stat
+        return total
+
     # ---- ONE rule for every tower -----------------------------------------
     # A Born tower imposes the fixed-order moments over the full fiducial range.  A recoil
     # tower imposes them through its window w: blended with the prior across the window's
     # rise (transition 'blend', the default) or with the features masked by w ('windowed').
     def _impose(obs, lo_map, hi_map, mp, vals, errs, floor, sig=None, wprof=None, rate=1.0,
-                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None, degrees=None, rate_uncertainty=None):
+                rate_sig=0.0, transition=None, lo_feat=None, hi_feat=None, hi_cut=None, degrees=None, rate_uncertainty=None, grouped=None):
         XL = np.asarray(events[obs], float)
         count = len(vals)
         errs = np.broadcast_to(errs, (count,)) if len(errs) else errs
@@ -293,8 +331,8 @@ def upgrade(events, moments, config, *, check_support=False):
         else:
             mu_prior = chebyshev_moment(XL, w, highest, lo_map, hi_map, mp)
         mu_prior = mu_prior[degrees - 1]
-        snr = (np.abs(vals - mu_prior) / np.maximum(errs, 1e-30)
-               if np.asarray(errs).any() else np.full(count, np.inf))
+        snr = (_moment_snr(vals - mu_prior, errs)
+               if len(errs) else np.full(count, np.inf))
         snr_spectra[obs] = snr
         n_imposed = max(resolved_order(snr, thr) if do_sel else count, floor)
         # a band variant (scale choice, bootstrap replica) must impose the SAME
@@ -304,6 +342,12 @@ def upgrade(events, moments, config, *, check_support=False):
         fixed = (cfg.get("fixed_orders") or {}).get(obs)
         if fixed is not None:
             n_imposed = min(max(int(fixed), floor), count)
+        if check_support:
+            rule = "specified" if fixed is not None or not do_sel else "individual spectrum"
+            for i, degree in enumerate(degrees):
+                prior = float(mu_prior[i]) if wprof is None or win.any() else None
+                error = float(errs[i]) if len(errs) else None
+                record_prefit(obs, int(degree), prior, vals[i], error, i < n_imposed, rule)
         chosen[obs] = n_imposed
         towers.append(dict(name=obs, kind="born" if wprof is None else transition,
                            map=mp if isinstance(mp, str) else mp[0],
@@ -360,6 +404,8 @@ def upgrade(events, moments, config, *, check_support=False):
                 dR = float(vals[i]) - prior_part / (1.0 - R_p)
                 SIG.append(float(np.hypot(float(sigv[i]) * R, dR * float(rate_sig))))
                 error = effective_error(R, errs[i] if len(errs) else None, dR, rate_uncertainty)
+                if grouped and n in grouped:
+                    error = grouped_error(grouped[n], R, vals[i], prior_part / (1.0 - R_p))
                 measurements.append((obs, int(n), "blend", error))
             above = 1.0 - inside
             if above.any():
@@ -387,6 +433,8 @@ def upgrade(events, moments, config, *, check_support=False):
                 SIG.append(float(np.hypot(float(sigv[i]) * R,
                            float(vals[i]) * float(rate_sig))))
                 error = effective_error(R, errs[i] if len(errs) else None, vals[i], rate_uncertainty)
+                if grouped and n in grouped:
+                    error = grouped_error(grouped[n], R, vals[i], 0.)
                 measurements.append((obs, int(n), "windowed", error))
             SHARES.append(len(names))
             F.append(wprof.copy())
@@ -427,15 +475,14 @@ def upgrade(events, moments, config, *, check_support=False):
         _impose(recoil_obs, soft_lo, XHI, rcfg.get("map", "log"), vals,
                 np.asarray(rc.get("window_errors", []), float), floor=1,
                 sig=_soft_err(rc, "window_errors"), wprof=wprof, rate=R, rate_sig=_rate_err(rc),
-                transition=trans, degrees=rc.get("degrees"), rate_uncertainty=rate_error(rc),
+                transition=trans, degrees=rc.get("degrees"), rate_uncertainty=rate_error(rc), grouped=rc.get("grouped_errors"),
                 lo_feat=(max(soft_lo, a) if blend else None),
                 hi_feat=(min(XHI, d) if (blend and smooth_top) else None),
                 hi_cut=(None if (not blend or c is None or smooth_top) else c))
 
     # ---- JOINT (two-observable) constraints, always in the windowed form ---------------
-    # Separate moments of x and y constrain the two MARGINALS and say nothing about their
-    # JOINT distribution.  When a follower is determined by the correlation rather than by
-    # either spectrum alone, only a joint moment can reach it.  The feature is
+    # Separate moments can change the joint distribution through correlations already
+    # present in the prior. A product moment adds an explicit joint constraint. Its feature is
     #     T_m(u(x)) T_n(v(y)) w(x) w(y)
     # with target <T_m T_n>_w * R_xy, plus the joint rate constraint sum q w w.  Both
     # profiles multiply, so the feature vanishes unless BOTH observables are inside their
@@ -456,15 +503,22 @@ def upgrade(events, moments, config, *, check_support=False):
         Cy = _cheb(_umap(np.clip(Y, ay, by), ay, by, mpy), mc["n"])
         R = float(rc["rate"])
         merr = rc.get("stat_errors" if cfg["soft_errors"] == "stat" else "errors") or {}
+        prior_window = wxy @ p if check_support else None
         for (mm, nn), v in rc["values"].items():
             F.append(Cx[:, mm] * Cy[:, nn] * wxy)
             mu.append(float(v) * R)
             names.append(f"{key}_T{mm}{nn}")
             SIG.append(float(merr.get((mm, nn), 0.0)) * R)
             total = (rc.get("errors") or {}).get((mm, nn))
+            if check_support:
+                prior = float(p @ F[-1] / prior_window) if prior_window > 0 else None
+                record_prefit(key, [mm, nn], prior, v, total, True, "supplied joint moment")
             fraction_error = rate_error(rc) if prof.get(ox) or prof.get(oy) else 0.
             kind = "windowed joint" if prof.get(ox) or prof.get(oy) else "joint"
-            measurements.append((key, [mm, nn], kind, effective_error(R, total, v, fraction_error)))
+            error = effective_error(R, total, v, fraction_error)
+            if (mm, nn) in rc.get("grouped_errors", {}):
+                error = grouped_error(rc["grouped_errors"][(mm, nn)], R, v, 0.)
+            measurements.append((key, [mm, nn], kind, error))
         if (prof.get(ox) or prof.get(oy)) and mc.get("include_rate", True):
             SHARES.append(len(names))
             F.append(wxy.copy())
@@ -552,6 +606,7 @@ def upgrade(events, moments, config, *, check_support=False):
     )
     if check_support:
         report["support"] = support
+        report["prefit"] = prefit
         report["constraints"] = [
             dict(name=name, observable=observable, degree=degree, kind=kind,
                  mode="soft" if soft and sig[i] > 0 else "hard", prior=float(prior_means[i]),
@@ -559,6 +614,9 @@ def upgrade(events, moments, config, *, check_support=False):
                  input_error=error)
             for i, (name, (observable, degree, kind, error)) in enumerate(zip(names, measurements))
         ]
+        for i, statistical in correlated_errors.items():
+            report["constraints"][i].update(integration_error=statistical,
+                                            input_error_model="moment-rate covariance and coherent scales")
     if config.get("keep_features"):
         report["Phi"] = Phi
         report["p"] = p

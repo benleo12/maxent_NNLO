@@ -121,7 +121,7 @@ def upgrade_ensemble(events, moments, config, variations, *, cross_section=1.0,
             raise ValueError(f"unknown uncertainty method {method!r}")
         chosen_methods[source] = method
     central = upgrade(events, moments, config, check_support=True) if check_support else upgrade(events, moments, config)
-    checks = ({"central": central.report["constraints"], "support": central.report["support"], "variations": {}}
+    checks = ({"central": central.report["constraints"], "prefit": central.report["prefit"], "support": central.report["support"], "variations": {}}
               if check_support else {})
     provenance = fit_provenance(events, moments, config, central, cross_section=rate)
     provenance["variations"] = {}
@@ -182,7 +182,7 @@ def _check_count(source, method, n):
 
 
 def upgrade_with_uncertainties(events, process, *, sources=("scale", "stat", "window", "pdf"),
-                               n_boot=20, seed=1, prior_weights=None, progress=None, **selection):
+                               n_boot=20, seed=1, prior_weights=None, progress=None, check_support=False, **selection):
     """Automate the released scale, integration-statistical, window and PDF inputs.
 
     The baseline must use the nominal window. Missing window/PDF inputs are listed
@@ -211,9 +211,11 @@ def upgrade_with_uncertainties(events, process, *, sources=("scale", "stat", "wi
         m, c = released.load_moments(process, **selection, **kwargs)
         changes_basis = "window" in kwargs
         rate_args = {k: v for k, v in kwargs.items() if k in ("scale", "runs", "pdf_member")}
+        label = next((f"{k} {v}" for k, v in kwargs.items() if k != "check_seam"), "")
+        if "scale" in kwargs:
+            label = table["scales"][kwargs["scale"]]
         return Variation(moments=m, config=c if changes_basis else None,
-                         cross_section=released.cross_section(process, **rate_args),
-                         label=next((f"{k} {v}" for k, v in kwargs.items() if k != "check_seam"), ""))
+                         cross_section=released.cross_section(process, **rate_args), label=label)
 
     if "scale" in sources:
         variations["scale"] = (shifted(scale=k, check_seam=False) for k in range(1, len(table["scales"])))
@@ -258,7 +260,7 @@ def upgrade_with_uncertainties(events, process, *, sources=("scale", "stat", "wi
     else:
         notes.append("Shower variations require generator-supplied prior weights or separate samples.")
     result = upgrade_ensemble(events, moments, config, variations,
-                              cross_section=released.cross_section(process), progress=progress)
+                              cross_section=released.cross_section(process), progress=progress, check_support=check_support)
     result.provenance["moment_table"] = released_table_identity(process, table, selection, sources)
     result.provenance["uncertainty_workflow"] = dict(sources=list(sources), bootstrap_replicas=int(n_boot), bootstrap_seed=seed)
     result.notes.extend(notes)

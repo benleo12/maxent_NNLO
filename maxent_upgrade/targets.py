@@ -141,8 +141,9 @@ def _read_values(entry, *, need_error=True):
 def _targets(config, payload, *, varied=False):
     roles = _definitions(config)
     by_name = {name: {} for name in roles}
+    rate_covariance = {name: {} for name in roles}
     for row in payload["moments"]:
-        _fields(row, ("observable", "degree", "value", "error", "stat_error"), "moment")
+        _fields(row, ("observable", "degree", "value", "error", "stat_error", "covariance_with_rate"), "moment")
         name, degree = row["observable"], row["degree"]
         if name not in roles:
             raise ValueError(f"undefined observable ID {name!r}; declared IDs: {list(roles)}")
@@ -159,6 +160,8 @@ def _targets(config, payload, *, varied=False):
                       (not varied and roles[name] != "mixed" and config.get("moment_selection", True)
                        and name not in config.get("fixed_orders", {})))
         entry = _read_values(row, need_error=need_error)
+        if "covariance_with_rate" in row:
+            rate_covariance[name][degree] = _number(row["covariance_with_rate"], "covariance_with_rate")
         by_name[name][degree] = entry
 
     packed = {"born": {}, "recoil": {}, "mixed": {}}
@@ -203,6 +206,15 @@ def _targets(config, payload, *, varied=False):
                 target.update(rate_stat=stat, rate_scale=np.sqrt(max(0., error**2 - stat**2)))
         elif role == "mixed":
             target["rate"] = 1.0
+        if rate_covariance[name]:
+            if name not in payload.get("rates", {}):
+                raise ValueError(f"{name}: covariance_with_rate needs a declared window fraction")
+            sr = target.get("rate_stat")
+            for degree, covariance in rate_covariance[name].items():
+                sm = ordered[degree][2]
+                if sr is None or sm is None or abs(covariance) > sm * sr * (1 + 1e-8) + 1e-18:
+                    raise ValueError(f"{name} degree {degree}: invalid statistical covariance with the window rate")
+            target["covariance_with_rate"] = rate_covariance[name]
         packed[role][name] = target
     if rates:
         raise ValueError(f"unexpected window rates: {sorted(rates)}")
@@ -265,9 +277,30 @@ def book_targets(fixed_order, config, *, orders=None, cross_section_pb=None, sel
     return table
 
 
+def _attach_window_errors(central, variations):
+    """Keep coherent scales and covariance for effective window numerator and blend errors."""
+    scales = [central] + [v.moments or central for v in variations.get("scale", ())]
+    members = [central] + [v.moments for group in variations.values() for v in group if v.moments is not None]
+    for member in members:
+        for role in ("recoil", "mixed"):
+            for name, block in member[role].items():
+                if "covariance_with_rate" not in block:
+                    continue
+                errors = {}
+                for degree, cov in block["covariance_with_rate"].items():
+                    i = degree if role == "mixed" else block["degrees"].index(degree)
+                    field = "values" if role == "mixed" else "window_values"
+                    conditions = [m[role][name] for m in scales]
+                    errors[degree] = dict(cov=cov, moment_stat=block["stat_errors"][i],
+                                          rate_stat=block["rate_stat"],
+                                          scale_moments=[c[field][i] for c in conditions],
+                                          scale_rates=[c["rate"] for c in conditions])
+                block["grouped_errors"] = errors
+
+
 def fit_targets(events, table):
     """Fit every supplied member. Return an EnsembleResult with one row per event."""
-    _fields(table, ("config", "selection", "moments", "rates", "cross_section_pb", "variations", "methods"), "target table")
+    _fields(table, ("config", "selection", "moments", "rates", "cross_section_pb", "variations", "methods", "integration"), "target table")
     config = _joint_maps(table["config"])
     central, ids = _targets(config, table)
     if "event_id" in events and np.shape(events["event_id"]) != np.shape(events[config.get("weight_key", "weight")]):
@@ -304,6 +337,7 @@ def fit_targets(events, table):
     if "cross_section_pb" in table:
         if _number(table["cross_section_pb"], "cross_section_pb") <= 0:
             raise ValueError("cross_section_pb must be positive")
+    _attach_window_errors(central, variations)
     result = upgrade_ensemble(events, central, config, variations, methods=methods, check_support=True,
                               cross_section=table.get("cross_section_pb", 1.0))
     result.unit_area_only = "cross_section_pb" not in table

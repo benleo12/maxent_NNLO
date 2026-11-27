@@ -1,0 +1,243 @@
+--- a/driver/core/Reweight.f90
++++ b/driver/core/Reweight.f90
+@@ -34,6 +34,20 @@
+     double precision :: off = 0d0
+   end type ReweightFunction_t
+ 
++  ! Negative IDs below -1 encode configured moment rows; -1 keeps its native meaning.
++  type mx_axis
++    character(64) :: name
++    integer :: id, degree, map
++    double precision :: lo, hi, mass, width, a, b, c, d
++    logical :: has_undefined = .false.
++    double precision :: undefined_value = 0d0
++  end type
++  type mx_measure
++    integer :: n
++    type(mx_axis) :: axis(2)
++  end type
++  type(mx_measure), allocatable :: mx_rows(:)
++
+   !> the global reweighting is only applied to the weight returned to VEGAS
+   !> and only affects the adaption but not the histograms
+   type(ReweightFunction_t) :: global_rewgt
+@@ -63,7 +77,7 @@
+   !-----------------------------------------------------------------------------
+   subroutine setActive_rewgt(active)
+     logical, intent(in) :: active
+-    if (active .and. global_rewgt%obsId<0) then
++    if (active .and. global_rewgt%obsId==-1) then
+       print*, "setActive_rewgt: invalid observale; cannot activate!"
+       return
+     end if
+@@ -106,6 +120,7 @@
+   !-----------------------------------------------------------------------------
+   subroutine set_rewgt(obsName, fac, pow, off, rewgtfcn)
+     use Observables_mod, only: getIdFromName_obs
++    use StrHelper_mod, only: to_upper_str
+     character(len=*), intent(in) :: obsName
+     double precision, optional, intent(in) :: fac, pow, off
+     type(ReweightFunction_t), optional, intent(out) :: rewgtfcn
+@@ -115,6 +130,8 @@
+     !> observable
+     if (trim(obsName) .eq. '') then
+       obs_val = 0  ! only const = off active
++    else if (index(to_upper_str(trim(obsName)), 'MXMOMENT') == 1) then
++      obs_val = mx_register(trim(obsName))
+     else
+       obs_val = getIdFromName_obs(obsName)
+     end if
+@@ -215,10 +232,14 @@
+     end if
+ 
+     !> normal observable
+-    valObs = getValue_obs(rewgtfcn%obsId, valid)
+-    if (.not.valid) then
+-      print*, "eval_rewgt: invalid observable"
+-      stop
++    if (rewgtfcn%obsId < -1) then
++      valObs = mx_evaluate(-1 - rewgtfcn%obsId)
++    else
++      valObs = getValue_obs(rewgtfcn%obsId, valid)
++      if (.not.valid) then
++        print*, "eval_rewgt: invalid observable"
++        stop
++      end if
+     end if
+     if ( present(iscl) ) iscl = 0
+     eval_rewgt = rewgtfcn%fac * valObs**rewgtfcn%pow + rewgtfcn%off
+@@ -347,7 +368,7 @@
+ 
+     toString_rewgt = ''
+ 
+-    if (.not.locRF%qactive .or. locRF%obsId < 0) return
++    if (.not.locRF%qactive .or. locRF%obsId == -1) return
+ 
+     !> a constant
+     if (locRF%obsId == 0) then
+@@ -361,7 +382,12 @@
+       toString_rewgt = trim(toString_rewgt) // trim(dummy) // " * "
+     end if
+ 
+-    toString_rewgt = trim(toString_rewgt) // getNameFromId_obs(locRF%obsId)
++    if (locRF%obsId < -1) then
++      write(dummy,'(A,I0)') 'mxmoment', -1 - locRF%obsId
++      toString_rewgt = trim(toString_rewgt) // trim(dummy)
++    else
++      toString_rewgt = trim(toString_rewgt) // getNameFromId_obs(locRF%obsId)
++    end if
+ 
+     if (locRF%pow /= 1d0) then
+       write(dummy,'(F5.2)') locRF%pow
+@@ -376,5 +402,151 @@
+   end function toString_rewgt
+ 
+ 
++  integer function mx_register(name) result(id)
++    character(*), intent(in) :: name
++    integer :: row, ios
++    if (len(name) <= 8) error stop 'MaxEnt: mxmoment needs a positive row number'
++    if (verify(name(9:),'0123456789') /= 0) error stop 'MaxEnt: invalid mxmoment row number'
++    read(name(9:),*,iostat=ios) row
++    if (ios /= 0) error stop 'MaxEnt: invalid mxmoment row number'
++    if (.not.allocated(mx_rows)) call mx_load()
++    if (row < 1 .or. row > size(mx_rows)) error stop 'MaxEnt: row outside maxent_measures.dat'
++    id = -1 - row
++  end function
++
++  ! All native observables are registered while reading the card, before event generation.
++  subroutine mx_load()
++    use Observables_mod, only: getIdFromName_obs
++    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite, ieee_value, ieee_quiet_nan
++    character(1024) :: line
++    integer :: unit, ios, nrows, r, j, k, nfields
++    logical :: in_field
++    open(newunit=unit,file='maxent_measures.dat',status='old',action='read',iostat=ios)
++    if (ios /= 0) error stop 'MaxEnt: missing maxent_measures.dat in the working directory'
++    read(unit,*,iostat=ios) nrows
++    if (ios /= 0) error stop 'MaxEnt: invalid number of moment rows'
++    if (nrows < 1) error stop 'MaxEnt: no moment rows'
++    allocate(mx_rows(nrows))
++    do r=1,nrows
++      read(unit,*,iostat=ios) mx_rows(r)%n
++      if (ios /= 0) error stop 'MaxEnt: missing axis count'
++      if (mx_rows(r)%n < 1 .or. mx_rows(r)%n > 2) error stop 'MaxEnt: expected one or two axes'
++      do j=1,mx_rows(r)%n
++        read(unit,'(A)',iostat=ios) line
++        if (ios /= 0) error stop 'MaxEnt: missing axis descriptor'
++        associate (v => mx_rows(r)%axis(j))
++          nfields=0
++          in_field=.false.
++          do k=1,len_trim(line)
++            if (line(k:k) == ' ' .or. line(k:k) == achar(9)) then
++              in_field=.false.
++            else if (.not.in_field) then
++              nfields=nfields+1
++              in_field=.true.
++            end if
++          end do
++          if (nfields /= 11 .and. nfields /= 12) error stop 'MaxEnt: expected 11 or 12 axis fields'
++          v%has_undefined=(nfields == 12)
++          if (v%has_undefined) then
++            v%undefined_value=ieee_value(0d0,ieee_quiet_nan)
++            read(line,*,iostat=ios) v%name,v%degree,v%map,v%lo,v%hi,v%mass,v%width,v%a,v%b,v%c,v%d, &
++              v%undefined_value
++          else
++            read(line,*,iostat=ios) v%name,v%degree,v%map,v%lo,v%hi,v%mass,v%width,v%a,v%b,v%c,v%d
++          end if
++          if (ios /= 0) error stop 'MaxEnt: malformed axis descriptor'
++          if (.not.ieee_is_finite(v%undefined_value)) error stop 'MaxEnt: nonfinite undefined-observable value'
++          if (.not.all(ieee_is_finite([v%lo,v%hi,v%mass,v%width,v%a,v%b,v%c,v%d]))) &
++            error stop 'MaxEnt: nonfinite axis parameter'
++          if (v%degree < 0 .or. v%hi <= v%lo .or. v%map < 1 .or. v%map > 3) error stop 'MaxEnt: invalid axis'
++          if (v%map == 2 .and. v%lo <= 0d0) error stop 'MaxEnt: nonpositive log-map lower edge'
++          if (v%map == 3 .and. (v%lo < 0d0 .or. min(v%mass,v%width) <= 0d0)) error stop 'MaxEnt: invalid mass map'
++          if (min(v%a,v%b,v%c,v%d) < 0d0 .or. v%b < v%a) error stop 'MaxEnt: invalid window edges'
++          if (v%a == 0d0 .and. max(v%b,v%c,v%d) /= 0d0) error stop 'MaxEnt: invalid disabled window'
++          if (v%c /= 0d0 .and. v%c < v%b) error stop 'MaxEnt: upper cutoff below turn-on'
++          if (v%d /= 0d0 .and. (v%c == 0d0 .or. v%d <= v%c)) error stop 'MaxEnt: invalid upper transition'
++          v%id = getIdFromName_obs(trim(v%name), no_error=.true.)
++          if (v%id == 0) then
++            print *, 'MaxEnt: unknown NNLOJET observable ',trim(v%name),' in row ',r
++            error stop 1
++          end if
++        end associate
++      end do
++    end do
++    close(unit)
++  end subroutine
++
++  double precision function mx_rise(x,a,b) result(w)
++    double precision, intent(in) :: x,a,b
++    double precision :: t
++    if (x < a) then
++      w=0d0
++    else if (x >= b) then
++      w=1d0
++    else
++      t=log(x/a)/log(b/a)
++      w=t**3*(10d0+t*(-15d0+6d0*t))
++    end if
++  end function
++
++  double precision function mx_factor(x,v) result(value)
++    double precision, intent(in) :: x
++    type(mx_axis), intent(in) :: v
++    double precision :: z,lo,hi,u,mg
++    value=1d0
++    if (v%a > 0d0) value=mx_rise(x,v%a,v%b)
++    if (v%c > 0d0) then
++      if (v%d > v%c) then
++        value=value*(1d0-mx_rise(x,v%c,v%d))
++      else if (x >= v%c) then
++        value=0d0
++      end if
++    end if
++    if (v%degree == 0 .or. value == 0d0) return
++    lo=v%lo
++    hi=v%hi
++    z=max(lo,min(hi,x))
++    select case (v%map)
++    case (2)
++      lo=log(lo)
++      hi=log(hi)
++      z=log(z)
++    case (3)
++      mg=v%mass*v%width
++      lo=atan((lo**2-v%mass**2)/mg)
++      hi=atan((hi**2-v%mass**2)/mg)
++      z=atan((z**2-v%mass**2)/mg)
++    end select
++    u=max(-1d0,min(1d0,2d0*(z-lo)/(hi-lo)-1d0))
++    value=value*cos(v%degree*acos(u))
++  end function
++
++  double precision function mx_evaluate(row) result(value)
++    use Observables_mod, only: getValue_obs
++    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
++    integer, intent(in) :: row
++    integer :: j
++    double precision :: x
++    logical :: valid
++    value=1d0
++    do j=1,mx_rows(row)%n
++      associate (v => mx_rows(row)%axis(j))
++        x=getValue_obs(v%id,valid)
++        if (.not.valid) then
++          if (.not.v%has_undefined) then
++            print *, 'MaxEnt: undefined fiducial observable ',trim(v%name),' in moment row ',row
++            error stop 1
++          end if
++          x=v%undefined_value
++        end if
++        if (.not.ieee_is_finite(x)) then
++          print *, 'MaxEnt: nonfinite fiducial observable ',trim(v%name),' in moment row ',row
++          error stop 1
++        end if
++        value=value*mx_factor(x,v)
++      end associate
++    end do
++  end function
++
+ end module Reweight_mod
+ 

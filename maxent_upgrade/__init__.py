@@ -18,16 +18,17 @@ from .uncertainty import (
     EnsembleResult, Variation, histogram_bands, upgrade_ensemble, upgrade_with_uncertainties,
 )
 from .targets import book_targets, fit_targets
+from .booking import MomentAccumulator, merge_bookings
 from .diagnostics import bin_diagnostics, joint_moment_residuals, weight_diagnostics
 from .provenance import fit_provenance
 from .numerical import NumericalInput, bootstrap_runs
 from .study import (ConstraintBlock, ConstraintFit, Prediction, fit_constraints, load_frozen,
                     plan_observable, residual_test, stack_predictions, validate_prediction)
 
-__version__ = "1.3.1"
+__version__ = "1.4.0"
 
 __all__ = [
-    "book_targets", "fit_targets", "upgrade", "load_moments", "sigma_fid", "released",
+    "MomentAccumulator", "merge_bookings", "book_targets", "fit_targets", "upgrade", "load_moments", "sigma_fid", "released",
     "compute_fo_moments", "chebyshev_moment", "profile_w", "matching_scale",
     "check_seam", "resolved_order", "combine_moments", "UpgradeResult",
     "upgrade_with_uncertainties", "upgrade_ensemble", "Variation", "EnsembleResult", "histogram_bands",

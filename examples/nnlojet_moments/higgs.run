@@ -1,0 +1,53 @@
+PROCESS  H
+  collider = LHC
+  sqrts = 13000.0
+  jet = antikt[0.4]
+  jet_exclusive = .false.
+  jet_recomb = V4
+  decay_type = 3
+END_PROCESS
+
+RUN  HIGGS_RAPIDITY
+  PDF = CT18NNLO[0]
+  tcut = 1d-8
+  iseed = 1
+  reset_vegas_grid = .true.
+  angular_average  = .true.
+  multi_channel    = .false.
+  lips_reduce      = .true.
+  warmup = 20000[5]
+  production = 100000[10]
+END_RUN
+
+PARAMETERS
+  MASS[H]  = 125
+  WIDTH[H] = 0.004029643852
+  MASS[Z]  = 91.1876
+  MASS[W]  = 80.398
+  MASS[t]  = 173.2
+END_PARAMETERS
+
+SELECTORS
+END_SELECTORS
+
+HISTOGRAMS
+END_HISTOGRAMS
+
+SCALES
+  muf = 1.0 * 125  mur = 1.0 * 125
+  muf = 2.0 * 125  mur = 2.0 * 125
+  muf = 0.5 * 125  mur = 0.5 * 125
+  muf = 1.0 * 125  mur = 0.5 * 125
+  muf = 0.5 * 125  mur = 1.0 * 125
+  muf = 1.0 * 125  mur = 2.0 * 125
+  muf = 2.0 * 125  mur = 1.0 * 125
+END_SCALES
+
+CHANNELS
+  LO
+  R
+  V
+  RR
+  RV
+  VV
+END_CHANNELS

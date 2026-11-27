@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0
+
+- Match shower events using a supplied NNLOJET run card or a calculation distributed with the code. Book single and joint Chebyshev moments, retain completed integration runs and return weights for each scale.
+- Accumulate signed contributions by independent trial or run. Propagate their covariance into window fractions, normalized moments and numerical replicas.
+- Show the prior and fixed-order comparisons for every supplied degree with `maxent-upgrade check --selection`.
+- Measure user-defined observables in HepMC and return named fitted weights and cross sections to the selected records. The Higgs example checks their normalization in Rivet.
+
 ## 1.3.1
 
 - Save the prior average, fitted target and achieved value for each imposed
